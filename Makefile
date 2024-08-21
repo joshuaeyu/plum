@@ -38,8 +38,6 @@ $(OBJDIR)/main.o: $(SRCDIR)/main.cpp $(HEADERS)
 	$(CXX) $(CXXFLAGS) $< -c -o $@
 $(OBJDIR)/%.o: $(EXTDIR)/*/%.cpp
 	$(CXX) $(CXXFLAGS) $< -c -o $@
-# $(OBJDIR)/glad.o: $(EXTDIR)/glad/glad.c
-# 	$(CC) $(CFLAGS) $^ -c -o $@
 $(OBJDIR)/%.o: $(EXTDIR)/*/%.c
 	$(CC) $(CFLAGS) $^ -c -o $@
 $(OBJDIR)/%.o: $(SRCDIR)/*/%.cpp
@@ -47,18 +45,8 @@ $(OBJDIR)/%.o: $(SRCDIR)/*/%.cpp
 $(OBJDIR)/%.o: $(SRCDIR)/*/%.c
 	$(CC) $(CFLAGS) $^ -c -o $@
 
-# $(OBJDIR)/imgui.o: $(SRCDIR)/imgui-master/imgui.cpp
-# 	$(CXX) $(CXXFLAGS) $^ -c -o $@
-# $(OBJDIR)/imgui%.o: $(SRCDIR)/imgui-master/imgui%.cpp
-# 	$(CXX) $(CXXFLAGS) $^ -c -o $@
-# $(OBJDIR)/imgui%.o: $(SRCDIR)/imgui-master/misc/cpp/imgui%.cpp
-# 	$(CXX) $(CXXFLAGS) $^ -c -o $@
-# $(OBJDIR)/imgui%.o: $(SRCDIR)/imgui-master/backends/imgui%.cpp
-# 	$(CXX) $(CXXFLAGS) $^ -c -o $@
-
 .PHONY: clean
 clean:
 	rm $(OBJDIR)/*.o
-	rmdir $(OBJDIR)
 	rm main
 	rm imgui.ini
