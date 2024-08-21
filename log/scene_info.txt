@@ -1,0 +1,201 @@
+assets/backpack/backpack.obj
+    mNumAnimations:  0
+    mNumCameras:     0
+    mNumLights:      0
+    mNumMaterials:   2
+    mNumMeshes:      79
+    mNumSkeletons:   0
+    mNumTextures:    0
+    Material property 0:	$clr.ambient
+    Material property 1:	$clr.diffuse
+    Material property 2:	$clr.emissive
+    Material property 3:	$clr.specular
+    Material property 4:	$clr.transparent
+    Material property 5:	$mat.anisotropyFactor
+    Material property 6:	$mat.illum
+    Material property 7:	$mat.opacity
+    Material property 8:	$mat.refracti
+    Material property 9:	$mat.shadingm
+    Material property 10:	$mat.shininess
+    Material property 11:	$tex.file
+    Material property 12:	$tex.uvwsrc
+    Material property 13:	?mat.name
+
+assets/toilet/toilet.3mf
+    mNumAnimations:  0
+    mNumCameras:     0
+    mNumLights:      0
+    mNumMaterials:   1
+    mNumMeshes:      15
+    mNumSkeletons:   0
+    mNumTextures:    0
+    Material property 0:	$clr.diffuse
+    Material property 1:	?mat.name
+
+assets/plantpot/indoor plant_02.obj
+    mNumAnimations:  0
+    mNumCameras:     0
+    mNumLights:      0
+    mNumMaterials:   7
+    mNumMeshes:      6
+    mNumSkeletons:   0
+    mNumTextures:    0
+    Material property 0:	$clr.ambient
+    Material property 1:	$clr.diffuse
+    Material property 2:	$clr.emissive
+    Material property 3:	$clr.specular
+    Material property 4:	$clr.transparent
+    Material property 5:	$mat.anisotropyFactor
+    Material property 6:	$mat.illum
+    Material property 7:	$mat.opacity
+    Material property 8:	$mat.refracti
+    Material property 9:	$mat.shadingm
+    Material property 10:	$mat.shininess
+    Material property 11:	$tex.file
+    Material property 12:	$tex.uvwsrc
+    Material property 13:	?mat.name
+
+assets/skull/12140_Skull_v3_L2.obj
+    mNumAnimations:  0
+    mNumCameras:     0
+    mNumLights:      0
+    mNumMaterials:   2
+    mNumMeshes:      4
+    mNumSkeletons:   0
+    mNumTextures:    0
+    Material property 0:	$clr.ambient
+    Material property 1:	$clr.diffuse
+    Material property 2:	$clr.emissive
+    Material property 3:	$clr.specular
+    Material property 4:	$clr.transparent
+    Material property 5:	$mat.anisotropyFactor
+    Material property 6:	$mat.illum
+    Material property 7:	$mat.opacity
+    Material property 8:	$mat.refracti
+    Material property 9:	$mat.shadingm
+    Material property 10:	$mat.shininess
+    Material property 11:	$tex.file
+    Material property 12:	$tex.uvwsrc
+    Material property 13:	?mat.name
+
+assets/boat/12219_boat_v2_L2.obj
+    mNumAnimations:  0
+    mNumCameras:     0
+    mNumLights:      0
+    mNumMaterials:   9
+    mNumMeshes:      25
+    mNumSkeletons:   0
+    mNumTextures:    0
+    Material property 0:	$clr.ambient
+    Material property 1:	$clr.diffuse
+    Material property 2:	$clr.emissive
+    Material property 3:	$clr.specular
+    Material property 4:	$clr.transparent
+    Material property 5:	$mat.anisotropyFactor
+    Material property 6:	$mat.illum
+    Material property 7:	$mat.opacity
+    Material property 8:	$mat.refracti
+    Material property 9:	$mat.shadingm
+    Material property 10:	$mat.shininess
+    Material property 11:	$tex.file
+    Material property 12:	$tex.uvwsrc
+    Material property 13:	?mat.name
+
+assets/adamHead/adamHead.gltf
+    mNumAnimations:  0
+    mNumCameras:     0
+    mNumLights:      0
+    mNumMaterials:   14
+    mNumMeshes:      84
+    mNumSkeletons:   0
+    mNumTextures:    0
+    Material property 0:	$clr.base
+    Material property 1:	$clr.diffuse
+    Material property 2:	$clr.emissive
+    Material property 3:	$clr.specular
+    Material property 4:	$mat.glossinessFactor
+    Material property 5:	$mat.gltf.alphaCutoff
+    Material property 6:	$mat.gltf.alphaMode
+    Material property 7:	$mat.metallicFactor
+    Material property 8:	$mat.opacity
+    Material property 9:	$mat.roughnessFactor
+    Material property 10:	$mat.shadingm
+    Material property 11:	$mat.shininess
+    Material property 12:	$mat.twosided
+    Material property 13:	$tex.file
+    Material property 14:	$tex.file.strength
+    Material property 15:	$tex.mapmodeu
+    Material property 16:	$tex.mapmodev
+    Material property 17:	$tex.mappingfiltermag
+    Material property 18:	$tex.mappingfiltermin
+    Material property 19:	$tex.mappingid
+    Material property 20:	$tex.mappingname
+    Material property 21:	$tex.scale
+    Material property 22:	$tex.uvwsrc
+    Material property 23:	?mat.name
+
+assets/lieutenantHead/lieutenantHead.gltf
+    mNumAnimations:  0
+    mNumCameras:     0
+    mNumLights:      0
+    mNumMaterials:   5
+    mNumMeshes:      12
+    mNumSkeletons:   0
+    mNumTextures:    0
+    Material property 0:	$clr.base
+    Material property 1:	$clr.diffuse
+    Material property 2:	$clr.emissive
+    Material property 3:	$clr.specular
+    Material property 4:	$mat.glossinessFactor
+    Material property 5:	$mat.gltf.alphaCutoff
+    Material property 6:	$mat.gltf.alphaMode
+    Material property 7:	$mat.metallicFactor
+    Material property 8:	$mat.opacity
+    Material property 9:	$mat.roughnessFactor
+    Material property 10:	$mat.shadingm
+    Material property 11:	$mat.shininess
+    Material property 12:	$mat.twosided
+    Material property 13:	$tex.file
+    Material property 14:	$tex.file.strength
+    Material property 15:	$tex.mapmodeu
+    Material property 16:	$tex.mapmodev
+    Material property 17:	$tex.mappingfiltermag
+    Material property 18:	$tex.mappingfiltermin
+    Material property 19:	$tex.mappingid
+    Material property 20:	$tex.mappingname
+    Material property 21:	$tex.scale
+    Material property 22:	$tex.uvwsrc
+    Material property 23:	?mat.name
+KHR_materials_pbrSpecularGlossiness
+
+assets/sponza/glTF/Sponza.gltf
+    mNumAnimations:  0
+    mNumCameras:     0
+    mNumLights:      0
+    mNumMaterials:   26
+    mNumMeshes:      103
+    mNumSkeletons:   0
+    mNumTextures:    0
+    Material property 0:	$clr.base
+    Material property 1:	$clr.diffuse
+    Material property 2:	$clr.emissive
+    Material property 3:	$mat.gltf.alphaCutoff
+    Material property 4:	$mat.gltf.alphaMode
+    Material property 5:	$mat.metallicFactor
+    Material property 6:	$mat.opacity
+    Material property 7:	$mat.roughnessFactor
+    Material property 8:	$mat.shadingm
+    Material property 9:	$mat.shininess
+    Material property 10:	$mat.twosided
+    Material property 11:	$tex.file
+    Material property 12:	$tex.mapmodeu
+    Material property 13:	$tex.mapmodev
+    Material property 14:	$tex.mappingfiltermag
+    Material property 15:	$tex.mappingfiltermin
+    Material property 16:	$tex.mappingid
+    Material property 17:	$tex.mappingname
+    Material property 18:	$tex.scale
+    Material property 19:	$tex.uvwsrc
+
+    1, 6, 12, 15, 16, 18
+
