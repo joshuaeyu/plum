@@ -30,7 +30,7 @@ class Scene {
         // Need logic/structure for forward rendering
 
         Scene() {
-            SceneCamera = Camera(glm::vec3(10,5,10),-15,225);
+            SceneCamera = Camera(glm::vec3(-11,5,4),0,-30);
         }
 
         void DrawNodes() {
@@ -146,9 +146,8 @@ class Scene {
         void SetVertexMatricesUniformBlock() {
             glBindBuffer(GL_UNIFORM_BUFFER, ubo_matrices_vs);
             glm::mat4 view = SceneCamera.GetViewMatrix();
-            glm::mat4 projection = SceneCamera.GetProjectionMatrix();
             glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), &view);
-            glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), &projection);
+            glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), &SceneCamera.Projection);
             glBindBuffer(GL_UNIFORM_BUFFER, 0);
         }
         void SetFragmentMatricesUniformBlock() {
@@ -160,9 +159,8 @@ class Scene {
         void SetCameraUniformBlock() {
             glBindBuffer(GL_UNIFORM_BUFFER, ubo_camera_fs);
             glm::vec3 dummy_cam_pos = glm::vec3(0); // shaders work in view space
-            glm::vec3 cam_front = SceneCamera.GetFront();
             glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::vec3), &dummy_cam_pos);
-            glBufferSubData(GL_UNIFORM_BUFFER, 16, sizeof(glm::vec3), &cam_front);
+            glBufferSubData(GL_UNIFORM_BUFFER, 16, sizeof(glm::vec3), &SceneCamera.Front);
             glBindBuffer(GL_UNIFORM_BUFFER, 0);
         }
         void SetPointLightUniformBlock() {

@@ -15,12 +15,6 @@
 
 using namespace std;
 
-enum Light_Type {
-    LIGHT_DIRECTIONAL,
-    LIGHT_POINT,
-    LIGHT_SPOT
-};
-
 class Light {
     public:
         string Name, NameTemp;
@@ -30,7 +24,6 @@ class Light {
         virtual ~Light() {}
 
         // Accessors
-        Light_Type GetType() const { return Type;     }
         float GetFarPlane()  const { return farPlane; }
         bool HasShadows()    const { return hasShadows; }       
     
@@ -44,21 +37,14 @@ class Light {
         }
 
     protected:
-        Light_Type Type;
         bool hasShadows = false;
         float nearPlane = 0.1;
         float farPlane = 50;
 
         static unsigned int inline count = 0;
 
-        Light(Light_Type type) : Type(type) {
-            string typestring;
-            switch (type) {
-                case LIGHT_DIRECTIONAL: typestring = "DirLight"; break;
-                case LIGHT_POINT:       typestring = "PointLight"; break;
-                case LIGHT_SPOT:        typestring = "SpotLight"; break;
-            }
-            Name = typestring + to_string(count++);
+        Light(string type) {
+            Name = type + to_string(count++);
             NameTemp = Name;
         }
 
@@ -70,7 +56,7 @@ class DirectionalLight : public Light {
     public:
         glm::vec3 Direction = glm::vec3(-1);
         
-        DirectionalLight() : Light(LIGHT_DIRECTIONAL) {
+        DirectionalLight() : Light("DirLight") {
         }
         
         // Modifiers
@@ -122,7 +108,7 @@ class PointLight : public Light {
         glm::vec3 Size = glm::vec3(0.1);
 
         PointLight() 
-        : Light(LIGHT_POINT), sphere(Name, DefaultShader), node(shared_ptr<Sphere>(&sphere)) {
+        : Light("PointLight"), sphere(Name, DefaultShader), node(shared_ptr<Sphere>(&sphere)) {
         }
 
         // Methods     
@@ -221,7 +207,7 @@ class SpotLight : public Light {
         glm::vec3 Position = glm::vec3(0);
         glm::vec3 Direction = glm::vec3(0,-1,0);
 
-        SpotLight() : Light(LIGHT_SPOT) {
+        SpotLight() : Light("SpotLight") {
         }
 
         // Methods

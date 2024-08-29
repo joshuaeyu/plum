@@ -14,12 +14,6 @@
 
 using namespace std;
 
-enum Shape_Type {
-    SHAPE_CUBE,
-    SHAPE_SPHERE,
-    SHAPE_RECTANGLE
-};
-
 enum Shape_Surface {
     SHAPE_SURFACE_COLOR,
     SHAPE_SURFACE_TEXTURE,
@@ -127,12 +121,9 @@ class Shape : public Drawable {
         float GetRoughness() { return roughness; }
         float* GetRoughnessPtr() { return &roughness; }
         Shape_Surface GetSurfaceType() { return SurfaceType; }
-        Shape_Type GetShapeType() { return shape_type; }
         bool GetPipelineBypass() { return bypass_pipeline; }
 
     protected:
-        Shape_Type shape_type;
-
         bool bypass_pipeline = false;
 
         GLuint vao, vbo, ebo;
@@ -247,7 +238,6 @@ Shader* Shape::DefaultShaderHybrid = nullptr;
 class Cube : public Shape {
     public:
         Cube(string name, Shader* default_shader = nullptr) : Shape(name, default_shader) {
-            shape_type = SHAPE_CUBE;
             data = &cubeData;
             setup();
         }
@@ -295,7 +285,6 @@ class Sphere : public Shape {
         int SectorCount;
 
         Sphere(string name, Shader* default_shader = nullptr, const int stack_count = 30, const int sector_count = 30) : Shape(name, default_shader) {
-            shape_type = SHAPE_SPHERE;
             StackCount = stack_count;
             SectorCount = sector_count;
             generateVertexData(StackCount, SectorCount);
@@ -459,7 +448,6 @@ class Rectangle : public Shape {
     public:
         Rectangle(string name, Shader* default_shader = nullptr, const unsigned int x_sections = 1, const unsigned int z_sections = 1) 
         : Shape(name, default_shader) {
-            shape_type = SHAPE_RECTANGLE;
             xSections = x_sections;
             zSections = z_sections;
             setup();

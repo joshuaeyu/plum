@@ -96,7 +96,7 @@ class Model : public Drawable {
         };
 
         shared_ptr<Mesh> processMesh(aiMesh *mesh, const aiScene *scene, glm::mat4 model_transformation) {
-            vector<MeshVertex>          vertices;
+            vector<Vertex>              vertices;
             vector<unsigned int>        indices;
             vector<shared_ptr<Tex>>     textures;
             vector<MeshColor>           colors;
@@ -104,31 +104,31 @@ class Model : public Drawable {
             
             // VERTICES
             for (int i = 0; i < mesh->mNumVertices; i++) {
-                MeshVertex vertex;
+                Vertex vertex;
                 // Position
                 if (mesh->HasPositions()) {
-                    vertex.Position = glm::vec3(mesh->mVertices[i].x, 
+                    vertex.position = glm::vec3(mesh->mVertices[i].x, 
                                                 mesh->mVertices[i].y,
                                                 mesh->mVertices[i].z);
                 }
                 // Normal
                 if (mesh->HasNormals()) {
-                    vertex.Normal = glm::vec3(mesh->mNormals[i].x,
+                    vertex.normal = glm::vec3(mesh->mNormals[i].x,
                                               mesh->mNormals[i].y,
                                               mesh->mNormals[i].z);  // mNormals is mNumVertices in size
                 }
                 // Texture coordinates
                 if (mesh->HasTextureCoords(0)) {
-                    vertex.TexCoords = glm::vec2(mesh->mTextureCoords[0][i].x,
+                    vertex.uv = glm::vec2(mesh->mTextureCoords[0][i].x,
                                                  mesh->mTextureCoords[0][i].y); // mTextureCoords[x] is mNumVertices in size
                 } else {
-                    vertex.TexCoords = glm::vec2(0);
+                    vertex.uv = glm::vec2(0);
                 }
                 if (mesh->HasTangentsAndBitangents()) {
-                    vertex.Tangent = glm::vec3(mesh->mTangents[i].x,
+                    vertex.tangent = glm::vec3(mesh->mTangents[i].x,
                                                mesh->mTangents[i].y,
                                                mesh->mTangents[i].z);      
-                    vertex.Bitangent = glm::vec3(mesh->mBitangents[i].x,
+                    vertex.bitangent = glm::vec3(mesh->mBitangents[i].x,
                                                  mesh->mBitangents[i].y,
                                                  mesh->mBitangents[i].z);
                 }

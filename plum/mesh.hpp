@@ -12,21 +12,10 @@
 #include <plum/light.hpp>
 #include <plum/shader.hpp>
 #include <plum/texture.hpp>
+#include <plum/vertex.hpp>
 
 using namespace std;
 
-struct MeshVertex {
-    glm::vec3 Position;
-    glm::vec3 Normal;
-    glm::vec2 TexCoords;
-    glm::vec3 Tangent;
-    glm::vec3 Bitangent;
-};
-struct MeshTexture {    // update with Tex class (future)
-    GLuint id;
-    string type; // diffuse, specular, etc.
-    string path;
-};
 struct MeshColor {
     glm::vec3 Value;
     string type; // diffuse, specular, etc.
@@ -38,7 +27,7 @@ struct MeshScalar {
 
 class Mesh {
     public:        
-        Mesh(vector<MeshVertex> vertices, vector<unsigned int> indices, vector<shared_ptr<Tex>> textures, vector<MeshColor> colors, vector<MeshScalar> scalars, glm::mat4 model_transformation) 
+        Mesh(vector<Vertex> vertices, vector<unsigned int> indices, vector<shared_ptr<Tex>> textures, vector<MeshColor> colors, vector<MeshScalar> scalars, glm::mat4 model_transformation) 
         : vertices(vertices), indices(indices), textures(textures), colors(colors), scalars(scalars), modelTransformation(model_transformation)
         {
             setupMesh();
@@ -104,7 +93,7 @@ class Mesh {
     
 
     private:
-        vector<MeshVertex>          vertices;
+        vector<Vertex>              vertices;
         vector<unsigned int>        indices;
         vector<shared_ptr<Tex>>     textures;
         vector<MeshColor>           colors;
@@ -121,25 +110,25 @@ class Mesh {
             glBindVertexArray(vao);
             // vbo data
             glBindBuffer(GL_ARRAY_BUFFER, vbo);
-            glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(MeshVertex), &vertices[0], GL_STATIC_DRAW);
+            glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), &vertices[0], GL_STATIC_DRAW);
             // ebo data
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
             glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), &indices[0], GL_STATIC_DRAW);
 
             // Positions
             glEnableVertexAttribArray(0);
-            glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(MeshVertex), (void *)0);
+            glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)0);
             // Normals
             glEnableVertexAttribArray(1);
-            glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(MeshVertex), (void *)offsetof(MeshVertex, Normal));
+            glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)offsetof(Vertex, normal));
             // MeshTexture coordinates
             glEnableVertexAttribArray(2);
-            glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(MeshVertex), (void *)offsetof(MeshVertex, TexCoords));
+            glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)offsetof(Vertex, uv));
             // Tangents and bitangents
             glEnableVertexAttribArray(3);
-            glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(MeshVertex), (void *)offsetof(MeshVertex, Tangent));
+            glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)offsetof(Vertex, tangent));
             glEnableVertexAttribArray(4);
-            glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(MeshVertex), (void *)offsetof(MeshVertex, Bitangent));
+            glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)offsetof(Vertex, bitangent));
 
             glBindVertexArray(0);
                 // // Error check

@@ -302,7 +302,7 @@ int main() {
 
     // Camera setup
     glm::mat4 projection = glm::perspective(glm::radians(72.5f), (float)Engine::ScreenWidth / (float)Engine::ScreenHeight, 0.1f, 80.0f);
-    scene.SceneCamera.SetProjectionMatrix(projection);
+    scene.SceneCamera.Projection = projection;
 
     //          RENDER LOOP
     float currentTime = glfwGetTime();
@@ -597,17 +597,17 @@ void processInput(GLFWwindow *window) {
 
     // Camera translation
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-        scene.SceneCamera.ProcessKeyboard(FORWARD, deltaTime);
+        scene.SceneCamera.ProcessKeyboard(Camera::Direction::FORWARD, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-        scene.SceneCamera.ProcessKeyboard(BACKWARD, deltaTime);
+        scene.SceneCamera.ProcessKeyboard(Camera::Direction::BACKWARD, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-        scene.SceneCamera.ProcessKeyboard(LEFT, deltaTime);
+        scene.SceneCamera.ProcessKeyboard(Camera::Direction::LEFT, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-        scene.SceneCamera.ProcessKeyboard(RIGHT, deltaTime);
+        scene.SceneCamera.ProcessKeyboard(Camera::Direction::RIGHT, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
-        scene.SceneCamera.ProcessKeyboard(UP, deltaTime);
+        scene.SceneCamera.ProcessKeyboard(Camera::Direction::UP, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
-        scene.SceneCamera.ProcessKeyboard(DOWN, deltaTime);
+        scene.SceneCamera.ProcessKeyboard(Camera::Direction::DOWN, deltaTime);
 }
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height) {

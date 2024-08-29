@@ -4,118 +4,81 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-enum direction_t {
-    FORWARD,
-    BACKWARD,
-    LEFT,
-    RIGHT,
-    UP,
-    DOWN
-};
-
-// camera settings
-const float speed       = 5.f;
-const float sensitivity = 0.1f;
-const float zoom        = 45.0f;
-const glm::vec3 worldUp = glm::vec3(0,1,0);
-
 class Camera {
     public:
+        enum class Direction {
+            FORWARD, BACKWARD, LEFT, RIGHT, UP, DOWN
+        };
 
-        Camera(glm::vec3 in_pos = glm::vec3(0,0,3), float in_pitch = 0.0f, float in_yaw = -90.0f) {
-            position    = in_pos;
-            pitch       = in_pitch; // relative to x-z plane, upward! (x-z toward +y)
-            yaw         = in_yaw;   // relative to +x axis, clockwise! (+x toward +z)
-            updateCameraVectors();  // recalculates front(pitch,yaw), up, and right
-        }
+        glm::mat4 Projection;
+        glm::vec3 Position, Front, Up, Right;
+        float Pitch; // relative to x-z plane, upward! (x-z toward +y)
+        float Yaw;  // relative to +x axis, clockwise! (+x toward +z)
 
-        void UpdatePosX(float X) {
-            position.x = X;
-        }
-        void UpdatePosY(float Y) {
-            position.y = Y;
-        }
-        void UpdatePosZ(float Z) {
-            position.z = Z;
-        }
-        void SetFront(glm::vec3 newfront) {
-            front = newfront;
-        }
-        void SetProjectionMatrix(glm::mat4 proj) {
-            projection = proj;
+        Camera(glm::vec3 pos = glm::vec3(0,0,3), float pitch = 0.0f, float yaw = -90.0f) 
+        : Position(pos), Pitch(pitch), Yaw(yaw) {
+            updateCameraVectors();  // recalculates Front(Pitch,Yaw), Up, and Right
         }
 
-        glm::vec3 GetPosition() { return position; }
-        glm::vec3 GetFront() { return front; }
-        glm::vec3 GetRight() { return right; }
-        glm::vec3 GetUp() { return up; }
         glm::mat4 GetViewMatrix() {
-            // position + front = target
-            return glm::lookAt(position, position + front, worldUp);
+            return glm::lookAt(Position, Position + Front, worldUp);
         }
-        glm::mat4 GetProjectionMatrix() { return projection; }
 
         void ProcessMouse(double xoffset, double yoffset) {
-            yaw     += xoffset * sensitivity;   // + = clockwise
-            pitch   += yoffset * sensitivity;   // + = upward
-            if (pitch > 89.0f) {
-                pitch = 89.0f;
-            }
-            if (pitch < -89.0f) {
-                pitch = -89.0f;
-            }
+            Yaw     += xoffset * sensitivity;   // + = clockwise
+            Pitch   += yoffset * sensitivity;   // + = upward
+            if (Pitch > 89.0f)
+                Pitch = 89.0f;
+            if (Pitch < -89.0f)
+                Pitch = -89.0f;
             updateCameraVectors();
         }
 
-        void ProcessKeyboard(enum direction_t dir, float dt) {
+        void ProcessKeyboard(Direction dir, float dt) {
             float dist = speed * dt;
             switch (dir) {
-                case FORWARD:
-                    position += front * dist;
+                case Direction::FORWARD:
+                    Position += Front * dist;
                     break;
-                case BACKWARD:
-                    position -= front * dist;
+                case Direction::BACKWARD:
+                    Position -= Front * dist;
                     break;
-                case LEFT:
-                    position -= right * dist;
+                case Direction::LEFT:
+                    Position -= Right * dist;
                     break;
-                case RIGHT:
-                    position += right * dist;
+                case Direction::RIGHT:
+                    Position += Right * dist;
                     break;
-                case UP:
-                    position += worldUp * dist;
+                case Direction::UP:
+                    Position += worldUp * dist;
                     break;
-                case DOWN:
-                    position -= worldUp * dist;
+                case Direction::DOWN:
+                    Position -= worldUp * dist;
                     break;
             }
         }
 
     private:
-
-        // transforms
-        // glm::mat4 view, projection;
-        glm::mat4 projection;
-        // camera vectors
-        glm::vec3 position, front, up, right;
-        // angles
-        float pitch, yaw;
+        float speed       = 5.f;
+        float sensitivity = 0.1f;
+        // float zoom        = 45.0f;
+        glm::vec3 worldUp = glm::vec3(0,1,0);
 
         void updateCameraVectors() {
-            // update front - using yaw and pitch
-            front.x = cos( glm::radians(yaw) ) * cos( glm::radians(pitch) );
-            front.y = sin( glm::radians(pitch) );
-            front.z = sin( glm::radians(yaw) ) * cos( glm::radians(pitch) );
-            front = glm::normalize(front);
-            // update right and up - using new front
-            right = glm::normalize( glm::cross(front, worldUp) );
-            up    = glm::normalize( glm::cross(right, front) );
+            // update Front - using Yaw and Pitch
+            Front.x = cos( glm::radians(Yaw) ) * cos( glm::radians(Pitch) );
+            Front.y = sin( glm::radians(Pitch) );
+            Front.z = sin( glm::radians(Yaw) ) * cos( glm::radians(Pitch) );
+            Front = glm::normalize(Front);
+            // update Right and up - using new Front
+            Right = glm::normalize( glm::cross(Front, worldUp) );
+            Up    = glm::normalize( glm::cross(Right, Front) );
         }
 
-        void updateCameraVectors(glm::vec3 newfront) {
-            // update right and up - using new front
-            right = glm::normalize( glm::cross(front, worldUp) );
-            up    = glm::normalize( glm::cross(right, front) );
+        void updateCameraVectors(glm::vec3 newFront) {
+            // update Right and up - using new Front
+            Right = glm::normalize( glm::cross(Front, worldUp) );
+            Up    = glm::normalize( glm::cross(Right, Front) );
         }
 };
 
