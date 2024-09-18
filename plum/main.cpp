@@ -3,19 +3,20 @@
 #include <queue>
 #include <random>
 
-#include <glad/glad.h>
+#include <glad/gl.h>
 
 #include <GLFW/glfw3.h>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/norm.hpp>
 
-#include <external/imgui/imgui.h>
-#include <external/imgui/imgui_impl_glfw.h>
-#include <external/imgui/imgui_impl_opengl3.h>
-#include <external/imgui/imgui_stdlib.h>
+#include <imgui/imgui.h>
+#include <imgui/imgui_impl_glfw.h>
+#include <imgui/imgui_impl_opengl3.h>
+#include <imgui/imgui_stdlib.h>
 
 #include <plum/engine.hpp>
 #include <plum/interface.hpp>
@@ -70,7 +71,7 @@ int main() {
     glfwSetCursorPosCallback(window, mouse_callback);
     glfwSetKeyCallback(window, key_callback);
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
+    if (!gladLoadGL(glfwGetProcAddress)) {
         std::cerr << "gladLoadGLLoader failed" << std::endl;
         glfwTerminate();
         return -1;

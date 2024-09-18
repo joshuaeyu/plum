@@ -5,7 +5,7 @@
 #include <vector>
 #include <string>
 
-#include <glad/glad.h>
+#include <glad/gl.h>
 
 #include <glm/glm.hpp>
 

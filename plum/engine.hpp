@@ -5,7 +5,7 @@
 #include <vector>
 #include <random>
 
-#include <glad/glad.h>
+#include <glad/gl.h>
 
 #include <glm/glm.hpp>
 

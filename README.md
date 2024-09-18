@@ -20,16 +20,7 @@ My goal in creating this engine was to synthesize and expand upon the concepts t
 * [Dear ImGui](https://github.com/ocornut/imgui)
 
 ## Running the Engine
-Currently, this project requires headers (`*.h`, `*.hpp`) and binaries (e.g., `*.a`, `*.dylib`) of some of the dependencies listed above to be installed in the default include path(s) and linker search path(s), respectively:
-
-| Dependency | In default include path(s) | In default linker search path(s) |
-| ---------- | -------------------------- | -------------------------------- |
-| GLAD       | `glad/glad.h`              | n/a                              |
-| GLFW       | `GLFW/glfw3.h`             | `libglfw.3.dylib` or `libglfw.3.a` |
-| GLM        | All `glm/*.hpp` headers    | n/a                              |
-| Assimp     | All `assimp/*.h` and <br>`assimp/*.hpp` headers | `libassimp.dylib` (alias) and <br> `libassimp.5.4.1.dylib` |
-
-Once the dependencies are in place, navigate to the `plum` directory and run `make` then `./main`.
+Navigate to the `plum` directory and run `make` then `./main`.
 
     cd plum
     make

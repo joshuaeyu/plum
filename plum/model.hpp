@@ -4,7 +4,7 @@
 #include <cassert>
 #include <set>
 
-#include <glad/glad.h>
+#include <glad/gl.h>
 
 #include <glm/glm.hpp>
 

@@ -5,9 +5,9 @@
 #include <vector>
 #include <iostream>
 
-#include <glad/glad.h>
+#include <glad/gl.h>
 
-#include <external/stb/stb_image.h>
+#include <stb/stb_image.h>
 
 enum Tex_Type {
     TEX_AMBIENT,

@@ -4,7 +4,7 @@
 #include <vector>
 #include <map>
 
-#include <glad/glad.h>
+#include <glad/gl.h>
 
 #include <glm/glm.hpp>
 
