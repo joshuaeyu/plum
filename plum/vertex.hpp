@@ -11,4 +11,31 @@ struct Vertex {
     glm::vec3 bitangent;
 };  
 
+namespace Component {
+
+    class Vertex {
+        private:
+        public:
+            glm::vec3 position;
+            glm::vec3 normal;
+            glm::vec2 uv;
+            glm::vec3 tangent;
+            glm::vec3 bitangent;
+            
+            Vertex() {}
+            
+        protected:
+    };
+
+    class Index {
+        private:
+        public:
+            unsigned int value;
+            
+            Index() {}
+        protected:
+    };
+
+}
+
 #endif
