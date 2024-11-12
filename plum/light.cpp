@@ -13,6 +13,9 @@
 #include <plum/shape.hpp>
 
 // ======== Light ========
+
+Shader* Light::DefaultShader = nullptr;
+
 float Light::GetFarPlane() const { 
     return farPlane; 
 }

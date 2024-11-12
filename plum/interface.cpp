@@ -16,15 +16,21 @@
 #include <plum/shape.hpp>
 #include <plum/texture.hpp>
 
+Interface::Interface(std::shared_ptr<Engine> e, std::shared_ptr<Resources> r) {
+    engine = e;
+    resources = r;
+}
+
 void Interface::ShowInterface() {
 
     // "New" dialogues
     static bool _showNewShapeChild = false;
     static bool _showNewLightChild = false;
     static bool _showNewNodeChild = false;
-    static ShapeProperties _shapeProps;
-    static LightProperties _lightProps;
-    static NodeProperties _nodeProps;
+    // Properties structs
+    static NodeProperties  _nodeProps(0);
+    static ShapeProperties _shapeProps(0);
+    static LightProperties _lightProps(0);
     // New shape template options
     static int _shapeSelection = 0;
     static std::string _textureSelectionStr = "";
@@ -60,7 +66,7 @@ void Interface::ShowInterface() {
     }
     if (ImGui::CollapsingHeader("Assets", ImGuiTreeNodeFlags_DefaultOpen)) {
         if (ImGui::TreeNode("Textures")) {
-            for (auto it = Resources::Textures.begin(); it != Resources::Textures.end(); it++) {
+            for (auto it = resources->Textures.begin(); it != resources->Textures.end(); it++) {
                 std::shared_ptr<Tex> texture = it->second;
                 if (ImGui::TreeNode(texture->Name.c_str())) {
                     if (ImGui::InputText(("Name##"+std::to_string(i++)).c_str(), texture->NameTemp.data(), ImGuiInputTextFlags_EnterReturnsTrue))
@@ -78,7 +84,7 @@ void Interface::ShowInterface() {
                         ImGui::Unindent();
                     }
                     if (ImGui::Button("Delete")) {
-                        Resources::DeleteTexture(texture->Name);
+                        resources->DeleteTexture(texture->Name);
                         ImGui::TreePop();
                         break;
                     }
@@ -88,14 +94,14 @@ void Interface::ShowInterface() {
             ImGui::TreePop();
         }
         if (ImGui::TreeNode("Models")) {
-            for (auto it = Resources::Models.begin(); it != Resources::Models.end(); it++) {
+            for (auto it = resources->Models.begin(); it != resources->Models.end(); it++) {
                 std::shared_ptr<Model> model = it->second;
                 if (ImGui::TreeNode(model->Name.c_str())) {
                     if (ImGui::InputText(("Name##"+std::to_string(i++)).c_str(), model->NameTemp.data(), ImGuiInputTextFlags_EnterReturnsTrue))
                         model->Name = model->NameTemp;
                     ImGui::Text("Path: %s", model->Path.c_str());
                     if (ImGui::Button("Delete")) {
-                        Resources::DeleteModel(model->Name);
+                        resources->DeleteModel(model->Name);
                         ImGui::TreePop();
                         break;
                     }
@@ -109,7 +115,7 @@ void Interface::ShowInterface() {
         // === "New" buttons ===
         if (ImGui::Button("New Shape Template")) {
             _showNewShapeChild = !_showNewShapeChild;
-            _shapeProps = ShapeProperties();
+            _shapeProps = ShapeProperties(shapeCount++);
         }
         if (_showNewShapeChild) {
             if (ImGui::BeginChild("New Shape Template", ImVec2(0, 0), ImGuiChildFlags_Border | ImGuiChildFlags_AlwaysAutoResize | ImGuiChildFlags_AutoResizeX | ImGuiChildFlags_AutoResizeY)) {
@@ -149,7 +155,7 @@ void Interface::ShowInterface() {
                                     _textureSelectionStr = "(none)";
                                     ImGui::SetItemDefaultFocus();
                                 }
-                                for (auto tex_it = Resources::Textures.begin(); tex_it != Resources::Textures.end(); tex_it++) {
+                                for (auto tex_it = resources->Textures.begin(); tex_it != resources->Textures.end(); tex_it++) {
                                     if (tex_it->second->Type != textype)
                                         continue;
                                     isSelected = (_textureSelectionStr == _shapeProps.textures[textype]); 
@@ -168,43 +174,43 @@ void Interface::ShowInterface() {
                 if (ImGui::Button("Create Template")) {
                     switch (_shapeSelection) {
                         case 0: {
-                            auto s = Resources::LoadSphere(_shapeProps.name, *Shape::DefaultShaderColorOnly, _shapeProps.stacks, _shapeProps.sectors);
+                            auto s = resources->LoadSphere(_shapeProps.name, *Shape::DefaultShaderColorOnly, _shapeProps.stacks, _shapeProps.sectors);
                             s->SetSurfaceType(_shapeProps.surfacetype);
                             s->SetColor(_shapeProps.albedo);
                             s->SetMetallic(_shapeProps.metallic);
                             s->SetRoughness(_shapeProps.roughness);
                             for (auto& texture : _shapeProps.textures)
-                                s->SetTexture(texture.first, Resources::Textures[texture.second]);
+                                s->SetTexture(texture.first, resources->Textures[texture.second]);
                             break;
                         }
                         case 1: {
-                            auto c = Resources::LoadCube(_shapeProps.name, *Shape::DefaultShaderColorOnly);
+                            auto c = resources->LoadCube(_shapeProps.name, *Shape::DefaultShaderColorOnly);
                             c->SetSurfaceType(_shapeProps.surfacetype);
                             c->SetColor(_shapeProps.albedo);
                             c->SetMetallic(_shapeProps.metallic);
                             c->SetRoughness(_shapeProps.roughness);
                             for (auto& texture : _shapeProps.textures)
-                                c->SetTexture(texture.first, Resources::Textures[texture.second]);
+                                c->SetTexture(texture.first, resources->Textures[texture.second]);
                             break;
                         }
                         case 2: 
-                            auto r = Resources::LoadRectangle(_shapeProps.name, *Shape::DefaultShaderColorOnly, _shapeProps.x_sections, _shapeProps.z_sections);
+                            auto r = resources->LoadRectangle(_shapeProps.name, *Shape::DefaultShaderColorOnly, _shapeProps.x_sections, _shapeProps.z_sections);
                             r->SetSurfaceType(_shapeProps.surfacetype);
                             r->SetColor(_shapeProps.albedo);
                             r->SetMetallic(_shapeProps.metallic);
                             r->SetRoughness(_shapeProps.roughness);
                             for (auto& texture : _shapeProps.textures)
-                                r->SetTexture(texture.first, Resources::Textures[texture.second]);
+                                r->SetTexture(texture.first, resources->Textures[texture.second]);
                             break;
                     }
                     _showNewShapeChild = false;
-                    ShapeProperties::count++;
+                    shapeCount++;
                 }
                 ImGui::EndChild();
             }
         }
         if (ImGui::TreeNode("Shape Templates##1")) {
-            for (auto it = Resources::Shapes.begin(); it != Resources::Shapes.end(); it++) {
+            for (auto it = resources->Shapes.begin(); it != resources->Shapes.end(); it++) {
                 std::shared_ptr<Shape> shape = it->second;
                 if (ImGui::TreeNode(shape->Name.c_str())) {
                     if (ImGui::InputText(("Node Name##"+std::to_string(i++)).c_str(), shape->NameTemp.data(), ImGuiInputTextFlags_EnterReturnsTrue))
@@ -232,7 +238,7 @@ void Interface::ShowInterface() {
                                         shape->Textures.erase(textype);
                                         ImGui::SetItemDefaultFocus();
                                     }
-                                    for (auto tex_it = Resources::Textures.begin(); tex_it != Resources::Textures.end(); tex_it++) {
+                                    for (auto tex_it = resources->Textures.begin(); tex_it != resources->Textures.end(); tex_it++) {
                                         if (tex_it->second->Type != textype)
                                             continue;
                                         isSelected = (_textureSelectionStr == it->first); 
@@ -250,7 +256,7 @@ void Interface::ShowInterface() {
                         ImGui::TreePop();
                     }
                     if (ImGui::Button("Delete")) {
-                        Resources::DeleteShape(shape->Name);
+                        resources->DeleteShape(shape->Name);
                         ImGui::TreePop();
                         break;
                     }
@@ -266,15 +272,15 @@ void Interface::ShowInterface() {
         if (ImGui::Button("New Light")) {
             _showNewLightChild = !_showNewLightChild;
             _showNewNodeChild = false;
-            _nodeProps = NodeProperties();
-            _lightProps = LightProperties();
+            _nodeProps = NodeProperties(nodeCount++);
+            _lightProps = LightProperties(lightCount++);
         }
         ImGui::SameLine();
         if (ImGui::Button("New Node")) {
             _showNewLightChild = false;
             _showNewNodeChild = !_showNewNodeChild;
-            _nodeProps = NodeProperties();
-            _lightProps = LightProperties();
+            _nodeProps = NodeProperties(nodeCount++);
+            _lightProps = LightProperties(lightCount++);
         }
         if (_showNewLightChild) {
             if (ImGui::BeginChild("New Light", ImVec2(0, 0), ImGuiChildFlags_Border | ImGuiChildFlags_AlwaysAutoResize | ImGuiChildFlags_AutoResizeX | ImGuiChildFlags_AutoResizeY)) {
@@ -313,7 +319,7 @@ void Interface::ShowInterface() {
                             pl->Color = _lightProps.color;
                             pl->Position = _lightProps.position;
                             if (_lightProps.shadows)
-                                pl->EnableShadows(float(Engine::ShadowWidthCube)/float(Engine::ShadowHeightCube));
+                                pl->EnableShadows(float(engine->ShadowWidthCube)/float(engine->ShadowHeightCube));
                             break;
                         }
                         case 2: 
@@ -321,7 +327,7 @@ void Interface::ShowInterface() {
                             break;
                     }
                     _showNewLightChild = false;
-                    LightProperties::count++;
+                    lightCount++;
                 }
                 ImGui::EndChild();
             }
@@ -334,7 +340,7 @@ void Interface::ShowInterface() {
                 switch (_nodeTemplateTypeSelection) {
                     case 0:
                         if (ImGui::BeginCombo("Model", _nodeTemplateSelectionStr.c_str())) {
-                            for (auto it = Resources::Models.begin(); it != Resources::Models.end(); it++) {
+                            for (auto it = resources->Models.begin(); it != resources->Models.end(); it++) {
                                 bool isSelected = (_nodeTemplateSelectionStr == it->first); 
                                 if (ImGui::Selectable(it->first.c_str(), isSelected)) {
                                     _nodeTemplateSelectionStr = it->first;
@@ -347,7 +353,7 @@ void Interface::ShowInterface() {
                         break;
                     case 1:
                         if (ImGui::BeginCombo("Shape Template", _nodeTemplateSelectionStr.c_str())) {
-                            for (auto it = Resources::Shapes.begin(); it != Resources::Shapes.end(); it++) {
+                            for (auto it = resources->Shapes.begin(); it != resources->Shapes.end(); it++) {
                                 bool isSelected = (_nodeTemplateSelectionStr == it->first); 
                                 if (ImGui::Selectable(it->first.c_str(), isSelected)) {
                                     _nodeTemplateSelectionStr = it->first;
@@ -372,7 +378,7 @@ void Interface::ShowInterface() {
                     node->SetPlacement(_nodeProps.position, _nodeProps.scale, _nodeProps.rotation);
                     node->BypassLighting = _nodeProps.bypasslighting;
                     _showNewNodeChild = false;
-                    NodeProperties::count++;
+                    nodeCount++;
                 }
                 ImGui::EndChild();
             }
@@ -381,14 +387,14 @@ void Interface::ShowInterface() {
         if (ImGui::TreeNode("Skybox")) {
             std::string preview = MainScene->EnvironmentMap->Name;
             if (ImGui::BeginCombo("Diffuse Texture", preview.c_str())) {
-                for (auto it = Resources::Textures.begin(); it != Resources::Textures.end(); it++) {
+                for (auto it = resources->Textures.begin(); it != resources->Textures.end(); it++) {
                     if (it->second->Type != Tex::Tex_Type::TEX_DIFFUSE)
                         continue;
                     bool isSelected = (_skyboxSelectionStr == it->first); 
                     if (ImGui::Selectable(it->first.c_str(), isSelected)) {
                         _skyboxSelectionStr = it->first;
                         MainScene->EnvironmentMap = it->second;
-                        Engine::InitEnvironment(MainScene->EnvironmentMap);
+                        engine->InitEnvironment(MainScene->EnvironmentMap);
                         ImGui::SetItemDefaultFocus();
                     }
                 }

@@ -8,6 +8,8 @@
 #include <plum/shape.hpp>
 #include <plum/texture.hpp>
 
+Resources::Resources() {}
+
 std::shared_ptr<Tex> Resources::LoadTexture2D(std::string name, std::string path, GLenum target, GLint wraptype, GLint filtertype, Tex::Tex_Type textype, bool flip) {
     std::shared_ptr<Tex> t(new Tex(name, path, target, wraptype, filtertype, textype, flip));
     Textures.insert(std::pair<std::string, std::shared_ptr<Tex>>(name, t));

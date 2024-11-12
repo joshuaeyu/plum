@@ -14,6 +14,8 @@
 #include <plum/shape.hpp>
 #include <plum/texture.hpp>
 
+Engine::Engine() {}
+
 // Sets screen dimensions for use in other Engine calls. Default screen dimensions are 1920x1080.
 // Screen width and height are used in InitGbuffer, InitSsao, InitHdr, InitBloom, InitFxaa.
 void Engine::SetScreenDimensions(const unsigned int width, const unsigned int height) {
@@ -24,8 +26,6 @@ void Engine::SetScreenDimensions(const unsigned int width, const unsigned int he
 // Renders a quad to the entire screen. Generally used for postprocessing.
 // User must call glUseProgram and set fragment shader uniforms prior to calling.
 void Engine::RenderQuad() {
-    static GLuint quadVAO;
-    static bool quadInitiaized = false;
     if (!quadInitiaized) {
         float quadVertices[] = {    // Remember CCW
             -1.0f, -1.0f,   0.0f, 0.0f,

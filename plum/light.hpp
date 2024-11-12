@@ -39,8 +39,6 @@ class Light {
 
 };
 
-Shader* Light::DefaultShader = nullptr;
-
 class DirectionalLight : public Light {
     public:
         glm::vec3 Direction = glm::vec3(-1);

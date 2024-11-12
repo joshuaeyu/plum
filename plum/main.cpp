@@ -44,6 +44,8 @@ const unsigned int SCR_HEIGHT_INIT = 1080;   // Depends on menu bar and dock
 
 // globals
 Scene scene, scene1;    // contains camera
+Engine engine;
+Resources resources;
 float lastX = SCR_WIDTH_INIT / 2.0f;
 float lastY = SCR_HEIGHT_INIT / 2.0f;
 bool firstMouse = true;
@@ -152,13 +154,13 @@ int main() {
 
     //          TEXTURES
     cout << "Loading standalone textures..." << endl;
-    shared_ptr<Tex> tex_container = Resources::LoadTexture2D("container", "assets/container2.png", GL_TEXTURE_2D, GL_REPEAT, GL_LINEAR);
-    shared_ptr<Tex> tex_cobblestone = Resources::LoadTexture2D("cobblestone", "assets/cobblestone.png", GL_TEXTURE_2D, GL_REPEAT, GL_NEAREST);
-    shared_ptr<Tex> tex_wood = Resources::LoadTexture2D("wood", "assets/wood.png", GL_TEXTURE_2D, GL_REPEAT, GL_LINEAR);
-    shared_ptr<Tex> tex_stonetiles = Resources::LoadTexture2D("stonetiles", "assets/stonetiles.jpg", GL_TEXTURE_2D, GL_REPEAT, GL_LINEAR);
-    shared_ptr<Tex> tex_rustedmetal = Resources::LoadTexture2D("rustedmetal", "assets/rustedmetal.jpg", GL_TEXTURE_2D, GL_REPEAT, GL_LINEAR);
-    shared_ptr<Tex> tex_brickdiffuse = Resources::LoadTexture2D("brickdiffuse", "assets/brickwall.jpg", GL_TEXTURE_2D, GL_REPEAT, GL_LINEAR);
-    shared_ptr<Tex> tex_bricknormal = Resources::LoadTexture2D("bricknormal", "assets/brickwall_normal.jpg", GL_TEXTURE_2D, GL_REPEAT, GL_LINEAR, Tex::Tex_Type::TEX_HEIGHT);
+    shared_ptr<Tex> tex_container = resources.LoadTexture2D("container", "assets/container2.png", GL_TEXTURE_2D, GL_REPEAT, GL_LINEAR);
+    shared_ptr<Tex> tex_cobblestone = resources.LoadTexture2D("cobblestone", "assets/cobblestone.png", GL_TEXTURE_2D, GL_REPEAT, GL_NEAREST);
+    shared_ptr<Tex> tex_wood = resources.LoadTexture2D("wood", "assets/wood.png", GL_TEXTURE_2D, GL_REPEAT, GL_LINEAR);
+    shared_ptr<Tex> tex_stonetiles = resources.LoadTexture2D("stonetiles", "assets/stonetiles.jpg", GL_TEXTURE_2D, GL_REPEAT, GL_LINEAR);
+    shared_ptr<Tex> tex_rustedmetal = resources.LoadTexture2D("rustedmetal", "assets/rustedmetal.jpg", GL_TEXTURE_2D, GL_REPEAT, GL_LINEAR);
+    shared_ptr<Tex> tex_brickdiffuse = resources.LoadTexture2D("brickdiffuse", "assets/brickwall.jpg", GL_TEXTURE_2D, GL_REPEAT, GL_LINEAR);
+    shared_ptr<Tex> tex_bricknormal = resources.LoadTexture2D("bricknormal", "assets/brickwall_normal.jpg", GL_TEXTURE_2D, GL_REPEAT, GL_LINEAR, Tex::Tex_Type::TEX_HEIGHT);
     vector<string> ocean_faces = {
         "assets/skybox/right.jpg",
         "assets/skybox/left.jpg",
@@ -167,40 +169,40 @@ int main() {
         "assets/skybox/front.jpg",
         "assets/skybox/back.jpg"
     };
-    shared_ptr<Tex> tex_oceanskybox = Resources::LoadTextureCube("ocean", ocean_faces, GL_TEXTURE_CUBE_MAP, GL_CLAMP_TO_EDGE, GL_LINEAR);
-    shared_ptr<Tex> tex_nightsky = Resources::LoadTexture2D("nightsky", "assets/kloppenheim_4k.hdr", GL_TEXTURE_2D, GL_CLAMP_TO_EDGE, GL_LINEAR);
-    shared_ptr<Tex> tex_garden = Resources::LoadTexture2D("garden", "assets/studio_garden_4k.hdr", GL_TEXTURE_2D, GL_REPEAT, GL_LINEAR, Tex::Tex_Type::TEX_DIFFUSE, true);
-    shared_ptr<Tex> tex_puppetstudio = Resources::LoadTexture2D("puppetstudio", "assets/puppet_studio_4k.hdr", GL_TEXTURE_2D, GL_REPEAT, GL_LINEAR, Tex::Tex_Type::TEX_DIFFUSE, true);
-    shared_ptr<Tex> tex_trainstation = Resources::LoadTexture2D("trainstation", "assets/dresden_station_4k.hdr", GL_TEXTURE_2D, GL_REPEAT, GL_LINEAR, Tex::Tex_Type::TEX_DIFFUSE, true);
-    shared_ptr<Tex> tex_newportloft = Resources::LoadTexture2D("newportloft", "assets/newport_loft.png", GL_TEXTURE_2D, GL_REPEAT, GL_LINEAR, Tex::Tex_Type::TEX_DIFFUSE, true);
-    shared_ptr<Tex> tex_black = Resources::LoadTexture2D("black", "assets/black.png", GL_TEXTURE_2D, GL_REPEAT, GL_NEAREST);
-    shared_ptr<Tex> tex_white = Resources::LoadTexture2D("white", "assets/white.png", GL_TEXTURE_2D, GL_REPEAT, GL_NEAREST);
+    shared_ptr<Tex> tex_oceanskybox = resources.LoadTextureCube("ocean", ocean_faces, GL_TEXTURE_CUBE_MAP, GL_CLAMP_TO_EDGE, GL_LINEAR);
+    shared_ptr<Tex> tex_nightsky = resources.LoadTexture2D("nightsky", "assets/kloppenheim_4k.hdr", GL_TEXTURE_2D, GL_CLAMP_TO_EDGE, GL_LINEAR);
+    shared_ptr<Tex> tex_garden = resources.LoadTexture2D("garden", "assets/studio_garden_4k.hdr", GL_TEXTURE_2D, GL_REPEAT, GL_LINEAR, Tex::Tex_Type::TEX_DIFFUSE, true);
+    shared_ptr<Tex> tex_puppetstudio = resources.LoadTexture2D("puppetstudio", "assets/puppet_studio_4k.hdr", GL_TEXTURE_2D, GL_REPEAT, GL_LINEAR, Tex::Tex_Type::TEX_DIFFUSE, true);
+    shared_ptr<Tex> tex_trainstation = resources.LoadTexture2D("trainstation", "assets/dresden_station_4k.hdr", GL_TEXTURE_2D, GL_REPEAT, GL_LINEAR, Tex::Tex_Type::TEX_DIFFUSE, true);
+    shared_ptr<Tex> tex_newportloft = resources.LoadTexture2D("newportloft", "assets/newport_loft.png", GL_TEXTURE_2D, GL_REPEAT, GL_LINEAR, Tex::Tex_Type::TEX_DIFFUSE, true);
+    shared_ptr<Tex> tex_black = resources.LoadTexture2D("black", "assets/black.png", GL_TEXTURE_2D, GL_REPEAT, GL_NEAREST);
+    shared_ptr<Tex> tex_white = resources.LoadTexture2D("white", "assets/white.png", GL_TEXTURE_2D, GL_REPEAT, GL_NEAREST);
     cout << "Done loading standalone textures!" << endl << endl;
 
     //          MODELS
     cout << "Loading models..." << endl;;
-    auto backpack = Resources::LoadModel("backpack", shader_obj, "assets/backpack/backpack.obj", 1.0f, true);
-    auto toilet = Resources::LoadModel("toilet", shader_3mf, "assets/toilet/toilet.3mf", 0.005f);
-    auto plantpot = Resources::LoadModel("plantpot", shader_obj, "assets/plantpot/indoor plant_02.obj", 0.01f);
-    auto skull = Resources::LoadModel("skull", shader_obj, "assets/skull/12140_Skull_v3_L2.obj", 0.1f);
-    auto boat = Resources::LoadModel("boat", shader_obj, "assets/boat/12219_boat_v2_L2.obj", 0.01f);
-    auto adamHead = Resources::LoadModel("adamhead", shader_gltf, "assets/adamHead/adamHead.gltf", 100.0f);
-    auto lieutHead = Resources::LoadModel("lieuthead", shader_gltf, "assets/lieutenantHead/lieutenantHead.gltf", 10.f);
-    auto sponza = Resources::LoadModel("sponza", shader_gltf, "assets/sponza/glTF/Sponza.gltf", 1.f);
+    auto backpack = resources.LoadModel("backpack", shader_obj, "assets/backpack/backpack.obj", 1.0f, true);
+    auto toilet = resources.LoadModel("toilet", shader_3mf, "assets/toilet/toilet.3mf", 0.005f);
+    auto plantpot = resources.LoadModel("plantpot", shader_obj, "assets/plantpot/indoor plant_02.obj", 0.01f);
+    auto skull = resources.LoadModel("skull", shader_obj, "assets/skull/12140_Skull_v3_L2.obj", 0.1f);
+    auto boat = resources.LoadModel("boat", shader_obj, "assets/boat/12219_boat_v2_L2.obj", 0.01f);
+    auto adamHead = resources.LoadModel("adamhead", shader_gltf, "assets/adamHead/adamHead.gltf", 100.0f);
+    auto lieutHead = resources.LoadModel("lieuthead", shader_gltf, "assets/lieutenantHead/lieutenantHead.gltf", 10.f);
+    auto sponza = resources.LoadModel("sponza", shader_gltf, "assets/sponza/glTF/Sponza.gltf", 1.f);
     // Model model_planet("assets/planet/planet.obj");
     // Model model_rock("assets/rock/rock.obj");
     cout << "Done loading models!" << endl << endl;
     
     //          SHAPE TEMPLATES
     cout << "Loading premade shape templates..." << endl;
-    auto cobblestoneCube = Resources::LoadCube("cobblestoneCube", shader_basictexture);
+    auto cobblestoneCube = resources.LoadCube("cobblestoneCube", shader_basictexture);
     cobblestoneCube->SetTexture(Tex::Tex_Type::TEX_DIFFUSE, tex_cobblestone);
-    auto containerCube = Resources::LoadCube("containerCube", shader_basictexture);
+    auto containerCube = resources.LoadCube("containerCube", shader_basictexture);
     containerCube->SetTexture(Tex::Tex_Type::TEX_DIFFUSE, tex_container);
-    auto brickSphere = Resources::LoadSphere("brickSphere", shader_basictexture, 40, 40);
+    auto brickSphere = resources.LoadSphere("brickSphere", shader_basictexture, 40, 40);
     brickSphere->SetTexture(Tex::Tex_Type::TEX_DIFFUSE, tex_brickdiffuse);
     brickSphere->SetTexture(Tex::Tex_Type::TEX_HEIGHT, tex_bricknormal);
-    auto brickFloor = Resources::LoadRectangle("brickFloor", shader_basictexture, 10, 10);
+    auto brickFloor = resources.LoadRectangle("brickFloor", shader_basictexture, 10, 10);
     brickFloor->SetTexture(Tex::Tex_Type::TEX_DIFFUSE, tex_brickdiffuse);
     brickFloor->SetTexture(Tex::Tex_Type::TEX_HEIGHT, tex_bricknormal);
     cout << "Done loading premade shape templates!" << endl << endl;
@@ -213,20 +215,20 @@ int main() {
     scene.InitializeUniformBlocks();
     
     //          ENGINE
-    Engine::EquirectShader = &shader_equirect;
-    Engine::IrradianceShader = &shader_irradiance;
-    Engine::PrefilterShader = &shader_prefilter;
+    engine.EquirectShader = &shader_equirect;
+    engine.IrradianceShader = &shader_irradiance;
+    engine.PrefilterShader = &shader_prefilter;
     scene.EnvironmentMap = tex_nightsky;
-    Engine::InitEnvironment(scene.EnvironmentMap);
-    Engine::SetScreenDimensions(SCR_WIDTH_INIT, SCR_HEIGHT_INIT);
-    Engine::InitGbuffer();
-    Engine::InitSsao();
-    Engine::InitHdr();
-    Engine::InitBloom();
-    Engine::InitFxaa();
-    GLuint brdfLUT = Engine::GenerateBrdfLut(shader_brdflut);
-    Engine::Framebuffer shadowArrayFb2d = Engine::GenerateShadowMapArray(GL_TEXTURE_2D_ARRAY);
-    Engine::Framebuffer shadowArrayFbCube = Engine::GenerateShadowMapArray(GL_TEXTURE_CUBE_MAP_ARRAY);
+    engine.InitEnvironment(scene.EnvironmentMap);
+    engine.SetScreenDimensions(SCR_WIDTH_INIT, SCR_HEIGHT_INIT);
+    engine.InitGbuffer();
+    engine.InitSsao();
+    engine.InitHdr();
+    engine.InitBloom();
+    engine.InitFxaa();
+    GLuint brdfLUT = engine.GenerateBrdfLut(shader_brdflut);
+    Engine::Framebuffer shadowArrayFb2d = engine.GenerateShadowMapArray(GL_TEXTURE_2D_ARRAY);
+    Engine::Framebuffer shadowArrayFbCube = engine.GenerateShadowMapArray(GL_TEXTURE_CUBE_MAP_ARRAY);
 
     //          DEFINE SCENE
     // shared_ptr<SceneNode> floor0 = scene.CreateNode(brickFloor);
@@ -243,10 +245,10 @@ int main() {
     // shared_ptr<SceneNode> boat0 = scene.CreateNode(boat);
     // boat0->SetPlacement(glm::vec3(0,3,0), glm::vec3(0.01));
     // boat0->SetName("boat0");
-    // shared_ptr<SceneNode> backpack0 = scene.CreateNode(Resources::Models["backpack"]);
+    // shared_ptr<SceneNode> backpack0 = scene.CreateNode(resources.Models["backpack"]);
     // backpack0->SetName("backpack0");
     // backpack0->SetPlacement(glm::vec3(-5, 2, 0));
-    // shared_ptr<SceneNode> skull0 = scene.CreateNode(Resources::Models["skull"]);
+    // shared_ptr<SceneNode> skull0 = scene.CreateNode(resources.Models["skull"]);
     // skull0->SetName("skull0");
     // skull0->SetPlacement(glm::vec3(0, 10, 0), glm::vec3(0.25));
     // shared_ptr<SceneNode> toilet0 = scene.CreateNode(toilet);
@@ -295,14 +297,14 @@ int main() {
     //         pl->Color = highlighted_col;
     //         pl->HasShadows = true;
     //         pl->Position = pos;
-    //         pl->GenerateLightspaceMatrices(float(Engine::ShadowWidthCube)/float(Engine::ShadowHeightCube), 0.1, 75);
+    //         pl->GenerateLightspaceMatrices(float(engine.ShadowWidthCube)/float(engine.ShadowHeightCube), 0.1, 75);
     //         s->SetPipelineBypass(true);
     //         s->SetColor(highlighted_col);
     //     }
     // }
 
     // Camera setup
-    glm::mat4 projection = glm::perspective(glm::radians(72.5f), (float)Engine::ScreenWidth / (float)Engine::ScreenHeight, 0.1f, 80.0f);
+    glm::mat4 projection = glm::perspective(glm::radians(72.5f), (float)engine.ScreenWidth / (float)engine.ScreenHeight, 0.1f, 80.0f);
     scene.SceneCamera.Projection = projection;
 
     //          RENDER LOOP
@@ -311,7 +313,8 @@ int main() {
     float lastTime = currentTime;
     float msPerFrame = 0;
     unsigned int frameCount = 0;
-    Interface::MainScene = &scene;
+    Interface interface(std::make_shared<Engine>(engine), std::make_shared<Resources>(resources));
+    interface.MainScene = &scene;
     while (!glfwWindowShouldClose(window)) {
         
         // calculate time
@@ -322,9 +325,9 @@ int main() {
         frameCount++;
         if (currentTime - lastFpsTime >= 1.0) {
             msPerFrame = (currentTime-lastFpsTime)*1000/frameCount;
-            if (Interface::FramerateData.size() > 100)
-                Interface::FramerateData = vector<float>(Interface::FramerateData.begin()+1, Interface::FramerateData.end());
-            Interface::FramerateData.push_back(msPerFrame);
+            if (interface.FramerateData.size() > 100)
+                interface.FramerateData = vector<float>(interface.FramerateData.begin()+1, interface.FramerateData.end());
+            interface.FramerateData.push_back(msPerFrame);
             cout << msPerFrame << " ms/frame" << endl;
             frameCount = 0;
             lastFpsTime = currentTime;
@@ -335,13 +338,13 @@ int main() {
         processInput(window);
 
         // ImGui
-        Interface::SetStyle(ImGui::GetStyle());
+        interface.SetStyle(ImGui::GetStyle());
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
-        Interface::ShowInterface();
+        interface.ShowInterface();
 
-        if (Interface::Hdr)
+        if (interface.Hdr)
             glDisable(GL_FRAMEBUFFER_SRGB);
         else
             glEnable(GL_FRAMEBUFFER_SRGB); // Gamma correction, only enable if not doing gamma correction in postprocessing framebuffer (e.g., HDR shader)
@@ -353,8 +356,8 @@ int main() {
         scene.SetPointLightUniformBlock();
 
         // 1. GEOMETRY PASS
-        glBindFramebuffer(GL_FRAMEBUFFER, Engine::Gbuffer.fbo);
-        glViewport(0, 0, Engine::ScreenWidth, Engine::ScreenHeight);
+        glBindFramebuffer(GL_FRAMEBUFFER, engine.Gbuffer.fbo);
+        glViewport(0, 0, engine.ScreenWidth, engine.ScreenHeight);
         glClearColor(0.,0.,0.,1.);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         scene.DrawNodes();
@@ -362,7 +365,7 @@ int main() {
         // 2a. RENDER SHADOW MAPS
         // Generate orthographic shadow maps for directional lights
         glBindFramebuffer(GL_FRAMEBUFFER, shadowArrayFb2d.fbo);
-        glViewport(0,0, Engine::ShadowWidth2D, Engine::ShadowHeight2D);
+        glViewport(0,0, engine.ShadowWidth2D, engine.ShadowHeight2D);
         glClear(GL_DEPTH_BUFFER_BIT);
         glUseProgram(shader_shadowmap_2d.programID);
         for (int i = 0, shadow_count = 0; i < scene.DirLights.size(); i++) {
@@ -380,7 +383,7 @@ int main() {
         }
         // Generate omnidirectional shadow maps for point lights
         glBindFramebuffer(GL_FRAMEBUFFER, shadowArrayFbCube.fbo);
-        glViewport(0,0, Engine::ShadowWidthCube, Engine::ShadowHeightCube);
+        glViewport(0,0, engine.ShadowWidthCube, engine.ShadowHeightCube);
         glClear(GL_DEPTH_BUFFER_BIT);
         glUseProgram(shader_shadowmap_cube.programID);
         for (int i = 0, shadow_count = 0; i < scene.PointLights.size(); i++) {
@@ -403,84 +406,84 @@ int main() {
         
         // 2b. SSAO
         // SSAO buffer as is
-        if (Interface::Ssao) {
-            glViewport(0, 0, Engine::ScreenWidth, Engine::ScreenHeight);
-            glBindFramebuffer(GL_FRAMEBUFFER, Engine::Ssao.fbo);
+        if (interface.Ssao) {
+            glViewport(0, 0, engine.ScreenWidth, engine.ScreenHeight);
+            glBindFramebuffer(GL_FRAMEBUFFER, engine.Ssao.fbo);
             glClearColor(0.,0.,0.,1.);
             glClear(GL_COLOR_BUFFER_BIT);
             glUseProgram(shader_2dssao.programID);
                 glActiveTexture(GL_TEXTURE0);
-                glBindTexture(GL_TEXTURE_2D, Engine::Gbuffer.colors[0]);    // Position
+                glBindTexture(GL_TEXTURE_2D, engine.Gbuffer.colors[0]);    // Position
                 glActiveTexture(GL_TEXTURE1);
-                glBindTexture(GL_TEXTURE_2D, Engine::Gbuffer.colors[1]);    // Normal
+                glBindTexture(GL_TEXTURE_2D, engine.Gbuffer.colors[1]);    // Normal
                 glActiveTexture(GL_TEXTURE2);
-                glBindTexture(GL_TEXTURE_2D, Engine::SsaoNoiseTexture);
+                glBindTexture(GL_TEXTURE_2D, engine.SsaoNoiseTexture);
                 shader_2dssao.setInt("gPosition", 0);
                 shader_2dssao.setInt("gNormal", 1);
                 shader_2dssao.setInt("noiseTexture", 2);
                 shader_2dssao.setMat4("projection", projection);
-                for (int i = 0; i < Engine::SsaoKernel.size(); i++) {
-                    shader_2dssao.setVec3("samples[" + to_string(i) + "]", Engine::SsaoKernel[i]);
+                for (int i = 0; i < engine.SsaoKernel.size(); i++) {
+                    shader_2dssao.setVec3("samples[" + to_string(i) + "]", engine.SsaoKernel[i]);
                 }
-                Engine::RenderQuad();
+                engine.RenderQuad();
         }
         // SSAO blurring
-        glViewport(0, 0, Engine::ScreenWidth, Engine::ScreenHeight);
-        glBindFramebuffer(GL_FRAMEBUFFER, Engine::SsaoBlur.fbo);
+        glViewport(0, 0, engine.ScreenWidth, engine.ScreenHeight);
+        glBindFramebuffer(GL_FRAMEBUFFER, engine.SsaoBlur.fbo);
         glClearColor(1.,1.,1.,1.);  // So that no occlusion (occlusionfactor = 1) if ssao is disabled
         glClear(GL_COLOR_BUFFER_BIT);
-        if (Interface::Ssao) {
+        if (interface.Ssao) {
             glUseProgram(shader_2dssaoblur.programID);
                 glActiveTexture(GL_TEXTURE0);
-                glBindTexture(GL_TEXTURE_2D, Engine::Ssao.colors[0]);
+                glBindTexture(GL_TEXTURE_2D, engine.Ssao.colors[0]);
                 shader_2dssaoblur.setInt("ssaoInput", 0);
-                Engine::RenderQuad();
+                engine.RenderQuad();
         }
 
         // Framebuffer queue
         queue<GLuint> framebuffers;
-        if (Interface::Bloom)
-            framebuffers.push(Engine::Bloom1.fbo);
-        if (Interface::Hdr)
-            framebuffers.push(Engine::Hdr.fbo);
-        if (Interface::Fxaa)
-            framebuffers.push(Engine::Fxaa.fbo);
+        if (interface.Bloom)
+            framebuffers.push(engine.Bloom1.fbo);
+        if (interface.Hdr)
+            framebuffers.push(engine.Hdr.fbo);
+        if (interface.Fxaa)
+            framebuffers.push(engine.Fxaa.fbo);
         framebuffers.push(0);
 
         // 3. LIGHTING PASS
-        glViewport(0, 0, Engine::ScreenWidth, Engine::ScreenHeight);
+        glViewport(0, 0, engine.ScreenWidth, engine.ScreenHeight);
         glBindFramebuffer(GL_FRAMEBUFFER, framebuffers.front());
         glClearColor(0.,0.,0.,1.);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glUseProgram(shader_lightingpasspbr.programID);
             // G-buffer
             glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_2D, Engine::Gbuffer.colors[0]);    // position
+            glBindTexture(GL_TEXTURE_2D, engine.Gbuffer.colors[0]);    // position
             glActiveTexture(GL_TEXTURE1);
-            glBindTexture(GL_TEXTURE_2D, Engine::Gbuffer.colors[1]);    // normal
+            glBindTexture(GL_TEXTURE_2D, engine.Gbuffer.colors[1]);    // normal
             glActiveTexture(GL_TEXTURE2);
-            glBindTexture(GL_TEXTURE_2D, Engine::Gbuffer.colors[2]);    // albedo, specular
+            glBindTexture(GL_TEXTURE_2D, engine.Gbuffer.colors[2]);    // albedo, specular
             glActiveTexture(GL_TEXTURE3);
-            glBindTexture(GL_TEXTURE_2D, Engine::Gbuffer.colors[3]);    // metallic, roughness
+            glBindTexture(GL_TEXTURE_2D, engine.Gbuffer.colors[3]);    // metallic, roughness
             shader_lightingpasspbr.setInt("gPosition", 0);
             shader_lightingpasspbr.setInt("gNormal", 1);
             shader_lightingpasspbr.setInt("gAlbedoSpec", 2);
             shader_lightingpasspbr.setInt("gMetRouOcc", 3);
             // SSAO
             glActiveTexture(GL_TEXTURE4);
-            glBindTexture(GL_TEXTURE_2D, Engine::SsaoBlur.colors[0]);
+            glBindTexture(GL_TEXTURE_2D, engine.SsaoBlur.colors[0]);
             shader_lightingpasspbr.setInt("ssao", 4);
             // PBR IBL
             glActiveTexture(GL_TEXTURE5);
-            glBindTexture(GL_TEXTURE_CUBE_MAP, Engine::CurrentEnvironment.irradiance);
+            glBindTexture(GL_TEXTURE_CUBE_MAP, engine.CurrentEnvironment.irradiance);
             glActiveTexture(GL_TEXTURE6);
-            glBindTexture(GL_TEXTURE_CUBE_MAP, Engine::CurrentEnvironment.prefilter);
+            glBindTexture(GL_TEXTURE_CUBE_MAP, engine.CurrentEnvironment.prefilter);
             glActiveTexture(GL_TEXTURE7);
             glBindTexture(GL_TEXTURE_2D, brdfLUT);
             shader_lightingpasspbr.setInt("irradianceMap", 5);
             shader_lightingpasspbr.setInt("prefilterMap", 6);
             shader_lightingpasspbr.setInt("brdfLUT", 7);
-            shader_lightingpasspbr.setFloat("ibl", Interface::Ibl);
+            shader_lightingpasspbr.setFloat("ibl", interface.Ibl);
             // Shadow maps
             glActiveTexture(GL_TEXTURE8);
             glBindTexture(GL_TEXTURE_2D_ARRAY, shadowArrayFb2d.depth);
@@ -488,12 +491,12 @@ int main() {
             glBindTexture(GL_TEXTURE_CUBE_MAP_ARRAY, shadowArrayFbCube.depth);
             shader_lightingpasspbr.setInt("shadowmap_2d_array_shadow", 8);
             shader_lightingpasspbr.setInt("shadowmap_cube_array_shadow", 9);
-            Engine::RenderQuad();
+            engine.RenderQuad();
 
         // 4. FORWARD RENDERING
-        glBindFramebuffer(GL_READ_FRAMEBUFFER, Engine::Gbuffer.fbo);
+        glBindFramebuffer(GL_READ_FRAMEBUFFER, engine.Gbuffer.fbo);
         glBindFramebuffer(GL_DRAW_FRAMEBUFFER, framebuffers.front());
-        glBlitFramebuffer(0, 0, Engine::ScreenWidth, Engine::ScreenHeight, 0, 0, Engine::ScreenWidth, Engine::ScreenHeight, GL_DEPTH_BUFFER_BIT, GL_NEAREST);   // Internal formats need to match!
+        glBlitFramebuffer(0, 0, engine.ScreenWidth, engine.ScreenHeight, 0, 0, engine.ScreenWidth, engine.ScreenHeight, GL_DEPTH_BUFFER_BIT, GL_NEAREST);   // Internal formats need to match!
         glBindFramebuffer(GL_FRAMEBUFFER, framebuffers.front());
         framebuffers.pop();
         // Draw light sources
@@ -504,16 +507,16 @@ int main() {
         shader_skybox.setMat4("projection", projection);
         shader_skybox.setInt("cubemap", 0);
         glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_CUBE_MAP, Engine::CurrentEnvironment.environment);
+        glBindTexture(GL_TEXTURE_CUBE_MAP, engine.CurrentEnvironment.environment);
         glCullFace(GL_FRONT);
         unitcube.Draw(shader_skybox);
         glCullFace(GL_BACK);
 
         // 5. POST-PROCESSING
-        if (Interface::Bloom) {
+        if (interface.Bloom) {
             bool horizontal = true;
             int amount = 3;
-            glViewport(0, 0, Engine::ScreenWidth, Engine::ScreenHeight);
+            glViewport(0, 0, engine.ScreenWidth, engine.ScreenHeight);
             glUseProgram(shader_2dbloomblur.programID);
             shader_2dbloomblur.setInt("image", 0);
             glActiveTexture(GL_TEXTURE0);
@@ -521,16 +524,16 @@ int main() {
             for (int i = 0; i < amount*2; i++) {
                 Engine::Framebuffer drawFb, readFb;
                 if (!horizontal) {
-                    drawFb = Engine::Bloom1;
-                    readFb = Engine::Bloom2;
+                    drawFb = engine.Bloom1;
+                    readFb = engine.Bloom2;
                 } else {
-                    drawFb = Engine::Bloom2;
-                    readFb = Engine::Bloom1;
+                    drawFb = engine.Bloom2;
+                    readFb = engine.Bloom1;
                 }
                 glBindFramebuffer(GL_FRAMEBUFFER, drawFb.fbo);
                 shader_2dbloomblur.setInt("horizontal", horizontal);
                 glBindTexture(GL_TEXTURE_2D, readFb.colors[1]);   // Use raw HDR scene highlights first, then ping pong
-                Engine::RenderQuad();
+                engine.RenderQuad();
                 horizontal = !horizontal;
             }
             glBindFramebuffer(GL_FRAMEBUFFER, framebuffers.front());
@@ -540,43 +543,43 @@ int main() {
                 shader_2dbloom.setInt("sceneRaw", 0);
                 shader_2dbloom.setInt("sceneBloom", 1);
                 glActiveTexture(GL_TEXTURE0);
-                glBindTexture(GL_TEXTURE_2D, Engine::Bloom1.colors[0]);
+                glBindTexture(GL_TEXTURE_2D, engine.Bloom1.colors[0]);
                 glActiveTexture(GL_TEXTURE1);
-                glBindTexture(GL_TEXTURE_2D, Engine::Bloom1.colors[1]);
-                Engine::RenderQuad();
+                glBindTexture(GL_TEXTURE_2D, engine.Bloom1.colors[1]);
+                engine.RenderQuad();
                 glBindTexture(GL_TEXTURE_2D, 0);
         } 
-        if (Interface::Hdr) {
-            glViewport(0, 0, Engine::ScreenWidth, Engine::ScreenHeight);
+        if (interface.Hdr) {
+            glViewport(0, 0, engine.ScreenWidth, engine.ScreenHeight);
             glBindFramebuffer(GL_FRAMEBUFFER, framebuffers.front());
             framebuffers.pop();
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             glUseProgram(shader_2dhdr.programID);
-                shader_2dhdr.setFloat("exposure", Interface::HdrExposure);
+                shader_2dhdr.setFloat("exposure", interface.HdrExposure);
                 shader_2dhdr.setInt("hdrBuffer", 0);
                 glActiveTexture(GL_TEXTURE0);
-                glBindTexture(GL_TEXTURE_2D, Engine::Hdr.colors[0]);
-                Engine::RenderQuad();
+                glBindTexture(GL_TEXTURE_2D, engine.Hdr.colors[0]);
+                engine.RenderQuad();
                 glBindTexture(GL_TEXTURE_2D, 0);
         }
-        if (Interface::Fxaa) {
-            glViewport(0, 0, Engine::ScreenWidth, Engine::ScreenHeight);
+        if (interface.Fxaa) {
+            glViewport(0, 0, engine.ScreenWidth, engine.ScreenHeight);
             glBindFramebuffer(GL_FRAMEBUFFER, framebuffers.front());
             framebuffers.pop();
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             glUseProgram(shader_2dfxaa.programID);
                 shader_2dfxaa.setInt("screenTexture", 0);
                 glActiveTexture(GL_TEXTURE0);
-                glBindTexture(GL_TEXTURE_2D, Engine::Fxaa.colors[0]);
-                Engine::RenderQuad();
+                glBindTexture(GL_TEXTURE_2D, engine.Fxaa.colors[0]);
+                engine.RenderQuad();
                 glBindTexture(GL_TEXTURE_2D, 0);
         }
 
-        if (!Interface::Hdr)
+        if (!interface.Hdr)
             glDisable(GL_FRAMEBUFFER_SRGB);
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-        if (!Interface::Hdr)
+        if (!interface.Hdr)
             glEnable(GL_FRAMEBUFFER_SRGB);
 
         // Essential
@@ -612,12 +615,12 @@ void processInput(GLFWwindow *window) {
 }
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height) {
-    Engine::SetScreenDimensions(width, height);
-    Engine::InitGbuffer();
-    Engine::InitSsao();
-    Engine::InitHdr();
-    Engine::InitBloom();
-    Engine::InitFxaa();
+    engine.SetScreenDimensions(width, height);
+    engine.InitGbuffer();
+    engine.InitSsao();
+    engine.InitHdr();
+    engine.InitBloom();
+    engine.InitFxaa();
 }
 void window_size_callback(GLFWwindow *window, int width, int height) {
     glfwSetWindowSize(window, width, height);
