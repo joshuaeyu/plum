@@ -9,7 +9,7 @@ My goal in creating this engine was to synthesize and expand upon the concepts t
 ## Requirements
 * OpenGL 4.1+ support
 * C++17 compiler support
-* Make
+* GNU Make
 
 ## Dependencies
 * [GLAD](https://github.com/Dav1dde/glad)
@@ -61,8 +61,7 @@ Navigate to the `plum` directory and run `make` then `./main`.
     * File system explorer to load assets from GUI
     * Save/load scene state
 * Software design
-    * Split .hpp files into proper .hpp headers and .cpp definitions
-    * Abstract further
+    * Improve abstraction
 
 ## References
 * [Learn OpenGL](https://learnopengl.com)

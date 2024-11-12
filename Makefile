@@ -15,16 +15,13 @@ EXTDIR = ./external
 # Flags			
 CFLAGS = 	-fdiagnostics-color=always \
 			-g	\
-			-I$(INCL_GLAD)	\
-			-Wall
+			-I$(INCL_GLAD)
 CXXFLAGS = 	$(CFLAGS)	\
 			-I./	\
 			-I$(EXTDIR)	\
 			-I$(INCL_ASSIMP)	\
 			-I$(INCL_GLFW)	\
 			-I$(INCL_GLM)	\
-			-I$(INCL_IMGUI)	\
-			-I$(INCL_STB)	\
 			-std=c++17
 # Linker-only flags
 # -L same as -Wl,-L,
@@ -39,8 +36,7 @@ LFLAGS = 	-L$(LIB_GLFW)	\
 			-framework OpenGL	\
 			-framework IOKit
 
-# Headers
-HEADERS = 
+# Object files
 SRCOBJS = $(OBJDIR)/camera.o $(OBJDIR)/engine.o $(OBJDIR)/interface.o $(OBJDIR)/light.o $(OBJDIR)/scene.o $(OBJDIR)/mesh.o $(OBJDIR)/model.o $(OBJDIR)/resources.o $(OBJDIR)/scenenode.o $(OBJDIR)/shader.o $(OBJDIR)/shape.o $(OBJDIR)/texture.o
 
 # ImGui resources
@@ -50,27 +46,34 @@ IMGUI_MISC_O = $(OBJDIR)/imgui_stdlib.o
 IMGUI_BACKENDS_O = $(OBJDIR)/imgui_impl_glfw.o $(OBJDIR)/imgui_impl_opengl3.o
 
 # Targets
+all: obj main
+obj:
+	@mkdir -p $(OBJDIR)
 main: $(OBJDIR)/main.o $(SRCOBJS) $(OBJDIR)/gl.o $(OBJDIR)/stb_image.o $(IMGUI_CORE_O) $(IMGUI_MISC_O) $(IMGUI_BACKENDS_O)
-	$(CXX) $(CXXFLAGS) $(LFLAGS) $^ -o $@
-$(OBJDIR)/%.o: $(SRCDIR)/%.cpp $(SRCDIR)/%.hpp
-	$(CXX) $(CXXFLAGS) $< -c -o $@
+	@echo Linking $@
+	@$(CXX) $(CXXFLAGS) $(LFLAGS) $^ -o $@
 
-# .o targets
-$(OBJDIR)/main.o: $(SRCDIR)/main.cpp $(HEADERS)
-	$(CXX) $(CXXFLAGS) $< -c -o $@
+# Source objects
+$(OBJDIR)/main.o: $(SRCDIR)/main.cpp
+	@echo Compiling $@
+	@$(CXX) $(CXXFLAGS) $< -c -o $@
+$(OBJDIR)/%.o: $(SRCDIR)/%.cpp $(SRCDIR)/%.hpp
+	@echo Compiling $@
+	@$(CXX) $(CXXFLAGS) $< -c -o $@
+	
+# External objects
 $(OBJDIR)/gl.o: $(EXTDIR)/glad/src/gl.c
-	$(CXX) $(CFLAGS) $< -c -o $@
+	@echo Compiling $@
+	@$(CC) $(CFLAGS) $< -c -o $@
 $(OBJDIR)/%.o: $(EXTDIR)/*/%.cpp
-	$(CXX) $(CXXFLAGS) $< -c -o $@
+	@echo Compiling $@
+	@$(CXX) $(CXXFLAGS) $< -c -o $@
 $(OBJDIR)/%.o: $(EXTDIR)/*/%.c
-	$(CC) $(CFLAGS) $^ -c -o $@
-$(OBJDIR)/%.o: $(SRCDIR)/*/%.cpp
-	$(CXX) $(CXXFLAGS) $< -c -o $@
-$(OBJDIR)/%.o: $(SRCDIR)/*/%.c
-	$(CC) $(CFLAGS) $^ -c -o $@
+	@echo Compiling $@
+	@$(CC) $(CFLAGS) $^ -c -o $@
 
 .PHONY: clean
 clean:
-	@rm -f $(OBJDIR)/*.o
+	@rm -fr $(OBJDIR)
 	@rm -f main
 	@rm -f imgui.ini
