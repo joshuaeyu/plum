@@ -12,21 +12,21 @@
 
 SceneNode::SceneNode(std::shared_ptr<Drawable> node_template) {
     NodeTemplate = node_template;
-    Name = "SceneNode" + to_string(count++);
+    Name = "SceneNode" + std::to_string(count++);
     NameTemp = Name;
 }
 
 // Methods
 void SceneNode::DrawDefault() {
     if (!NodeTemplate->DefaultShader) {
-        cout << "ERROR: Cannot draw model '" << Name << "'. No default model shader is set." << endl;
+        std::cout << "ERROR: Cannot draw model '" << Name << "'. No default model shader is set." << std::endl;
         exit(-1);
     }
     Draw(*NodeTemplate->DefaultShader);
 }
 void SceneNode::Draw() {
     if (!InstanceShader) {
-        cout << "ERROR: Cannot draw '" << Name << "'. No node shader is set." << endl;
+        std::cout << "ERROR: Cannot draw '" << Name << "'. No node shader is set." << std::endl;
         exit(-1);
     }
     Draw(*InstanceShader);

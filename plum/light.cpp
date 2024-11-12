@@ -51,7 +51,7 @@ void DirectionalLight::EnableShadows(const float width, const float height, cons
 
 glm::mat4& DirectionalLight::GetLightspaceMatrix() { 
     if (!hasShadows) {
-        cout << "Shadows are disabled for this light source!" << endl;
+        std::cout << "Shadows are disabled for this light source!" << std::endl;
         exit(-1);
     }
     updateLightspaceMatrix();
@@ -106,15 +106,15 @@ void PointLight::SetAttenuation(float constant, float linear, float quadratic) {
     updateRadius();
 }
 
-shared_ptr<Sphere> PointLight::GetShapeTemplate() {
+std::shared_ptr<Sphere> PointLight::GetShapeTemplate() {
     return sphere;
 }
-shared_ptr<SceneNode> PointLight::GetSceneNode() {
+std::shared_ptr<SceneNode> PointLight::GetSceneNode() {
     return node;
 }
-vector<glm::mat4>& PointLight::GetLightspaceMatrices() {
+std::vector<glm::mat4>& PointLight::GetLightspaceMatrices() {
     if (!hasShadows) {
-        cout << "Shadows are disabled for this light source!" << endl;
+        std::cout << "Shadows are disabled for this light source!" << std::endl;
         exit(-1);
     }
     updateLightspaceMatrices();
@@ -190,7 +190,7 @@ void SpotLight::SetAttenuation(float constant, float linear, float quadratic) {
 
 glm::mat4& SpotLight::GetLightspaceMatrix() { 
     if (!hasShadows) {
-        cout << "Shadows are disabled for this light source!" << endl;
+        std::cout << "Shadows are disabled for this light source!" << std::endl;
         exit(-1);
     }
     updateLightspaceMatrix();

@@ -137,48 +137,48 @@ void Mesh::setUniforms(Shader& shader, glm::mat4 scene_model_matrix) {
 
     for (int i = 0; i < textures.size(); i++) {
         glActiveTexture(GL_TEXTURE0 + i);
-        string number;
+        std::string number;
         Tex::Tex_Type type = textures[i]->Type;
         switch (type) {
             case Tex::Tex_Type::TEX_AMBIENT:
-                number = to_string(ambientNum++);
+                number = std::to_string(ambientNum++);
                 shader.setInt("material.texture_ambient_count", ambientNum);
                 break;
             case Tex::Tex_Type::TEX_DIFFUSE:
-                number = to_string(diffuseNum++);
+                number = std::to_string(diffuseNum++);
                 shader.setInt("material.texture_diffuse_count", diffuseNum);
                 break;
             case Tex::Tex_Type::TEX_SPECULAR:
-                number = to_string(specularNum++);
+                number = std::to_string(specularNum++);
                 shader.setInt("material.texture_specular_count", specularNum);
                 break;
             case Tex::Tex_Type::TEX_HEIGHT:
-                number = to_string(heightNum++);
+                number = std::to_string(heightNum++);
                 shader.setInt("material.texture_height_count", heightNum);
                 break;
             case Tex::Tex_Type::TEX_NORMAL:
-                number = to_string(normalNum++);
+                number = std::to_string(normalNum++);
                 shader.setInt("material.texture_normal_count", normalNum);
                 break;
             case Tex::Tex_Type::TEX_METALNESS:
-                number = to_string(metalnessNum++);
+                number = std::to_string(metalnessNum++);
                 shader.setInt("material.texture_metalness_count", metalnessNum);
                 break;
             case Tex::Tex_Type::TEX_ROUGHNESS:
-                number = to_string(roughnessNum++);
+                number = std::to_string(roughnessNum++);
                 shader.setInt("material.texture_roughness_count", roughnessNum);
                 break;
             case Tex::Tex_Type::TEX_OCCLUSION:
-                number = to_string(occlusionNum++);
+                number = std::to_string(occlusionNum++);
                 shader.setInt("material.texture_occlusion_count", occlusionNum);
                 break;
             case Tex::Tex_Type::TEX_UNKNOWN:
-                number = to_string(unknownNum++);
+                number = std::to_string(unknownNum++);
                 shader.setInt("material.texture_unknown_count", unknownNum);
                 break;
         }
         // shader.setInt(("material." + type + "[" + number + "]").c_str(), i);
-        string stringtype = Tex::TexTypeToString(type);
+        std::string stringtype = Tex::TexTypeToString(type);
         shader.setInt(("material.texture_" + stringtype).c_str(), i);
         glBindTexture(GL_TEXTURE_2D, textures[i]->ID);
     }

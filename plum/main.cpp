@@ -138,16 +138,16 @@ int main() {
     Shader shader_2dssao("shaders/shaderv_2d.vs", "shaders/shaderf_2dssao.fs");
     Shader shader_2dssaoblur("shaders/shaderv_2d.vs", "shaders/shaderf_2dssaoblur.fs");
     // Set up shader uniform blocks
-    shader_3mf.setUniformBlockBinding(SHADER_UBO_SCHEME_1);
-    shader_obj.setUniformBlockBinding(SHADER_UBO_SCHEME_1);
-    shader_rawalbedo.setUniformBlockBinding(SHADER_UBO_SCHEME_1);
-    shader_basiccolor.setUniformBlockBinding(SHADER_UBO_SCHEME_1);
-    shader_basictexture.setUniformBlockBinding(SHADER_UBO_SCHEME_1);
-    shader_basichybrid.setUniformBlockBinding(SHADER_UBO_SCHEME_1);
-    shader_lightingpasspbr.setUniformBlockBinding(SHADER_UBO_SCHEME_1);
-    // shader_obj_explode.setUniformBlockBinding(SHADER_UBO_SCHEME_1);
-    // shader_normals.setUniformBlockBinding(SHADER_UBO_SCHEME_1);
-    // shader_asteroids.setUniformBlockBinding(SHADER_UBO_SCHEME_1);
+    shader_3mf.setUniformBlockBinding(Shader::Shader_Enum::SHADER_UBO_SCHEME_1);
+    shader_obj.setUniformBlockBinding(Shader::Shader_Enum::SHADER_UBO_SCHEME_1);
+    shader_rawalbedo.setUniformBlockBinding(Shader::Shader_Enum::SHADER_UBO_SCHEME_1);
+    shader_basiccolor.setUniformBlockBinding(Shader::Shader_Enum::SHADER_UBO_SCHEME_1);
+    shader_basictexture.setUniformBlockBinding(Shader::Shader_Enum::SHADER_UBO_SCHEME_1);
+    shader_basichybrid.setUniformBlockBinding(Shader::Shader_Enum::SHADER_UBO_SCHEME_1);
+    shader_lightingpasspbr.setUniformBlockBinding(Shader::Shader_Enum::SHADER_UBO_SCHEME_1);
+    // shader_obj_explode.setUniformBlockBinding(Shader::Shader_Enum::SHADER_UBO_SCHEME_1);
+    // shader_normals.setUniformBlockBinding(Shader::Shader_Enum::SHADER_UBO_SCHEME_1);
+    // shader_asteroids.setUniformBlockBinding(Shader::Shader_Enum::SHADER_UBO_SCHEME_1);
     cout << "Done loading shaders!" << endl << endl;
 
     //          TEXTURES

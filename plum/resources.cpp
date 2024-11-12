@@ -13,28 +13,28 @@ std::shared_ptr<Tex> Resources::LoadTexture2D(std::string name, std::string path
     Textures.insert(std::pair<std::string, std::shared_ptr<Tex>>(name, t));
     return t;
 }
-std::shared_ptr<Tex> Resources::LoadTextureCube(string name, std::vector<std::string>& faces_filenames, GLenum target, GLint wraptype, GLint filtertype, bool flip) {
+std::shared_ptr<Tex> Resources::LoadTextureCube(std::string name, std::vector<std::string>& faces_filenames, GLenum target, GLint wraptype, GLint filtertype, bool flip) {
     std::shared_ptr<Tex> t(new Tex(name, faces_filenames, target, wraptype, filtertype, flip));
-    Textures.insert(pair<string, shared_ptr<Tex>>(name, t));
+    Textures.insert(std::pair<std::string, std::shared_ptr<Tex>>(name, t));
     return t;
 }
-std::shared_ptr<Shader> Resources::LoadShader(string name, string vspath, std::string fspath, std::string gspath) {
+std::shared_ptr<Shader> Resources::LoadShader(std::string name, std::string vspath, std::string fspath, std::string gspath) {
     std::shared_ptr<Shader> s(new Shader(vspath, fspath, gspath));
     Shaders.insert(std::pair<std::string, std::shared_ptr<Shader>>(name, s));
     return s;
 }
 
-std::shared_ptr<Model> Resources::LoadModel(string name, Shader& default_shader, std::string path, float scale, bool flip_textures) {
+std::shared_ptr<Model> Resources::LoadModel(std::string name, Shader& default_shader, std::string path, float scale, bool flip_textures) {
     std::shared_ptr<Model> m(new Model(name, path, &default_shader, scale, flip_textures));
     Models.insert(std::pair<std::string, std::shared_ptr<Model>>(name, m));
     return m;
 }
 std::shared_ptr<Cube> Resources::LoadCube(std::string name, Shader& default_shader) {
-    shared_ptr<Cube> c(new Cube(name, &default_shader));
-    Shapes.insert(pair<std::string, shared_ptr<Shape>>(name, c));
+    std::shared_ptr<Cube> c(new Cube(name, &default_shader));
+    Shapes.insert(std::pair<std::string, std::shared_ptr<Shape>>(name, c));
     return c;
 }
-shared_ptr<Sphere> Resources::LoadSphere(std::string name, Shader& default_shader, const unsigned int stack_count, const unsigned int sector_count) {
+std::shared_ptr<Sphere> Resources::LoadSphere(std::string name, Shader& default_shader, const unsigned int stack_count, const unsigned int sector_count) {
     std::shared_ptr<Sphere> s(new Sphere(name, &default_shader, stack_count, sector_count));
     Shapes.insert(std::pair<std::string, std::shared_ptr<Shape>>(name, s));
     return s;

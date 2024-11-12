@@ -104,7 +104,7 @@ GLuint Engine::_equirectToCubemap(Tex& equirect, Shader& shader) {
         shader.setMat4("view", views[i]);
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, cubemap, 0);
         if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-            cout << "framebuffer error: " << glCheckFramebufferStatus(GL_FRAMEBUFFER) << endl;
+            std::cout << "framebuffer error: " << glCheckFramebufferStatus(GL_FRAMEBUFFER) << std::endl;
             exit(1);
         }
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -172,7 +172,7 @@ GLuint Engine::_envToIrradiance(GLuint envcubemap, Shader& shader) {
         shader.setMat4("view", views[i]);
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, irrcubemap, 0);
         if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-            cout << "framebuffer error: " << glCheckFramebufferStatus(GL_FRAMEBUFFER) << endl;
+            std::cout << "framebuffer error: " << glCheckFramebufferStatus(GL_FRAMEBUFFER) << std::endl;
             exit(1);
         }
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -250,7 +250,7 @@ GLuint Engine::_envToPrefilter(GLuint envcubemap, Shader& shader) {
             shader.setMat4("view", views[i]);
             glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, prefilterCubemap, mip);
             if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-                cout << "framebuffer error: " << glCheckFramebufferStatus(GL_FRAMEBUFFER) << endl;
+                std::cout << "framebuffer error: " << glCheckFramebufferStatus(GL_FRAMEBUFFER) << std::endl;
                 exit(1);
             }
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -264,7 +264,7 @@ GLuint Engine::_envToPrefilter(GLuint envcubemap, Shader& shader) {
     return prefilterCubemap;
 }
 
-void Engine::InitEnvironment(shared_ptr<Tex> map) {
+void Engine::InitEnvironment(std::shared_ptr<Tex> map) {
     CurrentEnvironment = Environment();
     if (map->Target == GL_TEXTURE_2D) {
         CurrentEnvironment.environment = _equirectToCubemap(*map, *EquirectShader);
@@ -301,7 +301,7 @@ GLuint Engine::GenerateBrdfLut(Shader& shader) {
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, brdfLUT, 0);
 
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-        cout << "framebuffer error: " << glCheckFramebufferStatus(GL_FRAMEBUFFER) << endl;
+        std::cout << "framebuffer error: " << glCheckFramebufferStatus(GL_FRAMEBUFFER) << std::endl;
         exit(1);
     }
     
@@ -360,7 +360,7 @@ void Engine::InitGbuffer() {
 
     if (!Gbuffer.fbo) {
         glGenFramebuffers(1, &Gbuffer.fbo);
-        Gbuffer.colors = vector<GLuint>(4);
+        Gbuffer.colors = std::vector<GLuint>(4);
         glGenTextures(4, &Gbuffer.colors[0]);
         glGenRenderbuffers(1, &Gbuffer.depth);
 
@@ -412,7 +412,7 @@ void Engine::InitGbuffer() {
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depth);
 
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-        cout << "framebuffer error: " << glCheckFramebufferStatus(GL_FRAMEBUFFER) << endl;
+        std::cout << "framebuffer error: " << glCheckFramebufferStatus(GL_FRAMEBUFFER) << std::endl;
         exit(1);
     }
 }
@@ -423,8 +423,8 @@ void Engine::InitSsao() {
 
     if (!Ssao.fbo || !SsaoBlur.fbo) {
         // Generate sampling kernel (random vectors in tangent space in the +normal hemisphere)
-        uniform_real_distribution<float> randomFloats(0.0, 1.0);
-        default_random_engine generator;
+        std::uniform_real_distribution<float> randomFloats(0.0, 1.0);
+        std::default_random_engine generator;
         for (int i = 0; i < 64; i++) {
             glm::vec3 sample(randomFloats(generator) * 2.0 - 1.0, randomFloats(generator) * 2.0 - 1.0, randomFloats(generator));
             sample = randomFloats(generator) * glm::normalize(sample);
@@ -435,7 +435,7 @@ void Engine::InitSsao() {
         }
 
         // Generate noise texture (random vectors in tangent space on the tangent-bitangent plane)
-        vector<glm::vec3> noiseVector;    
+        std::vector<glm::vec3> noiseVector;    
         for (int i = 0; i < 16; i++) {
             glm::vec3 sample(randomFloats(generator) * 2.0 - 1.0, randomFloats(generator) * 2.0 - 1.0, 0.0);
             noiseVector.push_back(sample);
@@ -449,11 +449,11 @@ void Engine::InitSsao() {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
         glGenFramebuffers(1, &Ssao.fbo);
-        Ssao.colors = vector<GLuint>(1);
+        Ssao.colors = std::vector<GLuint>(1);
         glGenTextures(1, &Ssao.colors[0]);
         
         glGenFramebuffers(1, &SsaoBlur.fbo);
-        SsaoBlur.colors = vector<GLuint>(1);
+        SsaoBlur.colors = std::vector<GLuint>(1);
         glGenTextures(1, &SsaoBlur.colors[0]);
     }
 
@@ -465,7 +465,7 @@ void Engine::InitSsao() {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, Ssao.colors[0], 0);
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-        cout << "framebuffer error: " << glCheckFramebufferStatus(GL_FRAMEBUFFER) << endl;
+        std::cout << "framebuffer error: " << glCheckFramebufferStatus(GL_FRAMEBUFFER) << std::endl;
         exit(1);
     }
     
@@ -477,7 +477,7 @@ void Engine::InitSsao() {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, SsaoBlur.colors[0], 0);
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-        cout << "framebuffer error: " << glCheckFramebufferStatus(GL_FRAMEBUFFER) << endl;
+        std::cout << "framebuffer error: " << glCheckFramebufferStatus(GL_FRAMEBUFFER) << std::endl;
         exit(1);
     } 
 
@@ -489,7 +489,7 @@ void Engine::InitHdr() {
 
     if (!Hdr.fbo) {
         glGenFramebuffers(1, &Hdr.fbo);
-        Hdr.colors = vector<GLuint>(1);
+        Hdr.colors = std::vector<GLuint>(1);
         glGenTextures(1, &Hdr.colors[0]);
         glGenRenderbuffers(1, &Hdr.depth);
     }
@@ -512,7 +512,7 @@ void Engine::InitHdr() {
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depth);
     
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-        cout << "framebuffer error: " << glCheckFramebufferStatus(GL_FRAMEBUFFER) << endl;
+        std::cout << "framebuffer error: " << glCheckFramebufferStatus(GL_FRAMEBUFFER) << std::endl;
         exit(1);
     }
 
@@ -524,12 +524,12 @@ void Engine::InitBloom() {
     
     if (!Bloom1.fbo || !Bloom2.fbo) {
         glGenFramebuffers(1, &Bloom1.fbo);
-        Bloom1.colors = vector<GLuint>(2);
+        Bloom1.colors = std::vector<GLuint>(2);
         glGenTextures(2, &Bloom1.colors[0]);
         glGenRenderbuffers(1, &Bloom1.depth);
 
         glGenFramebuffers(1, &Bloom2.fbo);
-        Bloom2.colors = vector<GLuint>(2);
+        Bloom2.colors = std::vector<GLuint>(2);
         glGenTextures(2, &Bloom2.colors[0]);
 
         GLenum attachments[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
@@ -553,7 +553,7 @@ void Engine::InitBloom() {
     glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, ScreenWidth, ScreenHeight);
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, Bloom1.depth);
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-        cout << "framebuffer error: " << glCheckFramebufferStatus(GL_FRAMEBUFFER) << endl;
+        std::cout << "framebuffer error: " << glCheckFramebufferStatus(GL_FRAMEBUFFER) << std::endl;
         exit(1);
     }
 
@@ -568,7 +568,7 @@ void Engine::InitBloom() {
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, Bloom2.colors[i], 0);
     }
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-        cout << "framebuffer error: " << glCheckFramebufferStatus(GL_FRAMEBUFFER) << endl;
+        std::cout << "framebuffer error: " << glCheckFramebufferStatus(GL_FRAMEBUFFER) << std::endl;
         exit(1);
     }   
 
@@ -580,7 +580,7 @@ void Engine::InitFxaa() {
     
     if (!Fxaa.fbo) {
         glGenFramebuffers(1, &Fxaa.fbo);
-        Fxaa.colors = vector<GLuint>(1);
+        Fxaa.colors = std::vector<GLuint>(1);
         glGenTextures(1, &Fxaa.colors[0]);
         glGenRenderbuffers(1, &Fxaa.depth);
     }
@@ -602,7 +602,7 @@ void Engine::InitFxaa() {
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depth);
     
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-        cout << "framebuffer error: " << glCheckFramebufferStatus(GL_FRAMEBUFFER) << endl;
+        std::cout << "framebuffer error: " << glCheckFramebufferStatus(GL_FRAMEBUFFER) << std::endl;
         exit(1);
     }
 

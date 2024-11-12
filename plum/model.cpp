@@ -37,7 +37,7 @@ void Model::Draw(Shader& shader, glm::mat4 model_matrix) {
         meshes[i]->Draw(shader, model_matrix);
     }
 }
-void Model::DrawInstanced(Shader& shader, vector<glm::mat4>& modelMatrices) {
+void Model::DrawInstanced(Shader& shader, std::vector<glm::mat4>& modelMatrices) {
     if (!instancesInitialized) {
         unsigned int VBO;
         glGenBuffers(1, &VBO);
@@ -142,42 +142,42 @@ std::shared_ptr<Mesh> Model::processMesh(aiMesh *mesh, const aiScene *scene, glm
     // }
     // 1) Textures
     if (material->GetTextureCount(aiTextureType_AMBIENT) > 0) {
-        vector<shared_ptr<Tex>> ambientMaps = loadMaterialTextures(material, aiTextureType_AMBIENT, Tex::Tex_Type::TEX_AMBIENT );
+        std::vector<std::shared_ptr<Tex>> ambientMaps = loadMaterialTextures(material, aiTextureType_AMBIENT, Tex::Tex_Type::TEX_AMBIENT );
         textures.insert(textures.end(), ambientMaps.begin(), ambientMaps.end());
     }
     if (material->GetTextureCount(aiTextureType_DIFFUSE) > 0) {
-        vector<shared_ptr<Tex>> diffuseMaps = loadMaterialTextures(material, aiTextureType_DIFFUSE, Tex::Tex_Type::TEX_DIFFUSE );
+        std::vector<std::shared_ptr<Tex>> diffuseMaps = loadMaterialTextures(material, aiTextureType_DIFFUSE, Tex::Tex_Type::TEX_DIFFUSE );
         textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
     }
     if (material->GetTextureCount(aiTextureType_SPECULAR) > 0) {
-        vector<shared_ptr<Tex>> specularMaps = loadMaterialTextures(material, aiTextureType_SPECULAR, Tex::Tex_Type::TEX_SPECULAR );
+        std::vector<std::shared_ptr<Tex>> specularMaps = loadMaterialTextures(material, aiTextureType_SPECULAR, Tex::Tex_Type::TEX_SPECULAR );
         textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
     }
     if (material->GetTextureCount(aiTextureType_HEIGHT) > 0) {
-        vector<shared_ptr<Tex>> heightMaps = loadMaterialTextures(material, aiTextureType_HEIGHT, Tex::Tex_Type::TEX_HEIGHT );
+        std::vector<std::shared_ptr<Tex>> heightMaps = loadMaterialTextures(material, aiTextureType_HEIGHT, Tex::Tex_Type::TEX_HEIGHT );
         textures.insert(textures.end(), heightMaps.begin(), heightMaps.end());
     }
     if (material->GetTextureCount(aiTextureType_NORMALS) > 0) {
-        vector<shared_ptr<Tex>> normalMaps = loadMaterialTextures(material, aiTextureType_NORMALS, Tex::Tex_Type::TEX_NORMAL );
+        std::vector<std::shared_ptr<Tex>> normalMaps = loadMaterialTextures(material, aiTextureType_NORMALS, Tex::Tex_Type::TEX_NORMAL );
         textures.insert(textures.end(), normalMaps.begin(), normalMaps.end());
     }
     if (material->GetTextureCount(aiTextureType_DIFFUSE_ROUGHNESS) > 0) {
-        vector<shared_ptr<Tex>> roughnessMaps = loadMaterialTextures(material, aiTextureType_DIFFUSE_ROUGHNESS, Tex::Tex_Type::TEX_ROUGHNESS );
+        std::vector<std::shared_ptr<Tex>> roughnessMaps = loadMaterialTextures(material, aiTextureType_DIFFUSE_ROUGHNESS, Tex::Tex_Type::TEX_ROUGHNESS );
         textures.insert(textures.end(), roughnessMaps.begin(), roughnessMaps.end());
     }
     if (material->GetTextureCount(aiTextureType_METALNESS) > 0) {
-        vector<shared_ptr<Tex>> metalnessMaps = loadMaterialTextures(material, aiTextureType_METALNESS, Tex::Tex_Type::TEX_METALNESS );
+        std::vector<std::shared_ptr<Tex>> metalnessMaps = loadMaterialTextures(material, aiTextureType_METALNESS, Tex::Tex_Type::TEX_METALNESS );
         textures.insert(textures.end(), metalnessMaps.begin(), metalnessMaps.end());
     }
     if (material->GetTextureCount(aiTextureType_AMBIENT_OCCLUSION) > 0) {
-        vector<shared_ptr<Tex>> occlusionMaps = loadMaterialTextures(material, aiTextureType_AMBIENT_OCCLUSION, Tex::Tex_Type::TEX_OCCLUSION );
+        std::vector<std::shared_ptr<Tex>> occlusionMaps = loadMaterialTextures(material, aiTextureType_AMBIENT_OCCLUSION, Tex::Tex_Type::TEX_OCCLUSION );
         textures.insert(textures.end(), occlusionMaps.begin(), occlusionMaps.end());
     } else if (material->GetTextureCount(aiTextureType_LIGHTMAP) > 0) {    // ambient occlusion for non PBR
-        vector<shared_ptr<Tex>> occlusionMaps = loadMaterialTextures(material, aiTextureType_LIGHTMAP, Tex::Tex_Type::TEX_OCCLUSION );
+        std::vector<std::shared_ptr<Tex>> occlusionMaps = loadMaterialTextures(material, aiTextureType_LIGHTMAP, Tex::Tex_Type::TEX_OCCLUSION );
         textures.insert(textures.end(), occlusionMaps.begin(), occlusionMaps.end());
     }
     if (material->GetTextureCount(aiTextureType_UNKNOWN) > 0) {
-        vector<shared_ptr<Tex>> unknownMaps = loadMaterialTextures(material, aiTextureType_UNKNOWN, Tex::Tex_Type::TEX_UNKNOWN );
+        std::vector<std::shared_ptr<Tex>> unknownMaps = loadMaterialTextures(material, aiTextureType_UNKNOWN, Tex::Tex_Type::TEX_UNKNOWN );
         textures.insert(textures.end(), unknownMaps.begin(), unknownMaps.end());
     }
     // 2) Colors
@@ -290,7 +290,7 @@ std::vector<std::shared_ptr<Tex>> Model::loadMaterialTextures(aiMaterial *materi
 std::shared_ptr<Tex> Model::textureFromFile(std::string path, std::string directory, Tex::Tex_Type textype) {
     std::string filename = directory + "/" + path;
     std::cout << "  ";
-    return make_shared<Tex>(path, filename, GL_TEXTURE_2D, wrapType, GL_LINEAR, textype);
+    return std::make_shared<Tex>(path, filename, GL_TEXTURE_2D, wrapType, GL_LINEAR, textype);
 };
 
 void Model::log() {
