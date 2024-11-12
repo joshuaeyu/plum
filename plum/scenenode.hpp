@@ -6,19 +6,20 @@
 #include <glad/gl.h>
 
 #include <glm/glm.hpp>
+#include <glm/ext/matrix_transform.hpp>
 
-#include <plum/shader.hpp>
+class Shader;
 
 class Drawable {
     public:
-        string Name, NameTemp;
+        std::string Name, NameTemp;
         Shader* DefaultShader = nullptr;
         bool FlipYZ = false;
         
         virtual ~Drawable() {}
         virtual void Draw(Shader& shader, glm::mat4 model_matrix = glm::identity<glm::mat4>()) = 0;
     protected:
-        Drawable(string name, Shader* default_shader, bool flip_yz = false) : Name(name), NameTemp(name), DefaultShader(default_shader), FlipYZ(flip_yz) {}
+        Drawable(std::string name, Shader* default_shader, bool flip_yz = false) : Name(name), NameTemp(name), DefaultShader(default_shader), FlipYZ(flip_yz) {}
 };
 
 class SceneNode {
@@ -32,53 +33,22 @@ class SceneNode {
         
         bool BypassLighting = false;
         Shader* InstanceShader = nullptr;
-        shared_ptr<Drawable> NodeTemplate;
+        std::shared_ptr<Drawable> NodeTemplate;
 
-        SceneNode(shared_ptr<Drawable> node_template) {
-            NodeTemplate = node_template;
-            Name = "SceneNode" + to_string(count++);
-            NameTemp = Name;
-        }
+        SceneNode(std::shared_ptr<Drawable> node_template);
 
         // Methods
-        void DrawDefault() {
-            if (!NodeTemplate->DefaultShader) {
-                cout << "ERROR: Cannot draw model '" << Name << "'. No default model shader is set." << endl;
-                exit(-1);
-            }
-            Draw(*NodeTemplate->DefaultShader);
-        }
-        void Draw() {
-            if (!InstanceShader) {
-                cout << "ERROR: Cannot draw '" << Name << "'. No node shader is set." << endl;
-                exit(-1);
-            }
-            Draw(*InstanceShader);
-        }
-        void Draw(Shader& shader) {
-            glUseProgram(shader.programID);
-            updateModelMatrix();
-            NodeTemplate->Draw(shader, modelMatrix);
-        }
+        void DrawDefault();
+        void Draw();
+        void Draw(Shader& shader);
 
         // Modifiers
-        void SetShader(Shader* shader) {
-            InstanceShader = shader;
-        }
-        void SetPlacement(glm::vec3 position, glm::vec3 scale = glm::vec3(1), glm::vec3 rotation = glm::vec3(0)) {
-            Position = position;
-            Rotation = rotation;
-            Scale = scale;
-        }
-        void SetName(std::string instance_name) {
-            Name = instance_name;
-            NameTemp = Name;
-        }
+        void SetShader(Shader* shader);
+        void SetPlacement(glm::vec3 position, glm::vec3 scale = glm::vec3(1), glm::vec3 rotation = glm::vec3(0));
+        void SetName(std::string instance_name);
 
         // Accessors
-        glm::mat4 GetModelMatrix() {
-            return modelMatrix;
-        }
+        glm::mat4 GetModelMatrix();
     
     protected:
 
@@ -89,19 +59,7 @@ class SceneNode {
         glm::vec3 rotationLast = glm::vec3(0);
         // shared_ptr<PointLight> linkedPointLight;
         
-        void updateModelMatrix() {
-            if (Scale != scaleLast || Position != positionLast || Rotation != rotationLast ) {
-                modelMatrix = glm::mat4(1);
-                modelMatrix = glm::translate(modelMatrix, Position);
-                modelMatrix = glm::rotate(modelMatrix, glm::radians(Rotation.x), glm::vec3(1,0,0));
-                modelMatrix = glm::rotate(modelMatrix, glm::radians(Rotation.y), glm::vec3(0,1,0));
-                modelMatrix = glm::rotate(modelMatrix, glm::radians(Rotation.z), glm::vec3(0,0,1));
-                modelMatrix = glm::scale(modelMatrix, Scale);
-                scaleLast = Scale;
-                positionLast = Position;
-                rotationLast = Rotation;
-            }
-        }
+        void updateModelMatrix();
 };
 
 #endif

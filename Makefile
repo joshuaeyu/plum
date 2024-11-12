@@ -40,7 +40,8 @@ LFLAGS = 	-L$(LIB_GLFW)	\
 			-framework IOKit
 
 # Headers
-HEADERS = $(SRCDIR)/camera.hpp $(SRCDIR)/engine.hpp $(SRCDIR)/interface.hpp $(SRCDIR)/light.hpp $(SRCDIR)/mesh.hpp $(SRCDIR)/model.hpp $(SRCDIR)/resources.hpp $(SRCDIR)/scene.hpp $(SRCDIR)/scenenode.hpp $(SRCDIR)/shader.hpp $(SRCDIR)/shape.hpp $(SRCDIR)/texture.hpp
+HEADERS = 
+SRCOBJS = $(OBJDIR)/camera.o $(OBJDIR)/engine.o $(OBJDIR)/interface.o $(OBJDIR)/light.o $(OBJDIR)/scene.o $(OBJDIR)/mesh.o $(OBJDIR)/model.o $(OBJDIR)/resources.o $(OBJDIR)/scenenode.o $(OBJDIR)/shader.o $(OBJDIR)/shape.o $(OBJDIR)/texture.o
 
 # ImGui resources
 IMGUI_CORE_CPP = $(wildcard $(EXTDIR)/imgui/imgui*.cpp)
@@ -49,8 +50,10 @@ IMGUI_MISC_O = $(OBJDIR)/imgui_stdlib.o
 IMGUI_BACKENDS_O = $(OBJDIR)/imgui_impl_glfw.o $(OBJDIR)/imgui_impl_opengl3.o
 
 # Targets
-main: $(OBJDIR)/main.o $(OBJDIR)/gl.o $(OBJDIR)/stb_image.o $(IMGUI_CORE_O) $(IMGUI_MISC_O) $(IMGUI_BACKENDS_O)
+main: $(OBJDIR)/main.o $(SRCOBJS) $(OBJDIR)/gl.o $(OBJDIR)/stb_image.o $(IMGUI_CORE_O) $(IMGUI_MISC_O) $(IMGUI_BACKENDS_O)
 	$(CXX) $(CXXFLAGS) $(LFLAGS) $^ -o $@
+$(OBJDIR)/%.o: $(SRCDIR)/%.cpp $(SRCDIR)/%.hpp
+	$(CXX) $(CXXFLAGS) $< -c -o $@
 
 # .o targets
 $(OBJDIR)/main.o: $(SRCDIR)/main.cpp $(HEADERS)
@@ -68,6 +71,6 @@ $(OBJDIR)/%.o: $(SRCDIR)/*/%.c
 
 .PHONY: clean
 clean:
-	rm $(OBJDIR)/*.o
-	rm main
-	rm imgui.ini
+	@rm -f $(OBJDIR)/*.o
+	@rm -f main
+	@rm -f imgui.ini
