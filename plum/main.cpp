@@ -158,7 +158,7 @@ int main() {
     shared_ptr<Tex> tex_stonetiles = Resources::LoadTexture2D("stonetiles", "assets/stonetiles.jpg", GL_TEXTURE_2D, GL_REPEAT, GL_LINEAR);
     shared_ptr<Tex> tex_rustedmetal = Resources::LoadTexture2D("rustedmetal", "assets/rustedmetal.jpg", GL_TEXTURE_2D, GL_REPEAT, GL_LINEAR);
     shared_ptr<Tex> tex_brickdiffuse = Resources::LoadTexture2D("brickdiffuse", "assets/brickwall.jpg", GL_TEXTURE_2D, GL_REPEAT, GL_LINEAR);
-    shared_ptr<Tex> tex_bricknormal = Resources::LoadTexture2D("bricknormal", "assets/brickwall_normal.jpg", GL_TEXTURE_2D, GL_REPEAT, GL_LINEAR, TEX_HEIGHT);
+    shared_ptr<Tex> tex_bricknormal = Resources::LoadTexture2D("bricknormal", "assets/brickwall_normal.jpg", GL_TEXTURE_2D, GL_REPEAT, GL_LINEAR, Tex::Tex_Type::TEX_HEIGHT);
     vector<string> ocean_faces = {
         "assets/skybox/right.jpg",
         "assets/skybox/left.jpg",
@@ -169,10 +169,10 @@ int main() {
     };
     shared_ptr<Tex> tex_oceanskybox = Resources::LoadTextureCube("ocean", ocean_faces, GL_TEXTURE_CUBE_MAP, GL_CLAMP_TO_EDGE, GL_LINEAR);
     shared_ptr<Tex> tex_nightsky = Resources::LoadTexture2D("nightsky", "assets/kloppenheim_4k.hdr", GL_TEXTURE_2D, GL_CLAMP_TO_EDGE, GL_LINEAR);
-    shared_ptr<Tex> tex_garden = Resources::LoadTexture2D("garden", "assets/studio_garden_4k.hdr", GL_TEXTURE_2D, GL_REPEAT, GL_LINEAR, TEX_DIFFUSE, true);
-    shared_ptr<Tex> tex_puppetstudio = Resources::LoadTexture2D("puppetstudio", "assets/puppet_studio_4k.hdr", GL_TEXTURE_2D, GL_REPEAT, GL_LINEAR, TEX_DIFFUSE, true);
-    shared_ptr<Tex> tex_trainstation = Resources::LoadTexture2D("trainstation", "assets/dresden_station_4k.hdr", GL_TEXTURE_2D, GL_REPEAT, GL_LINEAR, TEX_DIFFUSE, true);
-    shared_ptr<Tex> tex_newportloft = Resources::LoadTexture2D("newportloft", "assets/newport_loft.png", GL_TEXTURE_2D, GL_REPEAT, GL_LINEAR, TEX_DIFFUSE, true);
+    shared_ptr<Tex> tex_garden = Resources::LoadTexture2D("garden", "assets/studio_garden_4k.hdr", GL_TEXTURE_2D, GL_REPEAT, GL_LINEAR, Tex::Tex_Type::TEX_DIFFUSE, true);
+    shared_ptr<Tex> tex_puppetstudio = Resources::LoadTexture2D("puppetstudio", "assets/puppet_studio_4k.hdr", GL_TEXTURE_2D, GL_REPEAT, GL_LINEAR, Tex::Tex_Type::TEX_DIFFUSE, true);
+    shared_ptr<Tex> tex_trainstation = Resources::LoadTexture2D("trainstation", "assets/dresden_station_4k.hdr", GL_TEXTURE_2D, GL_REPEAT, GL_LINEAR, Tex::Tex_Type::TEX_DIFFUSE, true);
+    shared_ptr<Tex> tex_newportloft = Resources::LoadTexture2D("newportloft", "assets/newport_loft.png", GL_TEXTURE_2D, GL_REPEAT, GL_LINEAR, Tex::Tex_Type::TEX_DIFFUSE, true);
     shared_ptr<Tex> tex_black = Resources::LoadTexture2D("black", "assets/black.png", GL_TEXTURE_2D, GL_REPEAT, GL_NEAREST);
     shared_ptr<Tex> tex_white = Resources::LoadTexture2D("white", "assets/white.png", GL_TEXTURE_2D, GL_REPEAT, GL_NEAREST);
     cout << "Done loading standalone textures!" << endl << endl;
@@ -194,15 +194,15 @@ int main() {
     //          SHAPE TEMPLATES
     cout << "Loading premade shape templates..." << endl;
     auto cobblestoneCube = Resources::LoadCube("cobblestoneCube", shader_basictexture);
-    cobblestoneCube->SetTexture(TEX_DIFFUSE, tex_cobblestone);
+    cobblestoneCube->SetTexture(Tex::Tex_Type::TEX_DIFFUSE, tex_cobblestone);
     auto containerCube = Resources::LoadCube("containerCube", shader_basictexture);
-    containerCube->SetTexture(TEX_DIFFUSE, tex_container);
+    containerCube->SetTexture(Tex::Tex_Type::TEX_DIFFUSE, tex_container);
     auto brickSphere = Resources::LoadSphere("brickSphere", shader_basictexture, 40, 40);
-    brickSphere->SetTexture(TEX_DIFFUSE, tex_brickdiffuse);
-    brickSphere->SetTexture(TEX_HEIGHT, tex_bricknormal);
+    brickSphere->SetTexture(Tex::Tex_Type::TEX_DIFFUSE, tex_brickdiffuse);
+    brickSphere->SetTexture(Tex::Tex_Type::TEX_HEIGHT, tex_bricknormal);
     auto brickFloor = Resources::LoadRectangle("brickFloor", shader_basictexture, 10, 10);
-    brickFloor->SetTexture(TEX_DIFFUSE, tex_brickdiffuse);
-    brickFloor->SetTexture(TEX_HEIGHT, tex_bricknormal);
+    brickFloor->SetTexture(Tex::Tex_Type::TEX_DIFFUSE, tex_brickdiffuse);
+    brickFloor->SetTexture(Tex::Tex_Type::TEX_HEIGHT, tex_bricknormal);
     cout << "Done loading premade shape templates!" << endl << endl;
     
     //          MISC INIT

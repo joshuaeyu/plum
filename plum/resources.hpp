@@ -4,66 +4,35 @@
 #include <map>
 #include <string>
 
-#include <plum/model.hpp>
-#include <plum/shader.hpp>
-#include <plum/shape.hpp>
 #include <plum/texture.hpp>
 
-using namespace std;
+class Model;
+class Shader;
+
+class Shape;
+class Cube;
+class Sphere;
+class Rectangle;
 
 namespace Resources {
 
-    map<string, shared_ptr<Model>> Models;
-    map<string, shared_ptr<Shape>> Shapes;
-    map<string, shared_ptr<Tex>> Textures;
-    map<string, shared_ptr<Shader>> Shaders;
+    std::map<std::string, std::shared_ptr<Model>> Models;
+    std::map<std::string, std::shared_ptr<Shape>> Shapes;
+    std::map<std::string, std::shared_ptr<Tex>> Textures;
+    std::map<std::string, std::shared_ptr<Shader>> Shaders;
 
-    shared_ptr<Tex> LoadTexture2D(string name, string path, GLenum target, GLint wraptype, GLint filtertype = GL_LINEAR, Tex_Type textype = TEX_DIFFUSE, bool flip = false) {
-        shared_ptr<Tex> t(new Tex(name, path, target, wraptype, filtertype, textype, flip));
-        Textures.insert(pair<string, shared_ptr<Tex>>(name, t));
-        return t;
-    }
-    shared_ptr<Tex> LoadTextureCube(string name, std::vector<std::string>& faces_filenames, GLenum target, GLint wraptype, GLint filtertype = GL_LINEAR, bool flip = false) {
-        shared_ptr<Tex> t(new Tex(name, faces_filenames, target, wraptype, filtertype, flip));
-        Textures.insert(pair<string, shared_ptr<Tex>>(name, t));
-        return t;
-    }
-    shared_ptr<Shader> LoadShader(string name, string vspath, string fspath, string gspath = "") {
-        shared_ptr<Shader> s(new Shader(vspath, fspath, gspath));
-        Shaders.insert(pair<string, shared_ptr<Shader>>(name, s));
-        return s;
-    }
+    std::shared_ptr<Tex> LoadTexture2D(std::string name, std::string path, GLenum target, GLint wraptype, GLint filtertype = GL_LINEAR, Tex::Tex_Type textype = Tex::Tex_Type::TEX_DIFFUSE, bool flip = false);
+    std::shared_ptr<Tex> LoadTextureCube(std::string name, std::vector<std::string>& faces_filenames, GLenum target, GLint wraptype, GLint filtertype = GL_LINEAR, bool flip = false);
+    std::shared_ptr<Shader> LoadShader(std::string name, std::string vspath, std::string fspath, std::string gspath = "");
 
-    shared_ptr<Model> LoadModel(string name, Shader& default_shader, string path, float scale = 1.0f, bool flip_textures = false) {
-        shared_ptr<Model> m(new Model(name, path, &default_shader, scale, flip_textures));
-        Models.insert(pair<string, shared_ptr<Model>>(name, m));
-        return m;
-    }
-    shared_ptr<Cube> LoadCube(string name, Shader& default_shader) {
-        shared_ptr<Cube> c(new Cube(name, &default_shader));
-        Shapes.insert(pair<string, shared_ptr<Shape>>(name, c));
-        return c;
-    }
-    shared_ptr<Sphere> LoadSphere(string name, Shader& default_shader, const unsigned int stack_count = 30, const unsigned int sector_count = 30) {
-        shared_ptr<Sphere> s(new Sphere(name, &default_shader, stack_count, sector_count));
-        Shapes.insert(pair<string, shared_ptr<Shape>>(name, s));
-        return s;
-    }
-    shared_ptr<Rectangle> LoadRectangle(string name, Shader& default_shader, const unsigned int x_sections = 1, const unsigned int z_sections = 1) {
-        shared_ptr<Rectangle> r(new Rectangle(name, &default_shader, x_sections, z_sections));
-        Shapes.insert(pair<string, shared_ptr<Shape>>(name, r));
-        return r;
-    }
+    std::shared_ptr<Model> LoadModel(std::string name, Shader& default_shader, std::string path, float scale = 1.0f, bool flip_textures = false);
+    std::shared_ptr<Cube> LoadCube(std::string name, Shader& default_shader);
+    std::shared_ptr<Sphere> LoadSphere(std::string name, Shader& default_shader, const unsigned int stack_count = 30, const unsigned int sector_count = 30);
+    std::shared_ptr<Rectangle> LoadRectangle(std::string name, Shader& default_shader, const unsigned int x_sections = 1, const unsigned int z_sections = 1);
 
-    void DeleteModel(string name) {
-        Models.erase(name);
-    }
-    void DeleteShape(string name) {
-        Shapes.erase(name);
-    }
-    void DeleteTexture(string name) {
-        Textures.erase(name);
-    }
+    void DeleteModel(std::string name);
+    void DeleteShape(std::string name);
+    void DeleteTexture(std::string name);
     // scene should recognize when drawing the same VAOs and instance them automatically
 
     // models: only differ in model transform

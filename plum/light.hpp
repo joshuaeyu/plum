@@ -6,35 +6,27 @@
 #include <string>
 
 #include <glad/gl.h>
-
 #include <glm/glm.hpp>
 
 #include <plum/scenenode.hpp>
-#include <plum/shader.hpp>
 #include <plum/shape.hpp>
 
-using namespace std;
+class Shader;
 
 class Light {
     public:
-        string Name, NameTemp;
+        std::string Name, NameTemp;
         glm::vec3 Color = glm::vec3(1);
         static Shader* DefaultShader;
         
         virtual ~Light() {}
 
         // Accessors
-        float GetFarPlane()  const { return farPlane; }
-        bool HasShadows()    const { return hasShadows; }       
-    
+        float GetFarPlane() const;
+        bool HasShadows() const;  
         // Modifiers
-        void SetName(string name) {
-            Name = name;
-            NameTemp = Name;
-        }
-        void DisableShadows() {
-            hasShadows = false;
-        }
+        void SetName(std::string name);
+        void DisableShadows();
 
     protected:
         bool hasShadows = false;
@@ -43,10 +35,7 @@ class Light {
 
         static unsigned int inline count = 0;
 
-        Light(string type) {
-            Name = type + to_string(count++);
-            NameTemp = Name;
-        }
+        Light(std::string type);
 
 };
 
@@ -56,29 +45,12 @@ class DirectionalLight : public Light {
     public:
         glm::vec3 Direction = glm::vec3(-1);
         
-        DirectionalLight() : Light("DirLight") {
-        }
+        DirectionalLight();
         
         // Modifiers
-        void EnableShadows(const float width = 50.0f, const float height = 50.0f, const float near = 0.1f, const float far = 50.0f, const float dist = 20.0f) {
-            hasShadows = true;
-            projWidth = width;
-            projHeight = height;
-            nearPlane = near;
-            farPlane = far;
-            distance = dist;
-            updateLightspaceMatrix();
-        }
-
+        void EnableShadows(const float width = 50.0f, const float height = 50.0f, const float near = 0.1f, const float far = 50.0f, const float dist = 20.0f);
         // Accessors
-        glm::mat4& GetLightspaceMatrix() { 
-            if (!hasShadows) {
-                cout << "Shadows are disabled for this light source!" << endl;
-                exit(-1);
-            }
-            updateLightspaceMatrix();
-            return lightspaceMatrix; 
-        }
+        glm::mat4& GetLightspaceMatrix();
 
     private:
         glm::mat4 lightspaceMatrix = glm::identity<glm::mat4>();
@@ -87,18 +59,7 @@ class DirectionalLight : public Light {
         float distance = 20.0;
         glm::vec3 directionLast = glm::vec3(-1);
 
-        void updateLightspaceMatrix() { 
-            if (lightspaceMatrix == glm::identity<glm::mat4>() || Direction != directionLast) {
-                glm::mat4 projection = glm::ortho(-projWidth/2, projWidth/2, -projHeight/2, projHeight/2, nearPlane, farPlane);
-                glm::mat4 view; 
-                if (Direction != glm::vec3(0,-1,0) && Direction != glm::vec3(0,1,0)) 
-                    view = glm::lookAt(distance*-glm::normalize(Direction), glm::vec3(0), glm::vec3(0,1,0));
-                else
-                    view = glm::lookAt(distance*-glm::normalize(Direction), glm::vec3(0), glm::vec3(0,0,1));
-                lightspaceMatrix = projection * view;
-                directionLast = Direction;
-            }
-        }
+        void updateLightspaceMatrix();
         
 };
 
@@ -107,99 +68,37 @@ class PointLight : public Light {
         glm::vec3 Position = glm::vec3(0);
         glm::vec3 Size = glm::vec3(0.1);
 
-        PointLight() 
-        : Light("PointLight"), sphere(Name, DefaultShader), node(shared_ptr<Sphere>(&sphere)) {
-        }
+        PointLight();
 
         // Methods     
-        void DrawDefault() {
-            sphere.SetColor(Color);
-            node.Position = Position;
-            node.Scale = Size;
-            node.Draw(*DefaultShader);
-        }
-        void Draw(Shader& shader) {
-            sphere.SetColor(Color);
-            node.Position = Position;
-            node.Scale = Size;
-            node.Draw(shader);
-        }
-        void EnableShadows(const float aspect = 1.0f, const float near = 0.1f, const float far = 75.0f) {
-            hasShadows = true;
-            aspectRatio = aspect;
-            nearPlane = near;
-            farPlane = far;
-            updateLightspaceMatrices();
-        }
-
+        void DrawDefault();
+        void Draw(Shader& shader);
+        void EnableShadows(const float aspect = 1.0f, const float near = 0.1f, const float far = 75.0f);
         // Modifiers
-        void SetAttenuation(float constant, float linear, float quadratic) {
-            attenuationConstant = constant;
-            attenuationLinear = linear;
-            attenuationQuadratic = quadratic;
-            updateRadius();
-        }
-
+        void SetAttenuation(float constant, float linear, float quadratic);
         // Accessors
-        shared_ptr<Sphere> GetShapeTemplate() {
-            return make_shared<Sphere>(sphere);
-        }
-        shared_ptr<SceneNode> GetSceneNode() {
-            return make_shared<SceneNode>(node);
-        }
-        vector<glm::mat4>& GetLightspaceMatrices() {
-            if (!hasShadows) {
-                cout << "Shadows are disabled for this light source!" << endl;
-                exit(-1);
-            }
-            updateLightspaceMatrices();
-            return lightspaceMatrices; 
-        }
-        float GetRadius() { return radius; }
-        float GetAttenuationConstant() const { return attenuationConstant; }
-        float GetAttenuationLinear() const { return attenuationLinear; }
-        float GetAttenuationQuadratic() const { return attenuationQuadratic; }
+        std::shared_ptr<Sphere> GetShapeTemplate();
+        std::shared_ptr<SceneNode> GetSceneNode();
+        std::vector<glm::mat4>& GetLightspaceMatrices();
+        float GetRadius() const;
+        float GetAttenuationConstant() const;
+        float GetAttenuationLinear() const;
+        float GetAttenuationQuadratic() const;
 
     private:
         float radius = 5;
         float attenuationConstant = 1.0;       // Default range 50
         float attenuationLinear = 0.09;        // Default range 50
         float attenuationQuadratic = 0.032;    // Default range 50
-        vector<glm::mat4> lightspaceMatrices;
+        std::vector<glm::mat4> lightspaceMatrices;
         float aspectRatio = 1.0;
         glm::vec3 positionLast = glm::vec3(0);
-        Sphere sphere;
-        SceneNode node;
+        std::shared_ptr<Sphere> sphere;
+        std::shared_ptr<SceneNode> node;
         
-        void updateLightspaceMatrices() { 
-            glm::mat4 projection = glm::perspective(glm::half_pi<float>(), aspectRatio, nearPlane, farPlane);
-            if (lightspaceMatrices.empty() || Position != positionLast) {
-                if (!lightspaceMatrices.empty()) {
-                    lightspaceMatrices[0] = projection * glm::lookAt(Position, Position + glm::vec3(1,0,0), glm::vec3(0,-1,0));
-                    lightspaceMatrices[1] = projection * glm::lookAt(Position, Position + glm::vec3(-1,0,0), glm::vec3(0,-1,0));
-                    lightspaceMatrices[2] = projection * glm::lookAt(Position, Position + glm::vec3(0,1,0), glm::vec3(0,0,1));
-                    lightspaceMatrices[3] = projection * glm::lookAt(Position, Position + glm::vec3(0,-1,0), glm::vec3(0,0,-1));
-                    lightspaceMatrices[4] = projection * glm::lookAt(Position, Position + glm::vec3(0,0,1), glm::vec3(0,-1,0));
-                    lightspaceMatrices[5] = projection * glm::lookAt(Position, Position + glm::vec3(0,0,-1), glm::vec3(0,-1,0));
-                } else {
-                    lightspaceMatrices.push_back( projection * glm::lookAt(Position, Position + glm::vec3(1,0,0), glm::vec3(0,-1,0))  );
-                    lightspaceMatrices.push_back( projection * glm::lookAt(Position, Position + glm::vec3(-1,0,0), glm::vec3(0,-1,0)) );
-                    lightspaceMatrices.push_back( projection * glm::lookAt(Position, Position + glm::vec3(0,1,0), glm::vec3(0,0,1))   );
-                    lightspaceMatrices.push_back( projection * glm::lookAt(Position, Position + glm::vec3(0,-1,0), glm::vec3(0,0,-1)) );
-                    lightspaceMatrices.push_back( projection * glm::lookAt(Position, Position + glm::vec3(0,0,1), glm::vec3(0,-1,0))  );
-                    lightspaceMatrices.push_back( projection * glm::lookAt(Position, Position + glm::vec3(0,0,-1), glm::vec3(0,-1,0)) );
-                }
-                positionLast = Position;
-            }
-        }
+        void updateLightspaceMatrices();
 
-        float updateRadius() {
-            float lightMax = std::fmaxf(std::fmaxf(Color.r, Color.g), Color.b);
-            radius = 
-            (-attenuationLinear + std::sqrtf(attenuationLinear * attenuationLinear - 4 * attenuationQuadratic * (attenuationConstant - (256.0 / 5.0) * lightMax))) 
-            / (2 * attenuationQuadratic);  
-            return radius;
-        }
+        float updateRadius();
 };
 
 class SpotLight : public Light {
@@ -207,41 +106,17 @@ class SpotLight : public Light {
         glm::vec3 Position = glm::vec3(0);
         glm::vec3 Direction = glm::vec3(0,-1,0);
 
-        SpotLight() : Light("SpotLight") {
-        }
+        SpotLight();
 
         // Methods
-        void GenerateLightspaceMatrix(const float fov_deg, const float aspect, const float near, const float far) {
-            nearPlane = near;
-            farPlane = far;
-            glm::mat4 projection = glm::perspective(glm::radians(fov_deg), aspect, near, far);
-            glm::mat4 view; 
-            if (Direction != glm::vec3(0,-1,0) && Direction != glm::vec3(0,1,0)) 
-                view = glm::lookAt(10.f*-glm::normalize(Direction), glm::vec3(0), glm::vec3(0,1,0));
-            else
-                view = glm::lookAt(10.f*-glm::normalize(Direction), glm::vec3(0), glm::vec3(0,0,1));
-            lightspaceMatrix = projection * view;
-        }
-
+        void GenerateLightspaceMatrix(const float fov_deg, const float aspect, const float near, const float far);
         // Modifiers
-        void SetAttenuation(float constant, float linear, float quadratic) {
-            attenuationConstant = constant;
-            attenuationLinear = linear;
-            attenuationQuadratic = quadratic;
-        }
-
+        void SetAttenuation(float constant, float linear, float quadratic);
         // Accessors
-        glm::mat4& GetLightspaceMatrix() { 
-            if (!hasShadows) {
-                cout << "Shadows are disabled for this light source!" << endl;
-                exit(-1);
-            }
-            updateLightspaceMatrix();
-            return lightspaceMatrix; 
-        }
-        float GetAttenuationConstant() const  { return attenuationConstant; }
-        float GetAttenuationLinear() const    { return attenuationLinear; }
-        float GetAttenuationQuadratic() const { return attenuationQuadratic; }
+        glm::mat4& GetLightspaceMatrix();
+        float GetAttenuationConstant() const;
+        float GetAttenuationLinear() const;
+        float GetAttenuationQuadratic() const;
 
     private:
         glm::mat4 lightspaceMatrix;
@@ -254,12 +129,7 @@ class SpotLight : public Light {
         glm::vec3 positionLast = glm::vec3(0);
         glm::vec3 directionLast = glm::vec3(0,-1,0);
         
-        void updateLightspaceMatrix() { 
-            if (Direction != directionLast) {
-                GenerateLightspaceMatrix(fov, aspectRatio, nearPlane, farPlane);
-                directionLast = Direction;
-            }
-        }
+        void updateLightspaceMatrix();
 };
 
 #endif
