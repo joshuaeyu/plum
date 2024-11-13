@@ -29,8 +29,6 @@
 #include <plum/shape.hpp>
 #include <plum/texture.hpp>
 
-using namespace std;
-
 // forward declarations
 void processInput(GLFWwindow *window);
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
@@ -106,7 +104,7 @@ int main() {
     // glad_glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     //          SHADERS
-    cout << "Loading shaders..." << endl;;
+    std::cout << "Loading shaders..." << std::endl;;
     // Environment map
     Shader shader_skybox("shaders/shaderv_skybox.vs", "shaders/shaderf_skybox.fs");
     Shader shader_skyboxhdr("shaders/shaderv_skybox.vs", "shaders/shaderf_skyboxhdr.fs");
@@ -150,18 +148,18 @@ int main() {
     // shader_obj_explode.setUniformBlockBinding(Shader::Shader_Enum::SHADER_UBO_SCHEME_1);
     // shader_normals.setUniformBlockBinding(Shader::Shader_Enum::SHADER_UBO_SCHEME_1);
     // shader_asteroids.setUniformBlockBinding(Shader::Shader_Enum::SHADER_UBO_SCHEME_1);
-    cout << "Done loading shaders!" << endl << endl;
+    std::cout << "Done loading shaders!" << std::endl << std::endl;
 
     //          TEXTURES
-    cout << "Loading standalone textures..." << endl;
-    shared_ptr<Tex> tex_container = resources.LoadTexture2D("container", "assets/container2.png", GL_TEXTURE_2D, GL_REPEAT, GL_LINEAR);
-    shared_ptr<Tex> tex_cobblestone = resources.LoadTexture2D("cobblestone", "assets/cobblestone.png", GL_TEXTURE_2D, GL_REPEAT, GL_NEAREST);
-    shared_ptr<Tex> tex_wood = resources.LoadTexture2D("wood", "assets/wood.png", GL_TEXTURE_2D, GL_REPEAT, GL_LINEAR);
-    shared_ptr<Tex> tex_stonetiles = resources.LoadTexture2D("stonetiles", "assets/stonetiles.jpg", GL_TEXTURE_2D, GL_REPEAT, GL_LINEAR);
-    shared_ptr<Tex> tex_rustedmetal = resources.LoadTexture2D("rustedmetal", "assets/rustedmetal.jpg", GL_TEXTURE_2D, GL_REPEAT, GL_LINEAR);
-    shared_ptr<Tex> tex_brickdiffuse = resources.LoadTexture2D("brickdiffuse", "assets/brickwall.jpg", GL_TEXTURE_2D, GL_REPEAT, GL_LINEAR);
-    shared_ptr<Tex> tex_bricknormal = resources.LoadTexture2D("bricknormal", "assets/brickwall_normal.jpg", GL_TEXTURE_2D, GL_REPEAT, GL_LINEAR, Tex::Tex_Type::TEX_HEIGHT);
-    vector<string> ocean_faces = {
+    std::cout << "Loading standalone textures..." << std::endl;
+    std::shared_ptr<Tex> tex_container = resources.LoadTexture2D("container", "assets/container2.png", GL_TEXTURE_2D, GL_REPEAT, GL_LINEAR);
+    std::shared_ptr<Tex> tex_cobblestone = resources.LoadTexture2D("cobblestone", "assets/cobblestone.png", GL_TEXTURE_2D, GL_REPEAT, GL_NEAREST);
+    std::shared_ptr<Tex> tex_wood = resources.LoadTexture2D("wood", "assets/wood.png", GL_TEXTURE_2D, GL_REPEAT, GL_LINEAR);
+    std::shared_ptr<Tex> tex_stonetiles = resources.LoadTexture2D("stonetiles", "assets/stonetiles.jpg", GL_TEXTURE_2D, GL_REPEAT, GL_LINEAR);
+    std::shared_ptr<Tex> tex_rustedmetal = resources.LoadTexture2D("rustedmetal", "assets/rustedmetal.jpg", GL_TEXTURE_2D, GL_REPEAT, GL_LINEAR);
+    std::shared_ptr<Tex> tex_brickdiffuse = resources.LoadTexture2D("brickdiffuse", "assets/brickwall.jpg", GL_TEXTURE_2D, GL_REPEAT, GL_LINEAR);
+    std::shared_ptr<Tex> tex_bricknormal = resources.LoadTexture2D("bricknormal", "assets/brickwall_normal.jpg", GL_TEXTURE_2D, GL_REPEAT, GL_LINEAR, Tex::Tex_Type::TEX_HEIGHT);
+    std::vector<std::string> ocean_faces = {
         "assets/skybox/right.jpg",
         "assets/skybox/left.jpg",
         "assets/skybox/top.jpg",
@@ -169,18 +167,18 @@ int main() {
         "assets/skybox/front.jpg",
         "assets/skybox/back.jpg"
     };
-    shared_ptr<Tex> tex_oceanskybox = resources.LoadTextureCube("ocean", ocean_faces, GL_TEXTURE_CUBE_MAP, GL_CLAMP_TO_EDGE, GL_LINEAR);
-    shared_ptr<Tex> tex_nightsky = resources.LoadTexture2D("nightsky", "assets/kloppenheim_4k.hdr", GL_TEXTURE_2D, GL_CLAMP_TO_EDGE, GL_LINEAR);
-    shared_ptr<Tex> tex_garden = resources.LoadTexture2D("garden", "assets/studio_garden_4k.hdr", GL_TEXTURE_2D, GL_REPEAT, GL_LINEAR, Tex::Tex_Type::TEX_DIFFUSE, true);
-    shared_ptr<Tex> tex_puppetstudio = resources.LoadTexture2D("puppetstudio", "assets/puppet_studio_4k.hdr", GL_TEXTURE_2D, GL_REPEAT, GL_LINEAR, Tex::Tex_Type::TEX_DIFFUSE, true);
-    shared_ptr<Tex> tex_trainstation = resources.LoadTexture2D("trainstation", "assets/dresden_station_4k.hdr", GL_TEXTURE_2D, GL_REPEAT, GL_LINEAR, Tex::Tex_Type::TEX_DIFFUSE, true);
-    shared_ptr<Tex> tex_newportloft = resources.LoadTexture2D("newportloft", "assets/newport_loft.png", GL_TEXTURE_2D, GL_REPEAT, GL_LINEAR, Tex::Tex_Type::TEX_DIFFUSE, true);
-    shared_ptr<Tex> tex_black = resources.LoadTexture2D("black", "assets/black.png", GL_TEXTURE_2D, GL_REPEAT, GL_NEAREST);
-    shared_ptr<Tex> tex_white = resources.LoadTexture2D("white", "assets/white.png", GL_TEXTURE_2D, GL_REPEAT, GL_NEAREST);
-    cout << "Done loading standalone textures!" << endl << endl;
+    std::shared_ptr<Tex> tex_oceanskybox = resources.LoadTextureCube("ocean", ocean_faces, GL_TEXTURE_CUBE_MAP, GL_CLAMP_TO_EDGE, GL_LINEAR);
+    std::shared_ptr<Tex> tex_nightsky = resources.LoadTexture2D("nightsky", "assets/kloppenheim_4k.hdr", GL_TEXTURE_2D, GL_CLAMP_TO_EDGE, GL_LINEAR);
+    std::shared_ptr<Tex> tex_garden = resources.LoadTexture2D("garden", "assets/studio_garden_4k.hdr", GL_TEXTURE_2D, GL_REPEAT, GL_LINEAR, Tex::Tex_Type::TEX_DIFFUSE, true);
+    std::shared_ptr<Tex> tex_puppetstudio = resources.LoadTexture2D("puppetstudio", "assets/puppet_studio_4k.hdr", GL_TEXTURE_2D, GL_REPEAT, GL_LINEAR, Tex::Tex_Type::TEX_DIFFUSE, true);
+    std::shared_ptr<Tex> tex_trainstation = resources.LoadTexture2D("trainstation", "assets/dresden_station_4k.hdr", GL_TEXTURE_2D, GL_REPEAT, GL_LINEAR, Tex::Tex_Type::TEX_DIFFUSE, true);
+    std::shared_ptr<Tex> tex_newportloft = resources.LoadTexture2D("newportloft", "assets/newport_loft.png", GL_TEXTURE_2D, GL_REPEAT, GL_LINEAR, Tex::Tex_Type::TEX_DIFFUSE, true);
+    std::shared_ptr<Tex> tex_black = resources.LoadTexture2D("black", "assets/black.png", GL_TEXTURE_2D, GL_REPEAT, GL_NEAREST);
+    std::shared_ptr<Tex> tex_white = resources.LoadTexture2D("white", "assets/white.png", GL_TEXTURE_2D, GL_REPEAT, GL_NEAREST);
+    std::cout << "Done loading standalone textures!" << std::endl << std::endl;
 
     //          MODELS
-    cout << "Loading models..." << endl;;
+    std::cout << "Loading models..." << std::endl;;
     auto backpack = resources.LoadModel("backpack", shader_obj, "assets/backpack/backpack.obj", 1.0f, true);
     auto toilet = resources.LoadModel("toilet", shader_3mf, "assets/toilet/toilet.3mf", 0.005f);
     auto plantpot = resources.LoadModel("plantpot", shader_obj, "assets/plantpot/indoor plant_02.obj", 0.01f);
@@ -191,10 +189,10 @@ int main() {
     auto sponza = resources.LoadModel("sponza", shader_gltf, "assets/sponza/glTF/Sponza.gltf", 1.f);
     // Model model_planet("assets/planet/planet.obj");
     // Model model_rock("assets/rock/rock.obj");
-    cout << "Done loading models!" << endl << endl;
+    std::cout << "Done loading models!" << std::endl << std::endl;
     
     //          SHAPE TEMPLATES
-    cout << "Loading premade shape templates..." << endl;
+    std::cout << "Loading premade shape templates..." << std::endl;
     auto cobblestoneCube = resources.LoadCube("cobblestoneCube", shader_basictexture);
     cobblestoneCube->SetTexture(Tex::Tex_Type::TEX_DIFFUSE, tex_cobblestone);
     auto containerCube = resources.LoadCube("containerCube", shader_basictexture);
@@ -205,7 +203,7 @@ int main() {
     auto brickFloor = resources.LoadRectangle("brickFloor", shader_basictexture, 10, 10);
     brickFloor->SetTexture(Tex::Tex_Type::TEX_DIFFUSE, tex_brickdiffuse);
     brickFloor->SetTexture(Tex::Tex_Type::TEX_HEIGHT, tex_bricknormal);
-    cout << "Done loading premade shape templates!" << endl << endl;
+    std::cout << "Done loading premade shape templates!" << std::endl << std::endl;
     
     //          MISC INIT
     Shape::DefaultShaderColorOnly = &shader_basiccolor;
@@ -231,7 +229,7 @@ int main() {
     Engine::Framebuffer shadowArrayFbCube = engine.GenerateShadowMapArray(GL_TEXTURE_CUBE_MAP_ARRAY);
 
     //          DEFINE SCENE
-    // shared_ptr<SceneNode> floor0 = scene.CreateNode(brickFloor);
+    // std::shared_ptr<SceneNode> floor0 = scene.CreateNode(brickFloor);
     // floor0->SetPlacement(glm::vec3(0,-0.5,0), glm::vec3(20));
     // floor0->SetName("brick floor");
     // auto adamhead0 = scene.CreateNode(adamHead);
@@ -242,34 +240,34 @@ int main() {
     // lieutHead0->SetPlacement(glm::vec3(5,5,0), glm::vec3(1), glm::vec3(0,1,0), 180);
     auto sponza0 = scene.CreateNode(sponza);
     sponza0->SetName("sponza0");
-    // shared_ptr<SceneNode> boat0 = scene.CreateNode(boat);
+    // std::shared_ptr<SceneNode> boat0 = scene.CreateNode(boat);
     // boat0->SetPlacement(glm::vec3(0,3,0), glm::vec3(0.01));
     // boat0->SetName("boat0");
-    // shared_ptr<SceneNode> backpack0 = scene.CreateNode(resources.Models["backpack"]);
+    // std::shared_ptr<SceneNode> backpack0 = scene.CreateNode(resources.Models["backpack"]);
     // backpack0->SetName("backpack0");
     // backpack0->SetPlacement(glm::vec3(-5, 2, 0));
-    // shared_ptr<SceneNode> skull0 = scene.CreateNode(resources.Models["skull"]);
+    // std::shared_ptr<SceneNode> skull0 = scene.CreateNode(resources.Models["skull"]);
     // skull0->SetName("skull0");
     // skull0->SetPlacement(glm::vec3(0, 10, 0), glm::vec3(0.25));
-    // shared_ptr<SceneNode> toilet0 = scene.CreateNode(toilet);
+    // std::shared_ptr<SceneNode> toilet0 = scene.CreateNode(toilet);
     // toilet0->SetName("toilet0");
     // toilet0->SetPlacement(glm::vec3(-5,0,5));
-    // shared_ptr<SceneNode> sphere0 = scene.CreateNode(brickSphere);
+    // std::shared_ptr<SceneNode> sphere0 = scene.CreateNode(brickSphere);
     // sphere0->SetName("brickSphere0");
     // sphere0->SetPlacement(glm::vec3(0,2,-5));
-    // shared_ptr<SceneNode> cube0 = scene.CreateNode(cobblestoneCube);
+    // std::shared_ptr<SceneNode> cube0 = scene.CreateNode(cobblestoneCube);
     // cube0->SetName("cobblestoneCube0");
-    // shared_ptr<SceneNode> cube1 = scene.CreateNode(containerCube);
+    // std::shared_ptr<SceneNode> cube1 = scene.CreateNode(containerCube);
     // cube1->SetName("containerCube0");
 
     Cube unitcube("cubeForSkybox");
     
-    // shared_ptr<DirectionalLight> dirlight0 = scene.CreateDirectionalLight();
+    // std::shared_ptr<DirectionalLight> dirlight0 = scene.CreateDirectionalLight();
     // dirlight0->SetColor(glm::vec3(1));
     // dirlight0->SetDirection(-glm::vec3(-0.45,0.42,-0.78));
     // dirlight0->GenerateLightspaceMatrix(60, 60, 0.1, 50);
     // dirlight0->SetShadows(false);
-    shared_ptr<DirectionalLight> dirlight1 = scene.CreateDirectionalLight();
+    std::shared_ptr<DirectionalLight> dirlight1 = scene.CreateDirectionalLight();
     dirlight1->Color = glm::vec3(2);
     dirlight1->EnableShadows();
     glm::vec3 pointlight_positions[] = { glm::vec3(9,5,3), glm::vec3(-10,5,3), glm::vec3(-10,5,-3.75),glm::vec3(9,5,-3.75) };
@@ -284,15 +282,15 @@ int main() {
     // for (int i = 0; i < 16; i++) {
     //     glm::vec3 col = glm::vec3(rand()%100/100.0, rand()%100/100.0, rand()%100/100.0);
     //     glm::vec3 pos = glm::vec3(rand()%30-15, rand()%10, rand()%30-15);
-    //     shared_ptr<Sphere> s = scene.CreateSphere(30,30);
-    //     s->SetName("sphere"+to_string(i));
+    //     std::shared_ptr<Sphere> s = scene.CreateSphere(30,30);
+    //     s->SetName("sphere"+to_std::string(i));
     //     s->SetColor(col);
     //     s->SetMetallic(rand()%100/100.0);
     //     s->SetRoughness(rand()%75/100.0);
     //     s->SetPlacement(pos, glm::vec3(0.2+rand()%50/100.0));
     //     s->SetDefaultShader(&shader_basiccolor);
     //     if (i < 0) {
-    //         shared_ptr<PointLight> pl = scene.CreatePointLight();
+    //         std::shared_ptr<PointLight> pl = scene.CreatePointLight();
     //         glm::vec3 highlighted_col = glm::vec3(1)+5.0f*col;
     //         pl->Color = highlighted_col;
     //         pl->HasShadows = true;
@@ -326,9 +324,9 @@ int main() {
         if (currentTime - lastFpsTime >= 1.0) {
             msPerFrame = (currentTime-lastFpsTime)*1000/frameCount;
             if (interface.FramerateData.size() > 100)
-                interface.FramerateData = vector<float>(interface.FramerateData.begin()+1, interface.FramerateData.end());
+                interface.FramerateData = std::vector<float>(interface.FramerateData.begin()+1, interface.FramerateData.end());
             interface.FramerateData.push_back(msPerFrame);
-            cout << msPerFrame << " ms/frame" << endl;
+            std::cout << msPerFrame << " ms/frame" << std::endl;
             frameCount = 0;
             lastFpsTime = currentTime;
         }
@@ -369,7 +367,7 @@ int main() {
         glClear(GL_DEPTH_BUFFER_BIT);
         glUseProgram(shader_shadowmap_2d.programID);
         for (int i = 0, shadow_count = 0; i < scene.DirLights.size(); i++) {
-            shared_ptr<DirectionalLight> dirlight = scene.DirLights[i];
+            std::shared_ptr<DirectionalLight> dirlight = scene.DirLights[i];
             if (!dirlight->HasShadows())
                 continue;
             shader_shadowmap_2d.setMat4("lightSpaceMatrix", dirlight->GetLightspaceMatrix());
@@ -387,12 +385,12 @@ int main() {
         glClear(GL_DEPTH_BUFFER_BIT);
         glUseProgram(shader_shadowmap_cube.programID);
         for (int i = 0, shadow_count = 0; i < scene.PointLights.size(); i++) {
-            shared_ptr<PointLight> pointlight = scene.PointLights[i];
+            std::shared_ptr<PointLight> pointlight = scene.PointLights[i];
             if (!pointlight->HasShadows())
                 continue;
             shader_shadowmap_cube.setInt("layer", shadow_count++);
             for (int j = 0; j < 6; j++) {
-                shader_shadowmap_cube.setMat4("lightSpaceMatrices[" + to_string(j) + "]", (pointlight->GetLightspaceMatrices())[j]);
+                shader_shadowmap_cube.setMat4("lightSpaceMatrices[" + std::to_string(j) + "]", (pointlight->GetLightspaceMatrices())[j]);
             }
             shader_shadowmap_cube.setVec3("lightPos", pointlight->Position);
             shader_shadowmap_cube.setFloat("far", pointlight->GetFarPlane());
@@ -423,7 +421,7 @@ int main() {
                 shader_2dssao.setInt("noiseTexture", 2);
                 shader_2dssao.setMat4("projection", projection);
                 for (int i = 0; i < engine.SsaoKernel.size(); i++) {
-                    shader_2dssao.setVec3("samples[" + to_string(i) + "]", engine.SsaoKernel[i]);
+                    shader_2dssao.setVec3("samples[" + std::to_string(i) + "]", engine.SsaoKernel[i]);
                 }
                 engine.RenderQuad();
         }
@@ -441,7 +439,7 @@ int main() {
         }
 
         // Framebuffer queue
-        queue<GLuint> framebuffers;
+        std::queue<GLuint> framebuffers;
         if (interface.Bloom)
             framebuffers.push(engine.Bloom1.fbo);
         if (interface.Hdr)
