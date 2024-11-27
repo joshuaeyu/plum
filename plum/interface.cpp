@@ -16,9 +16,10 @@
 #include <plum/shape.hpp>
 #include <plum/texture.hpp>
 
-Interface::Interface(std::shared_ptr<Engine> e, std::shared_ptr<Resources> r) {
+Interface::Interface(std::shared_ptr<Engine> e, std::shared_ptr<Resources> r, std::shared_ptr<Scene> s) {
     engine = e;
     resources = r;
+    scene = s;
 }
 
 void Interface::ShowInterface() {
@@ -305,7 +306,7 @@ void Interface::ShowInterface() {
                 if (ImGui::Button("Create Light")) {
                     switch (_lightSelection) {
                         case 0: {
-                            std::shared_ptr<DirectionalLight> dl = MainScene->CreateDirectionalLight();
+                            std::shared_ptr<DirectionalLight> dl = scene->CreateDirectionalLight();
                             dl->SetName(_lightProps.name);
                             dl->Color = _lightProps.color;
                             dl->Direction = _lightProps.direction;
@@ -314,7 +315,7 @@ void Interface::ShowInterface() {
                             break;
                         }
                         case 1: {
-                            std::shared_ptr<PointLight> pl = MainScene->CreatePointLight();
+                            std::shared_ptr<PointLight> pl = scene->CreatePointLight();
                             pl->SetName(_lightProps.name);
                             pl->Color = _lightProps.color;
                             pl->Position = _lightProps.position;
@@ -373,7 +374,7 @@ void Interface::ShowInterface() {
                 }
                 ImGui::Checkbox("Bypass Lighting", &_nodeProps.bypasslighting);
                 if (ImGui::Button("Create Node") && _nodeTemplate) {
-                    std::shared_ptr<SceneNode> node = MainScene->CreateNode(_nodeTemplate);
+                    std::shared_ptr<SceneNode> node = scene->CreateNode(_nodeTemplate);
                     node->SetName(_nodeProps.name);
                     node->SetPlacement(_nodeProps.position, _nodeProps.scale, _nodeProps.rotation);
                     node->BypassLighting = _nodeProps.bypasslighting;
@@ -385,7 +386,7 @@ void Interface::ShowInterface() {
         }
         // === Scene components ===
         if (ImGui::TreeNode("Skybox")) {
-            std::string preview = MainScene->EnvironmentMap->Name;
+            std::string preview = scene->EnvironmentMap->Name;
             if (ImGui::BeginCombo("Diffuse Texture", preview.c_str())) {
                 for (auto it = resources->Textures.begin(); it != resources->Textures.end(); it++) {
                     if (it->second->Type != Tex::Tex_Type::TEX_DIFFUSE)
@@ -393,8 +394,8 @@ void Interface::ShowInterface() {
                     bool isSelected = (_skyboxSelectionStr == it->first); 
                     if (ImGui::Selectable(it->first.c_str(), isSelected)) {
                         _skyboxSelectionStr = it->first;
-                        MainScene->EnvironmentMap = it->second;
-                        engine->InitEnvironment(MainScene->EnvironmentMap);
+                        scene->EnvironmentMap = it->second;
+                        engine->InitEnvironment(scene->EnvironmentMap);
                         ImGui::SetItemDefaultFocus();
                     }
                 }
@@ -403,7 +404,7 @@ void Interface::ShowInterface() {
             ImGui::TreePop();
         }
         if (ImGui::TreeNode("Lights")) {
-            for (auto it = MainScene->DirLights.begin(); it != MainScene->DirLights.end(); it++) {
+            for (auto it = scene->DirLights.begin(); it != scene->DirLights.end(); it++) {
                 std::shared_ptr<DirectionalLight> dirlight = *it;
                 if (ImGui::TreeNode(dirlight->Name.c_str())) {
                     if (ImGui::InputText(("Name##"+std::to_string(i++)).c_str(), dirlight->NameTemp.data(), ImGuiInputTextFlags_EnterReturnsTrue))
@@ -419,14 +420,14 @@ void Interface::ShowInterface() {
                             dirlight->DisableShadows();
                     }
                     if (ImGui::Button("Delete")) {
-                        MainScene->Delete(dirlight);
+                        scene->Delete(dirlight);
                         ImGui::TreePop();
                         break;
                     }
                     ImGui::TreePop();
                 }
             }
-            for (auto it = MainScene->PointLights.begin(); it != MainScene->PointLights.end(); it++) {
+            for (auto it = scene->PointLights.begin(); it != scene->PointLights.end(); it++) {
                 std::shared_ptr<PointLight> pointlight = *it;
                 if (ImGui::TreeNode(pointlight->Name.c_str())) {
                     if (ImGui::InputText(("Name##"+std::to_string(i++)).c_str(), pointlight->NameTemp.data(), ImGuiInputTextFlags_EnterReturnsTrue))
@@ -443,7 +444,7 @@ void Interface::ShowInterface() {
                             pointlight->DisableShadows();
                     }
                     if (ImGui::Button("Delete")) {
-                        MainScene->Delete(pointlight);
+                        scene->Delete(pointlight);
                         ImGui::TreePop();
                         break;
                     }
@@ -453,7 +454,7 @@ void Interface::ShowInterface() {
             ImGui::TreePop();
         }
         if (ImGui::TreeNode("Nodes")) {
-            for (auto it = MainScene->Nodes.begin(); it != MainScene->Nodes.end(); it++) {
+            for (auto it = scene->Nodes.begin(); it != scene->Nodes.end(); it++) {
                 std::shared_ptr<SceneNode> node = *it;
                 if (ImGui::TreeNode(node->Name.c_str())) {
                     if (ImGui::InputText(("Name##"+std::to_string(i++)).c_str(), node->NameTemp.data(), ImGuiInputTextFlags_EnterReturnsTrue))
@@ -467,7 +468,7 @@ void Interface::ShowInterface() {
                     }
                     ImGui::Checkbox("Bypass Lighting", &node->BypassLighting);
                     if (ImGui::Button("Delete")) {
-                        MainScene->Delete(node);
+                        scene->Delete(node);
                         ImGui::TreePop();
                         break;
                     }

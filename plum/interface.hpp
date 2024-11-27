@@ -18,18 +18,17 @@ class Interface {
     
     public:
 
-        Scene* MainScene;
         std::vector<float> FramerateData;
         
         // Render options
-        float Ibl = 0.1;
+        float Ibl = 1.0;
         bool Ssao = true;
         bool Bloom = true;
         bool Hdr = true;
         float HdrExposure = 1.0;
         bool Fxaa = true;
 
-        Interface(std::shared_ptr<Engine> w, std::shared_ptr<Resources> e);
+        Interface(std::shared_ptr<Engine> w, std::shared_ptr<Resources> e, std::shared_ptr<Scene> s);
 
         void ShowInterface();
 
@@ -84,6 +83,7 @@ class Interface {
 
         std::shared_ptr<Engine> engine;
         std::shared_ptr<Resources> resources;
+        std::shared_ptr<Scene> scene;
 
 };
 

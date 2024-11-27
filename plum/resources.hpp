@@ -5,14 +5,10 @@
 #include <string>
 
 #include <plum/texture.hpp>
+#include <plum/shape.hpp>
 
 class Model;
 class Shader;
-
-class Shape;
-class Cube;
-class Sphere;
-class Rectangle;
 
 class Resources {
 
@@ -30,9 +26,9 @@ class Resources {
         std::shared_ptr<Shader> LoadShader(std::string name, std::string vspath, std::string fspath, std::string gspath = "");
 
         std::shared_ptr<Model> LoadModel(std::string name, Shader& default_shader, std::string path, float scale = 1.0f, bool flip_textures = false);
-        std::shared_ptr<Cube> LoadCube(std::string name, Shader& default_shader);
-        std::shared_ptr<Sphere> LoadSphere(std::string name, Shader& default_shader, const unsigned int stack_count = 30, const unsigned int sector_count = 30);
-        std::shared_ptr<Rectangle> LoadRectangle(std::string name, Shader& default_shader, const unsigned int x_sections = 1, const unsigned int z_sections = 1);
+        std::shared_ptr<Cube> LoadCube(std::string name, Shader& default_shader = *Shape::DefaultShaderColorOnly);
+        std::shared_ptr<Sphere> LoadSphere(std::string name, Shader& default_shader = *Shape::DefaultShaderColorOnly, const unsigned int stack_count = 30, const unsigned int sector_count = 30);
+        std::shared_ptr<Rectangle> LoadRectangle(std::string name, Shader& default_shader = *Shape::DefaultShaderColorOnly, const unsigned int x_sections = 1, const unsigned int z_sections = 1);
 
         void DeleteModel(std::string name);
         void DeleteShape(std::string name);
