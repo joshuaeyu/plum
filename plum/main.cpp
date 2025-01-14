@@ -30,6 +30,9 @@
 #include <plum/shape.hpp>
 #include <plum/texture.hpp>
 
+#include <plum/core/context.hpp>
+#include <plum/core/window.hpp>
+
 // forward declarations
 void processInput(GLFWwindow *window);
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
@@ -52,27 +55,17 @@ float deltaTime;
 
 int main() {
     //          INITIALIZE - GLFW, GLAD
-    if (!glfwInit()) return -1;
-    // window
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
-    glfwWindowHint(GLFW_SCALE_TO_MONITOR, GLFW_FALSE);
-    glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER, GLFW_FALSE);
-    GLFWwindow *window = glfwCreateWindow(SCR_WIDTH_INIT, SCR_HEIGHT_INIT, "Plum Engine", NULL, NULL);
-    if (window == nullptr) {
-        std::cerr << "glfwCreateWindow failed" << std::endl;
-        glfwTerminate();
-        return -1;
-    }
+    WindowManager windowMgr;
+    Window windowObj = windowMgr.CreateWindow(SCR_WIDTH_INIT, SCR_HEIGHT_INIT, "Plum Engine");
+    GLFWwindow *window = windowObj.glfwWindow;
+
     glfwMakeContextCurrent(window);
     // callbacks
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
     glfwSetCursorPosCallback(window, mouse_callback);
     glfwSetKeyCallback(window, key_callback);
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-    if (!gladLoadGL(glfwGetProcAddress)) {
+    if (!gladLoadGL(windowMgr.loadFunction)) {
         std::cerr << "gladLoadGLLoader failed" << std::endl;
         glfwTerminate();
         return -1;
@@ -623,6 +616,7 @@ void processInput(GLFWwindow *window) {
         scene->SceneCamera.ProcessKeyboard(Camera::Direction::DOWN, deltaTime);
 }
 
+// Engine needs to communicate with GLFWwindow
 void framebuffer_size_callback(GLFWwindow *window, int width, int height) {
     engine->SetScreenDimensions(width, height);
     engine->InitGbuffer();
@@ -635,6 +629,7 @@ void window_size_callback(GLFWwindow *window, int width, int height) {
     glfwSetWindowSize(window, width, height);
 }
 
+// Controls (in scene?) need to communicate with window
 void mouse_callback(GLFWwindow *window, double xpos, double ypos) {
     int inputmode = glfwGetInputMode(window, GLFW_CURSOR);
     if (inputmode == GLFW_CURSOR_NORMAL)
@@ -654,6 +649,7 @@ void mouse_callback(GLFWwindow *window, double xpos, double ypos) {
     lastY = ypos;
 
 }
+
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
     if (action != GLFW_PRESS)

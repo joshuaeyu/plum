@@ -39,6 +39,8 @@ LFLAGS = 	-L$(LIB_GLFW)	\
 # Object files
 SRCOBJS = $(OBJDIR)/camera.o $(OBJDIR)/engine.o $(OBJDIR)/interface.o $(OBJDIR)/light.o $(OBJDIR)/scene.o $(OBJDIR)/mesh.o $(OBJDIR)/model.o $(OBJDIR)/resources.o $(OBJDIR)/scenenode.o $(OBJDIR)/shader.o $(OBJDIR)/shape.o $(OBJDIR)/texture.o
 
+SRCOBJS_CORE = $(OBJDIR)/core/window.o
+
 # ImGui resources
 IMGUI_CORE_CPP = $(wildcard $(EXTDIR)/imgui/imgui*.cpp)
 IMGUI_CORE_O = $(patsubst $(EXTDIR)/imgui/imgui%.cpp, $(OBJDIR)/imgui%.o, $(IMGUI_CORE_CPP))
@@ -49,7 +51,8 @@ IMGUI_BACKENDS_O = $(OBJDIR)/imgui_impl_glfw.o $(OBJDIR)/imgui_impl_opengl3.o
 all: obj main
 obj:
 	@mkdir -p $(OBJDIR)
-main: $(OBJDIR)/main.o $(SRCOBJS) $(OBJDIR)/gl.o $(OBJDIR)/stb_image.o $(IMGUI_CORE_O) $(IMGUI_MISC_O) $(IMGUI_BACKENDS_O)
+	@mkdir -p $(OBJDIR)/core
+main: $(OBJDIR)/main.o $(SRCOBJS) $(SRCOBJS_CORE) $(OBJDIR)/gl.o $(OBJDIR)/stb_image.o $(IMGUI_CORE_O) $(IMGUI_MISC_O) $(IMGUI_BACKENDS_O)
 	@echo Linking $@
 	@$(CXX) $(CXXFLAGS) $(LFLAGS) $^ -o $@
 
@@ -61,7 +64,7 @@ $(OBJDIR)/%.o: $(SRCDIR)/%.cpp $(SRCDIR)/%.hpp
 	@echo Compiling $@
 	@$(CXX) $(CXXFLAGS) $< -c -o $@
 	
-# External objects
+# # External objects
 $(OBJDIR)/gl.o: $(EXTDIR)/glad/src/gl.c
 	@echo Compiling $@
 	@$(CC) $(CFLAGS) $< -c -o $@
