@@ -30,8 +30,8 @@
 #include <plum/shape.hpp>
 #include <plum/texture.hpp>
 
-#include <plum/core/context.hpp>
-#include <plum/core/window.hpp>
+#include <plum/context/context.hpp>
+#include <plum/context/window.hpp>
 
 // forward declarations
 void processInput(GLFWwindow *window);
@@ -55,38 +55,26 @@ float deltaTime;
 
 int main() {
     //          INITIALIZE - GLFW, GLAD
-    WindowManager windowMgr;
-    Window windowObj = windowMgr.CreateWindow(SCR_WIDTH_INIT, SCR_HEIGHT_INIT, "Plum Engine");
-    GLFWwindow *window = windowObj.glfwWindow;
-
-    glfwMakeContextCurrent(window);
+    Context::WindowCreator windowCreator;
+    Context::Window windowObj = windowCreator.Create(SCR_WIDTH_INIT, SCR_HEIGHT_INIT, "Plum Engine");
+    windowObj.MakeCurrent();
+    
     // callbacks
-    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-    glfwSetCursorPosCallback(window, mouse_callback);
-    glfwSetKeyCallback(window, key_callback);
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-    if (!gladLoadGL(windowMgr.loadFunction)) {
-        std::cerr << "gladLoadGLLoader failed" << std::endl;
-        glfwTerminate();
-        return -1;
-    }
+    windowObj.SetFramebufferSizeCallback(framebuffer_size_callback);
+    windowObj.SetCursorPosCallback(mouse_callback);
+    windowObj.SetKeyCallback(key_callback);
+    windowObj.SetInputMode(GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
+    Context::GlContext context = Context::GlContext::GetGlContext();
+    context.Initialize(windowObj);
 
     //          INITIALIZE - IMGUI
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO();
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
-    ImGui_ImplGlfw_InitForOpenGL(window, true);          // Second param install_callback=true will install GLFW callbacks and chain to existing ones.
+    ImGui_ImplGlfw_InitForOpenGL(windowObj.GetHandle(), true);          // Second param install_callback=true will install GLFW callbacks and chain to existing ones.
     ImGui_ImplOpenGL3_Init();
-
-    GLint n;
-    glGetIntegerv(GL_MAX_ARRAY_TEXTURE_LAYERS, &n); // 2048
-    glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &n);  // 16
-    glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &n); // 80
-    glGetIntegerv(GL_MAX_UNIFORM_BLOCK_SIZE, &n); // 65536
-    glGetIntegerv(GL_MAX_CUBE_MAP_TEXTURE_SIZE, &n); // 16384
-    glGetIntegerv(GL_MAX_3D_TEXTURE_SIZE, &n); // 2048
-    glGetIntegerv(GL_MAX_TEXTURE_SIZE, &n); // 16384
 
     //          GL SETTINGS
     glEnable(GL_DEPTH_TEST);
@@ -95,7 +83,7 @@ int main() {
     glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
     // glad_glEnable(GL_STENCIL_TEST);
     // glad_glEnable(GL_BLEND);
-    // glad_glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    // glad_glBlendFunc((GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     //          SHADERS
     std::cout << "Loading shaders..." << std::endl;;
@@ -143,41 +131,41 @@ int main() {
 
     //          TEXTURES
     std::cout << "Loading standalone textures..." << std::endl;
-    std::shared_ptr<Tex> tex_container = resources->LoadTexture2D("container", "assets/container2.png", GL_TEXTURE_2D, GL_REPEAT, GL_LINEAR);
-    std::shared_ptr<Tex> tex_cobblestone = resources->LoadTexture2D("cobblestone", "assets/cobblestone.png", GL_TEXTURE_2D, GL_REPEAT, GL_NEAREST);
-    std::shared_ptr<Tex> tex_wood = resources->LoadTexture2D("wood", "assets/wood.png", GL_TEXTURE_2D, GL_REPEAT, GL_LINEAR);
-    std::shared_ptr<Tex> tex_stonetiles = resources->LoadTexture2D("stonetiles", "assets/stonetiles.jpg", GL_TEXTURE_2D, GL_REPEAT, GL_LINEAR);
-    std::shared_ptr<Tex> tex_rustedmetal = resources->LoadTexture2D("rustedmetal", "assets/rustedmetal.jpg", GL_TEXTURE_2D, GL_REPEAT, GL_LINEAR);
-    std::shared_ptr<Tex> tex_brickdiffuse = resources->LoadTexture2D("brickdiffuse", "assets/brickwall.jpg", GL_TEXTURE_2D, GL_REPEAT, GL_LINEAR);
-    std::shared_ptr<Tex> tex_bricknormal = resources->LoadTexture2D("bricknormal", "assets/brickwall_normal.jpg", GL_TEXTURE_2D, GL_REPEAT, GL_LINEAR, Tex::Tex_Type::TEX_HEIGHT);
+    std::shared_ptr<Tex> tex_container = resources->LoadTexture2D("container", "assets/textures/container2.png", GL_TEXTURE_2D, GL_REPEAT, GL_LINEAR);
+    std::shared_ptr<Tex> tex_cobblestone = resources->LoadTexture2D("cobblestone", "assets/textures/cobblestone.png", GL_TEXTURE_2D, GL_REPEAT, GL_NEAREST);
+    std::shared_ptr<Tex> tex_wood = resources->LoadTexture2D("wood", "assets/textures/wood.png", GL_TEXTURE_2D, GL_REPEAT, GL_LINEAR);
+    std::shared_ptr<Tex> tex_stonetiles = resources->LoadTexture2D("stonetiles", "assets/textures/stonetiles.jpg", GL_TEXTURE_2D, GL_REPEAT, GL_LINEAR);
+    std::shared_ptr<Tex> tex_rustedmetal = resources->LoadTexture2D("rustedmetal", "assets/textures/rustedmetal.jpg", GL_TEXTURE_2D, GL_REPEAT, GL_LINEAR);
+    std::shared_ptr<Tex> tex_brickdiffuse = resources->LoadTexture2D("brickdiffuse", "assets/textures/brickwall.jpg", GL_TEXTURE_2D, GL_REPEAT, GL_LINEAR);
+    std::shared_ptr<Tex> tex_bricknormal = resources->LoadTexture2D("bricknormal", "assets/textures/brickwall_normal.jpg", GL_TEXTURE_2D, GL_REPEAT, GL_LINEAR, Tex::Tex_Type::TEX_HEIGHT);
     std::vector<std::string> ocean_faces = {
-        "assets/skybox/right.jpg",
-        "assets/skybox/left.jpg",
-        "assets/skybox/top.jpg",
-        "assets/skybox/bottom.jpg",
-        "assets/skybox/front.jpg",
-        "assets/skybox/back.jpg"
+        "assets/textures/skybox/right.jpg",
+        "assets/textures/skybox/left.jpg",
+        "assets/textures/skybox/top.jpg",
+        "assets/textures/skybox/bottom.jpg",
+        "assets/textures/skybox/front.jpg",
+        "assets/textures/skybox/back.jpg"
     };
     std::shared_ptr<Tex> tex_oceanskybox = resources->LoadTextureCube("ocean", ocean_faces, GL_TEXTURE_CUBE_MAP, GL_CLAMP_TO_EDGE, GL_LINEAR);
-    std::shared_ptr<Tex> tex_nightsky = resources->LoadTexture2D("nightsky", "assets/kloppenheim_4k.hdr", GL_TEXTURE_2D, GL_CLAMP_TO_EDGE, GL_LINEAR, Tex::Tex_Type::TEX_DIFFUSE, true);
-    std::shared_ptr<Tex> tex_garden = resources->LoadTexture2D("garden", "assets/studio_garden_4k.hdr", GL_TEXTURE_2D, GL_REPEAT, GL_LINEAR, Tex::Tex_Type::TEX_DIFFUSE, true);
-    std::shared_ptr<Tex> tex_puppetstudio = resources->LoadTexture2D("puppetstudio", "assets/puppet_studio_4k.hdr", GL_TEXTURE_2D, GL_REPEAT, GL_LINEAR, Tex::Tex_Type::TEX_DIFFUSE, true);
-    std::shared_ptr<Tex> tex_trainstation = resources->LoadTexture2D("trainstation", "assets/dresden_station_4k.hdr", GL_TEXTURE_2D, GL_REPEAT, GL_LINEAR, Tex::Tex_Type::TEX_DIFFUSE, true);
-    std::shared_ptr<Tex> tex_newportloft = resources->LoadTexture2D("newportloft", "assets/newport_loft.png", GL_TEXTURE_2D, GL_REPEAT, GL_LINEAR, Tex::Tex_Type::TEX_DIFFUSE, true);
-    std::shared_ptr<Tex> tex_black = resources->LoadTexture2D("black", "assets/black.png", GL_TEXTURE_2D, GL_REPEAT, GL_NEAREST);
-    std::shared_ptr<Tex> tex_white = resources->LoadTexture2D("white", "assets/white.png", GL_TEXTURE_2D, GL_REPEAT, GL_NEAREST);
+    std::shared_ptr<Tex> tex_nightsky = resources->LoadTexture2D("nightsky", "assets/textures/kloppenheim_4k.hdr", GL_TEXTURE_2D, GL_CLAMP_TO_EDGE, GL_LINEAR, Tex::Tex_Type::TEX_DIFFUSE, true);
+    std::shared_ptr<Tex> tex_garden = resources->LoadTexture2D("garden", "assets/textures/studio_garden_4k.hdr", GL_TEXTURE_2D, GL_REPEAT, GL_LINEAR, Tex::Tex_Type::TEX_DIFFUSE, true);
+    std::shared_ptr<Tex> tex_puppetstudio = resources->LoadTexture2D("puppetstudio", "assets/textures/puppet_studio_4k.hdr", GL_TEXTURE_2D, GL_REPEAT, GL_LINEAR, Tex::Tex_Type::TEX_DIFFUSE, true);
+    std::shared_ptr<Tex> tex_trainstation = resources->LoadTexture2D("trainstation", "assets/textures/dresden_station_4k.hdr", GL_TEXTURE_2D, GL_REPEAT, GL_LINEAR, Tex::Tex_Type::TEX_DIFFUSE, true);
+    std::shared_ptr<Tex> tex_newportloft = resources->LoadTexture2D("newportloft", "assets/textures/newport_loft.png", GL_TEXTURE_2D, GL_REPEAT, GL_LINEAR, Tex::Tex_Type::TEX_DIFFUSE, true);
+    std::shared_ptr<Tex> tex_black = resources->LoadTexture2D("black", "assets/textures/black.png", GL_TEXTURE_2D, GL_REPEAT, GL_NEAREST);
+    std::shared_ptr<Tex> tex_white = resources->LoadTexture2D("white", "assets/textures/white.png", GL_TEXTURE_2D, GL_REPEAT, GL_NEAREST);
     std::cout << "Done loading standalone textures!" << std::endl << std::endl;
 
     //          MODELS
     std::cout << "Loading models..." << std::endl;;
-    auto backpack = resources->LoadModel("backpack", shader_obj, "assets/backpack/backpack.obj", 1.0f, true);
-    auto toilet = resources->LoadModel("toilet", shader_3mf, "assets/toilet/toilet.3mf", 0.005f);
-    auto plantpot = resources->LoadModel("plantpot", shader_obj, "assets/plantpot/indoor plant_02.obj", 0.01f);
-    auto skull = resources->LoadModel("skull", shader_obj, "assets/skull/12140_Skull_v3_L2.obj", 0.1f);
-    auto boat = resources->LoadModel("boat", shader_obj, "assets/boat/12219_boat_v2_L2.obj", 0.01f);
-    auto adamHead = resources->LoadModel("adamhead", shader_gltf, "assets/adamHead/adamHead.gltf", 100.0f);
-    auto lieutHead = resources->LoadModel("lieuthead", shader_gltf, "assets/lieutenantHead/lieutenantHead.gltf", 10.f);
-    // auto sponza = resources->LoadModel("sponza", shader_gltf, "assets/sponza/glTF/Sponza.gltf", 1.f);
+    auto backpack = resources->LoadModel("backpack", shader_obj, "assets/models/backpack/backpack.obj", 1.0f, true);
+    auto toilet = resources->LoadModel("toilet", shader_3mf, "assets/models/toilet/toilet.3mf", 0.005f);
+    auto plantpot = resources->LoadModel("plantpot", shader_obj, "assets/models/plantpot/indoor plant_02.obj", 0.01f);
+    auto skull = resources->LoadModel("skull", shader_obj, "assets/models/skull/12140_Skull_v3_L2.obj", 0.1f);
+    auto boat = resources->LoadModel("boat", shader_obj, "assets/models/boat/12219_boat_v2_L2.obj", 0.01f);
+    auto adamHead = resources->LoadModel("adamhead", shader_gltf, "assets/models/adamHead/adamHead.gltf", 100.0f);
+    auto lieutHead = resources->LoadModel("lieuthead", shader_gltf, "assets/models/lieutenantHead/lieutenantHead.gltf", 10.f);
+    // auto sponza = resources->LoadModel("sponza", shader_gltf, "assets/models/sponza/glTF/Sponza.gltf", 1.f);
     // Model model_planet("assets/planet/planet.obj");
     // Model model_rock("assets/rock/rock.obj");
     std::cout << "Done loading models!" << std::endl << std::endl;
@@ -317,7 +305,7 @@ int main() {
     float msPerFrame = 0;
     unsigned int frameCount = 0;
     Interface interface(engine, resources, scene);
-    while (!glfwWindowShouldClose(window)) {
+    while (!windowObj.ShouldClose()) {
         
         // calculate time
         currentTime = glfwGetTime();
@@ -337,7 +325,7 @@ int main() {
         
         // inputs
         glfwPollEvents();
-        processInput(window);
+        processInput(windowObj.GetHandle());
 
         // ImGui
         interface.SetStyle(ImGui::GetStyle());
@@ -585,7 +573,7 @@ int main() {
             glEnable(GL_FRAMEBUFFER_SRGB);
 
         // Essential
-        glfwSwapBuffers(window);
+        windowObj.SwapBuffers();
     }
 
     //          CLEAN UP
@@ -601,7 +589,7 @@ void processInput(GLFWwindow *window) {
     if (inputmode == GLFW_CURSOR_NORMAL) 
         return;
 
-    // Camera translation
+    // Camera translation (needs to be here because GLFW key callback is only called on press, repeat, and release)
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
         scene->SceneCamera.ProcessKeyboard(Camera::Direction::FORWARD, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
@@ -649,7 +637,6 @@ void mouse_callback(GLFWwindow *window, double xpos, double ypos) {
     lastY = ypos;
 
 }
-
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
     if (action != GLFW_PRESS)
