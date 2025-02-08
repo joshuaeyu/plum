@@ -28,6 +28,14 @@ namespace Component {
     void Vao::Unbind() {
         glBindVertexArray(0);
     }
+    void Vao::Draw() {
+        Bind();
+        if (ebo) {
+            glDrawElements(GL_TRIANGLES, ebo->indices.size(), GL_UNSIGNED_INT, (void *)0);
+        } else {
+            glDrawArrays(GL_TRIANGLES, 0, vbo->vertexArray.VertexCount());
+        }
+    }
     void Vao::SetAttribPointerFormat() {
         // Specify vertex attribute pointer
         for (int i = 0; i < VertexAttrInfo.AttrList.size(); i++) {

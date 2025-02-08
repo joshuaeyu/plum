@@ -211,9 +211,7 @@ Cube::Cube(std::string name, Shader* default_shader) : Shape(name, default_shade
 void Cube::Draw(Shader& shader, glm::mat4 model_matrix) {
     glUseProgram(shader.programID);
     setUniforms(shader, model_matrix);
-    vao->Bind();
-    glDrawArrays(GL_TRIANGLES, 0, 36);
-    vao->Unbind();
+    vao->Draw();
     resetUniforms(shader);
 }
 void Cube::DrawInstanced() {}
@@ -235,9 +233,7 @@ Sphere::Sphere(std::string name, Shader* default_shader, const int stack_count, 
 void Sphere::Draw(Shader& shader, glm::mat4 model_matrix) {
     glUseProgram(shader.programID);
     setUniforms(shader, model_matrix);
-    vao->Bind();
-    glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, (void *)0);
-    vao->Unbind();
+    vao->Draw();
     resetUniforms(shader);
 }
 void Sphere::DrawInstanced(Shader& s, GLsizei count) {}
@@ -354,9 +350,7 @@ void Rectangle::Draw(Shader& shader, glm::mat4 model_matrix) {
     glUseProgram(shader.programID);
     glDisable(GL_CULL_FACE);
     setUniforms(shader, model_matrix);
-    vao->Bind();
-    glDrawArrays(GL_TRIANGLES, 0, 6);
-    vao->Unbind();
+    vao->Draw();
     resetUniforms(shader);
     glEnable(GL_CULL_FACE);
 }
