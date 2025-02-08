@@ -44,6 +44,7 @@ namespace Component {
                     return attr;
                 }
             }
+            return VertexAttrTypeInfo(VertexAttrFlags(0),0);   // placeholder
         }
     } VertexAttrInfo;
 
@@ -57,7 +58,7 @@ namespace Component {
                 std::vector<float> bitangents;
             };
 
-            VertexArray(const std::vector<float>& collated, const VertexAttrFlags attrflags = VertexAttrFlags::All);
+            VertexArray(const std::vector<float>& collated, const unsigned int flags = VertexAttrFlags::All);
             VertexArray(const UncollatedVertices& uncollated);
 
         public:

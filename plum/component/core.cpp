@@ -13,7 +13,10 @@ namespace Component {
     Vao::Vao(std::shared_ptr<Vbo> vb, std::shared_ptr<Ebo> eb) : vbo(vb), ebo(eb) {
         glGenVertexArrays(1, &handle);
         Bind();
+        vbo->Bind();
         SetAttribPointerFormat();
+        if (ebo)
+            ebo->Bind();
         Unbind();
     }
     Vao::~Vao() {
@@ -55,11 +58,11 @@ namespace Component {
     }
 
     // Element (index) array buffer
-    Ebo::Ebo(const std::vector<int>& indices) : indices(indices) {
+    Ebo::Ebo(const std::vector<unsigned int>& indices) : indices(indices) {
         glGenBuffers(1, &handle);
         Bind();
         // Create index data store
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(int), indices.data(), GL_STATIC_DRAW);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), indices.data(), GL_STATIC_DRAW);
         Unbind();
     }
     void Ebo::Bind() {

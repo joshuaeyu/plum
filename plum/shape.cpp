@@ -11,6 +11,8 @@
 #include <plum/shader.hpp>
 #include <plum/texture.hpp>
 
+#include <plum/component/core.hpp>
+#include <plum/component/vertex.hpp>
 
 // ======= Shape =======
 
@@ -19,9 +21,9 @@ Shader* Shape::DefaultShaderTextureOnly = nullptr;
 Shader* Shape::DefaultShaderHybrid = nullptr;
 
 Shape::~Shape() {
-    glDeleteVertexArrays(1, &vao);
-    glDeleteBuffers(1, &vbo);
-    glDeleteBuffers(1, &ebo);
+    // glDeleteVertexArrays(1, &vao);
+    // glDeleteBuffers(1, &vbo);
+    // glDeleteBuffers(1, &ebo);
 }
 
 // Modifiers
@@ -204,44 +206,23 @@ std::vector<float> cubeData = std::vector<float>({
 });
 
 Cube::Cube(std::string name, Shader* default_shader) : Shape(name, default_shader) {
-    data = &cubeData;
     setup();
 }
 void Cube::Draw(Shader& shader, glm::mat4 model_matrix) {
     glUseProgram(shader.programID);
     setUniforms(shader, model_matrix);
-    glBindVertexArray(vao);
+    vao->Bind();
     glDrawArrays(GL_TRIANGLES, 0, 36);
-    glBindVertexArray(0);
+    vao->Unbind();
     resetUniforms(shader);
 }
 void Cube::DrawInstanced() {}
 
 void Cube::setup() {
-    glGenVertexArrays(1, &vao);
-    glGenBuffers(1, &vbo);
-    
-    glBindVertexArray(vao);
-
-    // Vertex data buffer
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferData(GL_ARRAY_BUFFER, data->size() * sizeof(float), data->data(), GL_DYNAMIC_DRAW);
-    // Positions
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void *)0);
-    // Normals
-    glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void *)(3 * sizeof(float)));
-    // UV
-    glEnableVertexAttribArray(2);
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void *)(6 * sizeof(float)));
-    // Tangents
-    glEnableVertexAttribArray(3);
-    glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void *)(8 * sizeof(float)));
-
-    glBindVertexArray(0);
+    Component::VertexArray vertices(cubeData, Component::VertexAttrFlags::All ^ Component::VertexAttrFlags::Bitangent);
+    auto vbo = std::make_shared<Component::Vbo>(vertices);
+    vao = std::make_shared<Component::Vao>(vbo);
 }
-
 
 // ======= Sphere =======
 
@@ -254,9 +235,9 @@ Sphere::Sphere(std::string name, Shader* default_shader, const int stack_count, 
 void Sphere::Draw(Shader& shader, glm::mat4 model_matrix) {
     glUseProgram(shader.programID);
     setUniforms(shader, model_matrix);
-    glBindVertexArray(vao);
+    vao->Bind();
     glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, (void *)0);
-    glBindVertexArray(0);
+    vao->Unbind();
     resetUniforms(shader);
 }
 void Sphere::DrawInstanced(Shader& s, GLsizei count) {}
@@ -275,9 +256,9 @@ void Sphere::generateVertexData(const int stack_count, const int sector_count) {
             float sector_angle = glm::two_pi<float>() * (float(j) / sector_count); // clockwise when looking in -y direction
             float x = glm::cos(stack_angle) * glm::cos(sector_angle);
             float z = glm::cos(stack_angle) * glm::sin(sector_angle);
-            positions.push_back(glm::vec3(x,y,z));
-            normals.push_back(glm::vec3(x,y,z));
-            uv.push_back(glm::vec2(float(j)/sector_count, float(i)/stack_count));
+            positions.insert(positions.end(), {x,y,z});
+            normals.insert(normals.end(), {x,y,z});
+            uv.insert(uv.end(), {float(j)/sector_count, float(i)/stack_count});
             stack_positions.push_back(glm::vec3(x,y,z));
             // Tangents, bitangents for top and bottom edge cases
             if (i == 0 || i == stack_count) {
@@ -285,15 +266,21 @@ void Sphere::generateVertexData(const int stack_count, const int sector_count) {
                 float fake_x = glm::cos(fake_stack_angle) * glm::cos(fake_stack_angle);
                 float fake_z = glm::cos(fake_stack_angle) * glm::sin(fake_stack_angle);
                 glm::vec3 bitangent = glm::normalize( glm::vec3(fake_x,0,fake_z) );
-                bitangents.push_back(bitangent);
+                bitangents.push_back(bitangent.x);
+                bitangents.push_back(bitangent.y);
+                bitangents.push_back(bitangent.z);
                 glm::vec3 tangent;
                 if (i == 0) {
                     tangent = glm::normalize( glm::cross(glm::vec3(0,1,0), bitangent) );
-                    tangents.push_back(tangent);
+                    tangents.push_back(tangent.x);
+                    tangents.push_back(tangent.y);
+                    tangents.push_back(tangent.z);
                 } else if (i == stack_count) {
                     tangent = glm::normalize( glm::cross(glm::vec3(0,-1,0), bitangent) );
                 } 
-                tangents.push_back(tangent);
+                tangents.push_back(tangent.x);
+                tangents.push_back(tangent.y);
+                tangents.push_back(tangent.z);
             }
         }
         // Work backwards to compute non-edgecase tangents and bitangents
@@ -303,9 +290,13 @@ void Sphere::generateVertexData(const int stack_count, const int sector_count) {
                 continue;
             } else {
                 glm::vec3 bitangent = glm::normalize( glm::cross(*currpos, lastpos) );
-                bitangents.push_back(bitangent);
+                bitangents.push_back(bitangent.x);
+                bitangents.push_back(bitangent.y);
+                bitangents.push_back(bitangent.z);
                 glm::vec3 tangent = glm::normalize( glm::cross(bitangent, *currpos) );
-                tangents.push_back(tangent);
+                tangents.push_back(tangent.x);
+                tangents.push_back(tangent.y);
+                tangents.push_back(tangent.z);
                 lastpos = *currpos;
             }
         }
@@ -344,60 +335,10 @@ void Sphere::generateVertexData(const int stack_count, const int sector_count) {
 }
 
 void Sphere::setup() {
-    glGenVertexArrays(1, &vao);
-    glGenBuffers(1, &vbo);
-    glGenBuffers(1, &ebo);
-    
-    glBindVertexArray(vao);
-
-    // Vertex data buffer
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferData(GL_ARRAY_BUFFER, (positions.size() + normals.size() + tangents.size() + bitangents.size()) * sizeof(glm::vec3) + uv.size() * sizeof(glm::vec2), 0, GL_STATIC_DRAW);
-    glBufferSubData(GL_ARRAY_BUFFER, 
-        0, 
-        positions.size() * sizeof(glm::vec3), 
-        positions.data());
-    glBufferSubData(GL_ARRAY_BUFFER, 
-        positions.size() * sizeof(glm::vec3), 
-        normals.size() * sizeof(glm::vec3), 
-        normals.data());
-    glBufferSubData(GL_ARRAY_BUFFER, 
-        (positions.size() + normals.size()) * sizeof(glm::vec3), 
-        uv.size() * sizeof(glm::vec2), 
-        uv.data());
-    glBufferSubData(GL_ARRAY_BUFFER, 
-        (positions.size() + normals.size()) * sizeof(glm::vec3) + uv.size() * sizeof(glm::vec2), 
-        tangents.size() * sizeof(glm::vec3), 
-        tangents.data());
-    glBufferSubData(GL_ARRAY_BUFFER, 
-        (positions.size() + normals.size() + tangents.size()) * sizeof(glm::vec3) + uv.size() * sizeof(glm::vec2),
-        bitangents.size() * sizeof(glm::vec3), 
-        bitangents.data());
-    // Positions
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), 
-        (void *)0);
-    // Normals
-    glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), 
-        (void *)(positions.size() * sizeof(glm::vec3)));
-    // UV
-    glEnableVertexAttribArray(2);
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), 
-        (void *)((positions.size()+normals.size()) * sizeof(glm::vec3)));
-    // Tangents
-    glEnableVertexAttribArray(3);
-    glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), 
-        (void *)((positions.size()+normals.size()) * sizeof(glm::vec3) + uv.size() * sizeof(glm::vec2)));
-    // Bitangents
-    glEnableVertexAttribArray(4);
-    glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), 
-        (void *)((positions.size()+normals.size()+tangents.size()) * sizeof(glm::vec3) + uv.size() * sizeof(glm::vec2)));
-    // Element (index) buffer
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), indices.data(), GL_STATIC_DRAW);
-
-    glBindVertexArray(0);
+    Component::VertexArray::UncollatedVertices vertices = {positions, normals, uv, tangents, bitangents};
+    auto vbo = std::make_shared<Component::Vbo>(vertices);
+    auto ebo = std::make_shared<Component::Ebo>(indices);
+    vao = std::make_shared<Component::Vao>(vbo, ebo);
 }
 
 
@@ -413,15 +354,15 @@ void Rectangle::Draw(Shader& shader, glm::mat4 model_matrix) {
     glUseProgram(shader.programID);
     glDisable(GL_CULL_FACE);
     setUniforms(shader, model_matrix);
-    glBindVertexArray(vao);
+    vao->Bind();
     glDrawArrays(GL_TRIANGLES, 0, 6);
-    glBindVertexArray(0);
+    vao->Unbind();
     resetUniforms(shader);
     glEnable(GL_CULL_FACE);
 }
 
 void Rectangle::setup() {
-    float raw_vertices[] = {    // Remember CCW (x-z vs x-y)
+    std::vector<float> positions = {    // Remember CCW (x-z vs x-y)
         -1.0f, 0.0f, -1.0f,
         -1.0f, 0.0f, 1.0f,
         1.0f, 0.0f, -1.0f,
@@ -429,7 +370,7 @@ void Rectangle::setup() {
         1.0f, 0.0f, -1.0f,
         -1.0f, 0.0f, 1.0f
     };
-    float raw_normals[] = {
+    std::vector<float> normals = {
         0.0f, 1.0f, 0.0f,
         0.0f, 1.0f, 0.0f,
         0.0f, 1.0f, 0.0f,
@@ -437,7 +378,7 @@ void Rectangle::setup() {
         0.0f, 1.0f, 0.0f,
         0.0f, 1.0f, 0.0f
     };
-    float raw_uv[] = {
+    std::vector<float> uvs = {
         0.0f,              0.0f,
         0.0f,              1.0f * zSections,
         1.0f * xSections, 0.0f,
@@ -445,7 +386,7 @@ void Rectangle::setup() {
         1.0f * xSections, 0.0f,
         0.0f,              1.0f * zSections
     };
-    float raw_tangents[] = {
+    std::vector<float> tangents = {
         1.0f, 0.0f, 0.0f,
         1.0f, 0.0f, 0.0f,
         1.0f, 0.0f, 0.0f,
@@ -453,43 +394,7 @@ void Rectangle::setup() {
         1.0f, 0.0f, 0.0f,
         1.0f, 0.0f, 0.0f
     };
-    
-    glGenVertexArrays(1, &vao);
-    glGenBuffers(1, &vbo);
-
-    glBindVertexArray(vao);
-
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(raw_vertices)+sizeof(raw_normals)+sizeof(raw_uv)+sizeof(raw_tangents), 0, GL_STATIC_DRAW);
-    glBufferSubData(GL_ARRAY_BUFFER, 
-        0, 
-        sizeof(raw_vertices), 
-        raw_vertices);
-    glBufferSubData(GL_ARRAY_BUFFER, 
-        sizeof(raw_vertices), 
-        sizeof(raw_normals), 
-        raw_normals);
-    glBufferSubData(GL_ARRAY_BUFFER, 
-        sizeof(raw_vertices)+sizeof(raw_normals), 
-        sizeof(raw_uv), 
-        raw_uv);
-    glBufferSubData(GL_ARRAY_BUFFER, 
-        sizeof(raw_vertices)+sizeof(raw_normals)+sizeof(raw_uv), 
-        sizeof(raw_tangents), 
-        raw_tangents);
-
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), 
-        (void *)0);
-    glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), 
-        (void *)(sizeof(raw_vertices)));
-    glEnableVertexAttribArray(2);
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), 
-        (void *)(sizeof(raw_vertices)+sizeof(raw_normals)));
-    glEnableVertexAttribArray(3);
-    glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), 
-        (void *)(sizeof(raw_vertices)+sizeof(raw_normals)+sizeof(raw_uv)));
-
-    glBindVertexArray(0);
+    Component::VertexArray::UncollatedVertices vertices = {positions, normals, uvs, tangents};
+    auto vbo = std::make_shared<Component::Vbo>(vertices);
+    vao = std::make_shared<Component::Vao>(vbo);
 }

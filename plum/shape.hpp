@@ -12,6 +12,8 @@
 #include <plum/shader.hpp>
 #include <plum/texture.hpp>
 
+#include <plum/component/core.hpp>
+
 class Shape : public Drawable {
     public:
 
@@ -53,14 +55,13 @@ class Shape : public Drawable {
     protected:
         bool bypass_pipeline = false;
 
-        GLuint vao, vbo, ebo;
+        std::shared_ptr<Component::Vao> vao;
 
-        std::vector<float>* data;            // Generally for raw, interleaved data
-        std::vector<glm::vec3> positions;    // Generally for compile- or run-time data
-        std::vector<glm::vec3> normals;      // Generally for compile- or run-time data
-        std::vector<glm::vec2> uv;           // Generally for compile- or run-time data
-        std::vector<glm::vec3> tangents;
-        std::vector<glm::vec3> bitangents;
+        std::vector<float> positions;    // Generally for compile- or run-time data
+        std::vector<float> normals;      // Generally for compile- or run-time data
+        std::vector<float> uv;           // Generally for compile- or run-time data
+        std::vector<float> tangents;
+        std::vector<float> bitangents;
 
         glm::vec3 albedo = glm::vec3(0.5);   // Default gray color
         float metallic = 0.0;

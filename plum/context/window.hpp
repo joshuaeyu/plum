@@ -1,5 +1,4 @@
-#ifndef WINDOW_HPP
-#define WINDOW_HPP
+#pragma once
 
 #include <map>
 #include <memory>
@@ -24,6 +23,7 @@ namespace Context {
             void SetInputMode(const int mode, const int value);
             
             void MakeCurrent();
+            void PollEvents();
             void SwapBuffers();
             
             bool ShouldClose() const;
@@ -52,4 +52,3 @@ namespace Context {
             Gui(GLFWwindow *window);
     };
 }
-#endif

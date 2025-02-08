@@ -6,6 +6,37 @@
 
 namespace Component {
 
+    class GlObject {
+        public:
+            virtual void Bind() = 0;
+            virtual void Unbind() = 0;
+            virtual ~GlObject() {}
+            GLuint Handle();
+            GLenum Target();
+        protected:
+            GLuint handle;
+            GLenum target;
+    };
+
+
+    class Vbo : public GlObject {
+        public:
+            Vbo(const Component::VertexArray& varray);
+            ~Vbo();
+            void Bind();
+            void Unbind();
+            Component::VertexArray vertexArray;
+    };
+
+    class Ebo : public GlObject {
+        public:
+            Ebo(const std::vector<unsigned int>& indices);
+            ~Ebo();
+            void Bind();
+            void Unbind();
+            std::vector<unsigned int> indices;
+    };
+
     class Vao : public GlObject {
         public:
             Vao(std::shared_ptr<Vbo> vb);
@@ -19,25 +50,6 @@ namespace Component {
             std::shared_ptr<Vbo> vbo;
             std::shared_ptr<Ebo> ebo;            
     };
-
-    class Vbo : public GlObject {
-        public:
-            Vbo(const Component::VertexArray& varray);
-            ~Vbo();
-            void Bind();
-            void Unbind();
-            Component::VertexArray vertexArray;
-    };
-
-    class Ebo : public GlObject {
-        public:
-            Ebo(const std::vector<int>& indices);
-            ~Ebo();
-            void Bind();
-            void Unbind();
-            std::vector<int> indices;
-    };
-
     // class Fbo : public GlObject {
     //     public:
     //         Fbo(int width, int height);
@@ -66,16 +78,6 @@ namespace Component {
     //         int width, height;
     // };
 
-    class GlObject {
-        public:
-            virtual void Bind() = 0;
-            virtual void Unbind() = 0;
-            virtual ~GlObject() {}
-            GLuint Handle();
-            GLenum Target();
-        protected:
-            GLuint handle;
-            GLenum target;
-    };
+
 
 }

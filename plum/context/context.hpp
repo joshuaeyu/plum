@@ -1,5 +1,4 @@
-#ifndef CONTEXT_HPP
-#define CONTEXT_HPP
+#pragma once
 
 #include <glad/gl.h>
 #include <plum/context/window.hpp>
@@ -14,25 +13,17 @@ namespace Context {
             static GlContext& GetGlContext();
             void Initialize(Context::Window window);
             
-            void EnableDepth();
-            void EnableBlend();
-            void EnableStencil();
-            void EnableCull();
+            void EnableDepth(GLenum func = GL_LEQUAL);
+            void EnableCull(GLenum mode = GL_BACK);
             void EnableFramebufferSrgb();
+            // future: stencil, blend
         
             void DisableDepth();
-            void DisableBlend();
-            void DisableStencil();
             void DisableCull();
             void DisableFramebufferSrgb();
 
-            void SetDepthFunc(GLenum func);
-            void SetBlendFunc(GLenum sfactor, GLenum dfactor);
-            void SetCullFace(GLenum mode);
-
             void ClearColor();
             void ClearDepth();
-            
             void ClearStencil();
 
             void SetViewport();
@@ -42,5 +33,3 @@ namespace Context {
     };
 
 }
-
-#endif

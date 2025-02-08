@@ -41,7 +41,7 @@ namespace Context {
             glfwTerminate();
             exit(-1);
         }
-        
+
         return Window(window);
     }
 
@@ -64,8 +64,12 @@ namespace Context {
     void Window::SetInputMode(const int mode, const int value) {
         glfwSetInputMode(handle, mode, value);
     }
+
     bool Window::ShouldClose() const {
         return glfwWindowShouldClose(handle);
+    }
+    void Window::PollEvents() {
+        glfwPollEvents();
     }
     void Window::SwapBuffers() {
         glfwSwapBuffers(handle);

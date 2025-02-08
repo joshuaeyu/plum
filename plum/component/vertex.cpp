@@ -2,7 +2,16 @@
 
 namespace Component {
     
-    VertexArray::VertexArray(const std::vector<float>& collated, const VertexAttrFlags flags = VertexAttrFlags::All) : data(collated), attributes(flags) {}
+    VertexArray::VertexArray(const std::vector<float>& collated, const unsigned int flags) : data(collated), attributes(flags) {
+        // Compute stride
+        stride = 0;
+        for (auto attr : VertexAttrInfo.AttrList) {
+            if (HasAttributes(attr.flag))
+                stride += attr.size;
+        }
+        // Determine vertex count
+        vertexCount = Size() / Stride();
+    }
 
     VertexArray::VertexArray(const UncollatedVertices& uncollated) {
         // Determine attribute flags
@@ -14,6 +23,7 @@ namespace Component {
         attributes = attributes | ((uncollated.bitangents.size() > 0) * VertexAttrFlags::Bitangent);
 
         // Determine vertex count
+        vertexCount = 0;
         if (HasAttributes(VertexAttrFlags::Position)) {
             vertexCount = uncollated.positions.size() / VertexAttrInfo.Position.ncomps;
         } else if (HasAttributes(VertexAttrFlags::Normal)) {
@@ -24,40 +34,39 @@ namespace Component {
             vertexCount = uncollated.tangents.size() / VertexAttrInfo.Tangent.ncomps;
         } else if (HasAttributes(VertexAttrFlags::Bitangent)) {
             vertexCount = uncollated.bitangents.size() / VertexAttrInfo.Bitangent.ncomps;
-        } else {
-            vertexCount = 0;
         }
         
         // Assembled collated data vector
         for (int i = 0; i < vertexCount; i++) {
             if (HasAttributes(VertexAttrFlags::Position)) {
                 int ndims = VertexAttrInfo.Position.ncomps;
-                for (int j = ndims * i; j < j + ndims; j++)
+                for (int j = ndims * i; j < ndims * (i + 1); j++)
                     data.push_back(uncollated.positions[j]);
             }
             if (HasAttributes(VertexAttrFlags::Normal)) {
                 int ndims = VertexAttrInfo.Normal.ncomps;
-                for (int j = ndims * i; j < j + ndims; j++)
+                for (int j = ndims * i; j < ndims * (i + 1); j++)
                     data.push_back(uncollated.normals[j]);
             }
             if (HasAttributes(VertexAttrFlags::Uv)) {
                 int ndims = VertexAttrInfo.Uv.ncomps;
-                for (int j = ndims * i; j < j + ndims; j++)
+                for (int j = ndims * i; j < ndims * (i + 1); j++)
                     data.push_back(uncollated.uvs[j]);
             }
             if (HasAttributes(VertexAttrFlags::Tangent)) {
                 int ndims = VertexAttrInfo.Tangent.ncomps;
-                for (int j = ndims * i; j < j + ndims; j++)
+                for (int j = ndims * i; j < ndims * (i + 1); j++)
                     data.push_back(uncollated.tangents[j]);
             }
             if (HasAttributes(VertexAttrFlags::Bitangent)) {
                 int ndims = VertexAttrInfo.Bitangent.ncomps;
-                for (int j = ndims * i; j < j + ndims; j++)
+                for (int j = ndims * i; j < ndims * (i + 1); j++)
                     data.push_back(uncollated.bitangents[j]);
             }
         }
 
         // Compute stride
+        stride = 0;
         for (auto attr : VertexAttrInfo.AttrList) {
             if (HasAttributes(attr.flag))
                 stride += attr.size;

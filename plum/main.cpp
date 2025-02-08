@@ -72,18 +72,9 @@ int main() {
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO();
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
-    ImGui_ImplGlfw_InitForOpenGL(windowObj.GetHandle(), true);          // Second param install_callback=true will install GLFW callbacks and chain to existing ones.
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard; // Enable Keyboard Controls
+    ImGui_ImplGlfw_InitForOpenGL(windowObj.GetHandle(), true); // Second param install_callback=true will install GLFW callbacks and chain to existing ones.
     ImGui_ImplOpenGL3_Init();
-
-    //          GL SETTINGS
-    glEnable(GL_DEPTH_TEST);
-    glDepthFunc(GL_LEQUAL); // LEQUAL for skybox optimization, since depth buffer is cleared to 1.0 by default
-    glEnable(GL_CULL_FACE);
-    glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
-    // glad_glEnable(GL_STENCIL_TEST);
-    // glad_glEnable(GL_BLEND);
-    // glad_glBlendFunc((GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     //          SHADERS
     std::cout << "Loading shaders..." << std::endl;;
@@ -159,12 +150,12 @@ int main() {
     //          MODELS
     std::cout << "Loading models..." << std::endl;;
     auto backpack = resources->LoadModel("backpack", shader_obj, "assets/models/backpack/backpack.obj", 1.0f, true);
-    auto toilet = resources->LoadModel("toilet", shader_3mf, "assets/models/toilet/toilet.3mf", 0.005f);
-    auto plantpot = resources->LoadModel("plantpot", shader_obj, "assets/models/plantpot/indoor plant_02.obj", 0.01f);
-    auto skull = resources->LoadModel("skull", shader_obj, "assets/models/skull/12140_Skull_v3_L2.obj", 0.1f);
-    auto boat = resources->LoadModel("boat", shader_obj, "assets/models/boat/12219_boat_v2_L2.obj", 0.01f);
-    auto adamHead = resources->LoadModel("adamhead", shader_gltf, "assets/models/adamHead/adamHead.gltf", 100.0f);
-    auto lieutHead = resources->LoadModel("lieuthead", shader_gltf, "assets/models/lieutenantHead/lieutenantHead.gltf", 10.f);
+    // auto toilet = resources->LoadModel("toilet", shader_3mf, "assets/models/toilet/toilet.3mf", 0.005f);
+    // auto plantpot = resources->LoadModel("plantpot", shader_obj, "assets/models/plantpot/indoor plant_02.obj", 0.01f);
+    // auto skull = resources->LoadModel("skull", shader_obj, "assets/models/skull/12140_Skull_v3_L2.obj", 0.1f);
+    // auto boat = resources->LoadModel("boat", shader_obj, "assets/models/boat/12219_boat_v2_L2.obj", 0.01f);
+    // auto adamHead = resources->LoadModel("adamhead", shader_gltf, "assets/models/adamHead/adamHead.gltf", 100.0f);
+    // auto lieutHead = resources->LoadModel("lieuthead", shader_gltf, "assets/models/lieutenantHead/lieutenantHead.gltf", 10.f);
     // auto sponza = resources->LoadModel("sponza", shader_gltf, "assets/models/sponza/glTF/Sponza.gltf", 1.f);
     // Model model_planet("assets/planet/planet.obj");
     // Model model_rock("assets/rock/rock.obj");
@@ -324,7 +315,7 @@ int main() {
         }
         
         // inputs
-        glfwPollEvents();
+        windowObj.PollEvents();
         processInput(windowObj.GetHandle());
 
         // ImGui
@@ -335,9 +326,9 @@ int main() {
         interface.ShowInterface();
 
         if (interface.Hdr)
-            glDisable(GL_FRAMEBUFFER_SRGB);
+            context.DisableFramebufferSrgb();
         else
-            glEnable(GL_FRAMEBUFFER_SRGB); // Gamma correction, only enable if not doing gamma correction in postprocessing framebuffer (e.g., HDR shader)
+            context.EnableFramebufferSrgb(); // Gamma correction, only enable if not doing gamma correction in postprocessing framebuffer (e.g., HDR shader)
 
         // SET UNIFORMS
         scene->SetVertexMatricesUniformBlock();
