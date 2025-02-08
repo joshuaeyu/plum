@@ -1,61 +1,110 @@
 #include <plum/component/vertex.hpp>
 
 namespace Component {
-
-    UncollatedVertices::UncollatedVertices() {}
     
-    CollatedVertices::CollatedVertices(const UncollatedVertices &uncollated) {
+    VertexArray::VertexArray(const std::vector<float>& collated, const VertexAttrFlags flags = VertexAttrFlags::All) : data(collated), attributes(flags) {}
+
+    VertexArray::VertexArray(const UncollatedVertices& uncollated) {
         // Determine attribute flags
+        attributes = 0;
         attributes = attributes | ((uncollated.positions.size() > 0) * VertexAttrFlags::Position);
         attributes = attributes | ((uncollated.normals.size() > 0) * VertexAttrFlags::Normal);
         attributes = attributes | ((uncollated.uvs.size() > 0) * VertexAttrFlags::Uv);
         attributes = attributes | ((uncollated.tangents.size() > 0) * VertexAttrFlags::Tangent);
         attributes = attributes | ((uncollated.bitangents.size() > 0) * VertexAttrFlags::Bitangent);
 
+        // Determine vertex count
+        if (HasAttributes(VertexAttrFlags::Position)) {
+            vertexCount = uncollated.positions.size() / VertexAttrInfo.Position.ncomps;
+        } else if (HasAttributes(VertexAttrFlags::Normal)) {
+            vertexCount = uncollated.normals.size() / VertexAttrInfo.Normal.ncomps;
+        } else if (HasAttributes(VertexAttrFlags::Uv)) {
+            vertexCount = uncollated.uvs.size() / VertexAttrInfo.Uv.ncomps;
+        } else if (HasAttributes(VertexAttrFlags::Tangent)) {
+            vertexCount = uncollated.tangents.size() / VertexAttrInfo.Tangent.ncomps;
+        } else if (HasAttributes(VertexAttrFlags::Bitangent)) {
+            vertexCount = uncollated.bitangents.size() / VertexAttrInfo.Bitangent.ncomps;
+        } else {
+            vertexCount = 0;
+        }
+        
         // Assembled collated data vector
-        int count = uncollated.positions.size();
-        for (int i = 0; i < count; i++) {
-            if (attributes & VertexAttrFlags::Position) {
-                data.push_back(uncollated.positions[i].x);
-                data.push_back(uncollated.positions[i].y);
-                data.push_back(uncollated.positions[i].z);
+        for (int i = 0; i < vertexCount; i++) {
+            if (HasAttributes(VertexAttrFlags::Position)) {
+                int ndims = VertexAttrInfo.Position.ncomps;
+                for (int j = ndims * i; j < j + ndims; j++)
+                    data.push_back(uncollated.positions[j]);
             }
-            if (attributes & VertexAttrFlags::Normal) {
-                data.push_back(uncollated.normals[i].x);
-                data.push_back(uncollated.normals[i].y);
-                data.push_back(uncollated.normals[i].z);
+            if (HasAttributes(VertexAttrFlags::Normal)) {
+                int ndims = VertexAttrInfo.Normal.ncomps;
+                for (int j = ndims * i; j < j + ndims; j++)
+                    data.push_back(uncollated.normals[j]);
             }
-            if (attributes & VertexAttrFlags::Uv) {
-                data.push_back(uncollated.uvs[i].x);
-                data.push_back(uncollated.uvs[i].y);
+            if (HasAttributes(VertexAttrFlags::Uv)) {
+                int ndims = VertexAttrInfo.Uv.ncomps;
+                for (int j = ndims * i; j < j + ndims; j++)
+                    data.push_back(uncollated.uvs[j]);
             }
-            if (attributes & VertexAttrFlags::Tangent) {
-                data.push_back(uncollated.tangents[i].x);
-                data.push_back(uncollated.tangents[i].y);
-                data.push_back(uncollated.tangents[i].z);
+            if (HasAttributes(VertexAttrFlags::Tangent)) {
+                int ndims = VertexAttrInfo.Tangent.ncomps;
+                for (int j = ndims * i; j < j + ndims; j++)
+                    data.push_back(uncollated.tangents[j]);
             }
-            if (attributes & VertexAttrFlags::Bitangent) {
-                data.push_back(uncollated.bitangents[i].x);
-                data.push_back(uncollated.bitangents[i].y);
-                data.push_back(uncollated.bitangents[i].z);
+            if (HasAttributes(VertexAttrFlags::Bitangent)) {
+                int ndims = VertexAttrInfo.Bitangent.ncomps;
+                for (int j = ndims * i; j < j + ndims; j++)
+                    data.push_back(uncollated.bitangents[j]);
             }
         }
 
-        // calc stride
+        // Compute stride
+        for (auto attr : VertexAttrInfo.AttrList) {
+            if (HasAttributes(attr.flag))
+                stride += attr.size;
+        }
     }
 
-    CollatedVertices::CollatedVertices(const std::vector<float>& collated, VertexAttrFlags attrflags) : data(collated), attributes(attrflags) {
-        // calc stride
+    std::vector<float> VertexArray::AttributeData(const VertexAttrFlags flag) const {
+        std::vector<float> result;
+        int startIdx = AttributeOffset(flag) / sizeof(float);
+        int strideLength = Stride() / sizeof(float);
+        auto attr = VertexAttrInfo::GetInfo(flag);
+        for (int i = startIdx; i < data.size(); i += strideLength) {
+            for (int j = i; j < i + attr.ncomps; j++)
+                result.push_back(data[j]);
+        }
+        return result;
     }
 
-    bool CollatedVertices::HasProperty(const VertexAttrFlags attrflag) const { 
-        return (attributes & attrflag) != 0; 
-    }
-    size_t CollatedVertices::PropertyOffset(const VertexAttrFlags attrflag) const {
-        // calc offset
+    bool VertexArray::HasAttributes(const VertexAttrFlags flags) const {
+        return !(~attributes & flags);
     }
 
-    size_t CollatedVertices::StrideLength() const {
+    size_t VertexArray::AttributeOffset(const VertexAttrFlags flag) const {
+        size_t offset = 0;
+        for (auto attr : VertexAttrInfo.AttrList) {
+            if (attr.flag == flag)
+                break;
+            else
+                offset += attr.size;
+        }
+        return offset;
+    }
+    
+    int VertexArray::VertexCount() const {
+        return vertexCount;
+    }
+
+    size_t VertexArray::Size() const {
+        return data.size() * sizeof(float);
+    }
+
+    size_t VertexArray::Stride() const {
         return stride;
     }
+    
+    const std::vector<float>& VertexArray::Data() const {
+        return data;
+    }
+
 }

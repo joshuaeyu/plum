@@ -8,30 +8,30 @@ namespace Component {
 
     class Vao : public GlObject {
         public:
-            Vao(std::shared_ptr<Vbo> vboObj);
-            Vao(std::shared_ptr<Vbo> vboObj, std::shared_ptr<Ebo> eboObj);
+            Vao(std::shared_ptr<Vbo> vb);
+            Vao(std::shared_ptr<Vbo> vb, std::shared_ptr<Ebo> eb);
             ~Vao();
             void Bind() override;
             void Unbind() override;
             void Draw();
         private:
-            void SetAttribPointerFormat(const Vbo& vbo) const;
+            void SetAttribPointerFormat();
             std::shared_ptr<Vbo> vbo;
             std::shared_ptr<Ebo> ebo;            
     };
 
     class Vbo : public GlObject {
         public:
-            Vbo(Component::CollatedVertices& collated);
+            Vbo(const Component::VertexArray& varray);
             ~Vbo();
             void Bind();
             void Unbind();
-            Component::CollatedVertices vertices;
+            Component::VertexArray vertexArray;
     };
 
     class Ebo : public GlObject {
         public:
-            Ebo(std::vector<int>& indices);
+            Ebo(const std::vector<int>& indices);
             ~Ebo();
             void Bind();
             void Unbind();

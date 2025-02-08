@@ -1,84 +1,81 @@
 #pragma once
-#pragma once
 
-#include <glm/glm.hpp>
-#include <map>
-#include <glm/glm.hpp>
-#include <map>
+#include <vector>
 
 namespace Component {
 
-    enum VertexAttrFlags : uint8_t {
-        Position  = 0b0000001,
-        Normal    = 0b0000010,
-        Uv        = 0b0000100,
-        Tangent   = 0b0001000,
-        Bitangent = 0b0010000,
-        All       = 0b0011111
+    enum VertexAttrFlags : unsigned int {
+        Position  = 1 << 0,
+        Normal    = 1 << 1,
+        Uv        = 1 << 2,
+        Tangent   = 1 << 3,
+        Bitangent = 1 << 4,
+        All       =    -1U
     };
-    inline VertexAttrFlags operator|(const VertexAttrFlags& f1, const VertexAttrFlags& f2) {
-        return static_cast<VertexAttrFlags>(static_cast<uint8_t>(f1) | static_cast<uint8_t>(f2));
-    }
-    inline VertexAttrFlags operator&(const VertexAttrFlags& f1, const VertexAttrFlags& f2) {
-        return static_cast<VertexAttrFlags>(static_cast<uint8_t>(f1) & static_cast<uint8_t>(f2));
-    }
-    inline VertexAttrFlags operator*(const int x, const VertexAttrFlags& f) {
-        return static_cast<VertexAttrFlags>((x) * static_cast<uint8_t>(f));
-    }
+    // inline VertexAttrFlags operator|(const VertexAttrFlags& f1, const VertexAttrFlags& f2) {
+    //     return static_cast<VertexAttrFlags>(static_cast<uint8_t>(f1) | static_cast<uint8_t>(f2));
+    // }
+    // inline VertexAttrFlags operator&(const VertexAttrFlags& f1, const VertexAttrFlags& f2) {
+    //     return static_cast<VertexAttrFlags>(static_cast<uint8_t>(f1) & static_cast<uint8_t>(f2));
+    // }
+    // inline VertexAttrFlags operator*(const int x, const VertexAttrFlags& f) {
+    //     return static_cast<VertexAttrFlags>((x) * static_cast<uint8_t>(f));
+    // }
     
-    struct VertexAttrType {
-        VertexAttrFlags flag;
-        int numcomps;
-        size_t size;
-    };
-    static const std::vector<VertexAttrType> VertexAttrTypes = {
-        {Position,  3, sizeof(glm::vec3)},
-        {Normal,    3, sizeof(glm::vec3)},
-        {Uv,        2, sizeof(glm::vec2)},
-        {Tangent,   3, sizeof(glm::vec3)},
-        {Bitangent, 3, sizeof(glm::vec3)}
-    };
+    static struct VertexAttrInfo {
+        struct VertexAttrTypeInfo {
+            VertexAttrTypeInfo(const VertexAttrFlags flag, const int ncomps) : flag(flag), ncomps(ncomps), size(sizeof(float)*ncomps) {}
+            const VertexAttrFlags flag;
+            const int ncomps;
+            const size_t size;
+        };
+        
+        inline static const VertexAttrTypeInfo Position = {VertexAttrFlags::Position, 3};
+        inline static const VertexAttrTypeInfo Normal = {VertexAttrFlags::Normal, 3};
+        inline static const VertexAttrTypeInfo Uv = {VertexAttrFlags::Uv, 2};
+        inline static const VertexAttrTypeInfo Tangent = {VertexAttrFlags::Tangent, 3};
+        inline static const VertexAttrTypeInfo Bitangent = {VertexAttrFlags::Bitangent, 3};
+        
+        inline static const std::vector<VertexAttrTypeInfo> AttrList = {Position, Normal, Uv, Tangent, Bitangent};
 
-    class UncollatedVertices {
+        static const VertexAttrTypeInfo GetInfo(const VertexAttrFlags flag) {
+            for (auto attr : AttrList) {
+                if (attr.flag == flag) {
+                    return attr;
+                }
+            }
+        }
+    } VertexAttrInfo;
+
+    class VertexArray {
         public:
-            UncollatedVertices();
+            struct UncollatedVertices {
+                std::vector<float> positions;
+                std::vector<float> normals;
+                std::vector<float> uvs;
+                std::vector<float> tangents;
+                std::vector<float> bitangents;
+            };
+
+            VertexArray(const std::vector<float>& collated, const VertexAttrFlags attrflags = VertexAttrFlags::All);
+            VertexArray(const UncollatedVertices& uncollated);
+
+        public:
+            std::vector<float> AttributeData(const VertexAttrFlags flag) const;
+            bool HasAttributes(const VertexAttrFlags flags) const;
+            size_t AttributeOffset(const VertexAttrFlags flag) const;
             
-            std::vector<glm::vec3> positions;
-            std::vector<glm::vec3> normals;
-            std::vector<glm::vec2> uvs;
-            std::vector<glm::vec3> tangents;
-            std::vector<glm::vec3> bitangents;
-    };
-
-    class CollatedVertices {
-        // want bit flags but also want to abstract iteration over the bits
-        public:
-            CollatedVertices(const UncollatedVertices& uncollated);
-            CollatedVertices(const std::vector<float>& collated, VertexAttrFlags attrflags = VertexAttrFlags::All);
-
-            bool HasProperty(const VertexAttrFlags attrflag) const; //  { return (attributes & attrflag) != 0; }
-            size_t PropertyOffset(const VertexAttrFlags attrflag) const;
-
-            size_t StrideLength() const;
-
+            int VertexCount() const;
+            size_t Size() const;
+            size_t Stride() const;
+            
+            const std::vector<float>& Data() const;
+            
+        private:
             std::vector<float> data;
-        private:
-            VertexAttrFlags attributes;
+            unsigned int attributes;
             size_t stride;
-    };
-
-    class Vertex {
-        public:
-            glm::vec3 position;
-            glm::vec3 normal;
-            glm::vec2 uv;
-            glm::vec3 tangent;
-            glm::vec3 bitangent;
-            
-            Vertex() {}
-            
-        protected:
-        private:
+            int vertexCount;
     };
 
 }

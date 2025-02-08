@@ -9,11 +9,11 @@
 namespace Component {
 
     // Vertex array
-    Vao::Vao(std::shared_ptr<Vbo> vboObj) : Vao(vboObj, nullptr) {}
-    Vao::Vao(std::shared_ptr<Vbo> vboObj, std::shared_ptr<Ebo> eboObj) : vbo(vboObj), ebo(eboObj) {
+    Vao::Vao(std::shared_ptr<Vbo> vb) : Vao(vb, nullptr) {}
+    Vao::Vao(std::shared_ptr<Vbo> vb, std::shared_ptr<Ebo> eb) : vbo(vb), ebo(eb) {
         glGenVertexArrays(1, &handle);
         Bind();
-        SetAttribPointerFormat(*vbo);
+        SetAttribPointerFormat();
         Unbind();
     }
     Vao::~Vao() {
@@ -25,23 +25,23 @@ namespace Component {
     void Vao::Unbind() {
         glBindVertexArray(0);
     }
-    void Vao::SetAttribPointerFormat(const Vbo& vbo) const {
+    void Vao::SetAttribPointerFormat() {
         // Specify vertex attribute pointer
-        for (int i = 0; i < VertexAttrTypes.size(); i++) {
-            VertexAttrType attr = VertexAttrTypes[i];
-            if (vbo.vertices.HasProperty(attr.flag)) {
+        for (int i = 0; i < VertexAttrInfo.AttrList.size(); i++) {
+            auto attr = VertexAttrInfo.AttrList[i];
+            if (vbo->vertexArray.HasAttributes(attr.flag)) {
                 glEnableVertexAttribArray(i);
-                glVertexAttribPointer(i, attr.numcomps, GL_FLOAT, GL_FALSE, vbo.vertices.StrideLength(), (void *)(vbo.vertices.PropertyOffset(attr.flag)));
+                glVertexAttribPointer(i, attr.ncomps, GL_FLOAT, GL_FALSE, vbo->vertexArray.Stride(), (void *)(vbo->vertexArray.AttributeOffset(attr.flag)));
             }
         }
     }
 
     // Vertex array buffer
-    Vbo::Vbo(Component::CollatedVertices& collated) : vertices(collated) {
+    Vbo::Vbo(const Component::VertexArray& varray) : vertexArray(varray) {
         glGenBuffers(1, &handle);
         Bind();
         // Create vertex data store
-        glBufferData(GL_ARRAY_BUFFER, vertices.data.size() * sizeof(float), vertices.data.data(), GL_STATIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, vertexArray.Size(), vertexArray.Data().data(), GL_STATIC_DRAW);
         Unbind();
     }
     Vbo::~Vbo() {
@@ -55,7 +55,7 @@ namespace Component {
     }
 
     // Element (index) array buffer
-    Ebo::Ebo(std::vector<int>& indices) {
+    Ebo::Ebo(const std::vector<int>& indices) : indices(indices) {
         glGenBuffers(1, &handle);
         Bind();
         // Create index data store
