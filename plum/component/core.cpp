@@ -83,6 +83,26 @@ namespace Component {
         glDeleteBuffers(1, &handle);
     }
 
+    // Uniform buffer
+    Ubo::Ubo(const unsigned int index, const size_t size) {
+        glGenBuffers(1, &handle);
+        Bind();
+        glBufferData(GL_UNIFORM_BUFFER, size, NULL, GL_DYNAMIC_DRAW);
+        glBindBufferBase(GL_UNIFORM_BUFFER, index, handle);
+        Unbind();
+    }
+    void Ubo::Bind() {
+        glBindBuffer(GL_UNIFORM_BUFFER, handle);
+    }
+    void Ubo::Unbind() {
+        glBindBuffer(GL_UNIFORM_BUFFER, 0);
+    }
+    void Ubo::UpdateData(const unsigned int offset, const size_t size, const void* data) {
+        Bind();
+        glBufferSubData(GL_UNIFORM_BUFFER, offset, size, &handle);
+        Unbind();
+    }
+
     // // Framebuffer
     // Fbo::Fbo(int width, int height) : width(width), height(height) {
     //     glGenFramebuffers(1, &handle);

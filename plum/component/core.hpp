@@ -50,6 +50,15 @@ namespace Component {
             std::shared_ptr<Vbo> vbo;
             std::shared_ptr<Ebo> ebo;            
     };
+
+    class Ubo : public GlObject {
+        public:
+            Ubo(const unsigned int index, const size_t size);
+            virtual void Bind();
+            virtual void Unbind();
+            void UpdateData(const unsigned int offset, const size_t size, const void* data);
+    };
+
     // class Fbo : public GlObject {
     //     public:
     //         Fbo(int width, int height);
