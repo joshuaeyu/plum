@@ -130,14 +130,13 @@ void Scene::InitializeUniformBlocks() {
 
 void Scene::SetVertexMatricesUniformBlock() {
     glBindBuffer(GL_UNIFORM_BUFFER, ubo_matrices_vs);
-    glm::mat4 view = SceneCamera.GetViewMatrix();
-    glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), &view);
+    glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), &SceneCamera.View);
     glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), &SceneCamera.Projection);
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 void Scene::SetFragmentMatricesUniformBlock() {
     glBindBuffer(GL_UNIFORM_BUFFER, ubo_matrices_fs);
-    glm::mat4 inv_view = glm::inverse(SceneCamera.GetViewMatrix());
+    glm::mat4 inv_view = glm::inverse(SceneCamera.View);
     glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), &inv_view);
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
@@ -165,7 +164,7 @@ void Scene::SetPointLightUniformBlock() {
         glm::vec4 att = glm::vec4(pointlight_att[0], pointlight_att[1], pointlight_att[2], 0);
         glBufferSubData(GL_UNIFORM_BUFFER, offset + 16, sizeof(glm::vec4), &att);  // Note 4N byte alignment.
 
-        glm::vec4 pointlight_pos_view = SceneCamera.GetViewMatrix() * glm::vec4(PointLights[i]->Position, 1);
+        glm::vec4 pointlight_pos_view = SceneCamera.View * glm::vec4(PointLights[i]->Position, 1);
         pointlight_pos_view.w = PointLights[i]->GetFarPlane();
         glBufferSubData(GL_UNIFORM_BUFFER, offset + 32, sizeof(glm::vec4), &pointlight_pos_view);
 
@@ -191,17 +190,16 @@ void Scene::SetDirectionalLightUniformBlock() {
         glm::vec4 dirlight_color = glm::vec4(DirLights[i]->Color, 0);
         glBufferSubData(GL_UNIFORM_BUFFER, offset, sizeof(glm::vec4), &dirlight_color);  // Note 4N byte alignment.
 
-        glm::mat4 view = SceneCamera.GetViewMatrix();
         if (DirLights[i]->HasShadows()) {
             glm::vec4 dirlight_direction = 
-                glm::vec4( glm::mat3(glm::transpose(glm::inverse(view))) * DirLights[i]->Direction, shadow_count++ );
+                glm::vec4( glm::mat3(glm::transpose(glm::inverse(SceneCamera.View))) * DirLights[i]->Direction, shadow_count++ );
             glBufferSubData(GL_UNIFORM_BUFFER, offset + 16, sizeof(glm::vec4), &dirlight_direction);
             
             glm::mat4 dirlight_matrix = DirLights[i]->GetLightspaceMatrix();
             glBufferSubData(GL_UNIFORM_BUFFER, offset + 32, sizeof(glm::mat4), &dirlight_matrix); // Note 4N byte alignment.
         } else {
             glm::vec4 dirlight_direction = 
-                glm::vec4( glm::mat3(glm::transpose(glm::inverse(view))) * DirLights[i]->Direction, -1 );
+                glm::vec4( glm::mat3(glm::transpose(glm::inverse(SceneCamera.View))) * DirLights[i]->Direction, -1 );
             glBufferSubData(GL_UNIFORM_BUFFER, offset + 16, sizeof(glm::vec4), &dirlight_direction);
 
             // Don't need to set lightspace matrix if not casting shadows

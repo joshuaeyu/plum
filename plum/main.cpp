@@ -484,7 +484,7 @@ int main() {
         scene->DrawLights();
         // Draw skybox
         glUseProgram(shader_skybox.programID);
-        shader_skybox.setMat4("view", glm::mat4(glm::mat3(scene->SceneCamera.GetViewMatrix())));
+        shader_skybox.setMat4("view", glm::mat4(glm::mat3(scene->SceneCamera.View)));
         shader_skybox.setMat4("projection", projection);
         shader_skybox.setInt("cubemap", 0);
         glActiveTexture(GL_TEXTURE0);

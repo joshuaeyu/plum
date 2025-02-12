@@ -5,11 +5,7 @@
 Camera::Camera(glm::vec3 pos, float pitch, float yaw) 
     : Position(pos), Pitch(pitch), Yaw(yaw) {
         updateCameraVectors();  // recalculates Front(Pitch,Yaw), Up, and Right
-    }
-
-glm::mat4 Camera::GetViewMatrix() {
-        return glm::lookAt(Position, Position + Front, worldUp);
-    }
+}
 
 void Camera::ProcessMouse(double xoffset, double yoffset) {
     Yaw     += xoffset * sensitivity;   // + = clockwise
@@ -43,6 +39,7 @@ void Camera::ProcessKeyboard(Direction dir, float dt) {
             Position -= worldUp * dist;
             break;
     }
+    View = glm::lookAt(Position, Position + Front, worldUp);
 }
 
 void Camera::updateCameraVectors() {
@@ -54,6 +51,8 @@ void Camera::updateCameraVectors() {
     // update Right and up - using new Front
     Right = glm::normalize( glm::cross(Front, worldUp) );
     Up    = glm::normalize( glm::cross(Right, Front) );
+    // update View transform
+    View = glm::lookAt(Position, Position + Front, worldUp);
 }
 
 void Camera::updateCameraVectors(glm::vec3 newFront) {
