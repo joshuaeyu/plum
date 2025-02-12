@@ -40,6 +40,7 @@ LFLAGS = 	-L$(LIB_GLFW)	\
 SRCOBJS = $(OBJDIR)/camera.o $(OBJDIR)/engine.o $(OBJDIR)/interface.o $(OBJDIR)/light.o $(OBJDIR)/scene.o $(OBJDIR)/mesh.o $(OBJDIR)/model.o $(OBJDIR)/resources.o $(OBJDIR)/scenenode.o $(OBJDIR)/shader.o $(OBJDIR)/shape.o $(OBJDIR)/texture.o
 
 SRCOBJS_CONTEXT = $(OBJDIR)/context/window.o $(OBJDIR)/context/context.o
+SRCOBJS_COMPONENT = $(OBJDIR)/component/core.o $(OBJDIR)/component/vertex.o
 
 # ImGui resources
 IMGUI_CORE_CPP = $(wildcard $(EXTDIR)/imgui/imgui*.cpp)
@@ -52,7 +53,8 @@ all: obj main
 obj:
 	@mkdir -p $(OBJDIR)
 	@mkdir -p $(OBJDIR)/context
-main: $(OBJDIR)/main.o $(SRCOBJS) $(SRCOBJS_CONTEXT) $(OBJDIR)/gl.o $(OBJDIR)/stb_image.o $(IMGUI_CORE_O) $(IMGUI_MISC_O) $(IMGUI_BACKENDS_O)
+	@mkdir -p $(OBJDIR)/component
+main: $(OBJDIR)/main.o $(SRCOBJS) $(SRCOBJS_CONTEXT) $(SRCOBJS_COMPONENT) $(OBJDIR)/gl.o $(OBJDIR)/stb_image.o $(IMGUI_CORE_O) $(IMGUI_MISC_O) $(IMGUI_BACKENDS_O)
 	@echo Linking $@
 	@$(CXX) $(CXXFLAGS) $(LFLAGS) $^ -o $@
 
