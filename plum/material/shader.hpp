@@ -106,7 +106,7 @@ namespace Material {
             const GLuint programID;
 
             Shader(std::string vertexShaderPath, std::string fragmentShaderPath, std::string geometryShaderPath = "");
-            Shader(std::string vertexShaderCode, std::string fragmentShaderCode, std::string geometryShaderCode = "");
+            // Shader(std::string vertexShaderCode, std::string fragmentShaderCode, std::string geometryShaderCode = "");
 
             ~Shader();
 

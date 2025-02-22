@@ -25,15 +25,26 @@ namespace Component {
     }
     
     SceneNode::SceneNode() {}
+    SceneNode::SceneNode(SceneObject& object) : object(std::make_shared<SceneObject>(object)) {}
     SceneNode::SceneNode(std::shared_ptr<SceneObject> object) : object(object) {}
 
     // Methods
     void SceneNode::Draw() {
         Draw(glm::identity<glm::mat4>());
     }
-    void SceneNode::Draw(const glm::mat4& parent_transf) {
-        glm::mat4 model_matrix = transform.Matrix() * parent_transf;
+    void SceneNode::Draw(const glm::mat4& parent_transform) {
+        glm::mat4 model_matrix = transform.Matrix() * parent_transform;
         object->Draw(model_matrix);
+        for (auto& child : children) {
+            child->Draw(model_matrix);
+        }
+    }
+    void SceneNode::Draw(Material::Material& m) {
+        Draw(glm::identity<glm::mat4>());
+    }
+    void SceneNode::Draw(const glm::mat4& parent_transform, Material::Material& m) {
+        glm::mat4 model_matrix = transform.Matrix() * parent_transform;
+        object->Draw(model_matrix, m);
         for (auto& child : children) {
             child->Draw(model_matrix);
         }

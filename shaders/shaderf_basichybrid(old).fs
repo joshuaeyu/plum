@@ -20,20 +20,26 @@ in VS_OUT {
 } fs_in;
 
 // MATERIAL
-uniform struct Material_PBRMetallic {
+uniform struct Material_BASICHYBRID {
     // Textures
-    sampler2D texture_albedo;
-    sampler2D texture_metallic;
-    sampler2D texture_roughness;
-    sampler2D texture_normal;
+    sampler2D texture_ambient;
+    sampler2D texture_diffuse;
+    sampler2D texture_specular;
     sampler2D texture_height;
+    sampler2D texture_normal;
+    sampler2D texture_metalness;
+    sampler2D texture_roughness;
     sampler2D texture_occlusion;
-    bool has_texture_albedo;
-    bool has_texture_metallic;
-    bool has_texture_roughness;
-    bool has_texture_normal;
-    bool has_texture_height;
-    bool has_texture_occlusion;
+    sampler2D texture_unknown;
+    int texture_ambient_count;
+    int texture_diffuse_count;
+    int texture_specular_count;
+    int texture_height_count;
+    int texture_normal_count;
+    int texture_metalness_count;
+    int texture_roughness_count;
+    int texture_occlusion_count;    
+    int texture_unknown_count;
     // Raw
     vec3 albedo;
     float metallic;
@@ -45,7 +51,7 @@ uniform struct Material_PBRMetallic {
 void main() {
     gPosition = fs_in.FragPos;
 
-    if (material.has_texture_normal) {
+    if (material.texture_height_count > 0) {
         gNormal = texture(material.texture_height, fs_in.TexCoords).rgb;
         gNormal = gNormal * 2.0 - 1.0;
         gNormal = normalize(fs_in.TBN * gNormal);
@@ -53,27 +59,33 @@ void main() {
         gNormal = normalize(fs_in.Normal);
     }
 
-    if (material.has_texture_albedo) {
-        gAlbedoSpec.rgb = texture(material.has_texture_albedo, fs_in.TexCoords).rgb;
+    if (material.texture_diffuse_count > 0) {
+        gAlbedoSpec.rgb = texture(material.texture_diffuse, fs_in.TexCoords).rgb;
     } else {
         gAlbedoSpec.rgb = material.albedo;
     }
 
-    if (material.has_texture_metallic {
-        gMetRouOcc.r = texture(material.has_texture_metallic, fs_in.TexCoords).r;
+    if (material.texture_specular_count > 0) {
+        gAlbedoSpec.a = texture(material.texture_specular, fs_in.TexCoords).r;
+    } else {
+        gAlbedoSpec.a = material.metallic;
+    }
+
+    if (material.texture_metalness_count > 0) {
+        gMetRouOcc.r = texture(material.texture_metalness, fs_in.TexCoords).r;
     } else {
         gMetRouOcc.r = material.metallic;
     }
 
-    if (material.has_texture_roughness) {
-        gMetRouOcc.g = texture(material.has_texture_roughness, fs_in.TexCoords).r;
+    if (material.texture_roughness_count > 0) {
+        gMetRouOcc.g = texture(material.texture_roughness, fs_in.TexCoords).r;
     } else {
         gMetRouOcc.g = material.roughness;
     }
 
-    if (material.has_texture_occlusion) {
-        gMetRouOcc.b = 1.0; // aka, use occlusion texture
-        gMetRouOcc.a = texture(material.has_texture_occlusion, fs_in.TexCoords).r;
+    if (material.texture_occlusion_count > 0) {
+        gMetRouOcc.b = 1.0; // aka, ignore and use SSAO
+        gMetRouOcc.a = texture(material.texture_occlusion, fs_in.TexCoords).r;
     } else {
         gMetRouOcc.b = 0.0; // aka, use SSAO
     }

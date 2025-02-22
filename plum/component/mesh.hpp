@@ -20,7 +20,9 @@ namespace Component {
             virtual ~Mesh();
             
             virtual void Draw() override;
-            virtual void Draw(const glm::mat4& parent_transf) override;
+            virtual void Draw(const glm::mat4& model_matrix) override;
+            virtual void Draw(Material::Material& m) override;
+            virtual void Draw(const glm::mat4& model_matrix, Material::Material& m) override;
             
             std::shared_ptr<Material::Material> material;
             // friend class Renderer;

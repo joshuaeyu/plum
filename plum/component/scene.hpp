@@ -5,6 +5,7 @@
 #include <plum/component/texture.hpp>
 
 #include <plum/component/scenenode.hpp>
+#include <plum/material/material.hpp>
 
 namespace Component {
 
@@ -19,6 +20,7 @@ namespace Component {
             void Remove(std::shared_ptr<SceneNode> node);
 
             void Draw();
+            void Draw(Material::Material& m);
             
     };
 

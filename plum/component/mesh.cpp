@@ -15,17 +15,19 @@ namespace Component {
     Mesh::~Mesh() {}
 
     void Mesh::Draw() {
-        // needs work
-        // material->shader->Use();
-        // material->shader->SetUniforms(material);
-        vao->Draw();
-    };
+        Draw(glm::identity<glm::mat4>());
+    }
     void Mesh::Draw(const glm::mat4& model_matrix) {
-        // needs work
-        // material->shader->Use();
-        // material->shader->SetUniforms(model_matrix, material);
+        material->SetUniforms(model_matrix);
         vao->Draw();
-    };
+    }
+    void Mesh::Draw(Material::Material& m) {
+        Draw(glm::identity<glm::mat4>(), m);
+    }
+    void Mesh::Draw(const glm::mat4& model_matrix, Material::Material& m) {
+        m.SetUniforms(model_matrix);
+        vao->Draw();
+    }
 
 
 

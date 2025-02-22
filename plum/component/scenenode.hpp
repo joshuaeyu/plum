@@ -3,6 +3,7 @@
 #include <string>
 
 #include <plum/util/transform.hpp>
+#include <plum/material/material.hpp>
 
 namespace Component {
 
@@ -12,6 +13,8 @@ namespace Component {
             
             virtual void Draw() {};
             virtual void Draw(const glm::mat4& parent_transf) {};
+            virtual void Draw(Material::Material& m) {}
+            virtual void Draw(const glm::mat4& model_matrix, Material::Material& m) {}
             
             enum class SceneObjectType {
                 // Meshes
@@ -37,13 +40,18 @@ namespace Component {
     class SceneNode {
         public:
             SceneNode();
+            SceneNode(SceneObject& object);
             SceneNode(std::shared_ptr<SceneObject> object);
             ~SceneNode();
                
         public:
             void AddChild(std::shared_ptr<SceneNode> node);
             void RemoveChild(std::shared_ptr<SceneNode> node);
+            
             void Draw();
+            void Draw(const glm::mat4& parent_transf);
+            void Draw(Material::Material& m);
+            void Draw(const glm::mat4& parent_transf, Material::Material& m);
             
             std::string name;
 
@@ -57,7 +65,6 @@ namespace Component {
             bool visible = true;
 
         private:
-            void Draw(const glm::mat4& parent_transf);
             
     };
 
