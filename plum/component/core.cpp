@@ -103,78 +103,86 @@ namespace Component {
         Unbind();
     }
 
-    // // Framebuffer
-    // Fbo::Fbo(int width, int height) : width(width), height(height) {
-    //     glGenFramebuffers(1, &handle);
-    // }
-    // Fbo::~Fbo() {
-    //     glDeleteFramebuffers(1, &handle);
-    // }
-    // void Fbo::Bind() {
-    //     glViewport(0, 0, width, height);
-    //     glBindFramebuffer(GL_FRAMEBUFFER, handle);
-    // }
-    // void Fbo::Unbind() {
-    //     glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    // }
-    // void Fbo::AttachDepth16() {
-    //     depthAtt = std::make_shared<Rbo>(width, height);
-    //     depthAtt->Setup16();
-    //     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthAtt->handle);
-    // }
-    // void Fbo::AttachDepth24() {
-    //     depthAtt = std::make_shared<Rbo>(width, height);
-    //     depthAtt->Setup24();
-    //     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthAtt->handle);
-    // }
-    // void Fbo::AttachColor2d(Tex& tex, int index, int level) {
-    //     glBindTexture(GL_TEXTURE_2D, tex.ID);
-    //     if (index > 0) {
-    //         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + index, GL_TEXTURE_2D, tex.ID, level);
-    //         colorAtts[index] = std::make_shared<Tex>(tex);
-    //     } else {
-    //         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + colorAtts.size(), GL_TEXTURE_2D, tex.ID, level);
-    //         colorAtts.push_back(std::make_shared<Tex>(tex));
-    //     }
-    // }
-    // void Fbo::AttachColor2dCube(Tex& tex, int index, int level) {
-    //     glBindTexture(GL_TEXTURE_CUBE_MAP, tex.ID);
-    //     if (index > 0) {
-    //         for (int i = 0; i < 6; i++) {
-    //             glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + index, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, tex.ID, level);
-    //         }
-    //         colorAtts[index] = std::make_shared<Tex>(tex);
-    //     } else {
-    //         for (int i = 0; i < 6; i++) {
-    //             glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + colorAtts.size(), GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, tex.ID, level);
-    //         }
-    //         colorAtts.push_back(std::make_shared<Tex>(tex));
-    //     }
-    // }
+    // Framebuffer
+    Fbo::Fbo(int width, int height) : width(width), height(height) {
+        glGenFramebuffers(1, &handle);
+    }
+    Fbo::~Fbo() {
+        glDeleteFramebuffers(1, &handle);
+    }
+    void Fbo::Bind() {
+        glViewport(0, 0, width, height);
+        glBindFramebuffer(GL_FRAMEBUFFER, handle);
+    }
+    void Fbo::Unbind() {
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    }
+    void Fbo::AttachColorTexture(Texture& texture, int index, int level) {
+        texture.Bind();
+        
+        if (index == -1) {
+            index = colorAtts.size();
+            colorAtts.push_back(nullptr);
+        }
+        
+        switch (texture.Target) {
+            case GL_TEXTURE_2D:
+            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + index, GL_TEXTURE_2D, texture.ID, level);
+            break;
+            case GL_TEXTURE_CUBE_MAP:
+            for (int i = 0; i < 6; i++) {
+                glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + index, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, texture.ID, level);
+            }
+            break;
+        }
+        
+        colorAtts[index] = std::make_shared<Texture>(texture);
+        UpdateDrawBuffers();
+    }
+    void Fbo::AttachDepthRbo16() {
+        depthRboAtt = std::make_shared<Rbo>(width, height);
+        depthRboAtt->Setup16();
+        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthRboAtt->handle);
+    }
+    void Fbo::AttachDepthRbo16() {
+        depthRboAtt = std::make_shared<Rbo>(width, height);
+        depthRboAtt->Setup24();
+        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthRboAtt->handle);
+    }
+    void Fbo::AttachDepthTexture(Texture& texture, int level = 0) {
+        depthAtt = std::make_shared<Texture>(texture);
+    }
+    void Fbo::UpdateDrawBuffers() {
+        std::vector<GLenum> buffers;
+        for (int i = 0; i < colorAtts.size(); i++)
+            buffers.push_back(GL_COLOR_ATTACHMENT0 + i);
+        glDrawBuffers(buffers.size(), buffers.data());
+    }
+    void Fbo::SetViewportDims() {
+        glViewport(0, 0, width, height);
+    }
 
-    
-    // // Renderbuffer
-    // Rbo::Rbo(int width, int height) : width(width), height(height) {
-    //     glGenRenderbuffers(1, &handle);
-
-    // }
-    // Rbo::~Rbo() {
-    //     glDeleteRenderbuffers(1, &handle);
-    // }
-    // void Rbo::Bind() {
-    //     glViewport(0, 0, width, height);
-    //     glBindRenderbuffer(GL_RENDERBUFFER, handle);
-    // }
-    // void Rbo::Unbind() {
-    //     glBindRenderbuffer(GL_RENDERBUFFER, 0);
-    // }
-    // void Rbo::Setup16() {
-    //     Bind();
-    //     glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, width, height);
-    // }
-    // void Rbo::Setup24() {
-    //     Bind();
-    //     glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, width, height);
-    // }
+    // Renderbuffer
+    Rbo::Rbo(int width, int height) : width(width), height(height) {
+        glGenRenderbuffers(1, &handle);
+    }
+    Rbo::~Rbo() {
+        glDeleteRenderbuffers(1, &handle);
+    }
+    void Rbo::Bind() {
+        glViewport(0, 0, width, height);
+        glBindRenderbuffer(GL_RENDERBUFFER, handle);
+    }
+    void Rbo::Unbind() {
+        glBindRenderbuffer(GL_RENDERBUFFER, 0);
+    }
+    void Rbo::Setup16() {
+        Bind();
+        glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, width, height);
+    }
+    void Rbo::Setup24() {
+        Bind();
+        glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, width, height);
+    }
 
 }
