@@ -1,27 +1,32 @@
 #include <plum/vertex.hpp>
-#include <plum/core/core.hpp>
+#include <plum/component/core.hpp>
+#include <plum/component/mesh.hpp>
 #include <vector>
+#include <memory>
 
 namespace Component {
 
-    class Mesh {
+    Mesh::Mesh() : SceneObject(SceneObjectType::Mesh) {}
 
-        public:
-            Mesh();
-            Mesh(std::shared_ptr<Core::Vao> vao);
-            Mesh(std::vector<Component::Vertex>& vertices, std::vector<Component::Index>& indices);
-            ~Mesh();
+    Mesh::Mesh(std::shared_ptr<Vao> va) : vao(va), SceneObject(SceneObjectType::Mesh) {}
 
-            void Draw() const;
-            
-        protected:
-            std::shared_ptr<std::vector<Vertex>> vertices;
-            std::shared_ptr<std::vector<Index>> indices;
-            std::shared_ptr<Core::Vao> vao;
-            std::shared_ptr<Core::Vbo> vbo;
-            std::shared_ptr<Core::Ebo> ebo;
+    Mesh::Mesh(const SceneObjectType type) : SceneObject(type) {}
+    
+    Mesh::~Mesh() {}
 
-        private:
+    void Mesh::Draw() {
+        // needs work
+        // material->shader->Use();
+        // material->shader->SetUniforms(material);
+        vao->Draw();
     };
+    void Mesh::Draw(const glm::mat4& model_matrix) {
+        // needs work
+        // material->shader->Use();
+        // material->shader->SetUniforms(model_matrix, material);
+        vao->Draw();
+    };
+
+
 
 }
