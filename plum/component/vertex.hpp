@@ -5,12 +5,14 @@
 namespace Component {
 
     enum VertexAttrFlags : unsigned int {
-        Position  = 1 << 0,
-        Normal    = 1 << 1,
-        Uv        = 1 << 2,
-        Tangent   = 1 << 3,
-        Bitangent = 1 << 4,
-        All       =    -1U
+        None       =      0,
+        Position2  = 1 << 0,
+        Position3  = 1 << 1,
+        Normal     = 1 << 2,
+        Uv         = 1 << 3,
+        Tangent    = 1 << 4,
+        Bitangent  = 1 << 5,
+        All        =    -1U
     };
     // inline VertexAttrFlags operator|(const VertexAttrFlags& f1, const VertexAttrFlags& f2) {
     //     return static_cast<VertexAttrFlags>(static_cast<uint8_t>(f1) | static_cast<uint8_t>(f2));
@@ -30,13 +32,14 @@ namespace Component {
             const size_t size;
         };
         
-        inline static const VertexAttrTypeInfo Position = {VertexAttrFlags::Position, 3};
+        inline static const VertexAttrTypeInfo Position2 = {VertexAttrFlags::Position2, 2};
+        inline static const VertexAttrTypeInfo Position3 = {VertexAttrFlags::Position3, 3};
         inline static const VertexAttrTypeInfo Normal = {VertexAttrFlags::Normal, 3};
         inline static const VertexAttrTypeInfo Uv = {VertexAttrFlags::Uv, 2};
         inline static const VertexAttrTypeInfo Tangent = {VertexAttrFlags::Tangent, 3};
         inline static const VertexAttrTypeInfo Bitangent = {VertexAttrFlags::Bitangent, 3};
         
-        inline static const std::vector<VertexAttrTypeInfo> AttrList = {Position, Normal, Uv, Tangent, Bitangent};
+        inline static const std::vector<VertexAttrTypeInfo> AttrList = {Position2, Position3, Normal, Uv, Tangent, Bitangent};
 
         static const VertexAttrTypeInfo GetInfo(const VertexAttrFlags flag) {
             for (auto attr : AttrList) {
@@ -44,7 +47,7 @@ namespace Component {
                     return attr;
                 }
             }
-            return VertexAttrTypeInfo(VertexAttrFlags(0),0);   // placeholder
+            return VertexAttrTypeInfo{VertexAttrFlags::None, 0};
         }
     } VertexAttrInfo;
 

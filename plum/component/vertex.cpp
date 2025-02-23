@@ -16,7 +16,7 @@ namespace Component {
     VertexArray::VertexArray(const UncollatedVertices& uncollated) {
         // Determine attribute flags
         attributes = 0;
-        attributes = attributes | ((uncollated.positions.size() > 0) * VertexAttrFlags::Position);
+        attributes = attributes | ((uncollated.positions.size() > 0) * VertexAttrFlags::Position3); // Assume three dimensional position vector if provided this way
         attributes = attributes | ((uncollated.normals.size() > 0) * VertexAttrFlags::Normal);
         attributes = attributes | ((uncollated.uvs.size() > 0) * VertexAttrFlags::Uv);
         attributes = attributes | ((uncollated.tangents.size() > 0) * VertexAttrFlags::Tangent);
@@ -24,8 +24,8 @@ namespace Component {
 
         // Determine vertex count
         vertexCount = 0;
-        if (HasAttributes(VertexAttrFlags::Position)) {
-            vertexCount = uncollated.positions.size() / VertexAttrInfo.Position.ncomps;
+        if (HasAttributes(VertexAttrFlags::Position3)) {
+            vertexCount = uncollated.positions.size() / VertexAttrInfo.Position3.ncomps;
         } else if (HasAttributes(VertexAttrFlags::Normal)) {
             vertexCount = uncollated.normals.size() / VertexAttrInfo.Normal.ncomps;
         } else if (HasAttributes(VertexAttrFlags::Uv)) {
@@ -38,8 +38,8 @@ namespace Component {
         
         // Assembled collated data vector
         for (int i = 0; i < vertexCount; i++) {
-            if (HasAttributes(VertexAttrFlags::Position)) {
-                int ndims = VertexAttrInfo.Position.ncomps;
+            if (HasAttributes(VertexAttrFlags::Position3)) {
+                int ndims = VertexAttrInfo.Position3.ncomps;
                 for (int j = ndims * i; j < ndims * (i + 1); j++)
                     data.push_back(uncollated.positions[j]);
             }
