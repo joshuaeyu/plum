@@ -4,6 +4,26 @@ namespace Component {
 
     Primitive::Primitive() : Mesh(SceneObjectType::Primitive) {}
 
+    void Primitive::DrawQuad() {
+        static std::unique_ptr<Vao> vao;
+        if (!vao) {
+            const std::vector<float> quadVertices = {    // Remember CCW
+                // Positions    // UV
+                -1.0f, -1.0f,   0.0f, 0.0f,
+                 1.0f, -1.0f,   1.0f, 0.0f,
+                -1.0f,  1.0f,   0.0f, 1.0f,
+
+                 1.0f,  1.0f,   1.0f, 1.0f,
+                -1.0f,  1.0f,   0.0f, 1.0f,
+                 1.0f, -1.0f,   1.0f, 0.0f
+            };
+            const VertexArray va(quadVertices, VertexAttrFlags::Position2 | VertexAttrFlags::Uv);
+            const std::shared_ptr<Vbo> vbo = std::make_shared<Vbo>(va);
+            vao = std::make_unique<Vao>(vbo);
+        }
+        vao->Draw();
+    }
+
     Cube::Cube(const int nrows, const int ncols) : nRows(nrows), nCols(ncols) {
         const std::vector<float> cubedata = {
             // Positions           // Normals           // UV                    // Tangents

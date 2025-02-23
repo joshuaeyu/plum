@@ -5,6 +5,8 @@
 namespace Component {
 
     class Primitive : public Mesh {
+        public:
+            static void DrawQuad();
         protected:
             Primitive();
     };
