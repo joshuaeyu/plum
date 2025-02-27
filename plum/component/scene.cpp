@@ -14,8 +14,11 @@ namespace Component {
     void Scene::Draw() {
         root.Draw();
     }
-    void Scene::Draw(Material::Material& m) {
-        root.Draw(m);
+    void Scene::Draw(Material::Material& material) {
+        root.Draw(material);
+    }
+    void Scene::Draw(Material::Module& module) {
+        root.Draw(module);
     }
 
 }

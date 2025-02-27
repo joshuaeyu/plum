@@ -4,6 +4,7 @@
 
 #include <plum/util/transform.hpp>
 #include <plum/material/material.hpp>
+#include <plum/material/module.hpp>
 
 namespace Component {
 
@@ -11,10 +12,9 @@ namespace Component {
         public: 
             virtual ~SceneObject();
             
-            virtual void Draw() {};
-            virtual void Draw(const glm::mat4& parent_transf) {};
-            virtual void Draw(Material::Material& m) {}
-            virtual void Draw(const glm::mat4& model_matrix, Material::Material& m) {}
+            virtual void Draw(const glm::mat4& model_matrix = glm::identity<glm::mat4>()) {}
+            virtual void Draw(Material::Material& material, const glm::mat4& model_matrix = glm::identity<glm::mat4>()) {}
+            virtual void Draw(Material::Module& module, const glm::mat4& model_matrix = glm::identity<glm::mat4>()) {}
             
             enum class SceneObjectType {
                 // Meshes
@@ -48,10 +48,9 @@ namespace Component {
             void AddChild(std::shared_ptr<SceneNode> node);
             void RemoveChild(std::shared_ptr<SceneNode> node);
             
-            void Draw();
-            void Draw(const glm::mat4& parent_transf);
-            void Draw(Material::Material& m);
-            void Draw(const glm::mat4& parent_transf, Material::Material& m);
+            virtual void Draw(const glm::mat4& parent_transform = glm::identity<glm::mat4>());
+            virtual void Draw(Material::Material& m, const glm::mat4& parent_transform = glm::identity<glm::mat4>());
+            virtual void Draw(Material::Module& m, const glm::mat4& parent_transform = glm::identity<glm::mat4>());
             
             std::string name;
 

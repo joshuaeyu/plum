@@ -6,13 +6,13 @@
 
 #include <plum/component/scenenode.hpp>
 #include <plum/material/material.hpp>
+#include <plum/material/module.hpp>
 
 namespace Component {
 
     class Scene {
         public:
             SceneNode root;
-            std::shared_ptr<Texture> skybox;
 
             Scene();
 
@@ -20,7 +20,8 @@ namespace Component {
             void Remove(std::shared_ptr<SceneNode> node);
 
             void Draw();
-            void Draw(Material::Material& m);
+            void Draw(Material::Material& material);
+            void Draw(Material::Module& module);
             
     };
 

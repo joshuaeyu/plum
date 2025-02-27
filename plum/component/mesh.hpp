@@ -6,8 +6,7 @@
 #include <plum/component/core.hpp>
 #include <plum/component/scenenode.hpp>
 #include <plum/material/material.hpp>
-
-#include <plum/shader.hpp>
+#include <plum/material/module.hpp>
 
 namespace Component {
 
@@ -19,10 +18,9 @@ namespace Component {
             Mesh(std::shared_ptr<Vao> va);
             virtual ~Mesh();
             
-            virtual void Draw() override;
-            virtual void Draw(const glm::mat4& model_matrix) override;
-            virtual void Draw(Material::Material& m) override;
-            virtual void Draw(const glm::mat4& model_matrix, Material::Material& m) override;
+            virtual void Draw(const glm::mat4& model_matrix = glm::identity<glm::mat4>());
+            virtual void Draw(Material::Material& material, const glm::mat4& model_matrix = glm::identity<glm::mat4>());
+            virtual void Draw(Material::Module& module, const glm::mat4& model_matrix = glm::identity<glm::mat4>());
             
             std::shared_ptr<Material::Material> material;
             // friend class Renderer;
