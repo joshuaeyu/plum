@@ -5,6 +5,7 @@
 
 #include <vector>
 #include <memory>
+#include <iostream>
 
 namespace Component {
 
@@ -117,6 +118,16 @@ namespace Component {
     void Fbo::Unbind() {
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
+    void ClearColor() {
+        ClearColor(0,0,0,1);
+    }
+    void ClearColor(float r, float g, float b, float a) {
+        glClearColor(r,g,b,a);
+        glClear(GL_COLOR_BUFFER_BIT);
+    }
+    void ClearDepth() {
+        glClear(GL_DEPTH_BUFFER_BIT);
+    }
     void Fbo::AttachColorTexture(Texture& texture, int index, int level) {
         texture.Bind();
         
@@ -127,13 +138,13 @@ namespace Component {
         
         switch (texture.Target) {
             case GL_TEXTURE_2D:
-            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + index, GL_TEXTURE_2D, texture.ID, level);
-            break;
+                glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + index, GL_TEXTURE_2D, texture.ID, level);
+                break;
             case GL_TEXTURE_CUBE_MAP:
-            for (int i = 0; i < 6; i++) {
-                glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + index, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, texture.ID, level);
-            }
-            break;
+                for (int i = 0; i < 6; i++) {
+                    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + index, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, texture.ID, level);
+                }
+                break;
         }
         
         colorAtts[index] = std::make_shared<Texture>(texture);
@@ -160,6 +171,11 @@ namespace Component {
     }
     void Fbo::SetViewportDims() {
         glViewport(0, 0, width, height);
+    }
+    void Fbo::CheckStatus() {
+        if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+            std::cerr << "Framebuffer error: " << glCheckFramebufferStatus(GL_FRAMEBUFFER) << std::endl;
+        }
     }
 
     // Renderbuffer

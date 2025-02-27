@@ -79,6 +79,8 @@ namespace Component {
 
             void SetViewportDims();
 
+            void CheckStatus();
+
             int width, height;
             std::vector<std::shared_ptr<Texture>> colorAtts;
             std::shared_ptr<Texture> depthAtt;
