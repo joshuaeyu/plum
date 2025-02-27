@@ -4,7 +4,7 @@
 
 namespace Material {
 
-    class Shader {
+    class Program {
 
         public:
 
@@ -103,34 +103,39 @@ namespace Material {
         // set object-specific uniforms
         // draw
 
-            const GLuint programID;
+        // shader->preprocess(scene);
+        // scene->preprocess(shader);
 
-            Shader(std::string vertexShaderPath, std::string fragmentShaderPath, std::string geometryShaderPath = "");
+        // uniform/settings shader vs draw shader
+        // scene-wide "utility shader" vs per-object "material"
+
+            // May implement non-default UBO schemes in the future
+            enum class UboScheme {
+                Scheme1
+            };
+
+            const GLuint handle;
+
+            Program(std::string vertexShaderPath, std::string fragmentShaderPath, std::string geometryShaderPath = "");
             // Shader(std::string vertexShaderCode, std::string fragmentShaderCode, std::string geometryShaderCode = "");
 
-            ~Shader();
+            ~Program();
 
-            // currently defined in the renderer
-            virtual void SetUniformBlockBinding();
+            void SetUniformBlockBindingScheme(const UboScheme scheme);
+            void SetUniformBlockBinding(const std::string name, const GLuint index);
 
-            virtual void SetUniforms(const glm::mat4 model_matrix, const Material& material) const;
-
-            void setUniformBlockBinding(std::string name, GLuint index);
-
-            void setInt(std::string name, int val);
-            void setFloat(std::string name, float val);
-            void setVec3(std::string name, glm::vec3 vec);
-            void setMat4(std::string name, glm::mat4 mat);
+            void SetInt(const std::string name, const int val);
+            void SetFloat(const std::string name, const float val);
+            void SetVec3(const std::string name, const glm::vec3 vec);
+            void SetMat4(const std::string name, const glm::mat4 mat);
 
             void Use();
 
     };
 
-    class PBRMetallicShader : public Shader {
-
-        void SetUniformBlockBinding();
-
-
+    class ProgramUser {
+        public:
+            // Placeholder
     };
 
 }

@@ -1,4 +1,4 @@
-#include <plum/material/shader.hpp>
+#include <plum/material/program.hpp>
 
 #include <iostream>
 #include <fstream>
@@ -10,7 +10,7 @@
 
 namespace Material {
 
-    Shader::Shader(std::string vertexShaderPath, std::string fragmentShaderPath, std::string geometryShaderPath) : programID(glCreateProgram()) {
+    Program::Program(std::string vertexShaderPath, std::string fragmentShaderPath, std::string geometryShaderPath) : handle(glCreateProgram()) {
         std::cout << "  Loading shader: " << vertexShaderPath << " " << fragmentShaderPath << " " << geometryShaderPath << std::endl;
 
         // ==== File to cstring ====
@@ -49,12 +49,12 @@ namespace Material {
         fshader = glCreateShader(GL_FRAGMENT_SHADER);
         glShaderSource(vshader, 1, &vs_cstr, NULL);
         glShaderSource(fshader, 1, &fs_cstr, NULL);
-        glAttachShader(programID, vshader);
-        glAttachShader(programID, fshader);
+        glAttachShader(handle, vshader);
+        glAttachShader(handle, fshader);
         if (geometryShaderPath != "") {
             gshader = glCreateShader(GL_GEOMETRY_SHADER);
             glShaderSource(gshader, 1, &gs_cstr, NULL);
-            glAttachShader(programID, gshader);
+            glAttachShader(handle, gshader);
         }
         
         glCompileShader(vshader);
@@ -82,44 +82,47 @@ namespace Material {
         }
 
         // ==== Finally, link ====
-        glLinkProgram(programID);
+        glLinkProgram(handle);
     }
 
-    void Shader::SetUniformBlockBinding() {
-        setUniformBlockBinding("Matrices_Vertex", 0);
-        setUniformBlockBinding("Matrices_Fragment", 1);
-        setUniformBlockBinding("Camera", 2);
-        setUniformBlockBinding("DirLight", 3);
-        setUniformBlockBinding("PointLight", 4);
+    void Program::SetUniformBlockBindingScheme(const UboScheme scheme) {
+        switch (scheme) {
+            case UboScheme::Scheme1:
+                SetUniformBlockBinding("Matrices_Vertex", 0);
+                SetUniformBlockBinding("Matrices_Fragment", 1);
+                SetUniformBlockBinding("Camera", 2);
+                SetUniformBlockBinding("DirLight", 3);
+                SetUniformBlockBinding("PointLight", 4);
+        }
     }
 
-    void Shader::setUniformBlockBinding(std::string name, GLuint index) {
-        GLuint ubo = glGetUniformBlockIndex(programID, name.c_str());
-        glUniformBlockBinding(programID, ubo, index);
+    void Program::SetUniformBlockBinding(std::string name, GLuint index) {
+        GLuint ubo = glGetUniformBlockIndex(handle, name.c_str());
+        glUniformBlockBinding(handle, ubo, index);
     }
 
-    void Shader::setInt(std::string name, int val) {
-        GLint location = glGetUniformLocation(programID, name.c_str());
+    void Program::SetInt(std::string name, int val) {
+        GLint location = glGetUniformLocation(handle, name.c_str());
         glUniform1i(location, val);
     }
 
-    void Shader::setFloat(std::string name, float val) {
-        GLint location = glGetUniformLocation(programID, name.c_str());
+    void Program::SetFloat(std::string name, float val) {
+        GLint location = glGetUniformLocation(handle, name.c_str());
         glUniform1f(location, val);
     }
 
-    void Shader::setVec3(std::string name, glm::vec3 vec) {
-        GLint location = glGetUniformLocation(programID, name.c_str());
+    void Program::SetVec3(std::string name, glm::vec3 vec) {
+        GLint location = glGetUniformLocation(handle, name.c_str());
         glUniform3fv(location, 1, glm::value_ptr(vec));
     }
 
-    void Shader::setMat4(std::string name, glm::mat4 mat) {
-        GLint location = glGetUniformLocation(programID, name.c_str());
+    void Program::SetMat4(std::string name, glm::mat4 mat) {
+        GLint location = glGetUniformLocation(handle, name.c_str());
         glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(mat));
     }
 
-    void Shader::Use() {
-        glUseProgram(programID);
+    void Program::Use() {
+        glUseProgram(handle);
     }
 
 }

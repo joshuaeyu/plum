@@ -7,13 +7,13 @@
 #include <glm/glm.hpp>
 
 #include <plum/component/texture.hpp>
-#include <plum/material/shader.hpp>
+#include <plum/material/program.hpp>
 
 namespace Material {
     
-    class Material {
+    class Material : public ProgramUser {
         public:
-            virtual std::shared_ptr<Shader> GetShader() = 0;
+            virtual std::shared_ptr<Program> GetProgram() = 0;
             virtual void SetUniforms(const glm::mat4& model_transform) = 0;
         protected:
             Material();
@@ -22,7 +22,7 @@ namespace Material {
     class PBRMetallicMaterial : public Material {
         public:
             PBRMetallicMaterial();
-            std::shared_ptr<Shader> GetShader() override;
+            std::shared_ptr<Program> GetProgram() override;
             void SetUniforms(const glm::mat4& model_transform) override;
 
             std::shared_ptr<Component::Texture> albedoMap, metallicMap, roughnessMap, normalMap, displacementMap, occlusionMap;
@@ -30,13 +30,13 @@ namespace Material {
             float metallic = 0.5;
             float roughness = 0.5;
         private:
-            inline static std::shared_ptr<Shader> shader = std::make_shared<Shader>("shaders/shaderv_gen.vs, shaders/shaderf_basichybrid.fs");
+            inline static const std::shared_ptr<Program> program = std::make_shared<Program>("shaders/shaderv_gen.vs, shaders/shaderf_basichybrid.fs");
     };
 
     class PBRSpecularMaterial : public Material {
         public:
             PBRSpecularMaterial();
-            std::shared_ptr<Shader> GetShader() override;
+            std::shared_ptr<Program> GetProgram() override;
             void SetUniforms(const glm::mat4& model_transform) override;
 
             std::shared_ptr<Component::Texture> albedoMap, specularMap, roughnessMap, normalMap, displacementMap, occlusionMap;
@@ -50,7 +50,7 @@ namespace Material {
     class PhongMaterial : public Material {
         public:
             PhongMaterial();
-            std::shared_ptr<Shader> GetShader() override;
+            std::shared_ptr<Program> GetProgram() override;
             void SetUniforms(const glm::mat4& model_transform) override;
 
             glm::vec3 ambient = glm::vec3(0.5);
