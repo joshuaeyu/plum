@@ -15,11 +15,12 @@ namespace Component {
     Mesh::~Mesh() {}
 
     void Mesh::Draw(const glm::mat4& model_matrix) {
-        material->SetUniforms(model_matrix);
+        if (material)   // If no material assigned, just draw the raw VAO
+            material->SetUniforms(model_matrix);
         vao->Draw();
     }
-    void Mesh::Draw(Material::Material& material, const glm::mat4& model_matrix) {
-        material.SetUniforms(model_matrix);
+    void Mesh::Draw(Material::Material& mat, const glm::mat4& model_matrix) {
+        mat.SetUniforms(model_matrix);
         vao->Draw();
     }
     void Mesh::Draw(Material::Module& module, const glm::mat4& model_matrix) {

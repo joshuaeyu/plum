@@ -19,7 +19,7 @@ namespace Component {
             virtual ~Mesh();
             
             virtual void Draw(const glm::mat4& model_matrix = glm::identity<glm::mat4>());
-            virtual void Draw(Material::Material& material, const glm::mat4& model_matrix = glm::identity<glm::mat4>());
+            virtual void Draw(Material::Material& mat, const glm::mat4& model_matrix = glm::identity<glm::mat4>());
             virtual void Draw(Material::Module& module, const glm::mat4& model_matrix = glm::identity<glm::mat4>());
             
             std::shared_ptr<Material::Material> material;
