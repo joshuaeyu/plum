@@ -5,8 +5,11 @@
 #include <plum/component/scenenode.hpp>
 #include <plum/component/light.hpp>
 #include <plum/component/texture.hpp>
+#include <plum/material/module.hpp>
+#include <plum/material/environment.hpp>
 
 #include <plum/camera.hpp>
+#include <vector>
 
 namespace Renderer {
 
@@ -23,13 +26,14 @@ namespace Renderer {
             DeferredRenderer();
             ~DeferredRenderer();
 
-            Component::Fbo Render(Component::Scene& scene, Camera& camera);
+            Component::Fbo& Render(Component::Scene& scene, Material::Environment& env, Camera& camera);
+
             // does scene need anything that the nodes can't support
             // should camera be "attached" to scene or passed in each render call
 
             // probably need a dedicated class/system for uniform block structure
 
-            // how entangled should renderer/material/shaders be
+            // how tightly coupled should renderer/material/shaders be
             // renderer: forward, deferred, forward+...
             //  - figures out what gets rendered, in what order
             //  - affects order of operations in shaders
@@ -43,31 +47,41 @@ namespace Renderer {
             // renderer is what sets uniforms.
 
         private:
+            // Setup
             void InitializeUniformBlocks();
-            void SetUniforms(Component::Scene& scene, Camera& camera);
-            void SetDirectionalLightUniforms(Component::DirectionalLight& dl, Camera& camera);
-            void SetPointLightUniforms(Component::PointLight& pl, Camera& camera);
-
             void InitGbuffer();
             void InitShadowMaps();
-
-            void GeometryPass();
-            void ShadowMapPass();
+            
+            // Per frame
+            void ParseScene(Component::Scene& scene);
+            void UpdateUniformBuffers(Component::Scene& scene, Camera& camera);
+            void SetDirectionalLightUniforms(Camera& camera);
+            void SetPointLightUniforms(Camera& camera);
+            void GeometryPass(Component::Scene& scene, Camera& camera);
+            void ShadowMapPass(Component::Scene& scene);
             // void SSAOPass();
-            void LightingPass();
-            void ForwardPass();
+            void LightingPass(Component::Scene& scene, Material::Environment& env, Camera& camera);
+            void ForwardPass(Component::Scene& scene, Material::Environment& env, Camera& camera);
 
             Component::Fbo gBuffer;
+            
             Component::Fbo dirShadowBuffer;
+            Material::DirectionalShadowModule dirShadowModule;
+            
             Component::Fbo pointShadowBuffer;
-
+            Material::PointShadowModule pointShadowModule;
+            
             Component::Fbo output;
+            Material::LightingPassPBRModule lightingPassPbrModule;
 
             std::shared_ptr<Component::Ubo> uboVsMatrices;
             std::shared_ptr<Component::Ubo> uboFsMatrices;
             std::shared_ptr<Component::Ubo> uboFsCamera;
             std::shared_ptr<Component::Ubo> uboFsDirlight;
             std::shared_ptr<Component::Ubo> uboFsPointlight;
+
+            std::vector<Component::SceneNode*> directionalLights;
+            std::vector<Component::SceneNode*> pointLights;
     };
 
 }
