@@ -52,16 +52,16 @@ namespace Renderer {
         
         gBuffer.Bind();
         
-        Texture position = Texture::Texture2D(GL_TEXTURE_2D, GL_RGBA32F, gBuffer.width, gBuffer.height, GL_RGBA, GL_FLOAT, GL_CLAMP_TO_EDGE, GL_NEAREST);
+        Tex2D position = Tex2D(GL_TEXTURE_2D, GL_RGBA32F, gBuffer.width, gBuffer.height, GL_RGBA, GL_FLOAT, GL_CLAMP_TO_EDGE, GL_NEAREST);
         gBuffer.AttachColorTexture(position);
 
-        Texture normal = Texture::Texture2D(GL_TEXTURE_2D, GL_RGBA32F, gBuffer.width, gBuffer.height, GL_RGBA, GL_FLOAT, GL_CLAMP_TO_EDGE, GL_NEAREST);
+        Tex2D normal = Tex2D(GL_TEXTURE_2D, GL_RGBA32F, gBuffer.width, gBuffer.height, GL_RGBA, GL_FLOAT, GL_CLAMP_TO_EDGE, GL_NEAREST);
         gBuffer.AttachColorTexture(normal);
         
-        Texture albedospec = Texture::Texture2D(GL_TEXTURE_2D, GL_RGBA, gBuffer.width, gBuffer.height, GL_RGBA, GL_UNSIGNED_BYTE, GL_CLAMP_TO_EDGE, GL_NEAREST);
+        Tex2D albedospec = Tex2D(GL_TEXTURE_2D, GL_RGBA, gBuffer.width, gBuffer.height, GL_RGBA, GL_UNSIGNED_BYTE, GL_CLAMP_TO_EDGE, GL_NEAREST);
         gBuffer.AttachColorTexture(albedospec);
         
-        Texture metrou = Texture::Texture2D(GL_TEXTURE_2D, GL_RGBA, gBuffer.width, gBuffer.height, GL_RGBA, GL_UNSIGNED_BYTE, GL_CLAMP_TO_EDGE, GL_NEAREST);
+        Tex2D metrou = Tex2D(GL_TEXTURE_2D, GL_RGBA, gBuffer.width, gBuffer.height, GL_RGBA, GL_UNSIGNED_BYTE, GL_CLAMP_TO_EDGE, GL_NEAREST);
         gBuffer.AttachColorTexture(albedospec);
         
         gBuffer.AttachDepthRbo16();
@@ -77,27 +77,18 @@ namespace Renderer {
         GLsizei nlayers_cube    = 6 * 8;
 
         // Shadow map array for DirectionalLight
+        Tex3D dirShadowTex = Tex3D(GL_TEXTURE_2D_ARRAY, GL_DEPTH_COMPONENT16, dirShadowBuffer.width, dirShadowBuffer.height, nlayers_2d, GL_DEPTH_COMPONENT, GL_FLOAT, GL_CLAMP_TO_EDGE, GL_LINEAR, true);
+        
         dirShadowBuffer.Bind();
-        
-        Texture dirShadowTex = Texture::Texture3D(GL_TEXTURE_2D_ARRAY, GL_DEPTH_COMPONENT16, dirShadowBuffer.width, dirShadowBuffer.height, nlayers_2d, GL_DEPTH_COMPONENT, GL_FLOAT, GL_CLAMP_TO_EDGE, GL_LINEAR);
-        dirShadowTex.Bind();
-        
-        float border_color[] = {1.f, 1.f, 1.f, 1.f};
-        glTexParameterfv(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_BORDER_COLOR, border_color);
-        glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
         dirShadowBuffer.AttachDepthTexture(dirShadowTex);
         glDrawBuffer(GL_NONE);  // No colorbuffer
         glReadBuffer(GL_NONE);  // No colorbuffer
         dirShadowBuffer.CheckStatus();
         
         // Shadow map array for PointLight
-        pointShadowBuffer.Bind();
-
-        Texture pointShadowTex = Texture::Texture3D(GL_TEXTURE_CUBE_MAP_ARRAY, GL_DEPTH_COMPONENT16, pointShadowBuffer.width, pointShadowBuffer.height, nlayers_cube, GL_DEPTH_COMPONENT, GL_FLOAT, GL_CLAMP_TO_EDGE, GL_LINEAR);
-        pointShadowTex.Bind();
+        Tex3D pointShadowTex = Tex3D(GL_TEXTURE_CUBE_MAP_ARRAY, GL_DEPTH_COMPONENT16, pointShadowBuffer.width, pointShadowBuffer.height, nlayers_cube, GL_DEPTH_COMPONENT, GL_FLOAT, GL_CLAMP_TO_EDGE, GL_LINEAR, true);
         
-        glTexParameteri(GL_TEXTURE_CUBE_MAP_ARRAY, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_CUBE_MAP_ARRAY, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
+        pointShadowBuffer.Bind();
         pointShadowBuffer.AttachDepthTexture(dirShadowTex);
         glDrawBuffer(GL_NONE);  // No colorbuffer
         glReadBuffer(GL_NONE);  // No colorbuffer
@@ -230,7 +221,7 @@ namespace Renderer {
         for (int i = 0, shadow_count = 0; i < directionalLights.size(); i++) {
             Component::DirectionalLight* dl = dynamic_cast<Component::DirectionalLight*>(directionalLights[i]->object.get());
             
-            dirShadowModule.SetGlobalUniforms(*dl, dirShadowBuffer.depthAtt->ID, &shadow_count);
+            dirShadowModule.SetGlobalUniforms(*dl, dirShadowBuffer.depthAtt->Handle(), &shadow_count);
             
             glCullFace(GL_FRONT);
             scene.Draw(dirShadowModule);

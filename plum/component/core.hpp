@@ -2,7 +2,7 @@
 
 #include <glad/gl.h>
 #include <plum/component/vertex.hpp>
-#include <plum/component/texture.hpp>
+#include <plum/component/tex.hpp>
 #include <memory>
 
 namespace Component {
@@ -71,10 +71,10 @@ namespace Component {
             void ClearColor(float r, float g, float b, float a);
             void ClearDepth();
             
-            void AttachColorTexture(Texture& texture, int index = -1, int level = 0);
+            void AttachColorTexture(Tex& texture, int index = -1, int level = 0);
             void AttachDepthRbo16();
             void AttachDepthRbo24();
-            void AttachDepthTexture(Texture& texture, int level = 0);
+            void AttachDepthTexture(Tex& texture, int level = 0);
             void UpdateDrawBuffers();
 
             void SetViewportDims();
@@ -82,8 +82,8 @@ namespace Component {
             void CheckStatus();
 
             int width, height;
-            std::vector<std::shared_ptr<Texture>> colorAtts;
-            std::shared_ptr<Texture> depthAtt;
+            std::vector<std::shared_ptr<Tex>> colorAtts;
+            std::shared_ptr<Tex> depthAtt;
             std::shared_ptr<Rbo> depthRboAtt;
     };
 

@@ -2,25 +2,25 @@
 
 #include <plum/material/module.hpp>
 #include <plum/material/program.hpp>
-#include <plum/component/texture.hpp>
+#include <plum/component/tex.hpp>
 
 namespace Material {
 
     class Environment {
         public:
 
-            Environment(std::shared_ptr<Component::Texture> envmap);
+            Environment(std::shared_ptr<Component::Tex2D> envmap);
 
-            std::shared_ptr<Component::Texture> skybox;
-            std::shared_ptr<Component::Texture> irradiance;
-            std::shared_ptr<Component::Texture> prefilter;
-            std::shared_ptr<Component::Texture> brdfLut;
+            std::shared_ptr<Component::Tex2D> skybox;
+            std::shared_ptr<Component::Tex2D> irradiance;
+            std::shared_ptr<Component::Tex2D> prefilter;
+            std::shared_ptr<Component::Tex2D> brdfLut;
 
             SkyboxModule skyboxModule;
 
         private:
 
-            std::shared_ptr<Component::Texture> equirectToCubemap(std::shared_ptr<Component::Texture> equirect, const unsigned int width, const unsigned int height);
+            std::shared_ptr<Component::Tex2D> equirectToCubemap(std::shared_ptr<Component::Tex2D> equirect, const unsigned int width, const unsigned int height);
             void cubemapToIrradiance(const unsigned int width, const unsigned int height);
             void cubemapToPrefilter(const unsigned int width, const unsigned int height, const unsigned int envres);
             void generateBrdfLut(const unsigned int width, const unsigned int height);

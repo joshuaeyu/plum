@@ -128,7 +128,7 @@ namespace Component {
     void ClearDepth() {
         glClear(GL_DEPTH_BUFFER_BIT);
     }
-    void Fbo::AttachColorTexture(Texture& texture, int index, int level) {
+    void Fbo::AttachColorTexture(Tex& texture, int index, int level) {
         texture.Bind();
         
         if (index == -1) {
@@ -136,18 +136,18 @@ namespace Component {
             colorAtts.push_back(nullptr);
         }
         
-        switch (texture.Target) {
+        switch (texture.target) {
             case GL_TEXTURE_2D:
-                glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + index, GL_TEXTURE_2D, texture.ID, level);
+                glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + index, GL_TEXTURE_2D, texture.Handle(), level);
                 break;
             case GL_TEXTURE_CUBE_MAP:
                 for (int i = 0; i < 6; i++) {
-                    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + index, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, texture.ID, level);
+                    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + index, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, texture.Handle(), level);
                 }
                 break;
         }
         
-        colorAtts[index] = std::make_shared<Texture>(texture);
+        colorAtts[index] = std::make_shared<Tex>(texture);
         UpdateDrawBuffers();
     }
     void Fbo::AttachDepthRbo16() {
@@ -155,13 +155,13 @@ namespace Component {
         depthRboAtt->Setup16();
         glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthRboAtt->handle);
     }
-    void Fbo::AttachDepthRbo16() {
+    void Fbo::AttachDepthRbo24() {
         depthRboAtt = std::make_shared<Rbo>(width, height);
         depthRboAtt->Setup24();
         glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthRboAtt->handle);
     }
-    void Fbo::AttachDepthTexture(Texture& texture, int level = 0) {
-        depthAtt = std::make_shared<Texture>(texture);
+    void Fbo::AttachDepthTexture(Tex& texture, int level = 0) {
+        depthAtt = std::make_shared<Tex>(texture);
     }
     void Fbo::UpdateDrawBuffers() {
         std::vector<GLenum> buffers;

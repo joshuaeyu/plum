@@ -6,7 +6,7 @@
 
 #include <glm/glm.hpp>
 
-#include <plum/component/texture.hpp>
+#include <plum/component/tex.hpp>
 #include <plum/material/program.hpp>
 
 namespace Material {
@@ -25,7 +25,7 @@ namespace Material {
             std::shared_ptr<Program> GetProgram() override;
             void SetUniforms(const glm::mat4& model_transform) override;
 
-            std::shared_ptr<Component::Texture> albedoMap, metallicMap, roughnessMap, normalMap, displacementMap, occlusionMap;
+            std::shared_ptr<Component::Tex2D> albedoMap, metallicMap, roughnessMap, normalMap, displacementMap, occlusionMap;
             glm::vec3 albedo = glm::vec3(0.5);
             float metallic = 0.5;
             float roughness = 0.5;
@@ -39,7 +39,7 @@ namespace Material {
             std::shared_ptr<Program> GetProgram() override;
             void SetUniforms(const glm::mat4& model_transform) override;
 
-            std::shared_ptr<Component::Texture> albedoMap, specularMap, roughnessMap, normalMap, displacementMap, occlusionMap;
+            std::shared_ptr<Component::Tex2D> albedoMap, specularMap, roughnessMap, normalMap, displacementMap, occlusionMap;
             glm::vec3 albedo = glm::vec3(0.5);
             glm::vec3 specular = glm::vec3(0.5);
             float roughness = 0.5;

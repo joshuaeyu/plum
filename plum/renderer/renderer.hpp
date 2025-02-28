@@ -4,7 +4,7 @@
 #include <plum/component/scene.hpp>
 #include <plum/component/scenenode.hpp>
 #include <plum/component/light.hpp>
-#include <plum/component/texture.hpp>
+#include <plum/component/tex.hpp>
 #include <plum/material/module.hpp>
 #include <plum/material/environment.hpp>
 
