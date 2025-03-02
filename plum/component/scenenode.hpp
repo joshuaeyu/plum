@@ -45,8 +45,10 @@ namespace Component {
             ~SceneNode();
                
         public:
-            void AddChild(std::shared_ptr<SceneNode> node);
-            void RemoveChild(std::shared_ptr<SceneNode> node);
+            std::shared_ptr<SceneNode> CreateChild();
+            void AddChild(SceneObject& object);
+            void AddChild(SceneNode& node);
+            void RemoveChild(SceneNode& node);
             
             virtual void Draw(const glm::mat4& parent_transform = glm::identity<glm::mat4>());
             virtual void Draw(Material::Material& m, const glm::mat4& parent_transform = glm::identity<glm::mat4>());

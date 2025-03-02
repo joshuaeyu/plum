@@ -52,11 +52,17 @@ namespace Component {
     }
 
     // Modifiers
-    void SceneNode::AddChild(std::shared_ptr<SceneNode> node) {
-        children.push_back(node);
+    std::shared_ptr<SceneNode> SceneNode::CreateChild() {
+        children.emplace_back(SceneNode());
+        return children.back();
     }
-
-    void SceneNode::RemoveChild(std::shared_ptr<SceneNode> node) {
+    void SceneNode::AddChild(SceneNode& node) {
+        children.emplace_back(node);
+    }
+    void SceneNode::AddChild(SceneObject& object) {
+        children.emplace_back(object);
+    }
+    void SceneNode::RemoveChild(SceneNode& node) {
         auto it = std::find(children.begin(), children.end(), node);
         children.erase(it);
     }
