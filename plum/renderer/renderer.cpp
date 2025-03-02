@@ -15,7 +15,7 @@ namespace Renderer {
     }
     DeferredRenderer::~DeferredRenderer() {}
         
-    Component::Fbo& DeferredRenderer::Render(Component::Scene& scene, Material::Environment& env, Camera& camera) {
+    Component::Fbo& DeferredRenderer::Render(Component::Scene& scene, Material::Environment& env, Component::Camera& camera) {
         ParseScene(scene);
         UpdateUniformBuffers(scene, camera);
         GeometryPass(scene, camera);
@@ -123,17 +123,17 @@ namespace Renderer {
         }
     }
 
-    void DeferredRenderer::UpdateUniformBuffers(Component::Scene& scene, Camera& camera) {
+    void DeferredRenderer::UpdateUniformBuffers(Component::Scene& scene, Component::Camera& camera) {
         // 0 - View, projection transforms  
-        uboVsMatrices->UpdateData(0, sizeof(glm::mat4), &camera.View);
-        uboVsMatrices->UpdateData(sizeof(glm::mat4), sizeof(glm::mat4), &camera.Projection);
+        uboVsMatrices->UpdateData(0, sizeof(glm::mat4), &camera.transform.Matrix());
+        uboVsMatrices->UpdateData(sizeof(glm::mat4), sizeof(glm::mat4), &camera.projection);
         // 1 - Inverse view transform
-        glm::mat4 inv_view = glm::inverse(camera.View);
+        glm::mat4 inv_view = glm::inverse(camera.transform.Matrix());
         uboFsMatrices->UpdateData(0, sizeof(glm::mat4), &inv_view);
         // 2 - Camera position, front (viewspace)
         glm::vec3 dummy_cam_pos = glm::vec3(0); // shaders work in view space
         uboFsCamera->UpdateData(0, sizeof(glm::vec3), &dummy_cam_pos);
-        uboFsCamera->UpdateData(16, sizeof(glm::vec3), &camera.Front);
+        uboFsCamera->UpdateData(16, sizeof(glm::vec3), &camera.transform.Front());
 
         // 3 - Directional light colors, direction, lightspace transform
         // 4 - Point light count, colors, attenuations, positions, positions (worldspace)
@@ -141,7 +141,7 @@ namespace Renderer {
         SetPointLightUniforms(camera);
     }
 
-    void DeferredRenderer::SetDirectionalLightUniforms(Camera& camera) {
+    void DeferredRenderer::SetDirectionalLightUniforms(Component::Camera& camera) {
         int total_count = directionalLights.size();
         int shadow_count = 0;
         
@@ -156,13 +156,13 @@ namespace Renderer {
             uboFsDirlight->UpdateData(offset, sizeof(glm::vec4), &dirlight_color);
             
             if (dl->HasShadows()) {
-                glm::vec4 dirlight_direction = glm::vec4( glm::mat3(glm::transpose(glm::inverse(camera.View))) * dl->direction, shadow_count++);
+                glm::vec4 dirlight_direction = glm::vec4( glm::mat3(glm::transpose(glm::inverse(camera.transform.Matrix()))) * dl->direction, shadow_count++);
                 uboFsDirlight->UpdateData(offset + 16, sizeof(glm::vec4), &dirlight_direction);
                 
                 glm::mat4 dirlight_matrix = dl->GetLightspaceMatrix();
                 uboFsDirlight->UpdateData(offset + 32, sizeof(glm::mat4), &dirlight_matrix);
             } else {
-                glm::vec4 dirlight_direction = glm::vec4( glm::mat3(glm::transpose(glm::inverse(camera.View))) * dl->direction, -1 );
+                glm::vec4 dirlight_direction = glm::vec4( glm::mat3(glm::transpose(glm::inverse(camera.transform.Matrix()))) * dl->direction, -1 );
                 uboFsDirlight->UpdateData(offset + 16, sizeof(glm::vec4), &dirlight_direction);
                 
                 // (Don't need to set lightspace matrix if not casting shadows)
@@ -172,7 +172,7 @@ namespace Renderer {
         int total_count = directionalLights.size();
     }
 
-    void DeferredRenderer::SetPointLightUniforms(Camera& camera) {
+    void DeferredRenderer::SetPointLightUniforms(Component::Camera& camera) {
         int total_count = pointLights.size();
         int shadow_count = 0;
 
@@ -190,7 +190,7 @@ namespace Renderer {
             glm::vec4 att = glm::vec4(pointlight_att[0], pointlight_att[1], pointlight_att[2], 0);
             uboFsPointlight->UpdateData(offset + 16, sizeof(glm::vec4), &att);
 
-            glm::vec4 pointlight_pos_view = camera.View * glm::vec4(pl->position, 1);
+            glm::vec4 pointlight_pos_view = camera.transform.Matrix() * glm::vec4(pl->position, 1);
             pointlight_pos_view.w = pl->GetFarPlane();
             uboFsPointlight->UpdateData(offset + 32, sizeof(glm::vec4), &pointlight_pos_view);
 
@@ -202,7 +202,7 @@ namespace Renderer {
         }
     }
 
-    void DeferredRenderer::GeometryPass(Component::Scene& scene, Camera& camera) {
+    void DeferredRenderer::GeometryPass(Component::Scene& scene, Component::Camera& camera) {
         gBuffer.Bind();
         gBuffer.SetViewportDims();
         gBuffer.ClearColor();
@@ -245,7 +245,7 @@ namespace Renderer {
         }
     }
 
-    void DeferredRenderer::LightingPass(Component::Scene& scene, Material::Environment& env, Camera& camera) {
+    void DeferredRenderer::LightingPass(Component::Scene& scene, Material::Environment& env, Component::Camera& camera) {
         // ---- Prep framebuffer ----
         output.Bind();
         output.SetViewportDims();
@@ -284,7 +284,7 @@ namespace Renderer {
         Component::Primitive::DrawQuad();
     }
 
-    void DeferredRenderer::ForwardPass(Component::Scene& scene, Material::Environment& env, Camera& camera) {
+    void DeferredRenderer::ForwardPass(Component::Scene& scene, Material::Environment& env, Component::Camera& camera) {
         // ---- Blit depth data from gBuffer to output ----
         glBindFramebuffer(GL_READ_FRAMEBUFFER, gBuffer.Handle());
         glBindFramebuffer(GL_DRAW_FRAMEBUFFER, output.Handle());
@@ -300,7 +300,7 @@ namespace Renderer {
         // ---- Draw skybox ----
         static Component::Cube cube;
         env.skyboxModule.Use();
-        env.skyboxModule.SetGlobalUniforms(glm::mat4(glm::mat3(camera.View)), camera.Projection, 0);
+        env.skyboxModule.SetGlobalUniforms(glm::mat4(glm::mat3(camera.transform.Matrix())), camera.projection, 0);
         env.skybox->Bind(0);
         glCullFace(GL_FRONT);
         cube.Draw(env.skyboxModule);

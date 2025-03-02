@@ -3,13 +3,15 @@
 #include <plum/component/core.hpp>
 #include <plum/component/scene.hpp>
 #include <plum/component/scenenode.hpp>
+#include <plum/component/camera.hpp>
 #include <plum/component/light.hpp>
 #include <plum/component/tex.hpp>
 #include <plum/material/module.hpp>
 #include <plum/material/environment.hpp>
 
-#include <plum/camera.hpp>
 #include <vector>
+
+#include <plum/context/inputmanager.hpp>
 
 namespace Renderer {
 
@@ -26,7 +28,7 @@ namespace Renderer {
             DeferredRenderer();
             ~DeferredRenderer();
 
-            Component::Fbo& Render(Component::Scene& scene, Material::Environment& env, Camera& camera);
+            Component::Fbo& Render(Component::Scene& scene, Material::Environment& env, Component::Camera& camera);
 
             // does scene need anything that the nodes can't support
             // should camera be "attached" to scene or passed in each render call
@@ -54,14 +56,14 @@ namespace Renderer {
             
             // Per frame
             void ParseScene(Component::Scene& scene);
-            void UpdateUniformBuffers(Component::Scene& scene, Camera& camera);
-            void SetDirectionalLightUniforms(Camera& camera);
-            void SetPointLightUniforms(Camera& camera);
-            void GeometryPass(Component::Scene& scene, Camera& camera);
+            void UpdateUniformBuffers(Component::Scene& scene, Component::Camera& camera);
+            void SetDirectionalLightUniforms(Component::Camera& camera);
+            void SetPointLightUniforms(Component::Camera& camera);
+            void GeometryPass(Component::Scene& scene, Component::Camera& camera);
             void ShadowMapPass(Component::Scene& scene);
             // void SSAOPass();
-            void LightingPass(Component::Scene& scene, Material::Environment& env, Camera& camera);
-            void ForwardPass(Component::Scene& scene, Material::Environment& env, Camera& camera);
+            void LightingPass(Component::Scene& scene, Material::Environment& env, Component::Camera& camera);
+            void ForwardPass(Component::Scene& scene, Material::Environment& env, Component::Camera& camera);
 
             Component::Fbo gBuffer;
             
@@ -82,6 +84,8 @@ namespace Renderer {
 
             std::vector<Component::SceneNode*> directionalLights;
             std::vector<Component::SceneNode*> pointLights;
+
+            Context::InputManager inputManager;
     };
 
 }
