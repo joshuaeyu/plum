@@ -67,6 +67,8 @@ namespace Component {
             void Bind();
             void Unbind();
             
+            void SetViewportDims();
+            
             void ClearColor();
             void ClearColor(float r, float g, float b, float a);
             void ClearDepth();
@@ -77,9 +79,11 @@ namespace Component {
             void AttachDepthTexture(Tex& texture, int level = 0);
             void UpdateDrawBuffers();
 
-            void SetViewportDims();
-
             void CheckStatus();
+
+            void BlitTo(Fbo& fbo, bool color = true, bool depth = true);
+            void BlitToDefault(bool color = true, bool depth = true);
+            void BlitFrom(Fbo& fbo, bool color = true, bool depth = true);
 
             int width, height;
             std::vector<std::shared_ptr<Tex>> colorAtts;

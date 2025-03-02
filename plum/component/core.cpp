@@ -177,6 +177,27 @@ namespace Component {
             std::cerr << "Framebuffer error: " << glCheckFramebufferStatus(GL_FRAMEBUFFER) << std::endl;
         }
     }
+    void Fbo::BlitTo(Fbo& target, bool color, bool depth) {
+        GLbitfield mask = 0;
+        mask |= GL_COLOR_BUFFER_BIT * color;
+        mask |= GL_DEPTH_BUFFER_BIT * depth;
+        
+        glBindFramebuffer(GL_READ_FRAMEBUFFER, handle);
+        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, target.handle);
+        glBlitFramebuffer(0, 0, width, height, 0, 0, target.width, target.height, mask, GL_NEAREST);   // Internal formats need to match!
+    }
+    void Fbo::BlitToDefault(bool color, bool depth) {
+        GLbitfield mask = 0;
+        mask |= GL_COLOR_BUFFER_BIT * color;
+        mask |= GL_DEPTH_BUFFER_BIT * depth;
+
+        glBindFramebuffer(GL_READ_FRAMEBUFFER, handle);
+        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+        glBlitFramebuffer(0, 0, width, height, 0, 0, width, height, mask, GL_NEAREST);   // Internal formats need to match!
+    }
+    void Fbo::BlitFrom(Fbo& source, bool color, bool depth) {
+        source.BlitTo(*this, color, depth);
+    }
 
     // Renderbuffer
     Rbo::Rbo(int width, int height) : width(width), height(height) {

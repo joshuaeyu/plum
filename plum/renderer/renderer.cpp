@@ -286,9 +286,7 @@ namespace Renderer {
 
     void DeferredRenderer::ForwardPass(Component::Scene& scene, Material::Environment& env, Component::Camera& camera) {
         // ---- Blit depth data from gBuffer to output ----
-        glBindFramebuffer(GL_READ_FRAMEBUFFER, gBuffer.Handle());
-        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, output.Handle());
-        glBlitFramebuffer(0, 0, gBuffer.width, gBuffer.height, 0, 0, output.width, output.height, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+        gBuffer.BlitTo(output, false, true);
         
         // ---- Prep framebuffer ----
         output.Bind();
