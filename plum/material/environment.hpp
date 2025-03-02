@@ -9,6 +9,7 @@ namespace Material {
     class Environment {
         public:
 
+            Environment();
             Environment(std::shared_ptr<Component::Tex2D> envmap);
 
             std::shared_ptr<Component::Tex2D> skybox;

@@ -7,6 +7,8 @@
 
 namespace Material {
 
+    Environment::Environment() {}
+
     Environment::Environment(std::shared_ptr<Component::Tex2D> envmap) {
         if (envmap->target == GL_TEXTURE_CUBE_MAP)
             skybox = envmap;
