@@ -6,11 +6,17 @@
 
 namespace Component {
 
-    Mesh::Mesh() : SceneObject(SceneObjectType::Mesh) {}
+    Mesh::Mesh()
+        : SceneObject(SceneObjectType::Mesh) {}
 
-    Mesh::Mesh(std::shared_ptr<Vao> va) : vao(va), SceneObject(SceneObjectType::Mesh) {}
-
-    Mesh::Mesh(const SceneObjectType type) : SceneObject(type) {}
+    Mesh::Mesh(Vao& vao) 
+        : SceneObject(SceneObjectType::Mesh), vao(std::make_shared<Vao>(vao)) {}
+    
+    Mesh::Mesh(Vao& vao, Material::Material& mat)
+        : SceneObject(SceneObjectType::Mesh), vao(std::make_shared<Vao>(vao)), material(std::make_shared<Material::Material>(mat)) {}
+    
+    Mesh::Mesh(const SceneObjectType type) 
+        : SceneObject(type) {}
     
     Mesh::~Mesh() {}
 
@@ -27,7 +33,5 @@ namespace Component {
         module.GetProgram()->SetMat4("model", model_matrix);
         vao->Draw();
     }
-
-
 
 }

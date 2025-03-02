@@ -15,15 +15,15 @@ namespace Component {
         
         public:
             Mesh();
-            Mesh(std::shared_ptr<Vao> va);
+            Mesh(Vao& vao);
+            Mesh(Vao& vao, Material::Material& mat);
             virtual ~Mesh();
             
             virtual void Draw(const glm::mat4& model_matrix = glm::identity<glm::mat4>());
             virtual void Draw(Material::Material& mat, const glm::mat4& model_matrix = glm::identity<glm::mat4>());
             virtual void Draw(Material::Module& module, const glm::mat4& model_matrix = glm::identity<glm::mat4>());
             
-            std::shared_ptr<Material::Material> material;
-            // friend class Renderer;
+            std::shared_ptr<Material::Material> material = std::make_shared<Material::PBRMetallicMaterial>();
             
             std::shared_ptr<Vao> vao;
             
