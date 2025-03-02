@@ -19,7 +19,7 @@ namespace Renderer {
         protected:
             BaseRenderer();
             virtual ~BaseRenderer();
-            virtual void Render(const Component::Scene& scene) = 0;
+            virtual Component::Fbo& Render(Component::Scene& scene, Component::Camera& camera) = 0;
     };
 
     class DeferredRenderer : public BaseRenderer {
@@ -28,7 +28,8 @@ namespace Renderer {
             DeferredRenderer();
             ~DeferredRenderer();
 
-            Component::Fbo& Render(Component::Scene& scene, Material::Environment& env, Component::Camera& camera);
+            Component::Fbo& Render(Component::Scene& scene, Component::Camera& camera) override;
+            Component::Fbo& Render(Component::Scene& scene, Component::Camera& camera, Material::Environment& env);
 
             // does scene need anything that the nodes can't support
             // should camera be "attached" to scene or passed in each render call
@@ -49,21 +50,23 @@ namespace Renderer {
             // renderer is what sets uniforms.
 
         private:
+            bool noEnvironment;
+
             // Setup
             void InitializeUniformBlocks();
             void InitGbuffer();
             void InitShadowMaps();
             
             // Per frame
-            void ParseScene(Component::Scene& scene);
-            void UpdateUniformBuffers(Component::Scene& scene, Component::Camera& camera);
+            void ParseLights(Component::Scene& scene);
+            void UpdateGlobalUniforms(Component::Scene& scene, Component::Camera& camera);
             void SetDirectionalLightUniforms(Component::Camera& camera);
             void SetPointLightUniforms(Component::Camera& camera);
-            void GeometryPass(Component::Scene& scene, Component::Camera& camera);
+            void GeometryPass(Component::Scene& scene);
             void ShadowMapPass(Component::Scene& scene);
             // void SSAOPass();
-            void LightingPass(Component::Scene& scene, Material::Environment& env, Component::Camera& camera);
-            void ForwardPass(Component::Scene& scene, Material::Environment& env, Component::Camera& camera);
+            void LightingPass(Material::Environment& env);
+            void ForwardPass(Component::Camera& camera, Material::Environment& env);
 
             Component::Fbo gBuffer;
             

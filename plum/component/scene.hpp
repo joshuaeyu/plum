@@ -2,27 +2,27 @@
 
 #include <memory>
 
-#include <plum/component/texture.hpp>
-
 #include <plum/component/scenenode.hpp>
 #include <plum/material/material.hpp>
 #include <plum/material/module.hpp>
 
 namespace Component {
 
-    class Scene {
-        public:
-            SceneNode root;
+    typedef SceneNode Scene;
 
-            Scene();
+    // class Scene {
+    //     public:
+    //         SceneNode root;
 
-            void Add(std::shared_ptr<SceneNode> node);
-            void Remove(std::shared_ptr<SceneNode> node);
+    //         Scene();
 
-            void Draw();
-            void Draw(Material::Material& material);
-            void Draw(Material::Module& module);
+    //         void Add(std::shared_ptr<SceneNode> node);
+    //         void Remove(std::shared_ptr<SceneNode> node);
+
+    //         void Draw();
+    //         void Draw(Material::Material& material);
+    //         void Draw(Material::Module& module);
             
-    };
+    // };
 
 }

@@ -14,14 +14,18 @@ namespace Renderer {
         InitShadowMaps();
     }
     DeferredRenderer::~DeferredRenderer() {}
-        
-    Component::Fbo& DeferredRenderer::Render(Component::Scene& scene, Material::Environment& env, Component::Camera& camera) {
-        ParseScene(scene);
-        UpdateUniformBuffers(scene, camera);
-        GeometryPass(scene, camera);
+    
+    Component::Fbo& DeferredRenderer::Render(Component::Scene& scene, Component::Camera& camera) {
+        static Material::Environment environment;
+        Render(scene, camera, environment);
+    }
+
+    Component::Fbo& DeferredRenderer::Render(Component::Scene& scene, Component::Camera& camera, Material::Environment& env) {
+        UpdateGlobalUniforms(scene, camera);
+        GeometryPass(scene);
         ShadowMapPass(scene);
-        LightingPass(scene, env, camera);
-        ForwardPass(scene, env, camera);
+        LightingPass(env);
+        ForwardPass(camera, env);
         return output;
         // some postprocessing like Bloom requires additional render info
         // need to support intraprocessing rendering options
@@ -31,6 +35,8 @@ namespace Renderer {
     }
     
     void DeferredRenderer::InitializeUniformBlocks() {
+        // Material::Program::UboScheme::Scheme1
+        // Should have some help from Program to enforce this sceheme
         // 0 - View, projection transforms  
         uboVsMatrices   = std::make_shared<Component::Ubo>(0, 2*sizeof(glm::mat4));
         // 1 - Inverse view transform
@@ -95,7 +101,7 @@ namespace Renderer {
         pointShadowBuffer.CheckStatus();
     }
 
-    void DeferredRenderer::ParseScene(Component::Scene& scene) {
+    void DeferredRenderer::ParseLights(Component::Scene& scene) {
         
         using namespace Component;
 
@@ -106,7 +112,7 @@ namespace Renderer {
         // ---- Parse scene for Light nodes ----
         std::queue<SceneNode*> node_queue;
 
-        node_queue.push(&scene.root);
+        node_queue.push(&scene);
         while (!node_queue.empty()) {
             SceneNode* curr = node_queue.front();
             node_queue.pop();
@@ -123,7 +129,7 @@ namespace Renderer {
         }
     }
 
-    void DeferredRenderer::UpdateUniformBuffers(Component::Scene& scene, Component::Camera& camera) {
+    void DeferredRenderer::UpdateGlobalUniforms(Component::Scene& scene, Component::Camera& camera) {
         // 0 - View, projection transforms  
         uboVsMatrices->UpdateData(0, sizeof(glm::mat4), &camera.transform.Matrix());
         uboVsMatrices->UpdateData(sizeof(glm::mat4), sizeof(glm::mat4), &camera.projection);
@@ -137,6 +143,7 @@ namespace Renderer {
 
         // 3 - Directional light colors, direction, lightspace transform
         // 4 - Point light count, colors, attenuations, positions, positions (worldspace)
+        ParseLights(scene);
         SetDirectionalLightUniforms(camera);
         SetPointLightUniforms(camera);
     }
@@ -202,7 +209,7 @@ namespace Renderer {
         }
     }
 
-    void DeferredRenderer::GeometryPass(Component::Scene& scene, Component::Camera& camera) {
+    void DeferredRenderer::GeometryPass(Component::Scene& scene) {
         gBuffer.Bind();
         gBuffer.SetViewportDims();
         gBuffer.ClearColor();
@@ -245,7 +252,7 @@ namespace Renderer {
         }
     }
 
-    void DeferredRenderer::LightingPass(Component::Scene& scene, Material::Environment& env, Component::Camera& camera) {
+    void DeferredRenderer::LightingPass(Material::Environment& env) {
         // ---- Prep framebuffer ----
         output.Bind();
         output.SetViewportDims();
@@ -259,9 +266,11 @@ namespace Renderer {
         // SSAO
             // (future)
         // IBL
-        env.irradiance->Bind(5);
-        env.prefilter->Bind(6);
-        env.brdfLut->Bind(7);
+        if (env.skybox) {
+            env.irradiance->Bind(5);
+            env.prefilter->Bind(6);
+            env.brdfLut->Bind(7);
+        }
         // Shadow maps
         dirShadowBuffer.depthAtt->Bind(8);
         pointShadowBuffer.depthAtt->Bind(9);
@@ -284,7 +293,7 @@ namespace Renderer {
         Component::Primitive::DrawQuad();
     }
 
-    void DeferredRenderer::ForwardPass(Component::Scene& scene, Material::Environment& env, Component::Camera& camera) {
+    void DeferredRenderer::ForwardPass(Component::Camera& camera, Material::Environment& env) {
         // ---- Blit depth data from gBuffer to output ----
         gBuffer.BlitTo(output, false, true);
         
@@ -296,12 +305,14 @@ namespace Renderer {
             // anything bypassing lighting calcs
         
         // ---- Draw skybox ----
-        static Component::Cube cube;
-        env.skyboxModule.Use();
-        env.skyboxModule.SetGlobalUniforms(glm::mat4(glm::mat3(camera.transform.Matrix())), camera.projection, 0);
-        env.skybox->Bind(0);
-        glCullFace(GL_FRONT);
-        cube.Draw(env.skyboxModule);
-        glCullFace(GL_BACK);
+        if (env.skybox) {
+            static Component::Cube cube;
+            env.skyboxModule.Use();
+            env.skyboxModule.SetGlobalUniforms(glm::mat4(glm::mat3(camera.transform.Matrix())), camera.projection, 0);
+            env.skybox->Bind(0);
+            glCullFace(GL_FRONT);
+            cube.Draw(env.skyboxModule);
+            glCullFace(GL_BACK);
+        }
     }
 }
