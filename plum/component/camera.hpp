@@ -19,6 +19,7 @@ namespace Component {
             glm::mat4 projection;
             // float zoom        = 45.0f;
 
+            Camera();
             Camera(Transform transform, glm::mat4 projection);
             
             void ProcessInputs();
