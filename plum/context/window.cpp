@@ -1,65 +1,62 @@
-#include <GLFW/glfw3.h>
 #include <plum/context/window.hpp>
-#include <iostream>
 
-#include <imgui/imgui.h>
-#include <imgui/imgui_impl_glfw.h>
-#include <imgui/imgui_impl_opengl3.h>
-#include "window.hpp"
+#include <GLFW/glfw3.h>
+// #include <imgui/imgui.h>
+// #include <imgui/imgui_impl_glfw.h>
+// #include <imgui/imgui_impl_opengl3.h>
+
+#include <iostream>
 
 namespace Context {
 
-    WindowCreator::WindowCreator() {
+    WindowCreator::WindowCreator() 
+    {
+        // Default hints
+        hints[GLFW_CONTEXT_VERSION_MAJOR]    = 4;
+        hints[GLFW_CONTEXT_VERSION_MINOR]    = 1;
+        hints[GLFW_OPENGL_PROFILE]           = GLFW_OPENGL_CORE_PROFILE;
+        hints[GLFW_OPENGL_FORWARD_COMPAT]    = GLFW_TRUE;
+        hints[GLFW_SCALE_TO_MONITOR]         = GLFW_FALSE;
+        hints[GLFW_COCOA_RETINA_FRAMEBUFFER] = GLFW_FALSE;
+    }
+    
+    Window WindowCreator::Create() {
         if (!glfwInit())
             exit(-1);
-        settings[GLFW_CONTEXT_VERSION_MAJOR]    = 4;
-        settings[GLFW_CONTEXT_VERSION_MINOR]    = 1;
-        settings[GLFW_OPENGL_PROFILE]           = GLFW_OPENGL_CORE_PROFILE;
-        settings[GLFW_OPENGL_FORWARD_COMPAT]    = GLFW_TRUE;
-        settings[GLFW_SCALE_TO_MONITOR]         = GLFW_FALSE;
-        settings[GLFW_COCOA_RETINA_FRAMEBUFFER] = GLFW_FALSE;
-    }
 
-    void WindowCreator::SetHint(const int hint, const int value) {
-        settings[hint] = value;
-    }
-
-    void WindowCreator::SetHints(const int numhints, const int *hints, const int *values) {
-        for (int i = 0; i < numhints; i++) {
-            settings[hints[i]] = values[i];
-        }
-    }
-
-    Window WindowCreator::Create(const int width, const int height, const char *title) {
-        for (const auto [hint, value] : settings) {
+        for (const auto [hint, value] : hints) {
             glfwWindowHint(hint, value);
         }
-
-        GLFWwindow *window = glfwCreateWindow(width, height, title, NULL, NULL);
+        
+        GLFWwindow *window = glfwCreateWindow(width, height, title.c_str(), NULL, NULL);
         if (window == nullptr) {
             std::cerr << "glfwCreateWindow failed" << std::endl;
             glfwTerminate();
             exit(-1);
         }
 
-        return Window(window);
+        return Window(window, width, height, title);
     }
 
-    Window::Window(GLFWwindow *window) {
-        handle = window;
-    }
+    Window::Window(GLFWwindow *window, int width, int height, std::string title) 
+        : handle(window),
+        width(width),
+        height(height),
+        title(title),
+        inputManager({GLFW_KEY_SPACE, GLFW_KEY_GRAVE_ACCENT})
+    {}
 
-    void Window::SetFramebufferSizeCallback(GLFWframebuffersizefun callback) {
-        glfwSetFramebufferSizeCallback(handle, callback);
-    }
+    // void Window::SetFramebufferSizeCallback(GLFWframebuffersizefun callback) {
+    //     glfwSetFramebufferSizeCallback(handle, callback);
+    // }
 
-    void Window::SetCursorPosCallback(GLFWcursorposfun callback) {
-        glfwSetCursorPosCallback(handle, callback);
-    }
+    // void Window::SetCursorPosCallback(GLFWcursorposfun callback) {
+    //     glfwSetCursorPosCallback(handle, callback);
+    // }
 
-    void Window::SetKeyCallback(GLFWkeyfun callback) {
-        glfwSetKeyCallback(handle, callback);
-    }
+    // void Window::SetKeyCallback(GLFWkeyfun callback) {
+    //     glfwSetKeyCallback(handle, callback);
+    // }
 
     void Window::SetInputMode(const int mode, const int value) {
         glfwSetInputMode(handle, mode, value);
@@ -70,14 +67,28 @@ namespace Context {
     }
     void Window::PollEvents() {
         glfwPollEvents();
+        ProcessInputs();
     }
     void Window::SwapBuffers() {
         glfwSwapBuffers(handle);
     }
 
-    void Window::MakeCurrent()
-    {
+    void Window::MakeCurrent()  {
         glfwMakeContextCurrent(handle);
+    }
+
+    void Window::ProcessInputs() {
+        if (inputManager.GetKeyDown(GLFW_KEY_ESCAPE))
+            glfwSetWindowShouldClose(handle, GLFW_TRUE);
+        if (inputManager.GetKeyDown(GLFW_KEY_GRAVE_ACCENT)) {
+            int inputmode = glfwGetInputMode(handle, GLFW_CURSOR);
+            if (inputmode == GLFW_CURSOR_NORMAL) {
+                glfwSetInputMode(handle, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+                firstMouse = true;
+            } else if (inputmode == GLFW_CURSOR_DISABLED) {
+                glfwSetInputMode(handle, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+            }
+        }
     }
 
     // Gui::Gui(GLFWwindow *window) {
@@ -87,10 +98,6 @@ namespace Context {
     //     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
     //     ImGui_ImplGlfw_InitForOpenGL(window, true);          // Second param install_callback=true will install GLFW callbacks and chain to existing ones.
     //     ImGui_ImplOpenGL3_Init();
-    // }
-
-    // InputManager::KeyIsDown(const int key) {
-    //     return keyDown[key];
     // }
 
 }

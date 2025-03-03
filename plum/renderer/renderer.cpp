@@ -1,18 +1,30 @@
 #include <plum/renderer/renderer.hpp>
-#include <plum/component/primitive.hpp>
+
+#include <plum/scene/primitive.hpp>
+
 #include <iostream>
 #include <queue>
 
 namespace Renderer {
 
-    BaseRenderer::BaseRenderer() {}
+    BaseRenderer::BaseRenderer(Context::Window& window) 
+        : window(&window)
+    {}
+
     BaseRenderer::~BaseRenderer() {}
 
-    DeferredRenderer::DeferredRenderer() : gBuffer(1920,1080), dirShadowBuffer(2048,2048), pointShadowBuffer(1024,1024), output(1920,1080) {
+    DeferredRenderer::DeferredRenderer(Context::Window& window) 
+        : BaseRenderer(window),
+        gBuffer(window.width, window.height), 
+        dirShadowBuffer(2048,2048), 
+        pointShadowBuffer(1024,1024), 
+        output(window.width, window.height)
+    {
         InitializeUniformBlocks();
         InitGbuffer();
         InitShadowMaps();
     }
+
     DeferredRenderer::~DeferredRenderer() {}
     
     Component::Fbo& DeferredRenderer::Render(Component::Scene& scene, Component::Camera& camera) {
@@ -57,18 +69,19 @@ namespace Renderer {
         using namespace Component;
         
         gBuffer.Bind();
+        gBuffer.colorAtts = std::vector<std::shared_ptr<Component::Tex>>(4);
         
         Tex2D position = Tex2D(GL_TEXTURE_2D, GL_RGBA32F, gBuffer.width, gBuffer.height, GL_RGBA, GL_FLOAT, GL_CLAMP_TO_EDGE, GL_NEAREST);
-        gBuffer.AttachColorTexture(position);
+        gBuffer.AttachColorTexture(position, 0);
 
         Tex2D normal = Tex2D(GL_TEXTURE_2D, GL_RGBA32F, gBuffer.width, gBuffer.height, GL_RGBA, GL_FLOAT, GL_CLAMP_TO_EDGE, GL_NEAREST);
-        gBuffer.AttachColorTexture(normal);
+        gBuffer.AttachColorTexture(normal, 1);
         
         Tex2D albedospec = Tex2D(GL_TEXTURE_2D, GL_RGBA, gBuffer.width, gBuffer.height, GL_RGBA, GL_UNSIGNED_BYTE, GL_CLAMP_TO_EDGE, GL_NEAREST);
-        gBuffer.AttachColorTexture(albedospec);
+        gBuffer.AttachColorTexture(albedospec, 2);
         
         Tex2D metrou = Tex2D(GL_TEXTURE_2D, GL_RGBA, gBuffer.width, gBuffer.height, GL_RGBA, GL_UNSIGNED_BYTE, GL_CLAMP_TO_EDGE, GL_NEAREST);
-        gBuffer.AttachColorTexture(albedospec);
+        gBuffer.AttachColorTexture(albedospec, 3);
         
         gBuffer.AttachDepthRbo16();
     
@@ -314,5 +327,10 @@ namespace Renderer {
             cube.Draw(env.skyboxModule);
             glCullFace(GL_BACK);
         }
+    }
+
+    void DeferredRenderer::framebuffer_size_callback(GLFWwindow *window, int width, int height) {
+        gBuffer = Component::Fbo(width, height);
+        InitGbuffer();
     }
 }

@@ -1,7 +1,5 @@
 #pragma once
 
-#include <plum/material/material.hpp>
-
 namespace Material {
 
     class Program {
@@ -133,9 +131,9 @@ namespace Material {
 
     };
 
-    class ProgramUser {
-        public:
-            // Placeholder
-    };
+    // class ProgramUser {
+    //     public:
+    //         // Placeholder
+    // };
 
 }

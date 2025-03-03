@@ -1,12 +1,13 @@
 #pragma once
 
-#include <vector>
-#include <memory>
-
 #include <plum/component/core.hpp>
-#include <plum/component/scenenode.hpp>
+#include <plum/scene/scenenode.hpp>
+
 #include <plum/material/material.hpp>
 #include <plum/material/module.hpp>
+
+#include <vector>
+#include <memory>
 
 namespace Component {
 

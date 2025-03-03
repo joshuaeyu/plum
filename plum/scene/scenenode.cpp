@@ -1,17 +1,15 @@
-#include <plum/component/scenenode.hpp>
+#include <plum/scene/scenenode.hpp>
+
+#include <glad/gl.h>
+#include <glm/glm.hpp>
 
 #include <string>
 
-#include <glad/gl.h>
-
-#include <glm/glm.hpp>
-#include <glm/ext/matrix_transform.hpp>
-
-#include <plum/shader.hpp>
-
 namespace Component {
 
-    SceneObject::SceneObject(const SceneObjectType type) : objType(type) {}
+    SceneObject::SceneObject(const SceneObjectType type) 
+        : objType(type) 
+    {}
     SceneObject::~SceneObject() {}
 
     const bool SceneObject::IsMesh() const {
@@ -25,8 +23,12 @@ namespace Component {
     }
     
     SceneNode::SceneNode() {}
-    SceneNode::SceneNode(SceneObject& object) : object(std::make_shared<SceneObject>(object)) {}
-    SceneNode::SceneNode(std::shared_ptr<SceneObject> object) : object(object) {}
+    SceneNode::SceneNode(SceneObject& object) 
+        : object(std::make_shared<SceneObject>(object)) 
+    {}
+    SceneNode::SceneNode(std::shared_ptr<SceneObject> object) 
+        : object(object) 
+    {}
 
     // Methods
     void SceneNode::Draw(const glm::mat4& parent_transform) {

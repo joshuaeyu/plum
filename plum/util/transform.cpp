@@ -1,8 +1,10 @@
 #include <plum/util/transform.hpp>
+
 #include <glm/gtx/euler_angles.hpp>
 
 Transform::Transform()
-    : Transform(glm::vec3(0), glm::vec3(0), glm::vec3(1)) {}
+    : Transform(glm::vec3(0), glm::vec3(0), glm::vec3(1)) 
+{}
 
 Transform::Transform(glm::mat4 matrix)
     : position(glm::vec3(matrix[3])), 
@@ -15,8 +17,8 @@ Transform::Transform(glm::mat4 matrix)
 
 Transform::Transform(glm::vec3 position, glm::vec3 rotationEuler, glm::vec3 scale)
     : position(position), 
-    rotationEuler(rotationEuler), 
     rotationQuat(glm::quat(rotationEuler)), 
+    rotationEuler(rotationEuler), 
     scale(scale) 
 {
     Update();
@@ -24,8 +26,8 @@ Transform::Transform(glm::vec3 position, glm::vec3 rotationEuler, glm::vec3 scal
 
 Transform::Transform(glm::vec3 position, glm::quat rotationQuat, glm::vec3 scale) 
     : position(position),
-    rotationEuler(glm::eulerAngles(rotationQuat)),
     rotationQuat(rotationQuat),
+    rotationEuler(glm::eulerAngles(rotationQuat)),
     scale(scale) 
 {
     Update();

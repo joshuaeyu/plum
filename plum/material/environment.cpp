@@ -1,15 +1,18 @@
 #pragma once
 
 #include <plum/material/environment.hpp>
+
 #include <plum/component/core.hpp>
-#include <plum/component/primitive.hpp>
+#include <plum/scene/primitive.hpp>
+
 #include <iostream>
 
 namespace Material {
 
     Environment::Environment() {}
 
-    Environment::Environment(std::shared_ptr<Component::Tex2D> envmap) {
+    Environment::Environment(std::shared_ptr<Component::Tex2D> envmap) 
+    {
         if (envmap->target == GL_TEXTURE_CUBE_MAP)
             skybox = envmap;
         else if (envmap->target == GL_TEXTURE_2D)

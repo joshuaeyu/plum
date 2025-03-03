@@ -1,7 +1,8 @@
-#include <plum/component/light.hpp>
+#include <plum/scene/light.hpp>
+
+#include <glad/gl.h>
 
 #include <iostream>
-#include <glad/gl.h>
 
 namespace Component {
 
@@ -17,13 +18,17 @@ namespace Component {
         hasShadows = false;
     }
 
-    Light::Light(const SceneObjectType type) : SceneObject(type) {}
+    Light::Light(const SceneObjectType type) 
+        : SceneObject(type) 
+    {}
 
     // ======== DirectionalLight ========
 
-    DirectionalLight::DirectionalLight() : Light(SceneObjectType::DirLight) {}
+    DirectionalLight::DirectionalLight() 
+        : Light(SceneObjectType::DirLight) 
+    {}
 
-    void DirectionalLight::Draw() {    }
+    void DirectionalLight::Draw() {}
 
     void DirectionalLight::Draw(const glm::mat4& parent_transf) {
         updateLightspaceMatrix();
@@ -63,11 +68,11 @@ namespace Component {
 
     // ======== PointLight ========
 
-    PointLight::PointLight() : Light(SceneObjectType::PointLight) {}
+    PointLight::PointLight() 
+        : Light(SceneObjectType::PointLight) 
+    {}
     
-    void PointLight::Draw() {
-
-    }
+    void PointLight::Draw() {}
 
     void PointLight::Draw(const glm::mat4& parent_transf) {
         position = parent_transf[3];

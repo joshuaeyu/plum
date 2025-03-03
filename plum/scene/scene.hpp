@@ -1,10 +1,12 @@
 #pragma once
 
-#include <memory>
 
-#include <plum/component/scenenode.hpp>
+#include <plum/scene/scenenode.hpp>
+
 #include <plum/material/material.hpp>
 #include <plum/material/module.hpp>
+
+#include <memory>
 
 namespace Component {
 

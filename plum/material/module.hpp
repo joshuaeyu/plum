@@ -1,13 +1,15 @@
 #pragma once
 
+#include <plum/component/program.hpp>
+
+#include <plum/scene/light.hpp>
+
 #include <memory>
-#include <plum/material/program.hpp>
-#include <plum/component/light.hpp>
 
 namespace Material
 {
 
-    class Module : public ProgramUser
+    class Module
     {
         public:
             Module();

@@ -1,10 +1,9 @@
 #pragma once
 
-#include <string>
-#include <vector>
-
 #include <glad/gl.h>
 
+#include <string>
+#include <vector>
 
 namespace Component {
 

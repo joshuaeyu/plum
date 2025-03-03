@@ -1,22 +1,27 @@
-#include <plum/vertex.hpp>
+#include <plum/scene/mesh.hpp>
+
 #include <plum/component/core.hpp>
-#include <plum/component/mesh.hpp>
+
 #include <vector>
 #include <memory>
 
 namespace Component {
 
     Mesh::Mesh()
-        : SceneObject(SceneObjectType::Mesh) {}
+        : SceneObject(SceneObjectType::Mesh) 
+    {}
 
     Mesh::Mesh(Vao& vao) 
-        : SceneObject(SceneObjectType::Mesh), vao(std::make_shared<Vao>(vao)) {}
+        : SceneObject(SceneObjectType::Mesh), vao(std::make_shared<Vao>(vao)) 
+    {}
     
     Mesh::Mesh(Vao& vao, Material::Material& mat)
-        : SceneObject(SceneObjectType::Mesh), vao(std::make_shared<Vao>(vao)), material(std::make_shared<Material::Material>(mat)) {}
+        : SceneObject(SceneObjectType::Mesh), vao(std::make_shared<Vao>(vao)), material(std::make_shared<Material::Material>(mat)) 
+    {}
     
     Mesh::Mesh(const SceneObjectType type) 
-        : SceneObject(type) {}
+        : SceneObject(type) 
+    {}
     
     Mesh::~Mesh() {}
 

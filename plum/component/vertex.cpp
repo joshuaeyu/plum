@@ -2,7 +2,10 @@
 
 namespace Component {
     
-    VertexArray::VertexArray(const std::vector<float>& collated, const unsigned int flags) : data(collated), attributes(flags) {
+    VertexArray::VertexArray(const std::vector<float>& collated, const unsigned int flags) 
+        : data(collated), 
+        attributes(flags) 
+    {
         // Compute stride
         stride = 0;
         for (auto attr : VertexAttrInfo.AttrList) {
@@ -13,7 +16,8 @@ namespace Component {
         vertexCount = Size() / Stride();
     }
 
-    VertexArray::VertexArray(const UncollatedVertices& uncollated) {
+    VertexArray::VertexArray(const UncollatedVertices& uncollated) 
+    {
         // Determine attribute flags
         attributes = 0;
         attributes = attributes | ((uncollated.positions.size() > 0) * VertexAttrFlags::Position3); // Assume three dimensional position vector if provided this way

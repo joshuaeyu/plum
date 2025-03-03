@@ -1,7 +1,8 @@
 #pragma once
 
+#include <plum/scene/scenenode.hpp>
+
 #include <vector>
-#include <plum/component/scenenode.hpp>
 
 namespace Component {
 

@@ -3,6 +3,7 @@
 namespace Material {
 
     DirectionalShadowModule::DirectionalShadowModule() {}
+
     void DirectionalShadowModule::SetGlobalUniforms(Component::DirectionalLight& dl, const GLuint depthTexture, int* shadowIdx) {
         if (!dl.HasShadows())
             return;
@@ -21,6 +22,7 @@ namespace Material {
     }
 
     PointShadowModule::PointShadowModule() {}
+
     void PointShadowModule::SetGlobalUniforms(Component::PointLight& pl, const glm::vec3& pos, int* shadowIdx) {
         if (!pl.HasShadows()) {
             return;
@@ -43,6 +45,7 @@ namespace Material {
     }
 
     LightingPassPBRModule::LightingPassPBRModule() {}
+
     void LightingPassPBRModule::SetGlobalUniforms() {
         program->SetInt("gPosition", gPosition);
         program->SetInt("gNormal", gNormal);
@@ -65,6 +68,7 @@ namespace Material {
     }
 
     SkyboxModule::SkyboxModule() {}
+    
     void SkyboxModule::SetGlobalUniforms(const glm::mat4& view, const glm::mat4& projection, const int cubemapUnit) {
         if (hdr) {
             hdrProgram->SetMat4("view", view);

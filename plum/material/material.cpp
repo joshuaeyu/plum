@@ -2,7 +2,8 @@
 
 namespace Material {
     
-    PBRMetallicMaterial::PBRMetallicMaterial() {
+    PBRMetallicMaterial::PBRMetallicMaterial() 
+    {
         // Set UBO scheme to default (may implement non-default schemes in the future)
         program->SetUniformBlockBindingScheme(Program::UboScheme::Scheme1);
     }

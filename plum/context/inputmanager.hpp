@@ -1,12 +1,14 @@
 #pragma once
 
-#include <vector>
-#include <map>
-#include <GLFW/glfw3.h>
 #include <plum/context/window.hpp>
 
+#include <GLFW/glfw3.h>
+
+#include <vector>
+#include <map>
+
 namespace Context {
-    
+
     class InputManager {
         // Adapted from https://stackoverflow.com/questions/55573238/how-do-i-do-a-proper-input-class-in-glfw-for-a-game-engine
         

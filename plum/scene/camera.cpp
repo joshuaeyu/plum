@@ -4,11 +4,15 @@
 
 namespace Component {
 
-    Camera::Camera() : Camera(Transform(), glm::perspective(45.f, 1920.f/1080, 0.1f, 100.f)) {}
+    Camera::Camera() 
+        : Camera(Transform(), glm::perspective(45.f, 1920.f/1080, 0.1f, 100.f)) 
+    {}
 
     Camera::Camera(Transform transform, glm::mat4 projection) 
-        : transform(transform), projection(projection),
-        inputManager({GLFW_KEY_W, GLFW_KEY_S, GLFW_KEY_A, GLFW_KEY_D, GLFW_KEY_SPACE, GLFW_KEY_LEFT_SHIFT}) {}
+        : transform(transform), 
+        projection(projection),
+        inputManager({GLFW_KEY_W, GLFW_KEY_S, GLFW_KEY_A, GLFW_KEY_D, GLFW_KEY_SPACE, GLFW_KEY_LEFT_SHIFT})
+    {}
 
     void Camera::ProcessInputs() {
         ProcessMouse(inputManager.GetMouseDeltaX(), inputManager.GetMouseDeltaY());

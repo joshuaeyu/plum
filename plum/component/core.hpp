@@ -1,8 +1,10 @@
 #pragma once
 
-#include <glad/gl.h>
 #include <plum/component/vertex.hpp>
 #include <plum/component/tex.hpp>
+
+#include <glad/gl.h>
+
 #include <memory>
 
 namespace Component {
@@ -12,8 +14,8 @@ namespace Component {
             virtual void Bind() = 0;
             virtual void Unbind() = 0;
             virtual ~GlObject() {}
-            GLuint Handle();
-            GLenum Target();
+            GLuint Handle() const;
+            GLenum Target() const;
         protected:
             GLuint handle;
             GLenum target;
@@ -67,19 +69,19 @@ namespace Component {
             void Bind();
             void Unbind();
             
-            void SetViewportDims();
-            
-            void ClearColor();
-            void ClearColor(float r, float g, float b, float a);
-            void ClearDepth();
-            
             void AttachColorTexture(Tex& texture, int index = -1, int level = 0);
             void AttachDepthRbo16();
             void AttachDepthRbo24();
             void AttachDepthTexture(Tex& texture, int level = 0);
             void UpdateDrawBuffers();
-
+            
             void CheckStatus();
+            
+            void SetViewportDims();
+            
+            void ClearColor();
+            void ClearColor(float r, float g, float b, float a);
+            void ClearDepth();
 
             void BlitTo(Fbo& fbo, bool color = true, bool depth = true);
             void BlitToDefault(bool color = true, bool depth = true);
@@ -102,7 +104,5 @@ namespace Component {
             friend Fbo; // Allow handle access
             int width, height;
     };
-
-
 
 }

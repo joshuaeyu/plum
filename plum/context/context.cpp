@@ -1,4 +1,5 @@
 #include <plum/context/context.hpp>
+
 #include <iostream>
 
 namespace Context {
@@ -10,7 +11,7 @@ namespace Context {
 
     GlContext::GlContext() {}
 
-    void GlContext::Initialize(Context::Window window) {
+    void GlContext::Initialize() {
         if (!gladLoadGL(Context::GLLoadFunction)) {
             std::cerr << "gladLoadGLLoader failed" << std::endl;
             glfwTerminate();

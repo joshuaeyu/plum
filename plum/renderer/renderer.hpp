@@ -1,31 +1,37 @@
 #pragma once
 
 #include <plum/component/core.hpp>
-#include <plum/component/scene.hpp>
-#include <plum/component/scenenode.hpp>
-#include <plum/component/camera.hpp>
-#include <plum/component/light.hpp>
 #include <plum/component/tex.hpp>
+
+#include <plum/scene/scene.hpp>
+#include <plum/scene/scenenode.hpp>
+#include <plum/scene/camera.hpp>
+#include <plum/scene/light.hpp>
+
 #include <plum/material/module.hpp>
 #include <plum/material/environment.hpp>
 
-#include <vector>
-
 #include <plum/context/inputmanager.hpp>
+#include <plum/context/window.hpp>
+
+#include <vector>
+#include <memory>
 
 namespace Renderer {
 
     class BaseRenderer {
         protected:
-            BaseRenderer();
+            BaseRenderer(Context::Window& Window);
             virtual ~BaseRenderer();
             virtual Component::Fbo& Render(Component::Scene& scene, Component::Camera& camera) = 0;
+            
+            std::shared_ptr<Context::Window> window;
     };
 
     class DeferredRenderer : public BaseRenderer {
         
         public:
-            DeferredRenderer();
+            DeferredRenderer(Context::Window& window);
             ~DeferredRenderer();
 
             Component::Fbo& Render(Component::Scene& scene, Component::Camera& camera) override;
@@ -87,6 +93,8 @@ namespace Renderer {
 
             std::vector<Component::SceneNode*> directionalLights;
             std::vector<Component::SceneNode*> pointLights;
+
+            void framebuffer_size_callback(GLFWwindow *window, int width, int height);
 
             Context::InputManager inputManager;
     };

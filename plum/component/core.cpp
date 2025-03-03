@@ -1,17 +1,60 @@
-#include <glad/gl.h>
 #include <plum/component/core.hpp>
-#include <plum/vertex.hpp>
-#include <plum/texture.hpp>
 
-#include <vector>
-#include <memory>
+#include <glad/gl.h>
+
 #include <iostream>
+#include <vector>
 
 namespace Component {
 
+    // Vertex array buffer
+    Vbo::Vbo(const Component::VertexArray& varray) 
+        : vertexArray(varray) 
+    {
+        glGenBuffers(1, &handle);
+        Bind();
+        // Create vertex data store
+        glBufferData(GL_ARRAY_BUFFER, vertexArray.Size(), vertexArray.Data().data(), GL_STATIC_DRAW);
+        Unbind();
+    }
+    Vbo::~Vbo() {
+        glDeleteBuffers(1, &handle);
+    }
+    void Vbo::Bind() {
+        glBindBuffer(GL_ARRAY_BUFFER, handle);
+    }
+    void Vbo::Unbind() {
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+    }
+
+    // Element (index) array buffer
+    Ebo::Ebo(const std::vector<unsigned int>& indices) 
+        : indices(indices) 
+    {
+        glGenBuffers(1, &handle);
+        Bind();
+        // Create index data store
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), indices.data(), GL_STATIC_DRAW);
+        Unbind();
+    }
+    void Ebo::Bind() {
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, handle);
+    }
+    void Ebo::Unbind() {
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    }
+    Ebo::~Ebo() {
+        glDeleteBuffers(1, &handle);
+    }
+
     // Vertex array
-    Vao::Vao(std::shared_ptr<Vbo> vb) : Vao(vb, nullptr) {}
-    Vao::Vao(std::shared_ptr<Vbo> vb, std::shared_ptr<Ebo> eb) : vbo(vb), ebo(eb) {
+    Vao::Vao(std::shared_ptr<Vbo> vb) 
+        : Vao(vb, nullptr) 
+    {}
+    Vao::Vao(std::shared_ptr<Vbo> vb, std::shared_ptr<Ebo> eb) 
+        : vbo(vb), 
+        ebo(eb) 
+    {
         glGenVertexArrays(1, &handle);
         Bind();
         vbo->Bind();
@@ -48,44 +91,9 @@ namespace Component {
         }
     }
 
-    // Vertex array buffer
-    Vbo::Vbo(const Component::VertexArray& varray) : vertexArray(varray) {
-        glGenBuffers(1, &handle);
-        Bind();
-        // Create vertex data store
-        glBufferData(GL_ARRAY_BUFFER, vertexArray.Size(), vertexArray.Data().data(), GL_STATIC_DRAW);
-        Unbind();
-    }
-    Vbo::~Vbo() {
-        glDeleteBuffers(1, &handle);
-    }
-    void Vbo::Bind() {
-        glBindBuffer(GL_ARRAY_BUFFER, handle);
-    }
-    void Vbo::Unbind() {
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-    }
-
-    // Element (index) array buffer
-    Ebo::Ebo(const std::vector<unsigned int>& indices) : indices(indices) {
-        glGenBuffers(1, &handle);
-        Bind();
-        // Create index data store
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), indices.data(), GL_STATIC_DRAW);
-        Unbind();
-    }
-    void Ebo::Bind() {
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, handle);
-    }
-    void Ebo::Unbind() {
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-    }
-    Ebo::~Ebo() {
-        glDeleteBuffers(1, &handle);
-    }
-
     // Uniform buffer
-    Ubo::Ubo(const unsigned int index, const size_t size) {
+    Ubo::Ubo(const unsigned int index, const size_t size) 
+    {
         glGenBuffers(1, &handle);
         Bind();
         glBufferData(GL_UNIFORM_BUFFER, size, NULL, GL_DYNAMIC_DRAW);
@@ -105,7 +113,10 @@ namespace Component {
     }
 
     // Framebuffer
-    Fbo::Fbo(int width, int height) : width(width), height(height) {
+    Fbo::Fbo(int width, int height) 
+        : width(width), 
+        height(height) 
+    {
         glGenFramebuffers(1, &handle);
     }
     Fbo::~Fbo() {
@@ -200,7 +211,10 @@ namespace Component {
     }
 
     // Renderbuffer
-    Rbo::Rbo(int width, int height) : width(width), height(height) {
+    Rbo::Rbo(int width, int height) 
+        : width(width), 
+        height(height) 
+    {
         glGenRenderbuffers(1, &handle);
     }
     Rbo::~Rbo() {

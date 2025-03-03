@@ -1,7 +1,8 @@
 #pragma once
 
-#include <glad/gl.h>
 #include <plum/context/window.hpp>
+
+#include <glad/gl.h>
 
 namespace Context {
 
@@ -11,7 +12,7 @@ namespace Context {
 
         public:
             static GlContext& GetGlContext();
-            void Initialize(Context::Window window);
+            void Initialize();
             
             void EnableDepth(GLenum func = GL_LEQUAL);
             void EnableCull(GLenum mode = GL_BACK);

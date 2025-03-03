@@ -8,7 +8,16 @@
 namespace Component {
 
     Tex::Tex(GLenum target, GLint internalformat, GLsizei width, GLsizei height, GLsizei depth, GLenum format, GLenum datatype, GLint wrap, GLint filter, bool isshadowmap) 
-    : target(target), internalformat(internalformat), width(width), height(height), depth(depth), format(format), datatype(datatype), wrap(wrap), filter(filter), isShadowmap(isshadowmap)
+        : target(target), 
+        internalformat(internalformat), 
+        width(width), 
+        height(height), 
+        depth(depth), 
+        format(format), 
+        datatype(datatype), 
+        wrap(wrap), 
+        filter(filter), 
+        isShadowmap(isshadowmap)
     {
         initialize();
     }

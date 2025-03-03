@@ -6,11 +6,13 @@
 namespace Material {
 
 
-    Texture::Texture(std::string filename, bool flip, GLenum wrap, GLenum filter) {
+    Texture::Texture(std::string filename, bool flip, GLenum wrap, GLenum filter) 
+    {
         loadFile(filename, flip, GL_TEXTURE_2D, wrap, filter);
     }
     
-    Texture::Texture(std::vector<std::string> &cubemap_filenames, bool flip, GLenum wrap, GLenum filter) {
+    Texture::Texture(std::vector<std::string> &cubemap_filenames, bool flip, GLenum wrap, GLenum filter) 
+    {
         for (int i = 0; i < cubemap_filenames.size(); i++) {
             loadFile(cubemap_filenames[i], flip, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, wrap, filter);
         }

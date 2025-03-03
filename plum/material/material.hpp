@@ -1,17 +1,17 @@
 #pragma once
 
+#include <plum/component/program.hpp>
+#include <plum/component/tex.hpp>
+
+#include <glm/glm.hpp>
+
 #include <vector>
 #include <memory>
 #include <string>
 
-#include <glm/glm.hpp>
-
-#include <plum/component/tex.hpp>
-#include <plum/material/program.hpp>
-
 namespace Material {
     
-    class Material : public ProgramUser {
+    class Material {
         public:
             virtual std::shared_ptr<Program> GetProgram() = 0;
             virtual void SetUniforms(const glm::mat4& model_transform) = 0;

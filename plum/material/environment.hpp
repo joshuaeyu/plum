@@ -1,7 +1,8 @@
 #pragma once
 
 #include <plum/material/module.hpp>
-#include <plum/material/program.hpp>
+#include <plum/component/program.hpp>
+
 #include <plum/component/tex.hpp>
 
 namespace Material {

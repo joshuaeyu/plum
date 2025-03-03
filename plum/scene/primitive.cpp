@@ -1,8 +1,10 @@
-#include <plum/component/primitive.hpp>
+#include <plum/scene/primitive.hpp>
 
 namespace Component {
 
-    Primitive::Primitive() : Mesh(SceneObjectType::Primitive) {}
+    Primitive::Primitive() 
+        : Mesh(SceneObjectType::Primitive) 
+    {}
 
     void Primitive::DrawQuad() {
         static std::unique_ptr<Vao> vao;

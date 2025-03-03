@@ -1,16 +1,18 @@
-#include <plum/material/program.hpp>
+#include <plum/component/program.hpp>
+
+#include <glad/gl.h>
+#include <glm/gtc/type_ptr.hpp>
 
 #include <iostream>
 #include <fstream>
 #include <sstream>
 #include <map>
 
-#include <glad/gl.h>
-#include <glm/gtc/type_ptr.hpp>
-
 namespace Material {
 
-    Program::Program(std::string vertexShaderPath, std::string fragmentShaderPath, std::string geometryShaderPath) : handle(glCreateProgram()) {
+    Program::Program(std::string vertexShaderPath, std::string fragmentShaderPath, std::string geometryShaderPath) 
+        : handle(glCreateProgram()) 
+    {
         std::cout << "  Loading shader: " << vertexShaderPath << " " << fragmentShaderPath << " " << geometryShaderPath << std::endl;
 
         // ==== File to cstring ====
