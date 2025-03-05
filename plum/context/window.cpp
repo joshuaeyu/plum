@@ -42,21 +42,13 @@ namespace Context {
         : handle(window),
         width(width),
         height(height),
-        title(title),
-        inputManager({GLFW_KEY_SPACE, GLFW_KEY_GRAVE_ACCENT})
-    {}
-
-    // void Window::SetFramebufferSizeCallback(GLFWframebuffersizefun callback) {
-    //     glfwSetFramebufferSizeCallback(handle, callback);
-    // }
-
-    // void Window::SetCursorPosCallback(GLFWcursorposfun callback) {
-    //     glfwSetCursorPosCallback(handle, callback);
-    // }
-
-    // void Window::SetKeyCallback(GLFWkeyfun callback) {
-    //     glfwSetKeyCallback(handle, callback);
-    // }
+        title(title)
+    {
+        WindowInputsAndEventsManager::Setup(*this);
+        
+        std::function<void(int,int,int,int)> staticFunc = std::bind(keyCallback, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4);
+        eventListener.SetKeyCallback(staticFunc);
+    }
 
     void Window::SetInputMode(const int mode, const int value) {
         glfwSetInputMode(handle, mode, value);
@@ -67,7 +59,6 @@ namespace Context {
     }
     void Window::PollEvents() {
         glfwPollEvents();
-        ProcessInputs();
     }
     void Window::SwapBuffers() {
         glfwSwapBuffers(handle);
@@ -77,17 +68,23 @@ namespace Context {
         glfwMakeContextCurrent(handle);
     }
 
-    void Window::ProcessInputs() {
-        if (inputManager.GetKeyDown(GLFW_KEY_ESCAPE))
-            glfwSetWindowShouldClose(handle, GLFW_TRUE);
-        if (inputManager.GetKeyDown(GLFW_KEY_GRAVE_ACCENT)) {
-            int inputmode = glfwGetInputMode(handle, GLFW_CURSOR);
-            if (inputmode == GLFW_CURSOR_NORMAL) {
-                glfwSetInputMode(handle, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-                firstMouse = true;
-            } else if (inputmode == GLFW_CURSOR_DISABLED) {
-                glfwSetInputMode(handle, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-            }
+    void Window::keyCallback(int key, int scancode, int action, int mods) {
+        if (action != GLFW_PRESS)
+            return;
+
+        switch (key) {
+            case GLFW_KEY_ESCAPE:
+                glfwSetWindowShouldClose(handle, GLFW_TRUE);
+                break;
+            case GLFW_KEY_GRAVE_ACCENT:
+                int inputmode = glfwGetInputMode(handle, GLFW_CURSOR);
+                if (inputmode == GLFW_CURSOR_NORMAL) {
+                    glfwSetInputMode(handle, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+                    // firstMouse = true;
+                } else if (inputmode == GLFW_CURSOR_DISABLED) {
+                    glfwSetInputMode(handle, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+                }
+                break;
         }
     }
 

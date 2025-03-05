@@ -1,11 +1,12 @@
 #pragma once
 
-#include <plum/context/inputmanager.hpp>
+#include <plum/context/inputsevents.hpp>
 
 #include <GLFW/glfw3.h>
 
 #include <map>
 #include <memory>
+#include <string>
 
 namespace Context {
     
@@ -26,10 +27,7 @@ namespace Context {
     class Window {
         public:
             Window(GLFWwindow *window, int width, int height, std::string title);
-            // void AttachInputScheme(InputManager *scheme);
-            // void SetFramebufferSizeCallback(GLFWframebuffersizefun callback);
-            // void SetCursorPosCallback(GLFWcursorposfun callback);
-            // void SetKeyCallback(GLFWkeyfun callback);
+
             void SetInputMode(const int mode, const int value);
             
             bool GetKeyPress(int key) const;
@@ -49,17 +47,16 @@ namespace Context {
             
             Window Clone() { return Window(*this); }
 
-            const int width, height;
-            const std::string title;
+            int width, height;
+            std::string title;
             
         private:
             GLFWwindow* handle;
             static float lastTime, deltaTime;
 
-            static void framebuffer_size_callback(GLFWwindow *window, int width, int height);
-            // Need some "manager" (event emitter) for framebuffer size
+            void keyCallback(int key, int scancode, int action, int mods);
         
-            InputManager inputManager;
+            WindowEventListener eventListener;
     };
 
     class Gui {
