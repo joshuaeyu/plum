@@ -60,8 +60,8 @@ namespace Material {
 
     }
     
-    PBRSpecularMaterial::PBRSpecularMaterial() {}
+    // PBRSpecularMaterial::PBRSpecularMaterial() {}
     
-    PhongMaterial::PhongMaterial() {}
+    // PhongMaterial::PhongMaterial() {}
 
 }

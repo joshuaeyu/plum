@@ -7,32 +7,32 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 namespace Component {
+            
+    enum class ComponentType {
+        // Meshes
+        Mesh,
+        Model,
+        Primitive,
+        // Lights
+        DirLight,
+        PointLight
+    };
 
-    class Component {
+    class ComponentBase {
         public: 
-            virtual ~Component();
+            virtual ~ComponentBase();
             
             virtual void Draw(const glm::mat4& model_matrix = glm::identity<glm::mat4>()) {}
-            virtual void Draw(Material::Material& material, const glm::mat4& model_matrix = glm::identity<glm::mat4>()) {}
+            virtual void Draw(Material::MaterialBase& material, const glm::mat4& model_matrix = glm::identity<glm::mat4>()) {}
             virtual void Draw(Material::Module& module, const glm::mat4& model_matrix = glm::identity<glm::mat4>()) {}
-            
-            enum class ComponentType {
-                // Meshes
-                Mesh,
-                Model,
-                Primitive,
-                // Lights
-                DirLight,
-                PointLight
-            };
-            
+
             const ComponentType type;
             
             const bool IsMesh() const;
             const bool IsLight() const;
         
         protected:
-            Component(const ComponentType type);
+            ComponentBase(const ComponentType type);
     };
 
 }

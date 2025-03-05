@@ -21,6 +21,10 @@ namespace Core {
     {
         initialize();
     }
+    Tex::~Tex()
+    {
+        glDeleteTextures(1, &handle);
+    }
 
     void Tex::initialize() {
         glGenTextures(1, &handle);
@@ -51,14 +55,31 @@ namespace Core {
                 break;
             default:
                 // throw error
+                break;
         }
     }
     
+    GLuint Tex::Handle() const {
+        return handle;
+    }
+    void Tex::Bind() {
+        glBindTexture(target, handle);
+    }
+    void Tex::Bind(int texunit) {
+        textureUnit = texunit;
+        glActiveTexture(GL_TEXTURE0 + texunit);
+        glBindTexture(target, handle);
+    }
+    void Tex::Unbind() {
+        glActiveTexture(GL_TEXTURE0 + textureUnit);
+        glBindTexture(target, 0);
+    }
+
     Tex2D::Tex2D(GLenum target, GLint internalformat, GLsizei width, GLsizei height, GLenum format, GLenum datatype, GLint wrap, GLint filter, bool isshadowmap)
     : Tex{target, internalformat, width, height, 0, format, datatype, wrap, filter, isshadowmap}
     {}
 
-    void Tex2D::DefineImage(const void *pixels, const int level = 0) {
+    void Tex2D::DefineImage(const void *pixels, const int level) {
         glTexImage2D(target, level, internalformat, width, height, 0, format, datatype, pixels);
     }
 
@@ -66,7 +87,7 @@ namespace Core {
     : Tex{target, internalformat, width, height, depth, format, datatype, wrap, filter, isshadowmap}
     {}
 
-    void Tex3D::DefineImage(const void *pixels, const int level = 0) {
+    void Tex3D::DefineImage(const void *pixels, const int level) {
         glTexImage3D(target, level, internalformat, width, height, depth, 0, format, datatype, pixels);
     }
 

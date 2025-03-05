@@ -1,5 +1,8 @@
 #pragma once
 
+#include <glad/gl.h>
+#include <glm/glm.hpp>
+
 namespace Core {
 
     class Program {

@@ -13,14 +13,13 @@ namespace Core {
         public:
             virtual void Bind() = 0;
             virtual void Unbind() = 0;
-            virtual ~GlObject() {}
+            // virtual ~GlObject() {}
             GLuint Handle() const;
             GLenum Target() const;
         protected:
             GLuint handle;
             GLenum target;
     };
-
 
     class Vbo : public GlObject {
         public:
@@ -62,6 +61,17 @@ namespace Core {
             void UpdateData(const unsigned int offset, const size_t size, const void* data);
     };
 
+    class Rbo : public GlObject {
+        public:
+            Rbo(int width, int height);
+            ~Rbo();
+            void Bind();
+            void Unbind();
+            void Setup16();
+            void Setup24();
+            int width, height;
+    };
+
     class Fbo : public GlObject {
         public:
             Fbo(int width, int height);
@@ -93,16 +103,5 @@ namespace Core {
             std::shared_ptr<Rbo> depthRboAtt;
     };
 
-    class Rbo : public GlObject {
-        public:
-            Rbo(int width, int height);
-            ~Rbo();
-            void Bind();
-            void Unbind();
-            void Setup16();
-            void Setup24();
-            friend Fbo; // Allow handle access
-            int width, height;
-    };
 
 }

@@ -8,19 +8,21 @@
 namespace Component {
 
     Mesh::Mesh()
-        : Component(ComponentType::Mesh) 
+        : ComponentBase(ComponentType::Mesh) 
     {}
 
     Mesh::Mesh(Core::Vao& vao) 
-        : Component(ComponentType::Mesh), vao(std::make_shared<Core::Vao>(vao)) 
+        : ComponentBase(ComponentType::Mesh), vao(std::make_shared<Core::Vao>(vao)) 
     {}
     
-    Mesh::Mesh(Core::Vao& vao, Material::Material& mat)
-        : Component(ComponentType::Mesh), vao(std::make_shared<Core::Vao>(vao)), material(std::make_shared<Material::Material>(mat)) 
-    {}
+    Mesh::Mesh(Core::Vao& vao, Material::MaterialBase& mat)
+        : ComponentBase(ComponentType::Mesh), vao(std::make_shared<Core::Vao>(vao))
+    {
+        material.reset(&mat);
+    }
     
     Mesh::Mesh(const ComponentType type) 
-        : Component(type) 
+        : ComponentBase(type) 
     {}
     
     Mesh::~Mesh() {}
@@ -30,7 +32,7 @@ namespace Component {
             material->SetUniforms(model_matrix);
         vao->Draw();
     }
-    void Mesh::Draw(Material::Material& mat, const glm::mat4& model_matrix) {
+    void Mesh::Draw(Material::MaterialBase& mat, const glm::mat4& model_matrix) {
         mat.SetUniforms(model_matrix);
         vao->Draw();
     }

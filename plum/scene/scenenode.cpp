@@ -8,10 +8,10 @@
 namespace Scene {
     
     SceneNode::SceneNode() {}
-    SceneNode::SceneNode(Component::Component& component) 
-        : component(std::make_shared<Component::Component>(component)) 
+    SceneNode::SceneNode(Component::ComponentBase& component) 
+        : component(std::make_shared<Component::ComponentBase>(component)) 
     {}
-    SceneNode::SceneNode(std::shared_ptr<Component::Component> component) 
+    SceneNode::SceneNode(std::shared_ptr<Component::ComponentBase> component) 
         : component(component) 
     {}
 
@@ -23,7 +23,7 @@ namespace Scene {
             child->Draw(model_matrix);
         }
     }
-    void SceneNode::Draw(Material::Material& material, const glm::mat4& parent_transform) {
+    void SceneNode::Draw(Material::MaterialBase& material, const glm::mat4& parent_transform) {
         glm::mat4 model_matrix = transform.Matrix() * parent_transform;
         component->Draw(material, model_matrix);
         for (auto& child : children) {
@@ -40,17 +40,17 @@ namespace Scene {
 
     // Modifiers
     std::shared_ptr<SceneNode> SceneNode::CreateChild() {
-        children.emplace_back(SceneNode());
+        children.push_back(std::make_shared<SceneNode>());
         return children.back();
     }
     void SceneNode::AddChild(SceneNode& node) {
-        children.emplace_back(node);
+        children.push_back(std::make_shared<SceneNode>(node));
     }
-    void SceneNode::AddChild(Component::Component& component) {
-        children.emplace_back(component);
+    void SceneNode::AddChild(Component::ComponentBase& component) {
+        children.push_back(std::make_shared<SceneNode>(component));
     }
     void SceneNode::RemoveChild(SceneNode& node) {
-        auto it = std::find(children.begin(), children.end(), node);
+        auto it = std::find(children.begin(), children.end(), std::make_shared<SceneNode>(node));
         children.erase(it);
     }
 

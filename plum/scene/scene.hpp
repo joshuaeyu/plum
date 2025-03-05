@@ -1,6 +1,5 @@
 #pragma once
 
-
 #include <plum/scene/scenenode.hpp>
 
 #include <plum/material/material.hpp>

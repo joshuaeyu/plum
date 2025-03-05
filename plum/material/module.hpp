@@ -1,9 +1,14 @@
 #pragma once
 
 #include <plum/core/program.hpp>
-#include <plum/component/light.hpp>
 
 #include <memory>
+
+namespace Component 
+{
+    class DirectionalLight;
+    class PointLight;
+}
 
 namespace Material
 {
@@ -11,11 +16,10 @@ namespace Material
     class Module
     {
         public:
-            Module();
-
             virtual std::shared_ptr<Core::Program> GetProgram() = 0;
             virtual void Use() = 0;
-
+        protected:
+            Module() {}
             // std::shared_ptr<Program> program;
     };
 

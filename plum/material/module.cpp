@@ -1,5 +1,7 @@
 #include <plum/material/module.hpp>
 
+#include <plum/component/light.hpp>
+
 namespace Material {
 
     DirectionalShadowModule::DirectionalShadowModule() {}

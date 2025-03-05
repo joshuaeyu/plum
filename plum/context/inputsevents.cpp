@@ -1,5 +1,7 @@
 #include <plum/context/inputsevents.hpp>
 
+#include <plum/context/window.hpp>
+
 namespace Context {
 
     // ========== WindowInputsAndEventsManager ==========
@@ -12,9 +14,7 @@ namespace Context {
     }
 
     void WindowInputsAndEventsManager::cursor_pos_callback(GLFWwindow *window, double xpos, double ypos) {
-        for (auto& observer : observers) {
-            observer->setCursorPos(xpos, ypos);
-        }
+        WindowInputObserver::setCursorPos(xpos, ypos);
         for (auto& listener : listeners) {
             listener->cursorPosCallback(xpos, ypos);
         }
@@ -30,18 +30,14 @@ namespace Context {
     }
     
     void WindowInputsAndEventsManager::framebuffer_size_callback(GLFWwindow *window, int width, int height) {
-        for (auto& observer : observers) {
-            observer->setFramebufferSize(width, height);
-        }
+        WindowInputObserver::setFramebufferSize(width, height);
         for (auto& listener : listeners) {
             listener->framebufferSizeCallback(width, height);
         }
     }
 
     void WindowInputsAndEventsManager::window_size_callback(GLFWwindow *window, int width, int height) {
-        for (auto& observer : observers) {
-            observer->setWindowSize(width, height);
-        }
+        WindowInputObserver::setWindowSize(width, height);
         for (auto& listener : listeners) {
             listener->windowSizeCallback(width, height);
         }
@@ -86,20 +82,20 @@ namespace Context {
     }
 
     void WindowInputObserver::setCursorPos(double xpos, double ypos) {
-        lastCursorX = currCursorX;
-        lastCursorY = currCursorY;
-        currCursorX = xpos;
-        currCursorY = ypos;
+        WindowInputObserver::lastCursorX = WindowInputObserver::currCursorX;
+        WindowInputObserver::lastCursorY = WindowInputObserver::currCursorY;
+        WindowInputObserver::currCursorX = xpos;
+        WindowInputObserver::currCursorY = ypos;
     }
 
     void WindowInputObserver::setFramebufferSize(int width, int height) {
-        framebufferWidth = width;
-        framebufferHeight = height;
+        WindowInputObserver::framebufferWidth = width;
+        WindowInputObserver::framebufferHeight = height;
     }
 
     void WindowInputObserver::setWindowSize(int width, int height) {
-        windowWidth = width;
-        windowHeight = height;
+        WindowInputObserver::windowWidth = width;
+        WindowInputObserver::windowHeight = height;
     }
 
     // ========== WindowEventListener ==========

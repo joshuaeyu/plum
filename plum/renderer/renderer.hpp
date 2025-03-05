@@ -19,16 +19,16 @@
 
 namespace Renderer {
 
-    class BaseRenderer {
+    class RendererBase {
         protected:
-            BaseRenderer(Context::Window& Window);
-            virtual ~BaseRenderer();
+            RendererBase(Context::Window& Window);
+            virtual ~RendererBase();
             virtual Core::Fbo& Render(Scene::Scene& scene, Component::Camera& camera) = 0;
             
             std::shared_ptr<Context::Window> window;
     };
 
-    class DeferredRenderer : public BaseRenderer {
+    class DeferredRenderer : public RendererBase {
         
         public:
             DeferredRenderer(Context::Window& window);

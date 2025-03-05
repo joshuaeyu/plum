@@ -1,5 +1,6 @@
 #include <plum/util/transform.hpp>
 
+#define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/euler_angles.hpp>
 
 Transform::Transform()
@@ -12,7 +13,7 @@ Transform::Transform(glm::mat4 matrix)
     rotationEuler(glm::eulerAngles(rotationQuat)), 
     scale(extractScale(matrix)) 
 {
-    Update;
+    Update();
 }
 
 Transform::Transform(glm::vec3 position, glm::vec3 rotationEuler, glm::vec3 scale)
@@ -124,7 +125,7 @@ void Transform::updateFrontRightUp() {
     up    = rotationMatrix * glm::vec3(0,1,0);
 }
 
-glm::vec3 extractScale(glm::mat4 matrix) {
+glm::vec3 Transform::extractScale(glm::mat4 matrix) {
     float sx = glm::vec3(matrix[0]).length();
     float sy = glm::vec3(matrix[1]).length();
     float sz = glm::vec3(matrix[2]).length();

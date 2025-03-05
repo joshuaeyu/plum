@@ -1,6 +1,5 @@
 #include <plum/core/program.hpp>
 
-#include <glad/gl.h>
 #include <glm/gtc/type_ptr.hpp>
 
 #include <iostream>
@@ -85,6 +84,11 @@ namespace Core {
 
         // ==== Finally, link ====
         glLinkProgram(handle);
+    }
+
+    Program::~Program()
+    {
+        glDeleteProgram(handle);
     }
 
     void Program::SetUniformBlockBindingScheme(const UboScheme scheme) {

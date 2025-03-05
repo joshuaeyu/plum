@@ -6,6 +6,13 @@
 #include <vector>
 
 namespace Core {
+    
+    GLuint GlObject::Handle() const {
+        return handle;
+    }
+    GLenum GlObject::Target() const {
+        return target;
+    }
 
     // Vertex array buffer
     Vbo::Vbo(const VertexArray& varray) 
@@ -129,14 +136,14 @@ namespace Core {
     void Fbo::Unbind() {
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
-    void ClearColor() {
-        ClearColor(0,0,0,1);
+    void Fbo::ClearColor() {
+        ClearColor(0.f,0.f,0.f,1.f);
     }
-    void ClearColor(float r, float g, float b, float a) {
+    void Fbo::ClearColor(float r, float g, float b, float a) {
         glClearColor(r,g,b,a);
         glClear(GL_COLOR_BUFFER_BIT);
     }
-    void ClearDepth() {
+    void Fbo::ClearDepth() {
         glClear(GL_DEPTH_BUFFER_BIT);
     }
     void Fbo::AttachColorTexture(Tex& texture, int index, int level) {
@@ -158,21 +165,21 @@ namespace Core {
                 break;
         }
         
-        colorAtts[index] = std::make_shared<Tex>(texture);
+        colorAtts[index].reset(&texture);
         UpdateDrawBuffers();
     }
     void Fbo::AttachDepthRbo16() {
         depthRboAtt = std::make_shared<Rbo>(width, height);
         depthRboAtt->Setup16();
-        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthRboAtt->handle);
+        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthRboAtt->Handle());
     }
     void Fbo::AttachDepthRbo24() {
         depthRboAtt = std::make_shared<Rbo>(width, height);
         depthRboAtt->Setup24();
-        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthRboAtt->handle);
+        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthRboAtt->Handle());
     }
-    void Fbo::AttachDepthTexture(Tex& texture, int level = 0) {
-        depthAtt = std::make_shared<Tex>(texture);
+    void Fbo::AttachDepthTexture(Tex& texture, int level) {
+        depthAtt.reset(&texture);
     }
     void Fbo::UpdateDrawBuffers() {
         std::vector<GLenum> buffers;

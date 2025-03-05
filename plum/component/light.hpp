@@ -7,6 +7,7 @@
 
 #include <vector>
 
+
 namespace Component {
 
     inline static const glm::vec3 UP = glm::vec3(0,1,0);
@@ -16,14 +17,12 @@ namespace Component {
     inline static const glm::vec3 FRONT = glm::vec3(0,0,1);
     inline static const glm::vec3 BACK = glm::vec3(0,0,-1);
 
-    class Light : public Component {
+    class Light : public ComponentBase {
         public:
             glm::vec3 color = glm::vec3(1);
             
-            virtual void Draw();
-            virtual void Draw(const glm::mat4& parent_transf);
-
-            virtual ~Light() {}
+            virtual void Draw() = 0;
+            virtual void Draw(const glm::mat4& parent_transf) = 0;
 
             // Accessors
             float GetFarPlane() const;

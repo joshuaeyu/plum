@@ -1,6 +1,5 @@
 #include <plum/context/window.hpp>
 
-#include <GLFW/glfw3.h>
 // #include <imgui/imgui.h>
 // #include <imgui/imgui_impl_glfw.h>
 // #include <imgui/imgui_impl_opengl3.h>
@@ -46,7 +45,7 @@ namespace Context {
     {
         WindowInputsAndEventsManager::Setup(*this);
         
-        std::function<void(int,int,int,int)> staticFunc = std::bind(keyCallback, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4);
+        std::function<void(int,int,int,int)> staticFunc = std::bind(&Window::keyCallback, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4);
         eventListener.SetKeyCallback(staticFunc);
     }
 
@@ -54,11 +53,23 @@ namespace Context {
         glfwSetInputMode(handle, mode, value);
     }
 
+    float Window::CurrentTime() {
+        Window::lastTime = glfwGetTime();
+        return lastTime;
+    }
+
+    float Window::DeltaTime() {
+        float result = glfwGetTime() - Window::lastTime;
+        Window::lastTime = glfwGetTime();
+        return result;
+    }
+
     bool Window::ShouldClose() const {
         return glfwWindowShouldClose(handle);
     }
     void Window::PollEvents() {
         glfwPollEvents();
+        Window::CurrentTime();
     }
     void Window::SwapBuffers() {
         glfwSwapBuffers(handle);

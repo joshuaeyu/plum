@@ -2,17 +2,17 @@
 
 namespace Component {
 
-    Component::Component(const ComponentType type) 
+    ComponentBase::ComponentBase(const ComponentType type) 
         : type(type) 
     {}
-    Component::~Component() {}
+    ComponentBase::~ComponentBase() {}
 
-    const bool Component::IsMesh() const {
+    const bool ComponentBase::IsMesh() const {
         return type == ComponentType::Mesh
                 || type == ComponentType::Model
                 || type == ComponentType::Primitive;
     }
-    const bool Component::IsLight() const {
+    const bool ComponentBase::IsLight() const {
         return type == ComponentType::DirLight
                 || type == ComponentType::PointLight;
     }

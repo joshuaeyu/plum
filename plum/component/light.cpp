@@ -19,7 +19,7 @@ namespace Component {
     }
 
     Light::Light(const ComponentType type) 
-        : Component(type) 
+        : ComponentBase(type) 
     {}
 
     // ======== DirectionalLight ========

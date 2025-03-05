@@ -1,5 +1,3 @@
-#pragma once
-
 #include <plum/scene/environment.hpp>
 
 #include <plum/core/core.hpp>

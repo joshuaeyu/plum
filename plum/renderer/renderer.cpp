@@ -8,14 +8,14 @@
 
 namespace Renderer {
 
-    BaseRenderer::BaseRenderer(Context::Window& window) 
+    RendererBase::RendererBase(Context::Window& window) 
         : window(&window)
     {}
 
-    BaseRenderer::~BaseRenderer() {}
+    RendererBase::~RendererBase() {}
 
     DeferredRenderer::DeferredRenderer(Context::Window& window) 
-        : BaseRenderer(window),
+        : RendererBase(window),
         gBuffer(window.width, window.height), 
         dirShadowBuffer(2048,2048), 
         pointShadowBuffer(1024,1024), 
@@ -25,7 +25,7 @@ namespace Renderer {
         InitGbuffer();
         InitShadowMaps();
 
-        std::function<void(int,int)> staticFunc = std::bind(framebufferSizeCallback, this, std::placeholders::_1, std::placeholders::_2);
+        std::function<void(int,int)> staticFunc = std::bind(&DeferredRenderer::framebufferSizeCallback, this, std::placeholders::_1, std::placeholders::_2);
         eventListener.SetFramebufferSizeCallback(staticFunc);
     }
 
@@ -34,6 +34,7 @@ namespace Renderer {
     Core::Fbo& DeferredRenderer::Render(Scene::Scene& scene, Component::Camera& camera) {
         static Scene::Environment environment;
         Render(scene, camera, environment);
+        return output;
     }
 
     Core::Fbo& DeferredRenderer::Render(Scene::Scene& scene, Component::Camera& camera, Scene::Environment& env) {
@@ -133,9 +134,9 @@ namespace Renderer {
             node_queue.pop();
 
             if (curr->component->IsLight()) {
-                if (curr->component->type == Component::Component::ComponentType::DirLight)
+                if (curr->component->type == Component::ComponentType::DirLight)
                     directionalLights.push_back(curr);
-                else if (curr->component->type == Component::Component::ComponentType::PointLight)
+                else if (curr->component->type == Component::ComponentType::PointLight)
                     pointLights.push_back(curr); 
             }
 
@@ -191,7 +192,6 @@ namespace Renderer {
             }
             
         }
-        int total_count = directionalLights.size();
     }
 
     void DeferredRenderer::SetPointLightUniforms(Component::Camera& camera) {
