@@ -1,6 +1,7 @@
 #pragma once
 
-#include <plum/component/tex.hpp>
+#include <plum/core/tex.hpp>
+
 #include <memory>
 
 namespace Material {
@@ -44,7 +45,7 @@ namespace Material {
             Texture(std::vector<std::string>& cubemap_filenames, bool flip = true, GLenum wrap = GL_REPEAT, GLenum filter = GL_NEAREST);
             
         private:
-            std::shared_ptr<Component::Tex> tex;
+            std::shared_ptr<Core::Tex> tex;
 
             void loadFile(std::string filename, bool flip, GLenum target, GLenum wrap, GLenum filter);
     };

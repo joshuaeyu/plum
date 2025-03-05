@@ -1,14 +1,14 @@
-#include <plum/component/core.hpp>
+#include <plum/core/core.hpp>
 
 #include <glad/gl.h>
 
 #include <iostream>
 #include <vector>
 
-namespace Component {
+namespace Core {
 
     // Vertex array buffer
-    Vbo::Vbo(const Component::VertexArray& varray) 
+    Vbo::Vbo(const VertexArray& varray) 
         : vertexArray(varray) 
     {
         glGenBuffers(1, &handle);

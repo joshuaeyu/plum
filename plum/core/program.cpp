@@ -1,4 +1,4 @@
-#include <plum/component/program.hpp>
+#include <plum/core/program.hpp>
 
 #include <glad/gl.h>
 #include <glm/gtc/type_ptr.hpp>
@@ -8,7 +8,7 @@
 #include <sstream>
 #include <map>
 
-namespace Material {
+namespace Core {
 
     Program::Program(std::string vertexShaderPath, std::string fragmentShaderPath, std::string geometryShaderPath) 
         : handle(glCreateProgram()) 

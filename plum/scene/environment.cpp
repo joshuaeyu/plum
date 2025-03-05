@@ -1,17 +1,19 @@
 #pragma once
 
-#include <plum/material/environment.hpp>
+#include <plum/scene/environment.hpp>
 
-#include <plum/component/core.hpp>
-#include <plum/scene/primitive.hpp>
+#include <plum/core/core.hpp>
+#include <plum/component/primitive.hpp>
+
+#include <glm/glm.hpp>
 
 #include <iostream>
 
-namespace Material {
+namespace Scene {
 
     Environment::Environment() {}
 
-    Environment::Environment(std::shared_ptr<Component::Tex2D> envmap) 
+    Environment::Environment(std::shared_ptr<Core::Tex2D> envmap) 
     {
         if (envmap->target == GL_TEXTURE_CUBE_MAP)
             skybox = envmap;
@@ -24,10 +26,10 @@ namespace Material {
         generateBrdfLut(512, 512);
     }
 
-    std::shared_ptr<Component::Tex2D> Environment::equirectToCubemap(std::shared_ptr<Component::Tex2D> equirect, const unsigned int width, const unsigned int height) {
+    std::shared_ptr<Core::Tex2D> Environment::equirectToCubemap(std::shared_ptr<Core::Tex2D> equirect, const unsigned int width, const unsigned int height) {
         
-        Component::Fbo fbo(width, height);
-        std::shared_ptr<Component::Tex2D> cubemap = std::make_shared<Component::Tex2D>(Component::Tex2D(GL_TEXTURE_CUBE_MAP, GL_RGB16F, fbo.width, fbo.height, GL_RGB, GL_FLOAT, GL_CLAMP_TO_EDGE, GL_LINEAR_MIPMAP_LINEAR));
+        Core::Fbo fbo(width, height);
+        std::shared_ptr<Core::Tex2D> cubemap = std::make_shared<Core::Tex2D>(Core::Tex2D(GL_TEXTURE_CUBE_MAP, GL_RGB16F, fbo.width, fbo.height, GL_RGB, GL_FLOAT, GL_CLAMP_TO_EDGE, GL_LINEAR_MIPMAP_LINEAR));
         
         fbo.Bind();
         fbo.AttachColorTexture(*cubemap);
@@ -68,8 +70,8 @@ namespace Material {
 
     void Environment::cubemapToIrradiance(const unsigned int width, const unsigned int height) {
        
-        Component::Fbo fbo(width, height);
-        irradiance = std::make_shared<Component::Tex2D>(Component::Tex2D(GL_TEXTURE_CUBE_MAP, GL_RGB16F, fbo.width, fbo.height, GL_RGB, GL_FLOAT, GL_CLAMP_TO_EDGE, GL_LINEAR));
+        Core::Fbo fbo(width, height);
+        irradiance = std::make_shared<Core::Tex2D>(Core::Tex2D(GL_TEXTURE_CUBE_MAP, GL_RGB16F, fbo.width, fbo.height, GL_RGB, GL_FLOAT, GL_CLAMP_TO_EDGE, GL_LINEAR));
 
         fbo.Bind();
         fbo.AttachColorTexture(*irradiance);
@@ -107,8 +109,8 @@ namespace Material {
 
     void Environment::cubemapToPrefilter(const unsigned int width, const unsigned int height, const unsigned int envres) {
 
-        Component::Fbo fbo(width, height);
-        prefilter = std::make_shared<Component::Tex2D>(Component::Tex2D(GL_TEXTURE_CUBE_MAP, GL_RGB16F, fbo.width, fbo.height, GL_RGB, GL_FLOAT, GL_CLAMP_TO_EDGE, GL_LINEAR_MIPMAP_LINEAR));
+        Core::Fbo fbo(width, height);
+        prefilter = std::make_shared<Core::Tex2D>(Core::Tex2D(GL_TEXTURE_CUBE_MAP, GL_RGB16F, fbo.width, fbo.height, GL_RGB, GL_FLOAT, GL_CLAMP_TO_EDGE, GL_LINEAR_MIPMAP_LINEAR));
         prefilter->Bind();
         glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
 
@@ -163,8 +165,8 @@ namespace Material {
 
     void Environment::generateBrdfLut(const unsigned int width, const unsigned int height) {
 
-        Component::Fbo fbo(width, height);
-        brdfLut = std::make_shared<Component::Tex2D>(Component::Tex2D(GL_TEXTURE_2D, GL_RG16F, fbo.width, fbo.height, GL_RG, GL_FLOAT, GL_CLAMP_TO_EDGE, GL_LINEAR));
+        Core::Fbo fbo(width, height);
+        brdfLut = std::make_shared<Core::Tex2D>(Core::Tex2D(GL_TEXTURE_2D, GL_RG16F, fbo.width, fbo.height, GL_RG, GL_FLOAT, GL_CLAMP_TO_EDGE, GL_LINEAR));
         
         fbo.Bind();
         fbo.AttachColorTexture(*brdfLut);

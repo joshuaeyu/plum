@@ -1,6 +1,6 @@
 #pragma once
 
-#include <plum/scene/mesh.hpp>
+#include <plum/component/mesh.hpp>
 
 namespace Component {
 

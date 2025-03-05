@@ -1,8 +1,9 @@
 #pragma once
 
-#include <plum/scene/mesh.hpp>
+#include <plum/component/mesh.hpp>
 
 namespace Component {
+
     class Model : public Mesh {
         public:
             
@@ -15,4 +16,5 @@ namespace Component {
 
             std::vector<std::shared_ptr<Mesh>> meshes;
     };
+    
 }

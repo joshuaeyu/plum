@@ -76,10 +76,10 @@ namespace Material {
         }
         // Assign to target
         if (isHdr) {
-            tex = std::make_shared<Component::Tex2D>(target, internalformat, width, height, format, GL_FLOAT, wrap, filter);
+            tex = std::make_shared<Core::Tex2D>(target, internalformat, width, height, format, GL_FLOAT, wrap, filter);
             tex->DefineImage(tex_dataf);
         } else {
-            tex = std::make_shared<Component::Tex2D>(target, internalformat, width, height, format, GL_UNSIGNED_BYTE, wrap, filter);
+            tex = std::make_shared<Core::Tex2D>(target, internalformat, width, height, format, GL_UNSIGNED_BYTE, wrap, filter);
             tex->DefineImage(tex_data);
         }
         stbi_image_free(tex_dataf);

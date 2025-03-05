@@ -1,13 +1,13 @@
 #pragma once
 
-#include <plum/component/vertex.hpp>
-#include <plum/component/tex.hpp>
+#include <plum/core/vertex.hpp>
+#include <plum/core/tex.hpp>
 
 #include <glad/gl.h>
 
 #include <memory>
 
-namespace Component {
+namespace Core {
 
     class GlObject {
         public:
@@ -24,11 +24,11 @@ namespace Component {
 
     class Vbo : public GlObject {
         public:
-            Vbo(const Component::VertexArray& varray);
+            Vbo(const VertexArray& varray);
             ~Vbo();
             void Bind();
             void Unbind();
-            Component::VertexArray vertexArray;
+            VertexArray vertexArray;
     };
 
     class Ebo : public GlObject {

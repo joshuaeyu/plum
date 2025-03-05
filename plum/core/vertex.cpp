@@ -1,6 +1,6 @@
-#include <plum/component/vertex.hpp>
+#include <plum/core/vertex.hpp>
 
-namespace Component {
+namespace Core {
     
     VertexArray::VertexArray(const std::vector<float>& collated, const unsigned int flags) 
         : data(collated), 

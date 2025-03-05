@@ -5,7 +5,7 @@
 #include <string>
 #include <vector>
 
-namespace Component {
+namespace Core {
 
     class Tex {
         public:

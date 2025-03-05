@@ -5,10 +5,10 @@ namespace Material {
     PBRMetallicMaterial::PBRMetallicMaterial() 
     {
         // Set UBO scheme to default (may implement non-default schemes in the future)
-        program->SetUniformBlockBindingScheme(Program::UboScheme::Scheme1);
+        program->SetUniformBlockBindingScheme(Core::Program::UboScheme::Scheme1);
     }
 
-    std::shared_ptr<Program> PBRMetallicMaterial::GetProgram() {
+    std::shared_ptr<Core::Program> PBRMetallicMaterial::GetProgram() {
         return program;
     }
     

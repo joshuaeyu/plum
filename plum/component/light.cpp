@@ -1,4 +1,4 @@
-#include <plum/scene/light.hpp>
+#include <plum/component/light.hpp>
 
 #include <glad/gl.h>
 
@@ -18,14 +18,14 @@ namespace Component {
         hasShadows = false;
     }
 
-    Light::Light(const SceneObjectType type) 
-        : SceneObject(type) 
+    Light::Light(const ComponentType type) 
+        : Component(type) 
     {}
 
     // ======== DirectionalLight ========
 
     DirectionalLight::DirectionalLight() 
-        : Light(SceneObjectType::DirLight) 
+        : Light(ComponentType::DirLight) 
     {}
 
     void DirectionalLight::Draw() {}
@@ -69,7 +69,7 @@ namespace Component {
     // ======== PointLight ========
 
     PointLight::PointLight() 
-        : Light(SceneObjectType::PointLight) 
+        : Light(ComponentType::PointLight) 
     {}
     
     void PointLight::Draw() {}

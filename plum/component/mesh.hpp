@@ -1,6 +1,6 @@
 #pragma once
 
-#include <plum/component/core.hpp>
+#include <plum/core/core.hpp>
 #include <plum/scene/scenenode.hpp>
 
 #include <plum/material/material.hpp>
@@ -11,13 +11,13 @@
 
 namespace Component {
 
-    class Mesh : public SceneObject {
+    class Mesh : public Component {
         // SceneNode has Draw(), transform, parent, children
         
         public:
             Mesh();
-            Mesh(Vao& vao);
-            Mesh(Vao& vao, Material::Material& mat);
+            Mesh(Core::Vao& vao);
+            Mesh(Core::Vao& vao, Material::Material& mat);
             virtual ~Mesh();
             
             virtual void Draw(const glm::mat4& model_matrix = glm::identity<glm::mat4>());
@@ -26,10 +26,10 @@ namespace Component {
             
             std::shared_ptr<Material::Material> material = std::make_shared<Material::PBRMetallicMaterial>();
             
-            std::shared_ptr<Vao> vao;
+            std::shared_ptr<Core::Vao> vao;
             
         protected:
-            Mesh(const SceneObjectType type);
+            Mesh(const ComponentType type);
 
     };
 

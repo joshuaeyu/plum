@@ -1,11 +1,11 @@
-#include <plum/component/tex.hpp>
+#include <plum/core/tex.hpp>
 
 #include <string>
 #include <glad/gl.h>
 
 #include <stb/stb_image.h>
 
-namespace Component {
+namespace Core {
 
     Tex::Tex(GLenum target, GLint internalformat, GLsizei width, GLsizei height, GLsizei depth, GLenum format, GLenum datatype, GLint wrap, GLint filter, bool isshadowmap) 
         : target(target), 

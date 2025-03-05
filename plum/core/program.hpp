@@ -1,6 +1,6 @@
 #pragma once
 
-namespace Material {
+namespace Core {
 
     class Program {
 

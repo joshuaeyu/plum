@@ -17,7 +17,7 @@ namespace Material {
     void DirectionalShadowModule::Use() {
         program->Use();
     }
-    std::shared_ptr<Program> DirectionalShadowModule::GetProgram() {
+    std::shared_ptr<Core::Program> DirectionalShadowModule::GetProgram() {
         return program;
     }
 
@@ -40,7 +40,7 @@ namespace Material {
     void PointShadowModule::Use() {
         program->Use();
     }
-    std::shared_ptr<Program> PointShadowModule::GetProgram() {
+    std::shared_ptr<Core::Program> PointShadowModule::GetProgram() {
         return program;
     }
 
@@ -63,7 +63,7 @@ namespace Material {
     void LightingPassPBRModule::Use() {
         program->Use();
     }
-    std::shared_ptr<Program> LightingPassPBRModule::GetProgram() {
+    std::shared_ptr<Core::Program> LightingPassPBRModule::GetProgram() {
         return program;
     }
 
@@ -87,7 +87,7 @@ namespace Material {
         else
             program->Use();
     }
-    std::shared_ptr<Program> SkyboxModule::GetProgram() {
+    std::shared_ptr<Core::Program> SkyboxModule::GetProgram() {
         if (hdr)
             return hdrProgram;
         else

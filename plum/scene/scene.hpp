@@ -8,23 +8,10 @@
 
 #include <memory>
 
-namespace Component {
+namespace Scene {
 
+    // placeholder for Scene class
     typedef SceneNode Scene;
 
-    // class Scene {
-    //     public:
-    //         SceneNode root;
-
-    //         Scene();
-
-    //         void Add(std::shared_ptr<SceneNode> node);
-    //         void Remove(std::shared_ptr<SceneNode> node);
-
-    //         void Draw();
-    //         void Draw(Material::Material& material);
-    //         void Draw(Material::Module& module);
-            
-    // };
 
 }

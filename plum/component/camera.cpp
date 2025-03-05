@@ -11,30 +11,33 @@ namespace Component {
     Camera::Camera(Transform transform, glm::mat4 projection) 
         : transform(transform), 
         projection(projection),
-        inputManager({GLFW_KEY_W, GLFW_KEY_S, GLFW_KEY_A, GLFW_KEY_D, GLFW_KEY_SPACE, GLFW_KEY_LEFT_SHIFT})
+        inputObserver({GLFW_KEY_W, GLFW_KEY_S, GLFW_KEY_A, GLFW_KEY_D, GLFW_KEY_SPACE, GLFW_KEY_LEFT_SHIFT})
     {}
 
     void Camera::ProcessInputs() {
-        ProcessMouse(inputManager.GetMouseDeltaX(), inputManager.GetMouseDeltaY());
-
-        if (inputManager.GetKeyDown(GLFW_KEY_W))
-            ProcessKeyboard(Direction::Forward);
-        if (inputManager.GetKeyDown(GLFW_KEY_S))
-            ProcessKeyboard(Direction::Backward);
-        if (inputManager.GetKeyDown(GLFW_KEY_A))
-            ProcessKeyboard(Direction::Left);
-        if (inputManager.GetKeyDown(GLFW_KEY_D))
-            ProcessKeyboard(Direction::Right);
-        if (inputManager.GetKeyDown(GLFW_KEY_SPACE))
-            ProcessKeyboard(Direction::Up);
-        if (inputManager.GetKeyDown(GLFW_KEY_LEFT_SHIFT))
-            ProcessKeyboard(Direction::Down);
+        // Mouse: Rotation
+        float deltaYaw = inputObserver.GetCursorDeltaX() * sensitivity;
+        float deltaPitch = inputObserver.GetCursorDeltaY() * sensitivity;
+        rotate(deltaYaw, deltaPitch);
+        
+        // WASD/Space/Shift: Translation
+        float distance = speed * Context::Window::DeltaTime();
+        if (inputObserver.GetKeyDown(GLFW_KEY_W))
+            translate(Direction::Forward, distance);
+        if (inputObserver.GetKeyDown(GLFW_KEY_S))
+            translate(Direction::Backward, distance);
+        if (inputObserver.GetKeyDown(GLFW_KEY_A))
+            translate(Direction::Left, distance);
+        if (inputObserver.GetKeyDown(GLFW_KEY_D))
+            translate(Direction::Right, distance);
+        if (inputObserver.GetKeyDown(GLFW_KEY_SPACE))
+            translate(Direction::Up, distance);
+        if (inputObserver.GetKeyDown(GLFW_KEY_LEFT_SHIFT))
+            translate(Direction::Down, distance);
     }
 
-    void Camera::ProcessMouse(double xoffset, double yoffset) {
-        float deltaYaw = xoffset * sensitivity;
-        float deltaPitch = yoffset * sensitivity;
-        transform.Rotate(deltaYaw, deltaPitch, 0);
+    void Camera::rotate(double delta_yaw, double delta_pitch) {
+        transform.Rotate(delta_yaw, delta_pitch, 0);
 
         glm::vec3 eulerAngles = transform.rotationEuler;
         if (eulerAngles.x > 89.0f) {
@@ -47,8 +50,7 @@ namespace Component {
         }
     }
 
-    void Camera::ProcessKeyboard(Direction dir) {
-        float dist = speed * Context::Window::DeltaTime();
+    void Camera::translate(Direction dir, float dist) {
         switch (dir) {
             case Direction::Forward:
                 transform.Translate(transform.Front() * dist);

@@ -1,17 +1,17 @@
 #pragma once
 
-#include <plum/component/core.hpp>
-#include <plum/component/tex.hpp>
+#include <plum/core/core.hpp>
+#include <plum/core/tex.hpp>
 
 #include <plum/scene/scene.hpp>
 #include <plum/scene/scenenode.hpp>
-#include <plum/scene/camera.hpp>
-#include <plum/scene/light.hpp>
+#include <plum/scene/environment.hpp>
+#include <plum/component/camera.hpp>
+#include <plum/component/light.hpp>
 
 #include <plum/material/module.hpp>
-#include <plum/material/environment.hpp>
 
-#include <plum/context/inputmanager.hpp>
+#include <plum/context/inputsevents.hpp>
 #include <plum/context/window.hpp>
 
 #include <vector>
@@ -23,7 +23,7 @@ namespace Renderer {
         protected:
             BaseRenderer(Context::Window& Window);
             virtual ~BaseRenderer();
-            virtual Component::Fbo& Render(Component::Scene& scene, Component::Camera& camera) = 0;
+            virtual Core::Fbo& Render(Scene::Scene& scene, Component::Camera& camera) = 0;
             
             std::shared_ptr<Context::Window> window;
     };
@@ -34,8 +34,8 @@ namespace Renderer {
             DeferredRenderer(Context::Window& window);
             ~DeferredRenderer();
 
-            Component::Fbo& Render(Component::Scene& scene, Component::Camera& camera) override;
-            Component::Fbo& Render(Component::Scene& scene, Component::Camera& camera, Material::Environment& env);
+            Core::Fbo& Render(Scene::Scene& scene, Component::Camera& camera) override;
+            Core::Fbo& Render(Scene::Scene& scene, Component::Camera& camera, Scene::Environment& env);
 
             // does scene need anything that the nodes can't support
             // should camera be "attached" to scene or passed in each render call
@@ -64,39 +64,40 @@ namespace Renderer {
             void InitShadowMaps();
             
             // Per frame
-            void ParseLights(Component::Scene& scene);
-            void UpdateGlobalUniforms(Component::Scene& scene, Component::Camera& camera);
+            void ParseLights(Scene::Scene& scene);
+            void UpdateGlobalUniforms(Scene::Scene& scene, Component::Camera& camera);
             void SetDirectionalLightUniforms(Component::Camera& camera);
             void SetPointLightUniforms(Component::Camera& camera);
-            void GeometryPass(Component::Scene& scene);
-            void ShadowMapPass(Component::Scene& scene);
+            void GeometryPass(Scene::Scene& scene);
+            void ShadowMapPass(Scene::Scene& scene);
             // void SSAOPass();
-            void LightingPass(Material::Environment& env);
-            void ForwardPass(Component::Camera& camera, Material::Environment& env);
+            void LightingPass(Scene::Environment& env);
+            void ForwardPass(Component::Camera& camera, Scene::Environment& env);
 
-            Component::Fbo gBuffer;
+            Core::Fbo gBuffer;
             
-            Component::Fbo dirShadowBuffer;
+            Core::Fbo dirShadowBuffer;
             Material::DirectionalShadowModule dirShadowModule;
             
-            Component::Fbo pointShadowBuffer;
+            Core::Fbo pointShadowBuffer;
             Material::PointShadowModule pointShadowModule;
             
-            Component::Fbo output;
+            Core::Fbo output;
             Material::LightingPassPBRModule lightingPassPbrModule;
 
-            std::shared_ptr<Component::Ubo> uboVsMatrices;
-            std::shared_ptr<Component::Ubo> uboFsMatrices;
-            std::shared_ptr<Component::Ubo> uboFsCamera;
-            std::shared_ptr<Component::Ubo> uboFsDirlight;
-            std::shared_ptr<Component::Ubo> uboFsPointlight;
+            std::shared_ptr<Core::Ubo> uboVsMatrices;
+            std::shared_ptr<Core::Ubo> uboFsMatrices;
+            std::shared_ptr<Core::Ubo> uboFsCamera;
+            std::shared_ptr<Core::Ubo> uboFsDirlight;
+            std::shared_ptr<Core::Ubo> uboFsPointlight;
 
-            std::vector<Component::SceneNode*> directionalLights;
-            std::vector<Component::SceneNode*> pointLights;
+            std::vector<Scene::SceneNode*> directionalLights;
+            std::vector<Scene::SceneNode*> pointLights;
 
-            void framebuffer_size_callback(GLFWwindow *window, int width, int height);
+            void framebufferSizeCallback(int width, int height);
 
-            Context::InputManager inputManager;
+            std::function<void(int,int)> sdf;
+            Context::WindowEventListener eventListener;
     };
 
 }

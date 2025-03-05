@@ -1,13 +1,13 @@
-#include <plum/scene/primitive.hpp>
+#include <plum/component/primitive.hpp>
 
 namespace Component {
 
     Primitive::Primitive() 
-        : Mesh(SceneObjectType::Primitive) 
+        : Mesh(ComponentType::Primitive) 
     {}
 
     void Primitive::DrawQuad() {
-        static std::unique_ptr<Vao> vao;
+        static std::unique_ptr<Core::Vao> vao;
         if (!vao) {
             const std::vector<float> quadVertices = {    // Remember CCW
                 // Positions    // UV
@@ -19,9 +19,9 @@ namespace Component {
                 -1.0f,  1.0f,   0.0f, 1.0f,
                  1.0f, -1.0f,   1.0f, 0.0f
             };
-            const VertexArray va(quadVertices, VertexAttrFlags::Position2 | VertexAttrFlags::Uv);
-            const std::shared_ptr<Vbo> vbo = std::make_shared<Vbo>(va);
-            vao = std::make_unique<Vao>(vbo);
+            const Core::VertexArray va(quadVertices, Core::VertexAttrFlags::Position2 | Core::VertexAttrFlags::Uv);
+            const std::shared_ptr<Core::Vbo> vbo = std::make_shared<Core::Vbo>(va);
+            vao = std::make_unique<Core::Vao>(vbo);
         }
         vao->Draw();
     }
@@ -72,13 +72,13 @@ namespace Component {
             -0.5f,  0.5f, -0.5f,   0.0f,  1.0f,  0.0f,        0.0f, 1.0f*nrows,  1.0f, 0.0f, 0.0f
         };
 
-        VertexArray va(cubedata, VertexAttrFlags::All ^ VertexAttrFlags::Bitangent);
-        auto vbo = std::make_shared<Vbo>(va);
-        vao = std::make_shared<Vao>(vbo);
+        Core::VertexArray va(cubedata, Core::VertexAttrFlags::All ^ Core::VertexAttrFlags::Bitangent);
+        auto vbo = std::make_shared<Core::Vbo>(va);
+        vao = std::make_shared<Core::Vao>(vbo);
     }
     
     Sphere::Sphere(const int nstacks, const int nsectors) : nStacks(nstacks), nSectors(nsectors) {
-        VertexArray::UncollatedVertices verts;
+        Core::VertexArray::UncollatedVertices verts;
         std::vector<unsigned int> indices;
         
         // Generate vertices
@@ -164,9 +164,9 @@ namespace Component {
             }
         }
         
-        auto vbo = std::make_shared<Component::Vbo>(verts);
-        auto ebo = std::make_shared<Component::Ebo>(indices);
-        vao = std::make_shared<Component::Vao>(vbo, ebo);
+        auto vbo = std::make_shared<Core::Vbo>(verts);
+        auto ebo = std::make_shared<Core::Ebo>(indices);
+        vao = std::make_shared<Core::Vao>(vbo, ebo);
     }
     
     Rectangle::Rectangle(const int nrows, const int ncols) : nRows(nrows), nCols(ncols) {
@@ -180,9 +180,9 @@ namespace Component {
             -1.0f, 0.0f,  1.0f,  0.0f, 1.0f, 0.0f,          0.0f, 1.0f * nrows,  1.0f, 0.0f, 0.0f
         };
 
-        VertexArray va(rectdata, VertexAttrFlags::All ^ VertexAttrFlags::Bitangent);
-        auto vbo = std::make_shared<Vbo>(va);
-        vao = std::make_shared<Vao>(vbo);
+        Core::VertexArray va(rectdata, Core::VertexAttrFlags::All ^ Core::VertexAttrFlags::Bitangent);
+        auto vbo = std::make_shared<Core::Vbo>(va);
+        vao = std::make_shared<Core::Vao>(vbo);
     }
 
 }

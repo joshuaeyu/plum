@@ -2,7 +2,7 @@
 
 #include <vector>
 
-namespace Component {
+namespace Core {
 
     enum VertexAttrFlags : unsigned int {
         None       =      0,

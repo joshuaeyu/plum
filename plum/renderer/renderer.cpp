@@ -1,7 +1,8 @@
 #include <plum/renderer/renderer.hpp>
 
-#include <plum/scene/primitive.hpp>
+#include <plum/component/primitive.hpp>
 
+#include <functional>
 #include <iostream>
 #include <queue>
 
@@ -23,16 +24,19 @@ namespace Renderer {
         InitializeUniformBlocks();
         InitGbuffer();
         InitShadowMaps();
+
+        std::function<void(int,int)> staticFunc = std::bind(framebufferSizeCallback, this, std::placeholders::_1, std::placeholders::_2);
+        eventListener.SetFramebufferSizeCallback(staticFunc);
     }
 
     DeferredRenderer::~DeferredRenderer() {}
     
-    Component::Fbo& DeferredRenderer::Render(Component::Scene& scene, Component::Camera& camera) {
-        static Material::Environment environment;
+    Core::Fbo& DeferredRenderer::Render(Scene::Scene& scene, Component::Camera& camera) {
+        static Scene::Environment environment;
         Render(scene, camera, environment);
     }
 
-    Component::Fbo& DeferredRenderer::Render(Component::Scene& scene, Component::Camera& camera, Material::Environment& env) {
+    Core::Fbo& DeferredRenderer::Render(Scene::Scene& scene, Component::Camera& camera, Scene::Environment& env) {
         UpdateGlobalUniforms(scene, camera);
         GeometryPass(scene);
         ShadowMapPass(scene);
@@ -47,29 +51,29 @@ namespace Renderer {
     }
     
     void DeferredRenderer::InitializeUniformBlocks() {
-        // Material::Program::UboScheme::Scheme1
+        // Core::Program::UboScheme::Scheme1
         // Should have some help from Program to enforce this sceheme
         // 0 - View, projection transforms  
-        uboVsMatrices   = std::make_shared<Component::Ubo>(0, 2*sizeof(glm::mat4));
+        uboVsMatrices   = std::make_shared<Core::Ubo>(0, 2*sizeof(glm::mat4));
         // 1 - Inverse view transform
-        uboFsMatrices   = std::make_shared<Component::Ubo>(1, 1*sizeof(glm::mat4));
+        uboFsMatrices   = std::make_shared<Core::Ubo>(1, 1*sizeof(glm::mat4));
         // 2 - Camera position, front (viewspace)
-        uboFsCamera     = std::make_shared<Component::Ubo>(2, 2*16);
+        uboFsCamera     = std::make_shared<Core::Ubo>(2, 2*16);
         // 3 - Directional light colors, direction, lightspace transform
-        uboFsDirlight   = std::make_shared<Component::Ubo>(3, 16 + 8 * (16+16 + sizeof(glm::mat4)));
+        uboFsDirlight   = std::make_shared<Core::Ubo>(3, 16 + 8 * (16+16 + sizeof(glm::mat4)));
         // 4 - Point light count, colors, attenuations, positions, positions (worldspace)
-        uboFsPointlight = std::make_shared<Component::Ubo>(4, 16 + 32 * (4*16));
+        uboFsPointlight = std::make_shared<Core::Ubo>(4, 16 + 32 * (4*16));
 
         // Set UBO scheme to default (may implement non-default schemes in the future)
-        lightingPassPbrModule.GetProgram()->SetUniformBlockBindingScheme(Material::Program::UboScheme::Scheme1);
+        lightingPassPbrModule.GetProgram()->SetUniformBlockBindingScheme(Core::Program::UboScheme::Scheme1);
     }
 
     void DeferredRenderer::InitGbuffer() {
         
-        using namespace Component;
+        using namespace Core;
         
         gBuffer.Bind();
-        gBuffer.colorAtts = std::vector<std::shared_ptr<Component::Tex>>(4);
+        gBuffer.colorAtts = std::vector<std::shared_ptr<Tex>>(4);
         
         Tex2D position = Tex2D(GL_TEXTURE_2D, GL_RGBA32F, gBuffer.width, gBuffer.height, GL_RGBA, GL_FLOAT, GL_CLAMP_TO_EDGE, GL_NEAREST);
         gBuffer.AttachColorTexture(position, 0);
@@ -90,7 +94,7 @@ namespace Renderer {
 
     void DeferredRenderer::InitShadowMaps() {
         
-        using namespace Component;
+        using namespace Core;
 
         GLsizei nlayers_2d      = 8;        
         GLsizei nlayers_cube    = 6 * 8;
@@ -114,26 +118,24 @@ namespace Renderer {
         pointShadowBuffer.CheckStatus();
     }
 
-    void DeferredRenderer::ParseLights(Component::Scene& scene) {
-        
-        using namespace Component;
+    void DeferredRenderer::ParseLights(Scene::Scene& scene) {
 
         // ---- Clear existing lists ----
         directionalLights.clear();
         pointLights.clear();
         
         // ---- Parse scene for Light nodes ----
-        std::queue<SceneNode*> node_queue;
+        std::queue<Scene::SceneNode*> node_queue;
 
         node_queue.push(&scene);
         while (!node_queue.empty()) {
-            SceneNode* curr = node_queue.front();
+            Scene::SceneNode* curr = node_queue.front();
             node_queue.pop();
 
-            if (curr->object->IsLight()) {
-                if (curr->object->objType == SceneObject::SceneObjectType::DirLight)
+            if (curr->component->IsLight()) {
+                if (curr->component->type == Component::Component::ComponentType::DirLight)
                     directionalLights.push_back(curr);
-                else if (curr->object->objType == SceneObject::SceneObjectType::PointLight)
+                else if (curr->component->type == Component::Component::ComponentType::PointLight)
                     pointLights.push_back(curr); 
             }
 
@@ -142,7 +144,7 @@ namespace Renderer {
         }
     }
 
-    void DeferredRenderer::UpdateGlobalUniforms(Component::Scene& scene, Component::Camera& camera) {
+    void DeferredRenderer::UpdateGlobalUniforms(Scene::Scene& scene, Component::Camera& camera) {
         // 0 - View, projection transforms  
         uboVsMatrices->UpdateData(0, sizeof(glm::mat4), &camera.transform.Matrix());
         uboVsMatrices->UpdateData(sizeof(glm::mat4), sizeof(glm::mat4), &camera.projection);
@@ -168,7 +170,7 @@ namespace Renderer {
         uboFsDirlight->UpdateData(0, sizeof(float), &total_count);
 
         for (int i = 0; i < total_count; i++) {
-            Component::DirectionalLight* dl = dynamic_cast<Component::DirectionalLight*>(directionalLights[i]->object.get());
+            Component::DirectionalLight* dl = dynamic_cast<Component::DirectionalLight*>(directionalLights[i]->component.get());
 
             unsigned int offset = 16 + i*96;
             
@@ -199,7 +201,7 @@ namespace Renderer {
         uboFsPointlight->UpdateData(0, sizeof(float), &total_count);
 
         for (int i = 0; i < total_count; i++) {
-            Component::PointLight* pl = dynamic_cast<Component::PointLight*>(pointLights[i]->object.get());
+            Component::PointLight* pl = dynamic_cast<Component::PointLight*>(pointLights[i]->component.get());
 
             unsigned int offset = 16 + i*64;
 
@@ -222,7 +224,7 @@ namespace Renderer {
         }
     }
 
-    void DeferredRenderer::GeometryPass(Component::Scene& scene) {
+    void DeferredRenderer::GeometryPass(Scene::Scene& scene) {
         gBuffer.Bind();
         gBuffer.SetViewportDims();
         gBuffer.ClearColor();
@@ -231,7 +233,7 @@ namespace Renderer {
         scene.Draw();
     }
 
-    void DeferredRenderer::ShadowMapPass(Component::Scene& scene) {        
+    void DeferredRenderer::ShadowMapPass(Scene::Scene& scene) {        
         // ---- Generate DirectionalLight shadow maps ----
         dirShadowBuffer.Bind();
         dirShadowBuffer.SetViewportDims();
@@ -239,7 +241,7 @@ namespace Renderer {
         dirShadowModule.Use();
         
         for (int i = 0, shadow_count = 0; i < directionalLights.size(); i++) {
-            Component::DirectionalLight* dl = dynamic_cast<Component::DirectionalLight*>(directionalLights[i]->object.get());
+            Component::DirectionalLight* dl = dynamic_cast<Component::DirectionalLight*>(directionalLights[i]->component.get());
             
             dirShadowModule.SetGlobalUniforms(*dl, dirShadowBuffer.depthAtt->Handle(), &shadow_count);
             
@@ -255,7 +257,7 @@ namespace Renderer {
         pointShadowModule.Use();
 
         for (int i = 0, shadow_count = 0; i < pointLights.size(); i++) {
-            Component::PointLight* pl = dynamic_cast<Component::PointLight*>(pointLights[i]->object.get());
+            Component::PointLight* pl = dynamic_cast<Component::PointLight*>(pointLights[i]->component.get());
 
             pointShadowModule.SetGlobalUniforms(*pl, pointLights[i]->transform.position, &shadow_count);
             
@@ -265,7 +267,7 @@ namespace Renderer {
         }
     }
 
-    void DeferredRenderer::LightingPass(Material::Environment& env) {
+    void DeferredRenderer::LightingPass(Scene::Environment& env) {
         // ---- Prep framebuffer ----
         output.Bind();
         output.SetViewportDims();
@@ -306,7 +308,7 @@ namespace Renderer {
         Component::Primitive::DrawQuad();
     }
 
-    void DeferredRenderer::ForwardPass(Component::Camera& camera, Material::Environment& env) {
+    void DeferredRenderer::ForwardPass(Component::Camera& camera, Scene::Environment& env) {
         // ---- Blit depth data from gBuffer to output ----
         gBuffer.BlitTo(output, false, true);
         
@@ -329,8 +331,8 @@ namespace Renderer {
         }
     }
 
-    void DeferredRenderer::framebuffer_size_callback(GLFWwindow *window, int width, int height) {
-        gBuffer = Component::Fbo(width, height);
+    void DeferredRenderer::framebufferSizeCallback(int width, int height) {
+        gBuffer = Core::Fbo(width, height);
         InitGbuffer();
     }
 }

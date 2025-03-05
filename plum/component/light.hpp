@@ -1,6 +1,9 @@
 #pragma once
 
-#include <plum/scene/scenenode.hpp>
+#include <plum/component/component.hpp>
+
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 #include <vector>
 
@@ -13,7 +16,7 @@ namespace Component {
     inline static const glm::vec3 FRONT = glm::vec3(0,0,1);
     inline static const glm::vec3 BACK = glm::vec3(0,0,-1);
 
-    class Light : public SceneObject {
+    class Light : public Component {
         public:
             glm::vec3 color = glm::vec3(1);
             
@@ -33,7 +36,7 @@ namespace Component {
             float nearPlane = 0.1;
             float farPlane = 50;
 
-            Light(const SceneObjectType type);
+            Light(const ComponentType type);
 
     };
 
