@@ -23,11 +23,11 @@ namespace Core {
 
     class Vbo : public GlObject {
         public:
-            Vbo(const VertexArray& varray);
+            Vbo(const Vertex::VertexArray& varray);
             ~Vbo();
             void Bind();
             void Unbind();
-            VertexArray vertexArray;
+            Vertex::VertexArray vertexArray;
     };
 
     class Ebo : public GlObject {

@@ -15,7 +15,7 @@ namespace Core {
     }
 
     // Vertex array buffer
-    Vbo::Vbo(const VertexArray& varray) 
+    Vbo::Vbo(const Vertex::VertexArray& varray) 
         : vertexArray(varray) 
     {
         glGenBuffers(1, &handle);
@@ -92,11 +92,13 @@ namespace Core {
     }
     void Vao::SetAttribPointerFormat() {
         // Specify vertex attribute pointer
-        for (int i = 0; i < VertexAttrInfo.AttrList.size(); i++) {
-            auto attr = VertexAttrInfo.AttrList[i];
+        for (const auto& attr : Vertex::AttrTypes) {
             if (vbo->vertexArray.HasAttributes(attr.flag)) {
-                glEnableVertexAttribArray(i);
-                glVertexAttribPointer(i, attr.ncomps, GL_FLOAT, GL_FALSE, vbo->vertexArray.Stride(), (void *)(vbo->vertexArray.AttributeOffset(attr.flag)));
+                glEnableVertexAttribArray(attr.index);
+                glVertexAttribPointer(attr.index, attr.ncomps, GL_FLOAT, GL_FALSE, vbo->vertexArray.Stride(), (void *)(vbo->vertexArray.AttributeOffset(attr.flag)));
+                while (GLenum error = glGetError()) {
+                    std::cerr << "VA pointer error: " << error << std::endl;
+                }
             }
         }
     }
