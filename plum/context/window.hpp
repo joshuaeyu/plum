@@ -11,14 +11,21 @@
 
 namespace Context {
     
-    GLFWglproc (*const GLLoadFunction)(const char *) = glfwGetProcAddress;
+    // GLFWglproc (*const GLLoadFunction)(const char *) = glfwGetProcAddress;
 
     class Window {
         public:
             Window(GLFWwindow *window, int width, int height, std::string title);
+            ~Window();
 
+            void SetTitle(const char* title);
+            void SetWindowSize(const int width, const int height);
             void SetInputMode(const int mode, const int value);
             
+            int Width() const { return width; }  
+            int Height() const { return height; }  
+            std::string Title() const { return title; }          
+
             // bool GetKeyPress(int key) const;
             // bool GetKeyRelease(int key) const;
 
@@ -36,23 +43,24 @@ namespace Context {
             
             Window Clone() { return Window(*this); }
 
+        private:
+            
             int width, height;
             std::string title;
             
-        private:
             GLFWwindow* handle;
             inline static float lastTime = glfwGetTime();
 
             void keyCallback(int key, int scancode, int action, int mods);
         
-            WindowEventListener eventListener;
+            std::shared_ptr<WindowEventListener> eventListener;
     };
 
     class WindowCreator {
         public:
             WindowCreator();
 
-            Window Create();
+            std::shared_ptr<Window> Create();
 
             std::string title = "Plum Engine";
             int width = 1920;

@@ -13,8 +13,8 @@ namespace Material {
     
     class MaterialBase {
         public:
-            virtual std::shared_ptr<Core::Program> GetProgram() = 0;
-            virtual void SetUniforms(const glm::mat4& model_transform) = 0;
+            virtual std::shared_ptr<Core::Program> GetProgram() { return nullptr; }
+            virtual void SetUniforms(const glm::mat4& model_transform) {};
         protected:
             MaterialBase() {}
     };

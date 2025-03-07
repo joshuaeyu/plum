@@ -32,7 +32,7 @@ namespace Component {
 
             glm::vec3 worldUp = glm::vec3(0,1,0);
 
-            Context::WindowInputObserver inputObserver;
+            std::shared_ptr<Context::WindowInputObserver> inputObserver;
     };
 
 }

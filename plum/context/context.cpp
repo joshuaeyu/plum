@@ -4,20 +4,36 @@
 
 namespace Context {
 
-    GlContext& GlContext::GetGlContext() {
-        static GlContext instance;
+    Application& Application::Instance() {
+        static Application instance;
         return instance;
     }
+    Application::~Application() {
+        // std::cout << "calling App destructor" << std::endl;
+        glfwTerminate();
+    }
 
-    GlContext::GlContext() {}
+    Application::Application() 
+    {
+        if (!glfwInit()) {
+            std::cerr << "glfwInit failed" << std::endl;
+            exit(-1);
+        }
+        
+        WindowCreator creator;
+        defaultWindow = creator.Create();
+        defaultWindow->MakeCurrent();
 
-    void GlContext::Initialize() {
-        if (!gladLoadGL(Context::GLLoadFunction)) {
+        if (!gladLoadGL(glfwGetProcAddress)) {
             std::cerr << "gladLoadGLLoader failed" << std::endl;
             glfwTerminate();
             exit(-1);
         }
 
+        initialize();
+    }
+
+    void Application::initialize() {
         EnableDepth();
         EnableCull();
         EnableFramebufferSrgb();
@@ -33,33 +49,33 @@ namespace Context {
         glGetIntegerv(GL_MAX_TEXTURE_SIZE, &n); // 16384
     }
 
-    void GlContext::EnableDepth(GLenum func) {
+    void Application::EnableDepth(GLenum func) {
         // Default LEQUAL for skybox optimization, since depth buffer is cleared to 1.0 by default
         glEnable(GL_DEPTH_TEST);
         glDepthFunc(func);
     }
-    void GlContext::EnableCull(GLenum mode) {
+    void Application::EnableCull(GLenum mode) {
         glEnable(GL_CULL_FACE);
         glCullFace(mode);
     }
-    void GlContext::EnableFramebufferSrgb() {
+    void Application::EnableFramebufferSrgb() {
         glEnable(GL_FRAMEBUFFER_SRGB);
     }
 
-    void GlContext::DisableDepth() {
+    void Application::DisableDepth() {
         glDisable(GL_DEPTH_TEST);
     }
-    void GlContext::DisableCull() {
+    void Application::DisableCull() {
         glDisable(GL_CULL_FACE);
     }
-    void GlContext::DisableFramebufferSrgb() {
+    void Application::DisableFramebufferSrgb() {
         glDisable(GL_FRAMEBUFFER_SRGB);
     }
     
-    void ClearColor() {}
-    void ClearDepth() {}
-    void ClearStencil() {}
+    // void ClearColor() {}
+    // void ClearDepth() {}
+    // void ClearStencil() {}
     
-    void SetViewport() {}
-    void UseProgram() {}
+    // void SetViewport() {}
+    // void UseProgram() {}
 }

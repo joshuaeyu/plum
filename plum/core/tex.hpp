@@ -16,7 +16,7 @@ namespace Core {
             const GLenum format, datatype;
             const GLint wrap, filter;
 
-            virtual void DefineImage(const void* pixels, const int level = 0) = 0;
+            virtual void DefineImage(const void* pixels, const int level = 0) {}
 
             GLuint Handle() const;
             void Bind();

@@ -21,6 +21,7 @@ namespace Context {
         public:
             WindowInputObserver();
             WindowInputObserver(std::vector<int> keysToMonitor);
+            ~WindowInputObserver();
 
             bool GetKeyDown(int key);
                         
@@ -55,6 +56,7 @@ namespace Context {
     class WindowEventListener {
         public:
             WindowEventListener();
+            ~WindowEventListener();
 
             void SetCursorPosCallback(std::function<void(double,double)> callback);
             void SetKeyCallback(std::function<void(int,int,int,int)> callback);
@@ -75,12 +77,15 @@ namespace Context {
             // WindowInputsAndEvents(Window& window);
             static void Setup(Window& window);
 
+            static std::shared_ptr<WindowInputObserver> CreateInputObserver(std::vector<int> keysToMonitor = {});
+            static std::shared_ptr<WindowEventListener> CreateEventListener();
+
         private:
             friend class WindowInputObserver;
             friend class WindowEventListener;
 
-            inline static std::vector<std::shared_ptr<WindowInputObserver>> observers;
-            inline static std::vector<std::shared_ptr<WindowEventListener>> listeners;
+            inline static std::vector<std::weak_ptr<WindowInputObserver>> observers;
+            inline static std::vector<std::weak_ptr<WindowEventListener>> listeners;
 
             static void cursor_pos_callback(GLFWwindow *window, double xpos, double ypos);
             static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);

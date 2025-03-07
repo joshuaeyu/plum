@@ -3,16 +3,22 @@
 #include <plum/context/window.hpp>
 
 #include <glad/gl.h>
+#include <GLFW/glfw3.h>
+
+#include <memory>
 
 namespace Context {
 
-    class GlContext {
+    class Application {
         private:
-            GlContext();
-
+            Application();
+            void initialize();
+            
         public:
-            static GlContext& GetGlContext();
-            void Initialize();
+            ~Application();
+            static Application& Instance();
+        
+            std::shared_ptr<Window> defaultWindow;
             
             void EnableDepth(GLenum func = GL_LEQUAL);
             void EnableCull(GLenum mode = GL_BACK);

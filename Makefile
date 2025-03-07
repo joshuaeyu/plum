@@ -19,10 +19,10 @@ CFLAGS := 	-fdiagnostics-color=always \
 CXXFLAGS := 	$(CFLAGS)	\
 			-I./	\
 			-I$(EXTDIR)	\
-			-I$(INCL_ASSIMP)	\
 			-I$(INCL_GLFW)	\
 			-I$(INCL_GLM)	\
 			-std=c++17
+# -I$(INCL_ASSIMP)
 # Linker-only flags
 # -L same as -Wl,-L,
 LDFLAGS := 	-L$(LIB_GLFW)	\
@@ -61,7 +61,7 @@ objdirs:
 # main: $(OBJDIR)/main.o $(SRCOBJS) $(SRCOBJS_CONTEXT) $(SRCOBJS_COMPONENT) $(SRCOBJS_RENDERER) $(SRCOBJS_UTIL) $(OBJDIR)/gl.o $(OBJDIR)/stb_image.o $(IMGUI_CORE_O) $(IMGUI_MISC_O) $(IMGUI_BACKENDS_O)
 main: $(OBJECTS)
 	@echo Linking $@
-	@$(CXX) $(CXXFLAGS) $(LDFLAGS) $^ -o $@
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) $^ -o $@
 
 # Source objects
 # $(OBJDIR)/main.o: $(SRCDIR)/main.cpp

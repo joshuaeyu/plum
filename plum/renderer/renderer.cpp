@@ -16,10 +16,10 @@ namespace Renderer {
 
     DeferredRenderer::DeferredRenderer(Context::Window& window) 
         : RendererBase(window),
-        gBuffer(window.width, window.height), 
+        gBuffer(window.Width(), window.Height()), 
         dirShadowBuffer(2048,2048), 
         pointShadowBuffer(1024,1024), 
-        output(window.width, window.height)
+        output(window.Width(), window.Height())
     {
         InitializeUniformBlocks();
         InitGbuffer();

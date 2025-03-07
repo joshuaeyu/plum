@@ -54,26 +54,26 @@ void main() {
     }
 
     if (material.has_texture_albedo) {
-        gAlbedoSpec.rgb = texture(material.has_texture_albedo, fs_in.TexCoords).rgb;
+        gAlbedoSpec.rgb = texture(material.texture_albedo, fs_in.TexCoords).rgb;
     } else {
         gAlbedoSpec.rgb = material.albedo;
     }
 
-    if (material.has_texture_metallic {
-        gMetRouOcc.r = texture(material.has_texture_metallic, fs_in.TexCoords).r;
+    if (material.has_texture_metallic) {
+        gMetRouOcc.r = texture(material.texture_metallic, fs_in.TexCoords).r;
     } else {
         gMetRouOcc.r = material.metallic;
     }
 
     if (material.has_texture_roughness) {
-        gMetRouOcc.g = texture(material.has_texture_roughness, fs_in.TexCoords).r;
+        gMetRouOcc.g = texture(material.texture_roughness, fs_in.TexCoords).r;
     } else {
         gMetRouOcc.g = material.roughness;
     }
 
     if (material.has_texture_occlusion) {
         gMetRouOcc.b = 1.0; // aka, use occlusion texture
-        gMetRouOcc.a = texture(material.has_texture_occlusion, fs_in.TexCoords).r;
+        gMetRouOcc.a = texture(material.texture_occlusion, fs_in.TexCoords).r;
     } else {
         gMetRouOcc.b = 0.0; // aka, use SSAO
     }

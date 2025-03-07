@@ -4,7 +4,9 @@
 // #include <imgui/imgui_impl_glfw.h>
 // #include <imgui/imgui_impl_opengl3.h>
 
+#include <memory>
 #include <iostream>
+#include <exception>
 
 namespace Context {
 
@@ -19,10 +21,7 @@ namespace Context {
         hints[GLFW_COCOA_RETINA_FRAMEBUFFER] = GLFW_FALSE;
     }
     
-    Window WindowCreator::Create() {
-        if (!glfwInit())
-            exit(-1);
-
+    std::shared_ptr<Window> WindowCreator::Create() {
         for (const auto [hint, value] : hints) {
             glfwWindowHint(hint, value);
         }
@@ -33,20 +32,35 @@ namespace Context {
             glfwTerminate();
             exit(-1);
         }
-
-        return Window(window, width, height, title);
+        
+        return std::make_shared<Window>(window, width, height, title);
     }
 
     Window::Window(GLFWwindow *window, int width, int height, std::string title) 
         : handle(window),
         width(width),
         height(height),
-        title(title)
+        title(title),
+        eventListener(WindowInputsAndEventsManager::CreateEventListener())
     {
         WindowInputsAndEventsManager::Setup(*this);
-        
-        std::function<void(int,int,int,int)> staticFunc = std::bind(&Window::keyCallback, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4);
-        eventListener.SetKeyCallback(staticFunc);
+
+        std::function<void(int,int,int,int)> staticFunc = std::bind(&Window::keyCallback, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4);   
+        eventListener->SetKeyCallback(staticFunc);
+    }
+    Window::~Window()
+    {
+        // std::cout << "calling Window destructor" << std::endl;
+    }
+
+    void Window::SetTitle(const char* title) {
+        glfwSetWindowTitle(handle, title);
+        this->title = title;
+    }
+    void Window::SetWindowSize(const int width, const int height) {
+        glfwSetWindowSize(handle, width, height);
+        this->width = width;
+        this->height = height;
     }
 
     void Window::SetInputMode(const int mode, const int value) {

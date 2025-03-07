@@ -115,7 +115,7 @@ namespace Core {
                 Scheme1
             };
 
-            const GLuint handle;
+            GLuint handle;
 
             Program(std::string vertexShaderPath, std::string fragmentShaderPath, std::string geometryShaderPath = "");
             // Shader(std::string vertexShaderCode, std::string fragmentShaderCode, std::string geometryShaderCode = "");

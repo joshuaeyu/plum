@@ -98,7 +98,7 @@ void Transform::Update() {
         if (rotationQuat != lastRotationQuat) {
             glm::mat3 rotationMatrix = glm::mat3(rotationQuat);
             for (int i = 0; i < 3; i++)
-                for (int j = 0; j < 3; i++)
+                for (int j = 0; j < 3; j++)
                     matrix[i][j] = rotationMatrix[i][j];
             updateFrontRightUp();
             lastRotationQuat = rotationQuat;
@@ -106,7 +106,7 @@ void Transform::Update() {
         if (rotationEuler != lastRotationEuler) {
             glm::mat4 rotationMatrix = glm::yawPitchRoll(rotationEuler.x, rotationEuler.y, rotationEuler.z);
             for (int i = 0; i < 3; i++)
-                for (int j = 0; j < 3; i++)
+                for (int j = 0; j < 3; j++)
                     matrix[i][j] = rotationMatrix[i][j];
             updateFrontRightUp();
             lastRotationEuler = rotationEuler;

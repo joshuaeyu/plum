@@ -12,11 +12,13 @@ namespace Component {
     {}
 
     Mesh::Mesh(Core::Vao& vao) 
-        : ComponentBase(ComponentType::Mesh), vao(std::make_shared<Core::Vao>(vao)) 
+        : ComponentBase(ComponentType::Mesh), 
+        vao(&vao) 
     {}
     
     Mesh::Mesh(Core::Vao& vao, Material::MaterialBase& mat)
-        : ComponentBase(ComponentType::Mesh), vao(std::make_shared<Core::Vao>(vao))
+        : ComponentBase(ComponentType::Mesh), 
+        vao(&vao)
     {
         material.reset(&mat);
     }

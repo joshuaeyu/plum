@@ -1,4 +1,5 @@
 #include <plum/core/program.hpp>
+#include <plum/context/context.hpp>
 
 #include <glm/gtc/type_ptr.hpp>
 
@@ -10,8 +11,12 @@
 namespace Core {
 
     Program::Program(std::string vertexShaderPath, std::string fragmentShaderPath, std::string geometryShaderPath) 
-        : handle(glCreateProgram()) 
+        // : handle(glCreateProgram()) 
     {
+        Context::Application::Instance();
+
+        handle = glCreateProgram();
+
         std::cout << "  Loading shader: " << vertexShaderPath << " " << fragmentShaderPath << " " << geometryShaderPath << std::endl;
 
         // ==== File to cstring ====

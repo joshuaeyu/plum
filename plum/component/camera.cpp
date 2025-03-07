@@ -12,28 +12,28 @@ namespace Component {
     Camera::Camera(Transform transform, glm::mat4 projection) 
         : transform(transform), 
         projection(projection),
-        inputObserver({GLFW_KEY_W, GLFW_KEY_S, GLFW_KEY_A, GLFW_KEY_D, GLFW_KEY_SPACE, GLFW_KEY_LEFT_SHIFT})
+        inputObserver(Context::WindowInputsAndEventsManager::CreateInputObserver({GLFW_KEY_W, GLFW_KEY_S, GLFW_KEY_A, GLFW_KEY_D, GLFW_KEY_SPACE, GLFW_KEY_LEFT_SHIFT}))
     {}
 
     void Camera::ProcessInputs() {
         // Mouse: Rotation
-        float deltaYaw = inputObserver.GetCursorDeltaX() * sensitivity;
-        float deltaPitch = inputObserver.GetCursorDeltaY() * sensitivity;
+        float deltaYaw = inputObserver->GetCursorDeltaX() * sensitivity;
+        float deltaPitch = inputObserver->GetCursorDeltaY() * sensitivity;
         rotate(deltaYaw, deltaPitch);
         
         // WASD/Space/Shift: Translation
         float distance = speed * Context::Window::DeltaTime();
-        if (inputObserver.GetKeyDown(GLFW_KEY_W))
+        if (inputObserver->GetKeyDown(GLFW_KEY_W))
             translate(Direction::Forward, distance);
-        if (inputObserver.GetKeyDown(GLFW_KEY_S))
+        if (inputObserver->GetKeyDown(GLFW_KEY_S))
             translate(Direction::Backward, distance);
-        if (inputObserver.GetKeyDown(GLFW_KEY_A))
+        if (inputObserver->GetKeyDown(GLFW_KEY_A))
             translate(Direction::Left, distance);
-        if (inputObserver.GetKeyDown(GLFW_KEY_D))
+        if (inputObserver->GetKeyDown(GLFW_KEY_D))
             translate(Direction::Right, distance);
-        if (inputObserver.GetKeyDown(GLFW_KEY_SPACE))
+        if (inputObserver->GetKeyDown(GLFW_KEY_SPACE))
             translate(Direction::Up, distance);
-        if (inputObserver.GetKeyDown(GLFW_KEY_LEFT_SHIFT))
+        if (inputObserver->GetKeyDown(GLFW_KEY_LEFT_SHIFT))
             translate(Direction::Down, distance);
     }
 
