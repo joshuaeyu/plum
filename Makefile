@@ -61,7 +61,7 @@ objdirs:
 # main: $(OBJDIR)/main.o $(SRCOBJS) $(SRCOBJS_CONTEXT) $(SRCOBJS_COMPONENT) $(SRCOBJS_RENDERER) $(SRCOBJS_UTIL) $(OBJDIR)/gl.o $(OBJDIR)/stb_image.o $(IMGUI_CORE_O) $(IMGUI_MISC_O) $(IMGUI_BACKENDS_O)
 main: $(OBJECTS)
 	@echo Linking $@
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) $^ -o $@
+	@$(CXX) $(CXXFLAGS) $(LDFLAGS) $^ -o $@
 
 # Source objects
 # $(OBJDIR)/main.o: $(SRCDIR)/main.cpp
@@ -71,11 +71,11 @@ main: $(OBJECTS)
 # 	@echo Compiling $@
 # 	@$(CXX) $(CXXFLAGS) $< -c -o $@
 $(OBJDIR)/%.o: %.cpp
-	echo Compiling $@
-	$(CXX) $(CXXFLAGS) $< -c -o $@
+	@echo Compiling $@
+	@$(CXX) $(CXXFLAGS) $< -c -o $@
 $(OBJDIR)/%.o: %.cpp %.hpp
-	echo Compiling $@
-	$(CXX) $(CXXFLAGS) $< -c -o $@
+	@echo Compiling $@
+	@$(CXX) $(CXXFLAGS) $< -c -o $@
 $(OBJDIR)/%.o: %.c
 	@echo Compiling $@
 	@$(CC) $(CFLAGS) $< -c -o $@

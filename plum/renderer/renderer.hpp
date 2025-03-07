@@ -21,9 +21,9 @@ namespace Renderer {
 
     class RendererBase {
         protected:
-            RendererBase(Context::Window& Window);
+            RendererBase(std::shared_ptr<Context::Window> window);
             virtual ~RendererBase();
-            virtual Core::Fbo& Render(Scene::Scene& scene, Component::Camera& camera) = 0;
+            virtual Core::Fbo* Render(Scene::Scene& scene, Component::Camera& camera) = 0;
             
             std::shared_ptr<Context::Window> window;
     };
@@ -31,11 +31,11 @@ namespace Renderer {
     class DeferredRenderer : public RendererBase {
         
         public:
-            DeferredRenderer(Context::Window& window);
+            DeferredRenderer(std::shared_ptr<Context::Window> window);
             ~DeferredRenderer();
 
-            Core::Fbo& Render(Scene::Scene& scene, Component::Camera& camera) override;
-            Core::Fbo& Render(Scene::Scene& scene, Component::Camera& camera, Scene::Environment& env);
+            Core::Fbo* Render(Scene::Scene& scene, Component::Camera& camera) override;
+            Core::Fbo* Render(Scene::Scene& scene, Component::Camera& camera, Scene::Environment& env);
 
             // does scene need anything that the nodes can't support
             // should camera be "attached" to scene or passed in each render call

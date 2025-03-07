@@ -27,10 +27,10 @@ namespace Scene {
     std::shared_ptr<Core::Tex2D> Environment::equirectToCubemap(std::shared_ptr<Core::Tex2D> equirect, const unsigned int width, const unsigned int height) {
         
         Core::Fbo fbo(width, height);
-        std::shared_ptr<Core::Tex2D> cubemap = std::make_shared<Core::Tex2D>(Core::Tex2D(GL_TEXTURE_CUBE_MAP, GL_RGB16F, fbo.width, fbo.height, GL_RGB, GL_FLOAT, GL_CLAMP_TO_EDGE, GL_LINEAR_MIPMAP_LINEAR));
+        auto cubemap = std::make_shared<Core::Tex2D>(GL_TEXTURE_CUBE_MAP, GL_RGB16F, fbo.width, fbo.height, GL_RGB, GL_FLOAT, GL_CLAMP_TO_EDGE, GL_LINEAR_MIPMAP_LINEAR);
         
         fbo.Bind();
-        fbo.AttachColorTexture(*cubemap);
+        fbo.AttachColorTexture(cubemap);
         fbo.AttachDepthRbo24();
         fbo.CheckStatus();
 
@@ -69,10 +69,10 @@ namespace Scene {
     void Environment::cubemapToIrradiance(const unsigned int width, const unsigned int height) {
        
         Core::Fbo fbo(width, height);
-        irradiance = std::make_shared<Core::Tex2D>(Core::Tex2D(GL_TEXTURE_CUBE_MAP, GL_RGB16F, fbo.width, fbo.height, GL_RGB, GL_FLOAT, GL_CLAMP_TO_EDGE, GL_LINEAR));
+        irradiance = std::make_shared<Core::Tex2D>(GL_TEXTURE_CUBE_MAP, GL_RGB16F, fbo.width, fbo.height, GL_RGB, GL_FLOAT, GL_CLAMP_TO_EDGE, GL_LINEAR);
 
         fbo.Bind();
-        fbo.AttachColorTexture(*irradiance);
+        fbo.AttachColorTexture(irradiance);
         fbo.AttachDepthRbo24();
         fbo.CheckStatus();
     
@@ -108,12 +108,12 @@ namespace Scene {
     void Environment::cubemapToPrefilter(const unsigned int width, const unsigned int height, const unsigned int envres) {
 
         Core::Fbo fbo(width, height);
-        prefilter = std::make_shared<Core::Tex2D>(Core::Tex2D(GL_TEXTURE_CUBE_MAP, GL_RGB16F, fbo.width, fbo.height, GL_RGB, GL_FLOAT, GL_CLAMP_TO_EDGE, GL_LINEAR_MIPMAP_LINEAR));
+        prefilter = std::make_shared<Core::Tex2D>(GL_TEXTURE_CUBE_MAP, GL_RGB16F, fbo.width, fbo.height, GL_RGB, GL_FLOAT, GL_CLAMP_TO_EDGE, GL_LINEAR_MIPMAP_LINEAR);
         prefilter->Bind();
         glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
 
         fbo.Bind();
-        fbo.AttachColorTexture(*prefilter);
+        fbo.AttachColorTexture(prefilter);
         fbo.AttachDepthRbo24();
         fbo.CheckStatus();
     
@@ -148,7 +148,7 @@ namespace Scene {
             float roughness = (float)mip / (float)(maxMipLevels - 1);
             prefilterProgram->SetFloat("roughness", roughness);
     
-            fbo.AttachColorTexture(*prefilter, 0, mip);
+            fbo.AttachColorTexture(prefilter, 0, mip);
             fbo.CheckStatus();
             for (int i = 0; i < 6; i++) {
                 fbo.ClearColor();
@@ -164,10 +164,10 @@ namespace Scene {
     void Environment::generateBrdfLut(const unsigned int width, const unsigned int height) {
 
         Core::Fbo fbo(width, height);
-        brdfLut = std::make_shared<Core::Tex2D>(Core::Tex2D(GL_TEXTURE_2D, GL_RG16F, fbo.width, fbo.height, GL_RG, GL_FLOAT, GL_CLAMP_TO_EDGE, GL_LINEAR));
+        brdfLut = std::make_shared<Core::Tex2D>(GL_TEXTURE_2D, GL_RG16F, fbo.width, fbo.height, GL_RG, GL_FLOAT, GL_CLAMP_TO_EDGE, GL_LINEAR);
         
         fbo.Bind();
-        fbo.AttachColorTexture(*brdfLut);
+        fbo.AttachColorTexture(brdfLut);
         fbo.AttachDepthRbo24();
         
         fbo.CheckStatus();

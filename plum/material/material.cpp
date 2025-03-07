@@ -1,7 +1,13 @@
 #include <plum/material/material.hpp>
 
+#include <iostream>
+
 namespace Material {
     
+    MaterialBase::~MaterialBase() {
+        // std::cout << "destroying MaterialBase" << std::endl;
+    }
+
     PBRMetallicMaterial::PBRMetallicMaterial() 
     {
         // Set UBO scheme to default (may implement non-default schemes in the future)

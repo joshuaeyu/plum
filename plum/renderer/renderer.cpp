@@ -8,18 +8,18 @@
 
 namespace Renderer {
 
-    RendererBase::RendererBase(Context::Window& window) 
-        : window(&window)
+    RendererBase::RendererBase(std::shared_ptr<Context::Window> window) 
+        : window(window)
     {}
 
     RendererBase::~RendererBase() {}
 
-    DeferredRenderer::DeferredRenderer(Context::Window& window) 
+    DeferredRenderer::DeferredRenderer(std::shared_ptr<Context::Window> window) 
         : RendererBase(window),
-        gBuffer(window.Width(), window.Height()), 
+        gBuffer(window->Width(), window->Height()), 
         dirShadowBuffer(2048,2048), 
         pointShadowBuffer(1024,1024), 
-        output(window.Width(), window.Height())
+        output(window->Width(), window->Height())
     {
         InitializeUniformBlocks();
         InitGbuffer();
@@ -31,19 +31,19 @@ namespace Renderer {
 
     DeferredRenderer::~DeferredRenderer() {}
     
-    Core::Fbo& DeferredRenderer::Render(Scene::Scene& scene, Component::Camera& camera) {
+    Core::Fbo* DeferredRenderer::Render(Scene::Scene& scene, Component::Camera& camera) {
         static Scene::Environment environment;
         Render(scene, camera, environment);
-        return output;
+        return &output;
     }
 
-    Core::Fbo& DeferredRenderer::Render(Scene::Scene& scene, Component::Camera& camera, Scene::Environment& env) {
+    Core::Fbo* DeferredRenderer::Render(Scene::Scene& scene, Component::Camera& camera, Scene::Environment& env) {
         UpdateGlobalUniforms(scene, camera);
         GeometryPass(scene);
         ShadowMapPass(scene);
         LightingPass(env);
         ForwardPass(camera, env);
-        return output;
+        return &output;
         // some postprocessing like Bloom requires additional render info
         // need to support intraprocessing rendering options
             // - Bloom
@@ -76,16 +76,16 @@ namespace Renderer {
         gBuffer.Bind();
         gBuffer.colorAtts = std::vector<std::shared_ptr<Tex>>(4);
         
-        Tex2D position = Tex2D(GL_TEXTURE_2D, GL_RGBA32F, gBuffer.width, gBuffer.height, GL_RGBA, GL_FLOAT, GL_CLAMP_TO_EDGE, GL_NEAREST);
+        auto position = std::make_shared<Tex2D>(GL_TEXTURE_2D, GL_RGBA32F, gBuffer.width, gBuffer.height, GL_RGBA, GL_FLOAT, GL_CLAMP_TO_EDGE, GL_NEAREST);
         gBuffer.AttachColorTexture(position, 0);
 
-        Tex2D normal = Tex2D(GL_TEXTURE_2D, GL_RGBA32F, gBuffer.width, gBuffer.height, GL_RGBA, GL_FLOAT, GL_CLAMP_TO_EDGE, GL_NEAREST);
+        auto normal = std::make_shared<Tex2D>(GL_TEXTURE_2D, GL_RGBA32F, gBuffer.width, gBuffer.height, GL_RGBA, GL_FLOAT, GL_CLAMP_TO_EDGE, GL_NEAREST);
         gBuffer.AttachColorTexture(normal, 1);
         
-        Tex2D albedospec = Tex2D(GL_TEXTURE_2D, GL_RGBA, gBuffer.width, gBuffer.height, GL_RGBA, GL_UNSIGNED_BYTE, GL_CLAMP_TO_EDGE, GL_NEAREST);
+        auto albedospec = std::make_shared<Tex2D>(GL_TEXTURE_2D, GL_RGBA, gBuffer.width, gBuffer.height, GL_RGBA, GL_UNSIGNED_BYTE, GL_CLAMP_TO_EDGE, GL_NEAREST);
         gBuffer.AttachColorTexture(albedospec, 2);
         
-        Tex2D metrou = Tex2D(GL_TEXTURE_2D, GL_RGBA, gBuffer.width, gBuffer.height, GL_RGBA, GL_UNSIGNED_BYTE, GL_CLAMP_TO_EDGE, GL_NEAREST);
+        auto metrou = std::make_shared<Tex2D>(GL_TEXTURE_2D, GL_RGBA, gBuffer.width, gBuffer.height, GL_RGBA, GL_UNSIGNED_BYTE, GL_CLAMP_TO_EDGE, GL_NEAREST);
         gBuffer.AttachColorTexture(albedospec, 3);
         
         gBuffer.AttachDepthRbo16();
@@ -101,7 +101,7 @@ namespace Renderer {
         GLsizei nlayers_cube    = 6 * 8;
 
         // Shadow map array for DirectionalLight
-        Tex3D dirShadowTex = Tex3D(GL_TEXTURE_2D_ARRAY, GL_DEPTH_COMPONENT16, dirShadowBuffer.width, dirShadowBuffer.height, nlayers_2d, GL_DEPTH_COMPONENT, GL_FLOAT, GL_CLAMP_TO_EDGE, GL_LINEAR, true);
+        auto dirShadowTex = std::make_shared<Tex3D>(GL_TEXTURE_2D_ARRAY, GL_DEPTH_COMPONENT16, dirShadowBuffer.width, dirShadowBuffer.height, nlayers_2d, GL_DEPTH_COMPONENT, GL_FLOAT, GL_CLAMP_TO_EDGE, GL_LINEAR, true);
         
         dirShadowBuffer.Bind();
         dirShadowBuffer.AttachDepthTexture(dirShadowTex);
@@ -110,10 +110,10 @@ namespace Renderer {
         dirShadowBuffer.CheckStatus();
         
         // Shadow map array for PointLight
-        Tex3D pointShadowTex = Tex3D(GL_TEXTURE_CUBE_MAP_ARRAY, GL_DEPTH_COMPONENT16, pointShadowBuffer.width, pointShadowBuffer.height, nlayers_cube, GL_DEPTH_COMPONENT, GL_FLOAT, GL_CLAMP_TO_EDGE, GL_LINEAR, true);
+        auto pointShadowTex = std::make_shared<Tex3D>(GL_TEXTURE_CUBE_MAP_ARRAY, GL_DEPTH_COMPONENT16, pointShadowBuffer.width, pointShadowBuffer.height, nlayers_cube, GL_DEPTH_COMPONENT, GL_FLOAT, GL_CLAMP_TO_EDGE, GL_LINEAR, true);
         
         pointShadowBuffer.Bind();
-        pointShadowBuffer.AttachDepthTexture(dirShadowTex);
+        pointShadowBuffer.AttachDepthTexture(pointShadowTex);
         glDrawBuffer(GL_NONE);  // No colorbuffer
         glReadBuffer(GL_NONE);  // No colorbuffer
         pointShadowBuffer.CheckStatus();
@@ -133,11 +133,13 @@ namespace Renderer {
             Scene::SceneNode* curr = node_queue.front();
             node_queue.pop();
 
-            if (curr->component->IsLight()) {
-                if (curr->component->type == Component::ComponentType::DirLight)
-                    directionalLights.push_back(curr);
-                else if (curr->component->type == Component::ComponentType::PointLight)
-                    pointLights.push_back(curr); 
+            if (curr->component) {
+                if (curr->component->IsLight()) {
+                    if (curr->component->type == Component::ComponentType::DirLight)
+                        directionalLights.push_back(curr);
+                    else if (curr->component->type == Component::ComponentType::PointLight)
+                        pointLights.push_back(curr); 
+                }
             }
 
             for (auto& child : curr->children)

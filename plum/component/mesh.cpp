@@ -4,6 +4,7 @@
 
 #include <vector>
 #include <memory>
+#include <iostream>
 
 namespace Component {
 
@@ -11,23 +12,24 @@ namespace Component {
         : ComponentBase(ComponentType::Mesh) 
     {}
 
-    Mesh::Mesh(Core::Vao& vao) 
+    Mesh::Mesh(std::shared_ptr<Core::Vao> vao)
         : ComponentBase(ComponentType::Mesh), 
-        vao(&vao) 
+        vao(vao) 
     {}
     
-    Mesh::Mesh(Core::Vao& vao, Material::MaterialBase& mat)
+    Mesh::Mesh(std::shared_ptr<Core::Vao> vao, std::shared_ptr<Material::MaterialBase> mat)
         : ComponentBase(ComponentType::Mesh), 
-        vao(&vao)
-    {
-        material.reset(&mat);
-    }
+        vao(vao),
+        material(mat)
+    {}
     
     Mesh::Mesh(const ComponentType type) 
         : ComponentBase(type) 
     {}
     
-    Mesh::~Mesh() {}
+    Mesh::~Mesh() {
+        // std::cout << "destroying Mesh" << std::endl;
+    }
 
     void Mesh::Draw(const glm::mat4& model_matrix) {
         if (material)   // If no material assigned, just draw the raw VAO

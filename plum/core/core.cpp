@@ -25,6 +25,7 @@ namespace Core {
         Unbind();
     }
     Vbo::~Vbo() {
+        // std::cout << "destroying Vbo" << std::endl;
         glDeleteBuffers(1, &handle);
     }
     void Vbo::Bind() {
@@ -51,6 +52,7 @@ namespace Core {
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     }
     Ebo::~Ebo() {
+        std::cout << "destroying Ebo" << std::endl;
         glDeleteBuffers(1, &handle);
     }
 
@@ -71,6 +73,7 @@ namespace Core {
         Unbind();
     }
     Vao::~Vao() {
+        std::cout << "destroying Vao" << std::endl;
         glDeleteVertexArrays(1, &handle);
     }
     void Vao::Bind() {
@@ -107,6 +110,10 @@ namespace Core {
         glBindBufferBase(GL_UNIFORM_BUFFER, index, handle);
         Unbind();
     }
+    Ubo::~Ubo() {
+        std::cout << "destroying Ubo" << std::endl;
+        glDeleteBuffers(1, &handle);
+    }
     void Ubo::Bind() {
         glBindBuffer(GL_UNIFORM_BUFFER, handle);
     }
@@ -127,6 +134,7 @@ namespace Core {
         glGenFramebuffers(1, &handle);
     }
     Fbo::~Fbo() {
+        std::cout << "destroying Fbo" << std::endl;
         glDeleteFramebuffers(1, &handle);
     }
     void Fbo::Bind() {
@@ -146,26 +154,26 @@ namespace Core {
     void Fbo::ClearDepth() {
         glClear(GL_DEPTH_BUFFER_BIT);
     }
-    void Fbo::AttachColorTexture(Tex& texture, int index, int level) {
-        texture.Bind();
+    void Fbo::AttachColorTexture(std::shared_ptr<Tex> texture, int index, int level) {
+        texture->Bind();
         
         if (index == -1) {
             index = colorAtts.size();
             colorAtts.push_back(nullptr);
         }
         
-        switch (texture.target) {
+        switch (texture->target) {
             case GL_TEXTURE_2D:
-                glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + index, GL_TEXTURE_2D, texture.Handle(), level);
+                glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + index, GL_TEXTURE_2D, texture->Handle(), level);
                 break;
             case GL_TEXTURE_CUBE_MAP:
                 for (int i = 0; i < 6; i++) {
-                    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + index, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, texture.Handle(), level);
+                    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + index, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, texture->Handle(), level);
                 }
                 break;
         }
         
-        colorAtts[index].reset(&texture);
+        colorAtts[index] = texture;
         UpdateDrawBuffers();
     }
     void Fbo::AttachDepthRbo16() {
@@ -178,8 +186,9 @@ namespace Core {
         depthRboAtt->Setup24();
         glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthRboAtt->Handle());
     }
-    void Fbo::AttachDepthTexture(Tex& texture, int level) {
-        depthAtt.reset(&texture);
+    void Fbo::AttachDepthTexture(std::shared_ptr<Tex> texture, int level) {
+        depthAtt = texture;
+        glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depthAtt->Handle(), level);
     }
     void Fbo::UpdateDrawBuffers() {
         std::vector<GLenum> buffers;
@@ -225,6 +234,7 @@ namespace Core {
         glGenRenderbuffers(1, &handle);
     }
     Rbo::~Rbo() {
+        std::cout << "destroying Rbo" << std::endl;
         glDeleteRenderbuffers(1, &handle);
     }
     void Rbo::Bind() {

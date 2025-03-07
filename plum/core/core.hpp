@@ -56,6 +56,7 @@ namespace Core {
     class Ubo : public GlObject {
         public:
             Ubo(const unsigned int index, const size_t size);
+            ~Ubo();
             virtual void Bind();
             virtual void Unbind();
             void UpdateData(const unsigned int offset, const size_t size, const void* data);
@@ -79,10 +80,10 @@ namespace Core {
             void Bind();
             void Unbind();
             
-            void AttachColorTexture(Tex& texture, int index = -1, int level = 0);
+            void AttachColorTexture(std::shared_ptr<Tex> texture, int index = -1, int level = 0);
             void AttachDepthRbo16();
             void AttachDepthRbo24();
-            void AttachDepthTexture(Tex& texture, int level = 0);
+            void AttachDepthTexture(std::shared_ptr<Tex> texture, int level = 0);
             void UpdateDrawBuffers();
             
             void CheckStatus();

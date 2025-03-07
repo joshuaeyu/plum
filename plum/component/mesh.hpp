@@ -12,12 +12,11 @@
 namespace Component {
 
     class Mesh : public ComponentBase {
-        // SceneNode has Draw(), transform, parent, children
         
         public:
             Mesh();
-            Mesh(Core::Vao& vao);
-            Mesh(Core::Vao& vao, Material::MaterialBase& mat);
+            Mesh(std::shared_ptr<Core::Vao> vao);
+            Mesh(std::shared_ptr<Core::Vao> vao, std::shared_ptr<Material::MaterialBase> mat);
             virtual ~Mesh();
             
             virtual void Draw(const glm::mat4& model_matrix = glm::identity<glm::mat4>());

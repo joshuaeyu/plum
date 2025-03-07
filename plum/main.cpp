@@ -19,20 +19,22 @@ int main() {
     std::cout << "Creating scene..." << std::endl;
     Component::Camera camera;
     Scene::Environment environment;
-    // Scene::Scene scene;
-    Component::Sphere sphere;
-    // scene.AddChild(sphere);
+    Scene::Scene scene;
+    auto sphere = std::make_shared<Component::Sphere>();
+    scene.AddChild(sphere);
+    auto dl = std::make_shared<Component::DirectionalLight>();
+    scene.AddChild(dl);
     
-    // std::cout << "Creating renderer..." << std::endl;
-    // Renderer::DeferredRenderer renderer(*application.defaultWindow);
+    std::cout << "Creating renderer..." << std::endl;
+    Renderer::DeferredRenderer renderer(application.defaultWindow);
     
     // Put this in some MainLoop() function
     std::cout << "Starting main loop..." << std::endl;
     while (!application.defaultWindow->ShouldClose()) {
         application.defaultWindow->PollEvents();    // needed!
         camera.ProcessInputs(); // needed because camera uses an inputobserver every frame
-        // Core::Fbo output = renderer.Render(scene, camera, environment);
-        // output.BlitToDefault(); // or window.display()? - need some coupling between fbo and window
+        Core::Fbo* output = renderer.Render(scene, camera, environment);
+        output->BlitToDefault(); // or window.display()? - need some coupling between fbo and window
         application.defaultWindow->SwapBuffers();
     }
 }

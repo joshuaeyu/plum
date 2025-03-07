@@ -77,7 +77,10 @@ namespace Core {
 
     Tex2D::Tex2D(GLenum target, GLint internalformat, GLsizei width, GLsizei height, GLenum format, GLenum datatype, GLint wrap, GLint filter, bool isshadowmap)
     : Tex{target, internalformat, width, height, 0, format, datatype, wrap, filter, isshadowmap}
-    {}
+    {
+        Bind();
+        DefineImage(nullptr);
+    }
 
     void Tex2D::DefineImage(const void *pixels, const int level) {
         glTexImage2D(target, level, internalformat, width, height, 0, format, datatype, pixels);
@@ -85,7 +88,10 @@ namespace Core {
 
     Tex3D::Tex3D(GLenum target, GLint internalformat, GLsizei width, GLsizei height, GLsizei depth, GLenum format, GLenum datatype, GLint wrap, GLint filter, bool isshadowmap) 
     : Tex{target, internalformat, width, height, depth, format, datatype, wrap, filter, isshadowmap}
-    {}
+    {
+        Bind();
+        DefineImage(nullptr);
+    }
 
     void Tex3D::DefineImage(const void *pixels, const int level) {
         glTexImage3D(target, level, internalformat, width, height, depth, 0, format, datatype, pixels);
