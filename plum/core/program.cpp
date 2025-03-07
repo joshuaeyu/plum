@@ -89,6 +89,13 @@ namespace Core {
 
         // ==== Finally, link ====
         glLinkProgram(handle);
+        GLint linkstatus;
+        glGetProgramiv(handle, GL_LINK_STATUS, &linkstatus);
+        if (!linkstatus) {
+            glGetProgramInfoLog(handle, 1024, NULL, infoLog);
+            std::cout << " ERROR::PROGRAM::LINKFAIL\n" << infoLog << std::endl;
+            exit(-1);
+        }
     }
 
     Program::~Program()
@@ -110,6 +117,10 @@ namespace Core {
     void Program::SetUniformBlockBinding(std::string name, GLuint index) {
         GLuint ubo = glGetUniformBlockIndex(handle, name.c_str());
         glUniformBlockBinding(handle, ubo, index);
+        while (GLenum error = glGetError()) {
+            std::cerr << "Warning: Uniform block "<< name << " was not found in the program." << std::endl;
+            std::cerr << "Ubo binding error: " << error << std::endl;
+        }
     }
 
     void Program::SetInt(std::string name, int val) {

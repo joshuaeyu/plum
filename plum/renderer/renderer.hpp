@@ -62,6 +62,7 @@ namespace Renderer {
             void InitializeUniformBlocks();
             void InitGbuffer();
             void InitShadowMaps();
+            void InitOutput();
             
             // Per frame
             void ParseLights(Scene::Scene& scene);
@@ -96,7 +97,6 @@ namespace Renderer {
 
             void framebufferSizeCallback(int width, int height);
 
-            std::function<void(int,int)> sdf;
             Context::WindowEventListener eventListener;
     };
 

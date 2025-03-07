@@ -52,7 +52,7 @@ namespace Core {
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     }
     Ebo::~Ebo() {
-        std::cout << "destroying Ebo" << std::endl;
+        // std::cout << "destroying Ebo" << std::endl;
         glDeleteBuffers(1, &handle);
     }
 
@@ -73,7 +73,7 @@ namespace Core {
         Unbind();
     }
     Vao::~Vao() {
-        std::cout << "destroying Vao" << std::endl;
+        // std::cout << "destroying Vao" << std::endl;
         glDeleteVertexArrays(1, &handle);
     }
     void Vao::Bind() {
@@ -105,13 +105,14 @@ namespace Core {
     Ubo::Ubo(const unsigned int index, const size_t size) 
     {
         glGenBuffers(1, &handle);
+        std::cout << "Ubo Handle: " << handle << std::endl;
         Bind();
         glBufferData(GL_UNIFORM_BUFFER, size, NULL, GL_DYNAMIC_DRAW);
         glBindBufferBase(GL_UNIFORM_BUFFER, index, handle);
         Unbind();
     }
     Ubo::~Ubo() {
-        std::cout << "destroying Ubo" << std::endl;
+        // std::cout << "destroying Ubo" << std::endl;
         glDeleteBuffers(1, &handle);
     }
     void Ubo::Bind() {
@@ -134,7 +135,7 @@ namespace Core {
         glGenFramebuffers(1, &handle);
     }
     Fbo::~Fbo() {
-        std::cout << "destroying Fbo" << std::endl;
+        // std::cout << "destroying Fbo" << std::endl;
         glDeleteFramebuffers(1, &handle);
     }
     void Fbo::Bind() {
@@ -234,7 +235,7 @@ namespace Core {
         glGenRenderbuffers(1, &handle);
     }
     Rbo::~Rbo() {
-        std::cout << "destroying Rbo" << std::endl;
+        // std::cout << "destroying Rbo" << std::endl;
         glDeleteRenderbuffers(1, &handle);
     }
     void Rbo::Bind() {

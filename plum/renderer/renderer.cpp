@@ -24,6 +24,7 @@ namespace Renderer {
         InitializeUniformBlocks();
         InitGbuffer();
         InitShadowMaps();
+        InitOutput();
 
         std::function<void(int,int)> staticFunc = std::bind(&DeferredRenderer::framebufferSizeCallback, this, std::placeholders::_1, std::placeholders::_2);
         eventListener.SetFramebufferSizeCallback(staticFunc);
@@ -117,6 +118,18 @@ namespace Renderer {
         glDrawBuffer(GL_NONE);  // No colorbuffer
         glReadBuffer(GL_NONE);  // No colorbuffer
         pointShadowBuffer.CheckStatus();
+    }
+
+    void DeferredRenderer::InitOutput() {
+        
+        using namespace Core;
+        
+        auto color = std::make_shared<Tex2D>(GL_TEXTURE_2D, GL_RGBA, output.width, output.height, GL_RGBA, GL_FLOAT, GL_CLAMP_TO_EDGE, GL_NEAREST);
+
+        output.Bind();
+        output.AttachColorTexture(color);
+        output.AttachDepthRbo16();
+        output.CheckStatus();
     }
 
     void DeferredRenderer::ParseLights(Scene::Scene& scene) {
@@ -278,8 +291,9 @@ namespace Renderer {
         
         // ---- Bind textures ---- 
         // G-buffer
-        for (int i = 0; i < gBuffer.colorAtts.size(); i++)
+        for (int i = 0; i < gBuffer.colorAtts.size(); i++) {
             gBuffer.colorAtts[i]->Bind(i);
+        }
         // SSAO
             // (future)
         // IBL
@@ -293,10 +307,10 @@ namespace Renderer {
         pointShadowBuffer.depthAtt->Bind(9);
         
         // ---- Set uniforms ---- 
-        lightingPassPbrModule.gPosition = 1;
-        lightingPassPbrModule.gNormal = 2;
-        lightingPassPbrModule.gAlbedoSpec = 3;
-        lightingPassPbrModule.gMetRouOcc = 4;
+        lightingPassPbrModule.gPosition = 0;
+        lightingPassPbrModule.gNormal = 1;
+        lightingPassPbrModule.gAlbedoSpec = 2;
+        lightingPassPbrModule.gMetRouOcc = 3;
         lightingPassPbrModule.irradianceMap = 5;
         lightingPassPbrModule.prefilterMap = 6;
         lightingPassPbrModule.brdfLUT = 7;
@@ -331,6 +345,7 @@ namespace Renderer {
             cube.Draw(env.skyboxModule);
             glCullFace(GL_BACK);
         }
+        output.CheckStatus();
     }
 
     void DeferredRenderer::framebufferSizeCallback(int width, int height) {
