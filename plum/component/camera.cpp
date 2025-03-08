@@ -3,6 +3,8 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 
+#include <iostream>
+
 namespace Component {
 
     Camera::Camera() 
@@ -12,6 +14,7 @@ namespace Component {
     Camera::Camera(Transform transform, glm::mat4 projection) 
         : transform(transform), 
         projection(projection),
+        view(View()),
         inputObserver(Context::WindowInputsAndEventsManager::CreateInputObserver({GLFW_KEY_W, GLFW_KEY_S, GLFW_KEY_A, GLFW_KEY_D, GLFW_KEY_SPACE, GLFW_KEY_LEFT_SHIFT}))
     {}
 
@@ -35,6 +38,11 @@ namespace Component {
             translate(Direction::Up, distance);
         if (inputObserver->GetKeyDown(GLFW_KEY_LEFT_SHIFT))
             translate(Direction::Down, distance);
+    }
+
+    const glm::mat4& Camera::View() {
+        view = glm::lookAt(transform.position, transform.position + transform.Front(), worldUp);
+        return view;
     }
 
     void Camera::rotate(double delta_yaw, double delta_pitch) {

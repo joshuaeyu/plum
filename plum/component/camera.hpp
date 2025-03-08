@@ -23,6 +23,7 @@ namespace Component {
             float speed       = 5.f;
             float sensitivity = 0.1f;
             
+            const glm::mat4& View();
             glm::mat4 projection;
             // float zoom        = 45.0f;
             
@@ -30,6 +31,7 @@ namespace Component {
             void rotate(double delta_yaw, double delta_pitch);
             void translate(const Direction dir, float dist);
 
+            glm::mat4 view;
             glm::vec3 worldUp = glm::vec3(0,1,0);
 
             std::shared_ptr<Context::WindowInputObserver> inputObserver;
