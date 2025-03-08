@@ -12,10 +12,10 @@ namespace Core {
             stride = 0;
             for (const auto& attr : AttrTypes) {
                 if (HasAttributes(attr.flag))
-                    stride += attr.ncomps;
+                    stride += attr.size;
             }
             // Determine vertex count
-            vertexCount = data.size() / Stride();
+            vertexCount = data.size() * sizeof(float) / Stride();
         }
 
         VertexArray::VertexArray(const UncollatedVertices& uncollated) 
@@ -98,7 +98,8 @@ namespace Core {
         size_t VertexArray::AttributeOffset(const AttrFlags flag) const {
             size_t offset = 0;
             for (const auto& attr : AttrTypes) {
-                if (attr.flag == flag)
+                // Add to offset until index is encountered (needs more robust solution in the future)
+                if (attr.index == GetAttrTypeInfo(flag).index)
                     break;
                 else
                     offset += attr.size;
