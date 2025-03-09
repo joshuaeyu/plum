@@ -189,21 +189,17 @@ namespace Renderer {
 
             unsigned int offset = 16 + i*96;
             
-            glm::vec4 dirlight_color = glm::vec4(dl->color, 0);
+            // Color
+            glm::vec4 dirlight_color = glm::vec4(dl->color * dl->intensity, 0);
             uboFsDirlight->UpdateData(offset, sizeof(glm::vec4), &dirlight_color);
             
+            // Direction and shadow map index
+            glm::vec4 dirlight_direction = glm::vec4( glm::mat3(glm::transpose(glm::inverse(camera.View()))) * dl->direction, -1 );
             if (dl->HasShadows()) {
-                glm::vec4 dirlight_direction = glm::vec4( glm::mat3(glm::transpose(glm::inverse(camera.View()))) * dl->direction, shadow_count++);
-                uboFsDirlight->UpdateData(offset + 16, sizeof(glm::vec4), &dirlight_direction);
-                
-                glm::mat4 dirlight_matrix = dl->GetLightspaceMatrix();
-                uboFsDirlight->UpdateData(offset + 32, sizeof(glm::mat4), &dirlight_matrix);
-            } else {
-                glm::vec4 dirlight_direction = glm::vec4( glm::mat3(glm::transpose(glm::inverse(camera.View()))) * dl->direction, -1 );
-                uboFsDirlight->UpdateData(offset + 16, sizeof(glm::vec4), &dirlight_direction);
-                
-                // (Don't need to set lightspace matrix if not casting shadows)
+                dirlight_direction = glm::vec4( glm::mat3(glm::transpose(glm::inverse(camera.View()))) * dl->direction, shadow_count++);   
+                uboFsDirlight->UpdateData(offset + 32, sizeof(glm::mat4), &dl->GetLightspaceMatrix());
             }
+            uboFsDirlight->UpdateData(offset + 16, sizeof(glm::vec4), &dirlight_direction);
         }
     }
 
@@ -217,18 +213,21 @@ namespace Renderer {
             Component::PointLight* pl = dynamic_cast<Component::PointLight*>(pointLights[i]->component.get());
 
             unsigned int offset = 16 + i*64;
-
-            glm::vec4 pointlight_color = glm::vec4(pl->color, 0);
+            
+            // Color
+            glm::vec4 pointlight_color = glm::vec4(pl->color * pl->intensity, 0);
             uboFsPointlight->UpdateData(offset, sizeof(glm::vec4), &pointlight_color);
 
+            // Attenuation
             float pointlight_att[] = { pl->GetAttenuationConstant(), pl->GetAttenuationLinear(), pl->GetAttenuationQuadratic() };
             glm::vec4 att = glm::vec4(pointlight_att[0], pointlight_att[1], pointlight_att[2], 0);
             uboFsPointlight->UpdateData(offset + 16, sizeof(glm::vec4), &att);
-
+            
+            // Position (viewspace)
             glm::vec4 pointlight_pos_view = camera.View() * glm::vec4(pl->position, 1);
             pointlight_pos_view.w = pl->GetFarPlane();
             uboFsPointlight->UpdateData(offset + 32, sizeof(glm::vec4), &pointlight_pos_view);
-
+            // Position (worldspace) and shadow map index
             glm::vec4 pointlight_pos_world = glm::vec4(pl->position, -1);
             if (pl->HasShadows()) {
                 pointlight_pos_world = glm::vec4(pl->position, shadow_count++);

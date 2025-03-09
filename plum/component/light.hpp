@@ -20,6 +20,7 @@ namespace Component {
     class Light : public ComponentBase {
         public:
             glm::vec3 color = glm::vec3(1);
+            float intensity = 1.0f;
             
             virtual void Draw() = 0;
             virtual void Draw(const glm::mat4& parent_transf) = 0;
@@ -41,7 +42,7 @@ namespace Component {
 
     class DirectionalLight : public Light {
         public:
-            glm::vec3 direction = glm::vec3(-1);
+            glm::vec3 direction = glm::vec3(-1,-1,-1);
             
             DirectionalLight();
 
