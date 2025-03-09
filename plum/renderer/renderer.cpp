@@ -34,8 +34,7 @@ namespace Renderer {
     
     Core::Fbo* DeferredRenderer::Render(Scene::Scene& scene, Component::Camera& camera) {
         static Scene::Environment environment;
-        Render(scene, camera, environment);
-        return &output;
+        return Render(scene, camera, environment);
     }
 
     Core::Fbo* DeferredRenderer::Render(Scene::Scene& scene, Component::Camera& camera, Scene::Environment& env) {
@@ -77,17 +76,17 @@ namespace Renderer {
         gBuffer.Bind();
         gBuffer.colorAtts = std::vector<std::shared_ptr<Tex>>(4);
         
-        auto position = std::make_shared<Tex2D>(GL_TEXTURE_2D, GL_RGBA32F, gBuffer.width, gBuffer.height, GL_RGBA, GL_FLOAT, GL_CLAMP_TO_EDGE, GL_NEAREST);
+        auto position = std::make_shared<Tex2D>(GL_TEXTURE_2D, GL_RGBA16F, gBuffer.width, gBuffer.height, GL_RGBA, GL_FLOAT, GL_CLAMP_TO_EDGE, GL_NEAREST);
         gBuffer.AttachColorTexture(position, 0);
 
-        auto normal = std::make_shared<Tex2D>(GL_TEXTURE_2D, GL_RGBA32F, gBuffer.width, gBuffer.height, GL_RGBA, GL_FLOAT, GL_CLAMP_TO_EDGE, GL_NEAREST);
+        auto normal = std::make_shared<Tex2D>(GL_TEXTURE_2D, GL_RGBA16F, gBuffer.width, gBuffer.height, GL_RGBA, GL_FLOAT, GL_CLAMP_TO_EDGE, GL_NEAREST);
         gBuffer.AttachColorTexture(normal, 1);
         
         auto albedospec = std::make_shared<Tex2D>(GL_TEXTURE_2D, GL_RGBA, gBuffer.width, gBuffer.height, GL_RGBA, GL_UNSIGNED_BYTE, GL_CLAMP_TO_EDGE, GL_NEAREST);
         gBuffer.AttachColorTexture(albedospec, 2);
         
         auto metrou = std::make_shared<Tex2D>(GL_TEXTURE_2D, GL_RGBA, gBuffer.width, gBuffer.height, GL_RGBA, GL_UNSIGNED_BYTE, GL_CLAMP_TO_EDGE, GL_NEAREST);
-        gBuffer.AttachColorTexture(albedospec, 3);
+        gBuffer.AttachColorTexture(metrou, 3);
         
         gBuffer.AttachDepthRbo16();
     
@@ -162,10 +161,10 @@ namespace Renderer {
 
     void DeferredRenderer::UpdateGlobalUniforms(Scene::Scene& scene, Component::Camera& camera) {
         // 0 - View, projection transforms  
-        uboVsMatrices->UpdateData(0, sizeof(glm::mat4), &camera.transform.Matrix());
+        uboVsMatrices->UpdateData(0, sizeof(glm::mat4), &camera.View());
         uboVsMatrices->UpdateData(sizeof(glm::mat4), sizeof(glm::mat4), &camera.projection);
         // 1 - Inverse view transform
-        glm::mat4 inv_view = glm::inverse(camera.transform.Matrix());
+        glm::mat4 inv_view = glm::inverse(camera.View());
         uboFsMatrices->UpdateData(0, sizeof(glm::mat4), &inv_view);
         // 2 - Camera position, front (viewspace)
         glm::vec3 dummy_cam_pos = glm::vec3(0); // shaders work in view space
@@ -180,7 +179,7 @@ namespace Renderer {
     }
 
     void DeferredRenderer::SetDirectionalLightUniforms(Component::Camera& camera) {
-        int total_count = directionalLights.size();
+        float total_count = directionalLights.size();
         int shadow_count = 0;
         
         uboFsDirlight->UpdateData(0, sizeof(float), &total_count);
@@ -194,23 +193,22 @@ namespace Renderer {
             uboFsDirlight->UpdateData(offset, sizeof(glm::vec4), &dirlight_color);
             
             if (dl->HasShadows()) {
-                glm::vec4 dirlight_direction = glm::vec4( glm::mat3(glm::transpose(glm::inverse(camera.transform.Matrix()))) * dl->direction, shadow_count++);
+                glm::vec4 dirlight_direction = glm::vec4( glm::mat3(glm::transpose(glm::inverse(camera.View()))) * dl->direction, shadow_count++);
                 uboFsDirlight->UpdateData(offset + 16, sizeof(glm::vec4), &dirlight_direction);
                 
                 glm::mat4 dirlight_matrix = dl->GetLightspaceMatrix();
                 uboFsDirlight->UpdateData(offset + 32, sizeof(glm::mat4), &dirlight_matrix);
             } else {
-                glm::vec4 dirlight_direction = glm::vec4( glm::mat3(glm::transpose(glm::inverse(camera.transform.Matrix()))) * dl->direction, -1 );
+                glm::vec4 dirlight_direction = glm::vec4( glm::mat3(glm::transpose(glm::inverse(camera.View()))) * dl->direction, -1 );
                 uboFsDirlight->UpdateData(offset + 16, sizeof(glm::vec4), &dirlight_direction);
                 
                 // (Don't need to set lightspace matrix if not casting shadows)
             }
-            
         }
     }
 
     void DeferredRenderer::SetPointLightUniforms(Component::Camera& camera) {
-        int total_count = pointLights.size();
+        float total_count = pointLights.size();
         int shadow_count = 0;
 
         uboFsPointlight->UpdateData(0, sizeof(float), &total_count);
@@ -227,7 +225,7 @@ namespace Renderer {
             glm::vec4 att = glm::vec4(pointlight_att[0], pointlight_att[1], pointlight_att[2], 0);
             uboFsPointlight->UpdateData(offset + 16, sizeof(glm::vec4), &att);
 
-            glm::vec4 pointlight_pos_view = camera.transform.Matrix() * glm::vec4(pl->position, 1);
+            glm::vec4 pointlight_pos_view = camera.View() * glm::vec4(pl->position, 1);
             pointlight_pos_view.w = pl->GetFarPlane();
             uboFsPointlight->UpdateData(offset + 32, sizeof(glm::vec4), &pointlight_pos_view);
 
@@ -314,7 +312,7 @@ namespace Renderer {
         lightingPassPbrModule.irradianceMap = 5;
         lightingPassPbrModule.prefilterMap = 6;
         lightingPassPbrModule.brdfLUT = 7;
-        lightingPassPbrModule.ibl = 0.5f;
+        lightingPassPbrModule.ibl = 0.0f;
         lightingPassPbrModule.shadowmap_2d_array_shadow = 8;
         lightingPassPbrModule.shadowmap_cube_array_shadow = 9;
         lightingPassPbrModule.Use();
@@ -339,13 +337,12 @@ namespace Renderer {
         if (env.skybox) {
             static Component::Cube cube;
             env.skyboxModule.Use();
-            env.skyboxModule.SetGlobalUniforms(glm::mat4(glm::mat3(camera.transform.Matrix())), camera.projection, 0);
+            env.skyboxModule.SetGlobalUniforms(glm::mat4(glm::mat3(camera.View())), camera.projection, 0);
             env.skybox->Bind(0);
             glCullFace(GL_FRONT);
             cube.Draw(env.skyboxModule);
             glCullFace(GL_BACK);
         }
-        output.CheckStatus();
     }
 
     void DeferredRenderer::framebufferSizeCallback(int width, int height) {
