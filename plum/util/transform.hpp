@@ -7,7 +7,7 @@ class Transform {
     public:
         Transform();
         Transform(glm::mat4 matrix);
-        Transform(glm::vec3 position, glm::vec3 rotationEuler, glm::vec3 scale);
+        Transform(glm::vec3 position, glm::vec3 rotationEuler, glm::vec3 scale);    // Expects euler angles in radians.
         Transform(glm::vec3 position, glm::quat rotationQuat, glm::vec3 scale);
 
         const glm::mat4& Matrix();
@@ -27,10 +27,10 @@ class Transform {
         
         // Update matrix, front, up, and right based on position, rotationEuler (prioritized over rotationQuat), and scale
         void Update();  
-        glm::vec3 position;      // If changed directly, must call Update() to update matrix
-        glm::vec3 rotationEuler; // If changed directly, must call Update() to update matrix
-        glm::quat rotationQuat;  // If changed directly, must call Update() to update matrix
-        glm::vec3 scale;         // If changed directly, must call Update() to update matrix
+        glm::vec3 position;      // If changing directly, must call Update() to update matrix
+        glm::vec3 rotationEuler; // If changing directly, must call Update() to update matrix
+        glm::quat rotationQuat;  // If changing directly, must call Update() to update matrix
+        glm::vec3 scale;         // If changing directly, must call Update() to update matrix
         
     private:
         glm::mat4 matrix = glm::identity<glm::mat4>();

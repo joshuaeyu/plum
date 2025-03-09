@@ -52,13 +52,13 @@ void Transform::Translate(float dx, float dy, float dz) {
 }
 
 void Transform::Rotate(glm::vec3 eulerAngles) {
-    rotationEuler = eulerAngles;
+    rotationEuler += eulerAngles;
     rotationQuat = glm::quat(rotationEuler);
     updateFrontRightUp();
     isUpdateRequired = true;
 }
 void Transform::Rotate(float pitch, float yaw, float roll) {
-    rotationEuler = glm::vec3(pitch, yaw, roll);
+    rotationEuler += glm::vec3(pitch, yaw, roll);
     rotationQuat = glm::quat(rotationEuler);
     updateFrontRightUp();
     isUpdateRequired = true;
