@@ -98,11 +98,12 @@ namespace Core {
         size_t VertexArray::AttributeOffset(const AttrFlags flag) const {
             size_t offset = 0;
             for (const auto& attr : AttrTypes) {
-                // Add to offset until index is encountered (needs more robust solution in the future)
-                if (attr.index == GetAttrTypeInfo(flag).index)
-                    break;
-                else
-                    offset += attr.size;
+                if (HasAttributes(attr.flag)) {
+                    if (attr.index == GetAttrTypeInfo(flag).index)
+                        break;
+                    else
+                        offset += attr.size;
+                }
             }
             return offset;
         }
