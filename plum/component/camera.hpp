@@ -21,7 +21,7 @@ namespace Component {
             
             Transform transform;
             float speed       = 5.f;
-            float sensitivity = 0.1f;
+            float sensitivity = 0.005f;
             
             const glm::mat4& View();
             glm::mat4 projection;

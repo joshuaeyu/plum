@@ -8,7 +8,7 @@
 namespace Component {
 
     Camera::Camera() 
-        : Camera(Transform(), glm::perspective(45.f, 1920.f/1080, 0.1f, 100.f)) 
+        : Camera(Transform(), glm::perspective(45.f, 1.f, 0.1f, 100.f)) 
     {}
 
     Camera::Camera(Transform transform, glm::mat4 projection) 
@@ -20,7 +20,7 @@ namespace Component {
 
     void Camera::ProcessInputs() {
         // Mouse: Rotation
-        float deltaYaw = inputObserver->GetCursorDeltaX() * sensitivity;
+        float deltaYaw = -inputObserver->GetCursorDeltaX() * sensitivity;
         float deltaPitch = inputObserver->GetCursorDeltaY() * sensitivity;
         rotate(deltaYaw, deltaPitch);
         
@@ -46,15 +46,15 @@ namespace Component {
     }
 
     void Camera::rotate(double delta_yaw, double delta_pitch) {
-        transform.Rotate(delta_yaw, delta_pitch, 0);
+        transform.Rotate(delta_pitch, delta_yaw, 0);
 
         glm::vec3 eulerAngles = transform.rotationEuler;
-        if (eulerAngles.x > 89.0f) {
-            transform.rotationEuler.x = 89.0f;
+        if (eulerAngles.x > 0.99f * glm::half_pi<float>()) {
+            transform.rotationEuler.x = 0.99f * glm::half_pi<float>();
             transform.Update();
         }
-        if (eulerAngles.x < -89.0f) {
-            transform.rotationEuler.x = -89.0f;
+        if (eulerAngles.x < -0.99f * glm::half_pi<float>()) {
+            transform.rotationEuler.x = -0.99f * glm::half_pi<float>();
             transform.Update();
         }
     }
@@ -68,10 +68,10 @@ namespace Component {
                 transform.Translate(-transform.Front() * dist);
                 break;
             case Direction::Left:
-                transform.Translate(-transform.Right() * dist);
+                transform.Translate(transform.Right() * dist);  // Because using <0,0,1> as front with RH coordinate system
                 break;
             case Direction::Right:
-                transform.Translate(transform.Right() * dist);
+                transform.Translate(-transform.Right() * dist); // Because using <0,0,1> as front with RH coordinate system
                 break;
             case Direction::Up:
                 transform.Translate(worldUp * dist);
