@@ -19,8 +19,9 @@ namespace Scene {
                
         public:
             std::shared_ptr<SceneNode> CreateChild();
-            void AddChild(std::shared_ptr<Component::ComponentBase> component);
-            void AddChild(std::shared_ptr<SceneNode> node);
+            std::shared_ptr<SceneNode> AddChild(std::shared_ptr<SceneNode> node);
+            std::shared_ptr<SceneNode> AddChild(std::shared_ptr<Component::ComponentBase> component);
+            // Future: Template using component type and its constructor
             void RemoveChild(std::shared_ptr<SceneNode> node);
             
             virtual void Draw(const glm::mat4& parent_transform = glm::identity<glm::mat4>());
@@ -37,7 +38,6 @@ namespace Scene {
 
             bool bypassLighting = false;
             bool visible = true;
-            
     };
 
 }
