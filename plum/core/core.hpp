@@ -94,9 +94,9 @@ namespace Core {
             void ClearColor(float r, float g, float b, float a);
             void ClearDepth();
 
-            void BlitTo(Fbo& fbo, bool color = true, bool depth = true);
-            void BlitToDefault(bool color = true, bool depth = true);
-            void BlitFrom(Fbo& fbo, bool color = true, bool depth = true);
+            void BlitTo(Fbo& fbo, bool color = true, bool depth = true, int source_buffer_idx = 0, int target_buffer_index = 0);
+            void BlitToDefault(bool color = true, bool depth = true, int source_buffer_index = 0);
+            void BlitFrom(Fbo& fbo, bool color = true, bool depth = true, int source_buffer_idx = 0, int target_buffer_index = 0);
 
             int width, height;
             std::vector<std::shared_ptr<Tex>> colorAtts;

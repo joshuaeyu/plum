@@ -107,7 +107,7 @@ namespace Core {
     Ubo::Ubo(const unsigned int index, const size_t size) 
     {
         glGenBuffers(1, &handle);
-        std::cout << "Ubo Handle: " << handle << std::endl;
+        std::cout << "Ubo index: " << index << " Ubo handle: " << handle << std::endl;
         Bind();
         glBufferData(GL_UNIFORM_BUFFER, size, NULL, GL_DYNAMIC_DRAW);
         glBindBufferBase(GL_UNIFORM_BUFFER, index, handle);
@@ -125,7 +125,7 @@ namespace Core {
     }
     void Ubo::UpdateData(const unsigned int offset, const size_t size, const void* data) {
         Bind();
-        glBufferSubData(GL_UNIFORM_BUFFER, offset, size, &handle);
+        glBufferSubData(GL_UNIFORM_BUFFER, offset, size, data);
         Unbind();
     }
 
@@ -207,26 +207,29 @@ namespace Core {
             std::cerr << "Framebuffer error: " << glCheckFramebufferStatus(GL_FRAMEBUFFER) << std::endl;
         }
     }
-    void Fbo::BlitTo(Fbo& target, bool color, bool depth) {
+    void Fbo::BlitTo(Fbo& target, bool color, bool depth, int source_buffer_idx, int target_buffer_index) {
         GLbitfield mask = 0;
         mask |= GL_COLOR_BUFFER_BIT * color;
         mask |= GL_DEPTH_BUFFER_BIT * depth;
         
         glBindFramebuffer(GL_READ_FRAMEBUFFER, handle);
         glBindFramebuffer(GL_DRAW_FRAMEBUFFER, target.handle);
+        glReadBuffer(GL_COLOR_ATTACHMENT0 + source_buffer_idx);
+        glDrawBuffer(GL_COLOR_ATTACHMENT0 + target_buffer_index);
         glBlitFramebuffer(0, 0, width, height, 0, 0, target.width, target.height, mask, GL_NEAREST);   // Internal formats need to match!
     }
-    void Fbo::BlitToDefault(bool color, bool depth) {
+    void Fbo::BlitToDefault(bool color, bool depth, int source_buffer_idx) {
         GLbitfield mask = 0;
         mask |= GL_COLOR_BUFFER_BIT * color;
         mask |= GL_DEPTH_BUFFER_BIT * depth;
 
         glBindFramebuffer(GL_READ_FRAMEBUFFER, handle);
         glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+        glReadBuffer(GL_COLOR_ATTACHMENT0 + source_buffer_idx);
         glBlitFramebuffer(0, 0, width, height, 0, 0, width, height, mask, GL_NEAREST);   // Internal formats need to match!
     }
-    void Fbo::BlitFrom(Fbo& source, bool color, bool depth) {
-        source.BlitTo(*this, color, depth);
+    void Fbo::BlitFrom(Fbo& source, bool color, bool depth, int source_buffer_idx, int target_buffer_index) {
+        source.BlitTo(*this, color, depth, source_buffer_idx, target_buffer_index);
     }
 
     // Renderbuffer
