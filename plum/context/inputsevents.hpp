@@ -24,12 +24,12 @@ namespace Context {
             ~WindowInputObserver();
 
             bool GetKeyDown(int key);
-                        
+            
             static float GetCursorX();
             static float GetCursorY();
-            static float GetCursorDeltaX();
-            static float GetCursorDeltaY();
-
+            float GetCursorDeltaX();
+            float GetCursorDeltaY();
+            
             static int GetFramebufferWidth();
             static int GetFramebufferHeight();
             static int GetWindowWidth();
@@ -37,11 +37,14 @@ namespace Context {
             
         private:
             friend class WindowInputsAndEventsManager;
+            
+            static void perFrameRoutine();
 
             // For cursor
             static void setCursorPos(double xpos, double ypos);
             inline static float lastCursorX, lastCursorY, currCursorX, currCursorY;
-            inline static bool firstCursor;
+            inline static bool firstCursor = true;
+            inline static bool cursorMoved = false;
             // For key
             void setKeyDown(int key, bool isDown);
             std::map<int, bool> keys;
@@ -79,6 +82,8 @@ namespace Context {
 
             static std::shared_ptr<WindowInputObserver> CreateInputObserver(std::vector<int> keysToMonitor = {});
             static std::shared_ptr<WindowEventListener> CreateEventListener();
+
+            static void PerFrameRoutine();
 
         private:
             friend class WindowInputObserver;

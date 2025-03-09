@@ -23,6 +23,9 @@ namespace Context {
         WindowCreator creator;
         defaultWindow = creator.Create();
         defaultWindow->MakeCurrent();
+        activeWindow = defaultWindow;
+
+        WindowInputsAndEventsManager::Setup(*defaultWindow);
 
         if (!gladLoadGL(glfwGetProcAddress)) {
             std::cerr << "gladLoadGLLoader failed" << std::endl;

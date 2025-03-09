@@ -26,14 +26,11 @@ namespace Context {
             int Height() const { return height; }  
             std::string Title() const { return title; }          
 
-            // bool GetKeyPress(int key) const;
-            // bool GetKeyRelease(int key) const;
-
             static float CurrentTime();
             static float DeltaTime();
 
             void MakeCurrent();
-            void PollEvents();
+            void PollInputsAndEvents();
             void SwapBuffers();
             
             void ProcessInputs();
@@ -49,10 +46,12 @@ namespace Context {
             std::string title;
             
             GLFWwindow* handle;
-            inline static float lastTime = glfwGetTime();
+            inline static float lastTime = glfwGetTime();;
+            inline static float currentTime = glfwGetTime();
 
             void keyCallback(int key, int scancode, int action, int mods);
         
+            WindowInputsAndEventsManager inputsAndEvents;
             std::shared_ptr<WindowEventListener> eventListener;
     };
 

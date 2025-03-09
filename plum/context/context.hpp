@@ -19,6 +19,7 @@ namespace Context {
             static Application& Instance();
         
             std::shared_ptr<Window> defaultWindow;
+            std::shared_ptr<Window> activeWindow;
             
             void EnableDepth(GLenum func = GL_LEQUAL);
             void EnableCull(GLenum mode = GL_BACK);

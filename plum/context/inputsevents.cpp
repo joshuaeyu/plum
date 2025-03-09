@@ -25,6 +25,13 @@ namespace Context {
         return wel;
     }
 
+    void WindowInputsAndEventsManager::PerFrameRoutine() {
+        for (auto& weakObserver : observers) {
+            if (auto observer = weakObserver.lock())
+                observer->perFrameRoutine();
+        }
+    }
+
     void WindowInputsAndEventsManager::cursor_pos_callback(GLFWwindow *window, double xpos, double ypos) {
         WindowInputObserver::setCursorPos(xpos, ypos);
         for (auto& weakListener : listeners) {
@@ -85,40 +92,55 @@ namespace Context {
         }
         return result;
     }
-                
+    
     float WindowInputObserver::GetCursorX() { return currCursorX; }
     float WindowInputObserver::GetCursorY() { return currCursorY; }
-    float WindowInputObserver::GetCursorDeltaX() { return currCursorX - lastCursorX; }
-    float WindowInputObserver::GetCursorDeltaY() { return currCursorY - lastCursorY; }
+    float WindowInputObserver::GetCursorDeltaX() {
+        return cursorMoved ? currCursorX - lastCursorX : 0;
+    }
+    float WindowInputObserver::GetCursorDeltaY() { 
+        return cursorMoved ? currCursorY - lastCursorY : 0;
+    }
     
     int WindowInputObserver::GetFramebufferWidth() { return framebufferWidth; }
     int WindowInputObserver::GetFramebufferHeight() { return framebufferHeight; }
     
     int WindowInputObserver::GetWindowWidth() { return windowWidth; }
     int WindowInputObserver::GetWindowHeight() { return windowHeight; }
+    
+    void WindowInputObserver::perFrameRoutine() {
+        cursorMoved = false;
+    }
 
     void WindowInputObserver::setKeyDown(int key, bool isDown) {
         std::map<int,bool>::iterator it = keys.find(key);
         if (it != keys.end()) {
-            keys[key] = isDown;
+            it->second = isDown;
         }
     }
-
+    
     void WindowInputObserver::setCursorPos(double xpos, double ypos) {
-        WindowInputObserver::lastCursorX = WindowInputObserver::currCursorX;
-        WindowInputObserver::lastCursorY = WindowInputObserver::currCursorY;
-        WindowInputObserver::currCursorX = xpos;
-        WindowInputObserver::currCursorY = ypos;
+        if (firstCursor) {
+            lastCursorX = xpos;
+            lastCursorY = ypos;
+            firstCursor = false;
+        } else {
+            lastCursorX = currCursorX;
+            lastCursorY = currCursorY;
+        }
+        currCursorX = xpos;
+        currCursorY = ypos;
+        cursorMoved = true;
     }
 
     void WindowInputObserver::setFramebufferSize(int width, int height) {
-        WindowInputObserver::framebufferWidth = width;
-        WindowInputObserver::framebufferHeight = height;
+        framebufferWidth = width;
+        framebufferHeight = height;
     }
 
     void WindowInputObserver::setWindowSize(int width, int height) {
-        WindowInputObserver::windowWidth = width;
-        WindowInputObserver::windowHeight = height;
+        windowWidth = width;
+        windowHeight = height;
     }
 
     // ========== WindowEventListener ==========

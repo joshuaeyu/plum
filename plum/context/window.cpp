@@ -43,8 +43,6 @@ namespace Context {
         title(title),
         eventListener(WindowInputsAndEventsManager::CreateEventListener())
     {
-        WindowInputsAndEventsManager::Setup(*this);
-
         std::function<void(int,int,int,int)> staticFunc = std::bind(&Window::keyCallback, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4);   
         eventListener->SetKeyCallback(staticFunc);
     }
@@ -68,22 +66,21 @@ namespace Context {
     }
 
     float Window::CurrentTime() {
-        Window::lastTime = glfwGetTime();
         return lastTime;
     }
 
     float Window::DeltaTime() {
-        float result = glfwGetTime() - Window::lastTime;
-        Window::lastTime = glfwGetTime();
-        return result;
+        return currentTime - lastTime;
     }
 
     bool Window::ShouldClose() const {
         return glfwWindowShouldClose(handle);
     }
-    void Window::PollEvents() {
+    void Window::PollInputsAndEvents() {
+        WindowInputsAndEventsManager::PerFrameRoutine();
         glfwPollEvents();
-        Window::CurrentTime();
+        lastTime = currentTime;
+        currentTime = glfwGetTime();
     }
     void Window::SwapBuffers() {
         glfwSwapBuffers(handle);
