@@ -8,28 +8,28 @@ Transform::Transform()
 {}
 
 Transform::Transform(glm::mat4 matrix)
-    : position(glm::vec3(matrix[3])), 
-    rotationQuat(glm::quat(matrix)), 
-    rotationEuler(glm::eulerAngles(rotationQuat)), 
-    scale(extractScale(matrix)) 
+    : position(glm::vec3(matrix[3])), lastPosition(position),
+    rotationQuat(glm::quat(matrix)), lastRotationQuat(rotationQuat),
+    rotationEuler(glm::eulerAngles(rotationQuat)), lastRotationEuler(rotationEuler),
+    scale(extractScale(matrix)), lastScale(scale)
 {
     Update();
 }
 
 Transform::Transform(glm::vec3 position, glm::vec3 rotationEuler, glm::vec3 scale)
-    : position(position), 
-    rotationQuat(glm::quat(rotationEuler)), 
-    rotationEuler(rotationEuler), 
-    scale(scale) 
+    : position(position), lastPosition(position),
+    rotationQuat(glm::quat(rotationEuler)), lastRotationQuat(rotationQuat),
+    rotationEuler(rotationEuler), lastRotationEuler(rotationEuler),
+    scale(scale), lastScale(scale)
 {
     Update();
 }
 
 Transform::Transform(glm::vec3 position, glm::quat rotationQuat, glm::vec3 scale) 
-    : position(position),
-    rotationQuat(rotationQuat),
-    rotationEuler(glm::eulerAngles(rotationQuat)),
-    scale(scale) 
+    : position(position), lastPosition(position),
+    rotationQuat(rotationQuat), lastRotationQuat(rotationQuat),
+    rotationEuler(glm::eulerAngles(rotationQuat)), lastRotationEuler(rotationEuler),
+    scale(scale), lastScale(scale)
 {
     Update();
 }
@@ -43,27 +43,35 @@ const glm::mat4& Transform::Matrix() {
 }
 
 void Transform::Translate(glm::vec3 translation) {
+    lastPosition = position;
     position += translation;
     isUpdateRequired = true;
 }
 void Transform::Translate(float dx, float dy, float dz) {
+    lastPosition = position;
     position += glm::vec3(dx, dy, dz);
     isUpdateRequired = true;
 }
 
 void Transform::Rotate(glm::vec3 eulerAngles) {
+    lastRotationEuler = rotationEuler;
+    lastRotationQuat = rotationQuat;
     rotationEuler += eulerAngles;
     rotationQuat = glm::quat(rotationEuler);
     updateFrontRightUp();
     isUpdateRequired = true;
 }
 void Transform::Rotate(float pitch, float yaw, float roll) {
+    lastRotationEuler = rotationEuler;
+    lastRotationQuat = rotationQuat;
     rotationEuler += glm::vec3(pitch, yaw, roll);
     rotationQuat = glm::quat(rotationEuler);
     updateFrontRightUp();
     isUpdateRequired = true;
 }
 void Transform::LookAt(glm::vec3 target, glm::vec3 up) {
+    lastRotationEuler = rotationEuler;
+    lastRotationQuat = rotationQuat;
     glm::vec3 direction = glm::normalize(target - position);
     rotationQuat = glm::quatLookAt(direction, up);
     rotationEuler = glm::eulerAngles(rotationQuat);
@@ -72,29 +80,27 @@ void Transform::LookAt(glm::vec3 target, glm::vec3 up) {
 }
 
 void Transform::Scale(float s) {
+    lastScale = scale;
     scale *= s;
     isUpdateRequired = true;
 }
 void Transform::Scale(glm::vec3 s) {
+    lastScale = scale;
     scale = s;
     isUpdateRequired = true;
 }
 void Transform::Scale(float xscale, float yscale, float zscale) {
+    lastScale = scale;
     scale = glm::vec3(xscale, yscale, zscale);
     isUpdateRequired = true;
 }
 
 void Transform::Update() {
-    static glm::vec3 lastPosition = glm::vec3();
-    static glm::quat lastRotationQuat = glm::quat();
-    static glm::vec3 lastRotationEuler = glm::vec3();
-    static glm::vec3 lastScale = glm::vec3();
-
     if (position != lastPosition) {
         matrix[3] = glm::vec4(position, 1);
         lastPosition = position;
     }
-    if (scale != lastScale) {
+    if (rotationQuat != lastRotationQuat || rotationEuler != lastRotationEuler || scale != lastScale) {
         if (rotationQuat != lastRotationQuat) {
             glm::mat3 rotationMatrix = glm::mat3(rotationQuat);
             for (int i = 0; i < 3; i++)

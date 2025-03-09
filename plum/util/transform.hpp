@@ -36,6 +36,10 @@ class Transform {
         glm::mat4 matrix = glm::identity<glm::mat4>();
         
         bool isUpdateRequired = false;
+        glm::vec3 lastPosition;
+        glm::quat lastRotationQuat;
+        glm::vec3 lastRotationEuler;
+        glm::vec3 lastScale;
 
         void updateFrontRightUp();
         glm::vec3 front;
