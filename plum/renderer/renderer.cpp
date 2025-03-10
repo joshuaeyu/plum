@@ -17,13 +17,12 @@ namespace Renderer {
     DeferredRenderer::DeferredRenderer(std::shared_ptr<Context::Window> window) 
         : RendererBase(window),
         gBuffer(window->Width(), window->Height()), 
-        dirShadowBuffer(2048,2048), 
-        pointShadowBuffer(1024,1024), 
+        dirShadowModule(1024, 1024),
+        pointShadowModule(1024, 1024),
         output(window->Width(), window->Height())
     {
         InitializeUniformBlocks();
         InitGbuffer();
-        InitShadowMaps();
         InitOutput();
 
         std::function<void(int,int)> staticFunc = std::bind(&DeferredRenderer::framebufferSizeCallback, this, std::placeholders::_1, std::placeholders::_2);
@@ -93,32 +92,6 @@ namespace Renderer {
         gBuffer.CheckStatus();
     }
 
-    void DeferredRenderer::InitShadowMaps() {
-        
-        using namespace Core;
-
-        GLsizei nlayers_2d      = 8;        
-        GLsizei nlayers_cube    = 6 * 8;
-
-        // Shadow map array for DirectionalLight
-        auto dirShadowTex = std::make_shared<Tex3D>(GL_TEXTURE_2D_ARRAY, GL_DEPTH_COMPONENT16, dirShadowBuffer.width, dirShadowBuffer.height, nlayers_2d, GL_DEPTH_COMPONENT, GL_FLOAT, GL_CLAMP_TO_EDGE, GL_LINEAR, true);
-        
-        dirShadowBuffer.Bind();
-        dirShadowBuffer.AttachDepthTexture(dirShadowTex);
-        glDrawBuffer(GL_NONE);  // No colorbuffer
-        glReadBuffer(GL_NONE);  // No colorbuffer
-        dirShadowBuffer.CheckStatus();
-        
-        // Shadow map array for PointLight
-        auto pointShadowTex = std::make_shared<Tex3D>(GL_TEXTURE_CUBE_MAP_ARRAY, GL_DEPTH_COMPONENT16, pointShadowBuffer.width, pointShadowBuffer.height, nlayers_cube, GL_DEPTH_COMPONENT, GL_FLOAT, GL_CLAMP_TO_EDGE, GL_LINEAR, true);
-        
-        pointShadowBuffer.Bind();
-        pointShadowBuffer.AttachDepthTexture(pointShadowTex);
-        glDrawBuffer(GL_NONE);  // No colorbuffer
-        glReadBuffer(GL_NONE);  // No colorbuffer
-        pointShadowBuffer.CheckStatus();
-    }
-
     void DeferredRenderer::InitOutput() {
         
         using namespace Core;
@@ -134,8 +107,8 @@ namespace Renderer {
     void DeferredRenderer::ParseLights(Scene::Scene& scene) {
 
         // ---- Clear existing lists ----
-        directionalLights.clear();
-        pointLights.clear();
+        directionalLightNodes.clear();
+        pointLightNodes.clear();
         
         // ---- Parse scene for Light nodes ----
         std::queue<Scene::SceneNode*> node_queue;
@@ -148,9 +121,9 @@ namespace Renderer {
             if (curr->component) {
                 if (curr->component->IsLight()) {
                     if (curr->component->type == Component::ComponentType::DirLight)
-                        directionalLights.push_back(curr);
+                        directionalLightNodes.push_back(curr);
                     else if (curr->component->type == Component::ComponentType::PointLight)
-                        pointLights.push_back(curr); 
+                        pointLightNodes.push_back(curr); 
                 }
             }
 
@@ -179,60 +152,59 @@ namespace Renderer {
     }
 
     void DeferredRenderer::SetDirectionalLightUniforms(Component::Camera& camera) {
-        float total_count = directionalLights.size();
+        float total_count = directionalLightNodes.size();
         int shadow_count = 0;
         
         uboFsDirlight->UpdateData(0, sizeof(float), &total_count);
 
         for (int i = 0; i < total_count; i++) {
-            Component::DirectionalLight* dl = dynamic_cast<Component::DirectionalLight*>(directionalLights[i]->component.get());
+            Component::DirectionalLight& dirlight = dynamic_cast<Component::DirectionalLight&>(*directionalLightNodes[i]->component);
 
             unsigned int offset = 16 + i*96;
             
             // Color
-            glm::vec4 dirlight_color = glm::vec4(dl->color * dl->intensity, 0);
-            uboFsDirlight->UpdateData(offset, sizeof(glm::vec4), &dirlight_color);
+            glm::vec4 color = glm::vec4(dirlight.color * dirlight.intensity, 0);
+            uboFsDirlight->UpdateData(offset, sizeof(glm::vec4), &color);
             
             // Direction and shadow map index
-            glm::vec4 dirlight_direction = glm::vec4( glm::mat3(glm::transpose(glm::inverse(camera.View()))) * dl->direction, -1 );
-            if (dl->HasShadows()) {
-                dirlight_direction = glm::vec4( glm::mat3(glm::transpose(glm::inverse(camera.View()))) * dl->direction, shadow_count++);   
-                uboFsDirlight->UpdateData(offset + 32, sizeof(glm::mat4), &dl->GetLightspaceMatrix());
+            glm::vec4 direction = glm::vec4( glm::mat3(glm::transpose(glm::inverse(camera.View()))) * directionalLightNodes[i]->transform.Front(), -1 );
+            if (dirlight.HasShadows()) {
+                direction = glm::vec4( glm::mat3(glm::transpose(glm::inverse(camera.View()))) * directionalLightNodes[i]->transform.Front(), shadow_count++ );
+                uboFsDirlight->UpdateData(offset + 32, sizeof(glm::mat4), &dirlight.GetLightspaceMatrix());
             }
-            uboFsDirlight->UpdateData(offset + 16, sizeof(glm::vec4), &dirlight_direction);
+            uboFsDirlight->UpdateData(offset + 16, sizeof(glm::vec4), &direction);
         }
     }
 
     void DeferredRenderer::SetPointLightUniforms(Component::Camera& camera) {
-        float total_count = pointLights.size();
+        float total_count = pointLightNodes.size();
         int shadow_count = 0;
 
         uboFsPointlight->UpdateData(0, sizeof(float), &total_count);
 
         for (int i = 0; i < total_count; i++) {
-            Component::PointLight* pl = dynamic_cast<Component::PointLight*>(pointLights[i]->component.get());
+            Component::PointLight& pointlight = dynamic_cast<Component::PointLight&>(*pointLightNodes[i]->component);
 
             unsigned int offset = 16 + i*64;
             
             // Color
-            glm::vec4 pointlight_color = glm::vec4(pl->color * pl->intensity, 0);
-            uboFsPointlight->UpdateData(offset, sizeof(glm::vec4), &pointlight_color);
+            glm::vec4 color = glm::vec4(pointlight.color * pointlight.intensity, 0);
+            uboFsPointlight->UpdateData(offset, sizeof(glm::vec4), &color);
 
             // Attenuation
-            float pointlight_att[] = { pl->GetAttenuationConstant(), pl->GetAttenuationLinear(), pl->GetAttenuationQuadratic() };
-            glm::vec4 att = glm::vec4(pointlight_att[0], pointlight_att[1], pointlight_att[2], 0);
-            uboFsPointlight->UpdateData(offset + 16, sizeof(glm::vec4), &att);
+            glm::vec4 attenuation = glm::vec4(pointlight.GetAttenuationConstant(), pointlight.GetAttenuationLinear(), pointlight.GetAttenuationQuadratic(), 0);
+            uboFsPointlight->UpdateData(offset + 16, sizeof(glm::vec4), &attenuation);
             
             // Position (viewspace)
-            glm::vec4 pointlight_pos_view = camera.View() * glm::vec4(pl->position, 1);
-            pointlight_pos_view.w = pl->GetFarPlane();
-            uboFsPointlight->UpdateData(offset + 32, sizeof(glm::vec4), &pointlight_pos_view);
+            glm::vec4 position_view = camera.View() * glm::vec4(pointLightNodes[i]->transform.position, 1);
+            position_view.w = pointlight.GetFarPlane();
+            uboFsPointlight->UpdateData(offset + 32, sizeof(glm::vec4), &position_view);
             // Position (worldspace) and shadow map index
-            glm::vec4 pointlight_pos_world = glm::vec4(pl->position, -1);
-            if (pl->HasShadows()) {
-                pointlight_pos_world = glm::vec4(pl->position, shadow_count++);
+            glm::vec4 position_world = glm::vec4(pointLightNodes[i]->transform.position, -1);
+            if (pointlight.HasShadows()) {
+                position_world = glm::vec4(pointLightNodes[i]->transform.position, shadow_count++);
             }
-            uboFsPointlight->UpdateData(offset + 48, sizeof(glm::vec4), &pointlight_pos_world);
+            uboFsPointlight->UpdateData(offset + 48, sizeof(glm::vec4), &position_world);
         }
     }
 
@@ -242,41 +214,14 @@ namespace Renderer {
         gBuffer.ClearColor();
         gBuffer.ClearDepth();
         // need logic for multiple materials - use visibility buffer later, use branching now
+        glEnable(GL_CULL_FACE);
+        glCullFace(GL_BACK);
         scene.Draw();
     }
 
     void DeferredRenderer::ShadowMapPass(Scene::Scene& scene) {        
-        // ---- Generate DirectionalLight shadow maps ----
-        dirShadowBuffer.Bind();
-        dirShadowBuffer.SetViewportDims();
-        dirShadowBuffer.ClearDepth();
-        dirShadowModule.Use();
-        
-        for (int i = 0, shadow_count = 0; i < directionalLights.size(); i++) {
-            Component::DirectionalLight* dl = dynamic_cast<Component::DirectionalLight*>(directionalLights[i]->component.get());
-            
-            dirShadowModule.SetGlobalUniforms(*dl, dirShadowBuffer.depthAtt->Handle(), &shadow_count);
-            
-            glCullFace(GL_FRONT);
-            scene.Draw(dirShadowModule);
-            glCullFace(GL_BACK);
-        }
-        
-        // ---- Generate PointLight shadow maps ----
-        pointShadowBuffer.Bind();
-        pointShadowBuffer.SetViewportDims();
-        pointShadowBuffer.ClearDepth();
-        pointShadowModule.Use();
-
-        for (int i = 0, shadow_count = 0; i < pointLights.size(); i++) {
-            Component::PointLight* pl = dynamic_cast<Component::PointLight*>(pointLights[i]->component.get());
-
-            pointShadowModule.SetGlobalUniforms(*pl, pointLights[i]->transform.position, &shadow_count);
-            
-            glCullFace(GL_FRONT);
-            scene.Draw(pointShadowModule);
-            glCullFace(GL_BACK);
-        }
+        dirShadowModule.Render(scene, directionalLightNodes);
+        pointShadowModule.Render(scene, pointLightNodes);
     }
 
     void DeferredRenderer::LightingPass(Scene::Environment& env) {
@@ -300,8 +245,8 @@ namespace Renderer {
             env.brdfLut->Bind(7);
         }
         // Shadow maps
-        dirShadowBuffer.depthAtt->Bind(8);
-        pointShadowBuffer.depthAtt->Bind(9);
+        dirShadowModule.depthMap->Bind(8);
+        pointShadowModule.depthMap->Bind(9);
         
         // ---- Set uniforms ---- 
         lightingPassPbrModule.gPosition = 0;
@@ -314,7 +259,7 @@ namespace Renderer {
         lightingPassPbrModule.ibl = 0.0f;
         lightingPassPbrModule.shadowmap_2d_array_shadow = 8;
         lightingPassPbrModule.shadowmap_cube_array_shadow = 9;
-        lightingPassPbrModule.Use();
+        lightingPassPbrModule.GetProgram()->Use();
         lightingPassPbrModule.SetGlobalUniforms();
         
         // ---- Draw ----
@@ -335,7 +280,7 @@ namespace Renderer {
         // ---- Draw skybox ----
         if (env.skybox) {
             static Component::Cube cube;
-            env.skyboxModule.Use();
+            env.skyboxModule.GetProgram()->Use();
             env.skyboxModule.SetGlobalUniforms(glm::mat4(glm::mat3(camera.View())), camera.projection, 0);
             env.skybox->Bind(0);
             glCullFace(GL_FRONT);

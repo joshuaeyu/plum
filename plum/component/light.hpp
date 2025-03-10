@@ -10,20 +10,12 @@
 
 namespace Component {
 
-    inline static const glm::vec3 UP = glm::vec3(0,1,0);
-    inline static const glm::vec3 DOWN = glm::vec3(0,-1,0);
-    inline static const glm::vec3 LEFT = glm::vec3(-1,0,0);
-    inline static const glm::vec3 RIGHT = glm::vec3(1,0,0);
-    inline static const glm::vec3 FRONT = glm::vec3(0,0,1);
-    inline static const glm::vec3 BACK = glm::vec3(0,0,-1);
-
     class Light : public ComponentBase {
         public:
             glm::vec3 color = glm::vec3(1);
             float intensity = 1.0f;
             
-            virtual void Draw() = 0;
-            virtual void Draw(const glm::mat4& parent_transf) = 0;
+            virtual void Draw(const glm::mat4& parent_transf) override = 0;
 
             // Accessors
             float GetFarPlane() const;
@@ -41,12 +33,9 @@ namespace Component {
     };
 
     class DirectionalLight : public Light {
-        public:
-            glm::vec3 direction = glm::vec3(-1,-1,-1);
-            
+        public:            
             DirectionalLight();
 
-            void Draw() override;
             void Draw(const glm::mat4& parent_transf) override;
             
             // Modifiers
@@ -60,17 +49,14 @@ namespace Component {
             float projHeight = 50.0;
             float distance = 20.0;
 
-            void updateLightspaceMatrix();
+            void updateLightspaceMatrix(glm::vec3 direction);
             
     };
 
     class PointLight : public Light {
         public:
-            glm::vec3 position = glm::vec3(0);
-
             PointLight();
 
-            void Draw() override;
             void Draw(const glm::mat4& parent_transf) override;
 
             // Methods     
@@ -92,7 +78,7 @@ namespace Component {
             std::vector<glm::mat4> lightspaceMatrices;
             float aspectRatio = 1.0;
             
-            void updateLightspaceMatrices();
+            void updateLightspaceMatrices(glm::vec3 position);
 
             float updateRadius();
     };

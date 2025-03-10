@@ -61,7 +61,6 @@ namespace Renderer {
             // Setup
             void InitializeUniformBlocks();
             void InitGbuffer();
-            void InitShadowMaps();
             void InitOutput();
             
             // Per frame
@@ -71,16 +70,23 @@ namespace Renderer {
             void SetPointLightUniforms(Component::Camera& camera);
             void GeometryPass(Scene::Scene& scene);
             void ShadowMapPass(Scene::Scene& scene);
+            
+            // shadow module as its own thing, to support 3D texture
+            // shadowmodule.setparams()
+            // shadowmodule.render(scene, lights = {})
+
+            // shadow module per light like three.js, only supports 2D textures?
+            // light.shadow.setparams(...)
+            // light.shadow.render(scene)
+            // light.shadow.getmap()
+
             // void SSAOPass();
             void LightingPass(Scene::Environment& env);
             void ForwardPass(Component::Camera& camera, Scene::Environment& env);
 
             Core::Fbo gBuffer;
             
-            Core::Fbo dirShadowBuffer;
             Material::DirectionalShadowModule dirShadowModule;
-            
-            Core::Fbo pointShadowBuffer;
             Material::PointShadowModule pointShadowModule;
             
             Core::Fbo output;
@@ -92,8 +98,8 @@ namespace Renderer {
             std::shared_ptr<Core::Ubo> uboFsDirlight;
             std::shared_ptr<Core::Ubo> uboFsPointlight;
 
-            std::vector<Scene::SceneNode*> directionalLights;
-            std::vector<Scene::SceneNode*> pointLights;
+            std::vector<Scene::SceneNode*> directionalLightNodes;
+            std::vector<Scene::SceneNode*> pointLightNodes;
 
             void framebufferSizeCallback(int width, int height);
 

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <plum/core/program.hpp>
+#include <plum/core/core.hpp>
 
 #include <memory>
 
@@ -10,6 +11,12 @@ namespace Component
     class PointLight;
 }
 
+namespace Scene
+{
+    class SceneNode;
+    typedef SceneNode Scene;
+}
+
 namespace Material
 {
 
@@ -17,7 +24,6 @@ namespace Material
     {
         public:
             virtual std::shared_ptr<Core::Program> GetProgram() = 0;
-            virtual void Use() = 0;
         protected:
             Module() {}
             // std::shared_ptr<Program> program;
@@ -26,33 +32,55 @@ namespace Material
     class DirectionalShadowModule : public Module
     {
         public:
-            DirectionalShadowModule();
-            void SetGlobalUniforms(Component::DirectionalLight& dl, const GLuint depthTexture, int* shadowIdx);
+            DirectionalShadowModule(int map_width = 512, int map_height = 512, int num_layers = 8);
+
+            void Render(Scene::Scene& scene, const std::vector<Scene::SceneNode*>& dirlight_nodes);
+
             void SetObjectUniforms(const glm::mat4& model);
-            void Use() override;
+
             std::shared_ptr<Core::Program> GetProgram() override;
 
-            inline static std::shared_ptr<Core::Program> program = std::make_shared<Core::Program>("shaders/shaderv_shadow2d.vs", "shaders/shaderf_shadow2d.fs");
-    };
+            
+            const int mapWidth, mapHeight, numLayers;
+            const std::shared_ptr<Core::Tex3D> depthMap;
+            
+        private:
+            Core::Fbo fbo;
 
+            void setGlobalUniforms(Component::DirectionalLight& dl, const GLuint depth_texture, int* shadow_idx);
+            
+            inline static std::shared_ptr<Core::Program> program = std::make_shared<Core::Program>("shaders/shaderv_shadow2d.vs", "shaders/shaderf_shadow2d.fs");
+            
+        };
+        
     class PointShadowModule : public Module
     {
         public:
-            PointShadowModule();
-            void SetGlobalUniforms(Component::PointLight& pl, const glm::vec3& pos, int* shadowIdx);
+            PointShadowModule(int map_width = 512, int map_height = 512, int num_layers = 8);
+
+            void Render(Scene::Scene& scene, const std::vector<Scene::SceneNode*>& pointlight_nodes);
+            
             void SetObjectUniforms(const glm::mat4& model);
-            void Use() override;
+            
             std::shared_ptr<Core::Program> GetProgram() override;
+            
+            const int mapWidth, mapHeight, numLayers;
+            const std::shared_ptr<Core::Tex3D> depthMap;
+            
+        private:
+            Core::Fbo fbo;
+            
+            void setGlobalUniforms(Component::PointLight& pl, const glm::vec3& position, int* shadow_idx);
 
             inline static std::shared_ptr<Core::Program> program = std::make_shared<Core::Program>("shaders/shaderv_shadowcube.vs", "shaders/shaderf_shadowcube.fs", "shaders/shaderg_shadowcube.gs");
-    };
+        };
 
     class LightingPassPBRModule : public Module
     {
         public:
             LightingPassPBRModule();
             void SetGlobalUniforms();
-            void Use() override;
+
             std::shared_ptr<Core::Program> GetProgram() override;
 
             int gPosition, gNormal, gAlbedoSpec, gMetRouOcc;
@@ -68,7 +96,7 @@ namespace Material
         public:
             SkyboxModule();
             void SetGlobalUniforms(const glm::mat4& view, const glm::mat4& projection, const int cubemapUnit);
-            void Use() override;
+
             std::shared_ptr<Core::Program> GetProgram() override;
 
             bool hdr = true;

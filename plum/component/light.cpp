@@ -1,5 +1,7 @@
 #include <plum/component/light.hpp>
 
+#include <plum/util/transform.hpp>
+
 #include <glad/gl.h>
 
 #include <iostream>
@@ -28,10 +30,10 @@ namespace Component {
         : Light(ComponentType::DirLight) 
     {}
 
-    void DirectionalLight::Draw() {}
-
     void DirectionalLight::Draw(const glm::mat4& parent_transf) {
-        updateLightspaceMatrix();
+        glm::mat4 rotation = Transform::ExtractRotation(parent_transf);
+        glm::vec3 direction = glm::vec3(rotation * glm::vec4(0,0,1,1));
+        updateLightspaceMatrix(direction);
     }
 
     void DirectionalLight::EnableShadows(const float width, const float height, const float near, const float far, const float dist) {
@@ -41,7 +43,6 @@ namespace Component {
         nearPlane = near;
         farPlane = far;
         distance = dist;
-        updateLightspaceMatrix();
     }
 
     glm::mat4& DirectionalLight::GetLightspaceMatrix() { 
@@ -49,34 +50,27 @@ namespace Component {
             std::cout << "Shadows are disabled for this light source!" << std::endl;
             exit(-1);
         }
-        updateLightspaceMatrix();
         return lightspaceMatrix; 
     }
 
-    void DirectionalLight::updateLightspaceMatrix() { 
-        if (lightspaceMatrix == glm::identity<glm::mat4>()) {
-            glm::mat4 projection = glm::ortho(-projWidth/2, projWidth/2, -projHeight/2, projHeight/2, nearPlane, farPlane);
-            glm::mat4 view; 
-            if (direction != DOWN && direction != UP) 
-                view = glm::lookAt(distance*-glm::normalize(direction), glm::vec3(0), UP);
-            else
-                view = glm::lookAt(distance*-glm::normalize(direction), glm::vec3(0), FRONT);
-            lightspaceMatrix = projection * view;
-        }
+    void DirectionalLight::updateLightspaceMatrix(glm::vec3 direction) { 
+        glm::mat4 projection = glm::ortho(-projWidth/2, projWidth/2, -projHeight/2, projHeight/2, nearPlane, farPlane);
+        glm::mat4 view; 
+        if (direction != DOWN && direction != UP) 
+            view = glm::lookAt(distance*-glm::normalize(direction), glm::vec3(0), UP);
+        else
+            view = glm::lookAt(distance*-glm::normalize(direction), glm::vec3(0), FRONT);
+        lightspaceMatrix = projection * view;
     }
-
 
     // ======== PointLight ========
 
     PointLight::PointLight() 
         : Light(ComponentType::PointLight) 
     {}
-    
-    void PointLight::Draw() {}
 
     void PointLight::Draw(const glm::mat4& parent_transf) {
-        position = parent_transf[3];
-        updateLightspaceMatrices();
+        updateLightspaceMatrices(parent_transf[3]);
     }
 
     void PointLight::EnableShadows(const float aspect, const float near, const float far) {
@@ -84,7 +78,6 @@ namespace Component {
         aspectRatio = aspect;
         nearPlane = near;
         farPlane = far;
-        updateLightspaceMatrices();
     }
 
     void PointLight::SetAttenuation(float constant, float linear, float quadratic) {
@@ -99,7 +92,6 @@ namespace Component {
             std::cout << "Shadows are disabled for this light source!" << std::endl;
             exit(-1);
         }
-        updateLightspaceMatrices();
         return lightspaceMatrices; 
     }
     float PointLight::GetRadius() const { 
@@ -115,7 +107,7 @@ namespace Component {
         return attenuationQuadratic; 
     }
 
-    void PointLight::updateLightspaceMatrices() { 
+    void PointLight::updateLightspaceMatrices(glm::vec3 position) { 
         glm::mat4 projection = glm::perspective(glm::half_pi<float>(), aspectRatio, nearPlane, farPlane);
 
         if (lightspaceMatrices.empty()) {
@@ -139,8 +131,7 @@ namespace Component {
 
     float PointLight::updateRadius() {
         float lightMax = std::fmaxf(std::fmaxf(color.r, color.g), color.b);
-        radius = 
-        (-attenuationLinear + std::sqrtf(attenuationLinear * attenuationLinear - 4 * attenuationQuadratic * (attenuationConstant - (256.0 / 5.0) * lightMax))) 
+        radius = (-attenuationLinear + std::sqrtf(attenuationLinear * attenuationLinear - 4 * attenuationQuadratic * (attenuationConstant - (256.0 / 5.0) * lightMax))) 
         / (2 * attenuationQuadratic);  
         return radius;
     }
