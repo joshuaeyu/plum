@@ -51,51 +51,33 @@ OBJECTS := $(addprefix $(OBJDIR)/,$(objects))
 # IMGUI_MISC_O := $(OBJDIR)/imgui_stdlib.o
 # IMGUI_BACKENDS_O := $(OBJDIR)/imgui_impl_glfw.o $(OBJDIR)/imgui_impl_opengl3.o
 
-# test:
-# 	@echo $(objects)
 # Targets
 all: objdirs main
 objdirs:
 	@mkdir -p $(dir $(OBJECTS))
 
-# main: $(OBJDIR)/main.o $(SRCOBJS) $(SRCOBJS_CONTEXT) $(SRCOBJS_COMPONENT) $(SRCOBJS_RENDERER) $(SRCOBJS_UTIL) $(OBJDIR)/gl.o $(OBJDIR)/stb_image.o $(IMGUI_CORE_O) $(IMGUI_MISC_O) $(IMGUI_BACKENDS_O)
+# Link
 main: $(OBJECTS)
 	@echo Linking $@
 	@$(CXX) $(CXXFLAGS) $(LDFLAGS) $^ -o $@
 
-# Source objects
-# $(OBJDIR)/main.o: $(SRCDIR)/main.cpp
-# 	@echo Compiling $@
-# 	@$(CXX) $(CXXFLAGS) $< -c -o $@
-# $(OBJDIR)/%.o: $(SRCDIR)/%.cpp $(SRCDIR)/%.hpp
-# 	@echo Compiling $@
-# 	@$(CXX) $(CXXFLAGS) $< -c -o $@
-$(OBJDIR)/%.o: %.cpp
-	@echo Compiling $@
-	@$(CXX) $(CXXFLAGS) $< -c -o $@
+# Compile
 $(OBJDIR)/%.o: %.cpp %.hpp
 	@echo Compiling $@
 	@$(CXX) $(CXXFLAGS) $< -c -o $@
-$(OBJDIR)/%.o: %.c
+$(OBJDIR)/%.o: %.cpp
 	@echo Compiling $@
-	@$(CC) $(CFLAGS) $< -c -o $@
+	@$(CXX) $(CXXFLAGS) $< -c -o $@
 $(OBJDIR)/%.o: %.c %.h
 	@echo Compiling $@
 	@$(CC) $(CFLAGS) $< -c -o $@
-	
-# # # External objects
-# $(OBJDIR)/gl.o: $(EXTDIR)/glad/src/gl.c
-# 	@echo Compiling $@
-# 	@$(CC) $(CFLAGS) $< -c -o $@
-# $(OBJDIR)/%.o: $(EXTDIR)/*/%.cpp
-# 	@echo Compiling $@
-# 	@$(CXX) $(CXXFLAGS) $< -c -o $@
-# $(OBJDIR)/%.o: $(EXTDIR)/*/%.c
-# 	@echo Compiling $@
-# 	@$(CC) $(CFLAGS) $^ -c -o $@
+$(OBJDIR)/%.o: %.c
+	@echo Compiling $@
+	@$(CC) $(CFLAGS) $< -c -o $@
+
 
 .PHONY: clean
 clean:
 	@rm -fr $(OBJDIR)
-	@rm -f main2
+	@rm -f main
 # @rm -f imgui.ini
