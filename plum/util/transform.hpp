@@ -7,7 +7,7 @@ class Transform {
     public:
         Transform();
         Transform(glm::mat4 matrix);
-        Transform(glm::vec3 position, glm::vec3 rotationEuler, glm::vec3 scale);    // Expects euler angles in radians.
+        Transform(glm::vec3 position, glm::vec3 rotationEuler, glm::vec3 scale);
         Transform(glm::vec3 position, glm::quat rotationQuat, glm::vec3 scale);
 
         const glm::mat4& Matrix();
@@ -15,6 +15,7 @@ class Transform {
         const glm::vec3& Front() const { return front; }
         const glm::vec3& Right() const { return right; }
         const glm::vec3& Up() const { return up; }
+        glm::vec3 EulerAngles() const;
         
         void Translate(glm::vec3 translation);
         void Translate(float dx, float dy, float dz);
@@ -28,9 +29,12 @@ class Transform {
         // Update matrix, front, up, and right based on position, rotationEuler (prioritized over rotationQuat), and scale
         void Update();  
         glm::vec3 position;      // If changing directly, must call Update() to update matrix
-        glm::vec3 rotationEuler; // If changing directly, must call Update() to update matrix
         glm::quat rotationQuat;  // If changing directly, must call Update() to update matrix
         glm::vec3 scale;         // If changing directly, must call Update() to update matrix
+        
+        // Utility functions
+        static glm::vec3 ExtractScale(const glm::mat4 matrix);
+        static glm::mat4 ExtractRotation(const glm::mat4 matrix);
         
     private:
         glm::mat4 matrix = glm::identity<glm::mat4>();
@@ -38,7 +42,6 @@ class Transform {
         bool isUpdateRequired = false;
         glm::vec3 lastPosition;
         glm::quat lastRotationQuat;
-        glm::vec3 lastRotationEuler;
         glm::vec3 lastScale;
 
         void updateFrontRightUp();
@@ -46,6 +49,5 @@ class Transform {
         glm::vec3 right;
         glm::vec3 up;
         
-        static glm::vec3 extractScale(glm::mat4 matrix);
 
 };

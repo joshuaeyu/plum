@@ -46,17 +46,10 @@ namespace Component {
     }
 
     void Camera::rotate(double delta_yaw, double delta_pitch) {
-        transform.Rotate(delta_pitch, delta_yaw, 0);
+        glm::vec3 eulerAngles = transform.EulerAngles();
+        float true_delta_pitch = eulerAngles.x + delta_pitch > 89.5 ? 89.5 - eulerAngles.x : delta_pitch;
 
-        glm::vec3 eulerAngles = transform.rotationEuler;
-        if (eulerAngles.x > 0.99f * glm::half_pi<float>()) {
-            transform.rotationEuler.x = 0.99f * glm::half_pi<float>();
-            transform.Update();
-        }
-        if (eulerAngles.x < -0.99f * glm::half_pi<float>()) {
-            transform.rotationEuler.x = -0.99f * glm::half_pi<float>();
-            transform.Update();
-        }
+        transform.Rotate(true_delta_pitch, delta_yaw, 0);
     }
 
     void Camera::translate(Direction dir, float dist) {

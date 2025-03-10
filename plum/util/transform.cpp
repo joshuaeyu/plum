@@ -10,28 +10,30 @@ Transform::Transform()
 Transform::Transform(glm::mat4 matrix)
     : position(glm::vec3(matrix[3])), lastPosition(position),
     rotationQuat(glm::quat(matrix)), lastRotationQuat(rotationQuat),
-    rotationEuler(glm::eulerAngles(rotationQuat)), lastRotationEuler(rotationEuler),
-    scale(extractScale(matrix)), lastScale(scale)
+    scale(ExtractScale(matrix)), lastScale(scale)
 {
     Update();
+    updateFrontRightUp();
 }
 
 Transform::Transform(glm::vec3 position, glm::vec3 rotationEuler, glm::vec3 scale)
     : position(position), lastPosition(position),
-    rotationQuat(glm::quat(rotationEuler)), lastRotationQuat(rotationQuat),
-    rotationEuler(rotationEuler), lastRotationEuler(rotationEuler),
+    rotationQuat(glm::quat(glm::radians(rotationEuler))), lastRotationQuat(rotationQuat),
+    // rotationEuler(rotationEuler), lastRotationEuler(rotationEuler),
     scale(scale), lastScale(scale)
 {
     Update();
+    updateFrontRightUp();
 }
 
 Transform::Transform(glm::vec3 position, glm::quat rotationQuat, glm::vec3 scale) 
     : position(position), lastPosition(position),
     rotationQuat(rotationQuat), lastRotationQuat(rotationQuat),
-    rotationEuler(glm::eulerAngles(rotationQuat)), lastRotationEuler(rotationEuler),
+    // rotationEuler(glm::degrees(glm::eulerAngles(rotationQuat))), lastRotationEuler(rotationEuler),
     scale(scale), lastScale(scale)
 {
     Update();
+    updateFrontRightUp();
 }
     
 const glm::mat4& Transform::Matrix() {
@@ -40,6 +42,10 @@ const glm::mat4& Transform::Matrix() {
         isUpdateRequired = false;
     }
     return matrix;
+}
+
+glm::vec3 Transform::EulerAngles() const {
+    return glm::eulerAngles(rotationQuat);
 }
 
 void Transform::Translate(glm::vec3 translation) {
@@ -54,27 +60,18 @@ void Transform::Translate(float dx, float dy, float dz) {
 }
 
 void Transform::Rotate(glm::vec3 eulerAngles) {
-    lastRotationEuler = rotationEuler;
     lastRotationQuat = rotationQuat;
-    rotationEuler += eulerAngles;
-    rotationQuat = glm::quat(rotationEuler);
+    rotationQuat *= glm::quat(glm::radians(eulerAngles));
     updateFrontRightUp();
     isUpdateRequired = true;
 }
 void Transform::Rotate(float pitch, float yaw, float roll) {
-    lastRotationEuler = rotationEuler;
-    lastRotationQuat = rotationQuat;
-    rotationEuler += glm::vec3(pitch, yaw, roll);
-    rotationQuat = glm::quat(rotationEuler);
-    updateFrontRightUp();
-    isUpdateRequired = true;
+    Rotate(glm::vec3(pitch, yaw, roll));
 }
 void Transform::LookAt(glm::vec3 target, glm::vec3 up) {
-    lastRotationEuler = rotationEuler;
     lastRotationQuat = rotationQuat;
     glm::vec3 direction = glm::normalize(target - position);
     rotationQuat = glm::quatLookAt(direction, up);
-    rotationEuler = glm::eulerAngles(rotationQuat);
     updateFrontRightUp();
     isUpdateRequired = true;
 }
@@ -100,7 +97,7 @@ void Transform::Update() {
         matrix[3] = glm::vec4(position, 1);
         lastPosition = position;
     }
-    if (rotationQuat != lastRotationQuat || rotationEuler != lastRotationEuler || scale != lastScale) {
+    if (rotationQuat != lastRotationQuat || scale != lastScale) {
         if (rotationQuat != lastRotationQuat) {
             glm::mat3 rotationMatrix = glm::mat3(rotationQuat);
             for (int i = 0; i < 3; i++)
@@ -109,31 +106,32 @@ void Transform::Update() {
             updateFrontRightUp();
             lastRotationQuat = rotationQuat;
         }
-        if (rotationEuler != lastRotationEuler) {
-            glm::mat4 rotationMatrix = glm::yawPitchRoll(rotationEuler.x, rotationEuler.y, rotationEuler.z);
-            for (int i = 0; i < 3; i++)
-                for (int j = 0; j < 3; j++)
-                    matrix[i][j] = rotationMatrix[i][j];
-            updateFrontRightUp();
-            lastRotationEuler = rotationEuler;
-            rotationQuat = glm::quat(rotationEuler);
-            lastRotationQuat = rotationQuat;
-        }
         matrix = glm::scale(matrix, scale/lastScale);
-        lastScale = scale;
+        if (scale != lastScale) {
+            lastScale = scale;
+        }
     }
 }
 
 void Transform::updateFrontRightUp() {
-    glm::mat3 rotationMatrix = glm::mat3(rotationQuat);
-    front = rotationMatrix * glm::vec3(0,0,1);
-    right = rotationMatrix * glm::vec3(1,0,0);
-    up    = rotationMatrix * glm::vec3(0,1,0);
+    front = rotationQuat * glm::vec3(0,0,1);
+    right = rotationQuat * glm::vec3(1,0,0);
+    up    = rotationQuat * glm::vec3(0,1,0);
 }
 
-glm::vec3 Transform::extractScale(glm::mat4 matrix) {
-    float sx = glm::vec3(matrix[0]).length();
-    float sy = glm::vec3(matrix[1]).length();
-    float sz = glm::vec3(matrix[2]).length();
+glm::vec3 Transform::ExtractScale(const glm::mat4 matrix) {
+    float sx = glm::length(glm::vec3(matrix[0]));
+    float sy = glm::length(glm::vec3(matrix[1]));
+    float sz = glm::length(glm::vec3(matrix[2]));
     return glm::vec3(sx, sy, sz);
+}
+
+glm::mat4 Transform::ExtractRotation(const glm::mat4 matrix) {
+    glm::vec3 scale = ExtractScale(matrix);
+    glm::mat4 result = matrix;
+    for (int i = 0; i < 3; i++)
+        for (int j = 0; j < 3; j++)
+            result[i][j] /= scale[i];
+    result[3] = glm::vec4(0,0,0,1);
+    return result;
 }
