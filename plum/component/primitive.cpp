@@ -174,7 +174,7 @@ namespace Component {
         vao = std::make_shared<Vao>(vbo, ebo);
     }
     
-    Rectangle::Rectangle(const int nrows, const int ncols) : nRows(nrows), nCols(ncols) {
+    Plane::Plane(const int nrows, const int ncols) : nRows(nrows), nCols(ncols) {
         const std::vector<float> rectdata = {    // Remember CCW (x-z vs x-y)
             // Positions         // Normals         // UV                        // Tangents
             -1.0f, 0.0f, -1.0f,  0.0f, 1.0f, 0.0f,          0.0f,         0.0f,  1.0f, 0.0f, 0.0f,

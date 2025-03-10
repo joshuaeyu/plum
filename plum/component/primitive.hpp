@@ -25,9 +25,9 @@ namespace Component {
             int nStacks, nSectors;
     };
 
-    class Rectangle : public Primitive {
+    class Plane : public Primitive {
         public:
-            Rectangle(const int nrows = 1, const int ncols = 1);
+            Plane(const int nrows = 1, const int ncols = 1);
         private:
             int nRows, nCols;
     };
