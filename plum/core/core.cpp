@@ -107,7 +107,6 @@ namespace Core {
     Ubo::Ubo(const unsigned int index, const size_t size) 
     {
         glGenBuffers(1, &handle);
-        std::cout << "Ubo index: " << index << " Ubo handle: " << handle << std::endl;
         Bind();
         glBufferData(GL_UNIFORM_BUFFER, size, NULL, GL_DYNAMIC_DRAW);
         glBindBufferBase(GL_UNIFORM_BUFFER, index, handle);

@@ -6,7 +6,7 @@
 
 // OUTPUTS
 layout (location = 0) out vec4 FragColor;   // GL_COLOR_ATTACHMENT0 from glDrawBuffers
-layout (location = 1) out vec4 BrightColor; // GL_COLOR_ATTACHMENT1 from glDrawBuffers
+// layout (location = 1) out vec4 BrightColor; // GL_COLOR_ATTACHMENT1 from glDrawBuffers
 
 // INPUTS
 in vec2 TexCoords;
@@ -50,7 +50,7 @@ uniform sampler2DArrayShadow shadowmap_2d_array_shadow;
 uniform samplerCubeArrayShadow shadowmap_cube_array_shadow;
 
 // SSAO
-uniform sampler2D ssao;
+// uniform sampler2D ssao;
 
 // PBR
 uniform float ibl;
@@ -93,7 +93,8 @@ void main() {
     vec4 MetRouOcc = texture(gMetRouOcc, TexCoords);
     float Metallic = MetRouOcc.r;
     float Roughness = MetRouOcc.g;
-    float Occlusion = (MetRouOcc.b == 1) ? MetRouOcc.a : texture(ssao, TexCoords).r;
+    // float Occlusion = (MetRouOcc.b == 1) ? MetRouOcc.a : texture(ssao, TexCoords).r;
+    float Occlusion = MetRouOcc.a;
 
     // Process other inputs
     vec3 viewDir = vec3(normalize(-FragPos));
@@ -107,8 +108,8 @@ void main() {
 
     // Output to two colorbuffers
     FragColor = vec4(result, 1.0);
-    float brightness = dot(FragColor.rgb, vec3(0.2126, 0.7152, 0.0722));
-    BrightColor = vec4(smoothstep(0.825, 1.175, brightness) * FragColor.rgb, 1.0);  // Smoothstep prevents harsh bloom boundary
+    // float brightness = dot(FragColor.rgb, vec3(0.2126, 0.7152, 0.0722));
+    // BrightColor = vec4(smoothstep(0.825, 1.175, brightness) * FragColor.rgb, 1.0);  // Smoothstep prevents harsh bloom boundary
     // if (brightness > 1.0)
     //     BrightColor = vec4(FragColor.rgb, 1.0);
     // else
