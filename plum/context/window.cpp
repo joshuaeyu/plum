@@ -65,23 +65,10 @@ namespace Context {
         glfwSetInputMode(handle, mode, value);
     }
 
-    float Window::CurrentTime() {
-        return lastTime;
-    }
-
-    float Window::DeltaTime() {
-        return currentTime - lastTime;
-    }
-
     bool Window::ShouldClose() const {
         return glfwWindowShouldClose(handle);
     }
-    void Window::PollInputsAndEvents() {
-        WindowInputsAndEventsManager::PerFrameRoutine();
-        glfwPollEvents();
-        lastTime = currentTime;
-        currentTime = glfwGetTime();
-    }
+
     void Window::SwapBuffers() {
         glfwSwapBuffers(handle);
     }

@@ -26,14 +26,8 @@ namespace Context {
             int Height() const { return height; }  
             std::string Title() const { return title; }          
 
-            static float CurrentTime();
-            static float DeltaTime();
-
             void MakeCurrent();
-            void PollInputsAndEvents();
             void SwapBuffers();
-            
-            void ProcessInputs();
 
             bool ShouldClose() const;
             GLFWwindow* Handle() const { return handle; }
@@ -41,17 +35,13 @@ namespace Context {
             Window Clone() { return Window(*this); }
 
         private:
-            
             int width, height;
             std::string title;
             
             GLFWwindow* handle;
-            inline static float lastTime = glfwGetTime();;
-            inline static float currentTime = glfwGetTime();
 
             void keyCallback(int key, int scancode, int action, int mods);
         
-            WindowInputsAndEventsManager inputsAndEvents;
             std::shared_ptr<WindowEventListener> eventListener;
     };
 

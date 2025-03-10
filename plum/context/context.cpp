@@ -8,6 +8,7 @@ namespace Context {
         static Application instance;
         return instance;
     }
+    
     Application::~Application() {
         // std::cout << "calling App destructor" << std::endl;
         glfwTerminate();
@@ -26,6 +27,8 @@ namespace Context {
         activeWindow = defaultWindow;
 
         WindowInputsAndEventsManager::Setup(*defaultWindow);
+        currentTime = glfwGetTime();
+        lastTime = currentTime;
 
         if (!gladLoadGL(glfwGetProcAddress)) {
             std::cerr << "gladLoadGLLoader failed" << std::endl;
@@ -50,6 +53,21 @@ namespace Context {
         glGetIntegerv(GL_MAX_CUBE_MAP_TEXTURE_SIZE, &n); // 16384
         glGetIntegerv(GL_MAX_3D_TEXTURE_SIZE, &n); // 2048
         glGetIntegerv(GL_MAX_TEXTURE_SIZE, &n); // 16384
+    }
+
+    void Application::PollInputsAndEvents() {
+        WindowInputsAndEventsManager::PerFrameRoutine();
+        glfwPollEvents();
+        lastTime = currentTime;
+        currentTime = glfwGetTime();
+    }
+
+    float Application::CurrentTime() {
+        return lastTime;
+    }
+
+    float Application::DeltaTime() {
+        return currentTime - lastTime;
     }
 
     void Application::EnableDepth(GLenum func) {

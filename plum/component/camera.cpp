@@ -1,5 +1,5 @@
 #include <plum/component/camera.hpp>
-#include <plum/context/window.hpp>
+#include <plum/context/context.hpp>
 
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -25,7 +25,7 @@ namespace Component {
         rotate(deltaYaw, deltaPitch);
         
         // WASD/Space/Shift: Translation
-        float distance = speed * Context::Window::DeltaTime();
+        float distance = speed * Context::Application::Instance().DeltaTime();
         if (inputObserver->GetKeyDown(GLFW_KEY_W))
             translate(Direction::Forward, distance);
         if (inputObserver->GetKeyDown(GLFW_KEY_S))
