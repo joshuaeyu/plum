@@ -5,11 +5,14 @@
 #include <plum/component/camera.hpp>
 #include <plum/component/primitive.hpp>
 #include <plum/renderer/renderer.hpp>
+#include <plum/material/texture.hpp>
 
 #include <plum/core/program.hpp>
 #include <plum/material/material.hpp>
 
 #include <iostream>
+#include <vector>
+#include <string>
 
 int main() {
     std::cout << "Initializing app..." << std::endl;
@@ -18,21 +21,31 @@ int main() {
     std::cout << "Setting window parameters..." << std::endl;
     app.defaultWindow->SetTitle("Woohoo!");
     app.defaultWindow->SetWindowSize(1024,1024);
-
+    
+    std::cout << "Setting up environment..." << std::endl;
+    auto skybox = std::make_shared<Material::Texture>("assets/textures/dresden_station_4k.hdr");
+    static std::vector<std::string> oceanSkyboxPaths = {
+        "assets/textures/skybox/right.jpg",
+        "assets/textures/skybox/left.jpg",
+        "assets/textures/skybox/top.jpg",
+        "assets/textures/skybox/bottom.jpg",
+        "assets/textures/skybox/front.jpg",
+        "assets/textures/skybox/back.jpg"
+    };
+    static auto skybox2 = std::make_shared<Material::Texture>(oceanSkyboxPaths, false);
+    Scene::Environment environment(skybox->tex);
+    
     std::cout << "Creating components..." << std::endl;
     Component::Camera camera;
     camera.projection = glm::perspective(45.f, 1024.f/1024.f, 0.1f, 100.f);
     camera.transform.Translate(0,3,-5);
-    Scene::Environment environment;
-    while (GLenum error = glGetError()) { std::cerr << "Cam/env error: " << error << std::endl; }
-    
     auto dirlight = std::make_shared<Component::DirectionalLight>();
     dirlight->color = glm::vec3(0.5,0.5,1.0);
-    dirlight->intensity = 10.f;
+    dirlight->intensity = 0.f;
     dirlight->EnableShadows();
     auto pointlight = std::make_shared<Component::PointLight>();
     pointlight->color = glm::vec3(1.0,1.0,0.5);
-    pointlight->intensity = 30.f;
+    pointlight->intensity = 0.f;
     pointlight->EnableShadows();
     auto plane = std::make_shared<Component::Plane>();
     auto sphere = std::make_shared<Component::Sphere>();

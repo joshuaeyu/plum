@@ -76,6 +76,7 @@ void main() {
         gMetRouOcc.a = texture(material.texture_occlusion, fs_in.TexCoords).r;
     } else {
         gMetRouOcc.b = 0.0; // aka, use SSAO
+        gMetRouOcc.a = 1.0;
     }
 }
 // ==================================
