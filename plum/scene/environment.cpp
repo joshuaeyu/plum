@@ -28,9 +28,9 @@ namespace Scene {
         
         Core::Fbo fbo(width, height);
         auto cubemap = std::make_shared<Core::Tex2D>(GL_TEXTURE_CUBE_MAP, GL_RGB16F, fbo.width, fbo.height, GL_RGB, GL_FLOAT, GL_CLAMP_TO_EDGE, GL_LINEAR_MIPMAP_LINEAR);
-        
+
         fbo.Bind();
-        fbo.AttachColorTexture(cubemap);
+        fbo.AttachColorTex(cubemap);
         fbo.AttachDepthRbo24();
         fbo.CheckStatus();
 
@@ -47,16 +47,18 @@ namespace Scene {
         equirectProgram->SetInt("equirectMap", 0);
         equirectProgram->SetMat4("projection", projection);
         equirect->Bind(0);
-        
+
         static Component::Cube cube(1,1);
 
         fbo.Bind();
+        fbo.SetViewportDims();
         for (int i = 0; i < 6; i++) {
+            fbo.AttachColorTexCubeFace(0, i);
             fbo.ClearColor();
             fbo.ClearDepth();
             equirectProgram->SetMat4("view", views[i]);
             glCullFace(GL_FRONT);
-            cube.Draw();
+            cube.vao->Draw();
             glCullFace(GL_BACK);
         }
 
@@ -72,7 +74,7 @@ namespace Scene {
         irradiance = std::make_shared<Core::Tex2D>(GL_TEXTURE_CUBE_MAP, GL_RGB16F, fbo.width, fbo.height, GL_RGB, GL_FLOAT, GL_CLAMP_TO_EDGE, GL_LINEAR);
 
         fbo.Bind();
-        fbo.AttachColorTexture(irradiance);
+        fbo.AttachColorTex(irradiance);
         fbo.AttachDepthRbo24();
         fbo.CheckStatus();
     
@@ -96,11 +98,12 @@ namespace Scene {
         fbo.Bind();
         fbo.SetViewportDims();
         for (int i = 0; i < 6; i++) {
+            fbo.AttachColorTexCubeFace(0, i);
             fbo.ClearColor();
             fbo.ClearDepth();
             irradianceProgram->SetMat4("view", views[i]);
             glCullFace(GL_FRONT);
-            cube.Draw();
+            cube.vao->Draw();
             glCullFace(GL_BACK);
         }
     }
@@ -113,7 +116,7 @@ namespace Scene {
         glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
 
         fbo.Bind();
-        fbo.AttachColorTexture(prefilter);
+        fbo.AttachColorTex(prefilter);
         fbo.AttachDepthRbo24();
         fbo.CheckStatus();
     
@@ -148,14 +151,14 @@ namespace Scene {
             float roughness = (float)mip / (float)(maxMipLevels - 1);
             prefilterProgram->SetFloat("roughness", roughness);
     
-            fbo.AttachColorTexture(prefilter, 0, mip);
             fbo.CheckStatus();
             for (int i = 0; i < 6; i++) {
+                fbo.AttachColorTexCubeFace(0, i, mip);
                 fbo.ClearColor();
                 fbo.ClearDepth();
                 prefilterProgram->SetMat4("view", views[i]);
                 glCullFace(GL_FRONT);
-                cube.Draw();
+                cube.vao->Draw();
                 glCullFace(GL_BACK);
             }
         }
@@ -167,7 +170,7 @@ namespace Scene {
         brdfLut = std::make_shared<Core::Tex2D>(GL_TEXTURE_2D, GL_RG16F, fbo.width, fbo.height, GL_RG, GL_FLOAT, GL_CLAMP_TO_EDGE, GL_LINEAR);
         
         fbo.Bind();
-        fbo.AttachColorTexture(brdfLut);
+        fbo.AttachColorTex(brdfLut);
         fbo.AttachDepthRbo24();
         
         fbo.CheckStatus();
