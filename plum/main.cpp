@@ -35,22 +35,39 @@ int main() {
     static auto skybox2 = std::make_shared<Material::Texture>(oceanSkyboxPaths, false);
     Scene::Environment environment(skybox->tex);
     
+    std::cout << "Defining materials..." << std::endl;
+    auto copper = std::make_shared<Material::PBRMetallicMaterial>();
+    copper->albedo = glm::vec3(0.72,0.45,0.22);
+    copper->metallic = 1.0;
+    copper->roughness = 0.25;
+    auto ruby = std::make_shared<Material::PBRMetallicMaterial>();
+    ruby->albedo = glm::vec3(0.7,0.1,0.1);
+    ruby->metallic = 0.0;
+    ruby->roughness = 0.2;
+    auto sapphire = std::make_shared<Material::PBRMetallicMaterial>();
+    sapphire->albedo = glm::vec3(0.1,0.2,0.7);
+    sapphire->metallic = 1.0;
+    sapphire->roughness = 0.2;
+
     std::cout << "Creating components..." << std::endl;
     Component::Camera camera;
     camera.projection = glm::perspective(45.f, 1024.f/1024.f, 0.1f, 100.f);
     camera.transform.Translate(0,3,-5);
     auto dirlight = std::make_shared<Component::DirectionalLight>();
     dirlight->color = glm::vec3(0.5,0.5,1.0);
-    dirlight->intensity = 0.f;
+    dirlight->intensity = 10.f;
     dirlight->EnableShadows();
     auto pointlight = std::make_shared<Component::PointLight>();
     pointlight->color = glm::vec3(1.0,1.0,0.5);
-    pointlight->intensity = 0.f;
+    pointlight->intensity = 10.f;
     pointlight->EnableShadows();
     auto plane = std::make_shared<Component::Plane>();
+    plane->material = copper;
     auto sphere = std::make_shared<Component::Sphere>();
+    sphere->material = sapphire;
     auto cube = std::make_shared<Component::Cube>();
-    
+    cube->material = ruby;
+
     std::cout << "Defining scene..." << std::endl;
     Scene::Scene scene;
     auto dlNode = scene.AddChild(dirlight);
@@ -74,7 +91,7 @@ int main() {
         app.PollInputsAndEvents();    // needed!
         camera.ProcessInputs(); // needed because camera uses an inputobserver every frame
         
-        cubeNode->transform.Rotate(0, 90*app.DeltaTime(), 50*app.DeltaTime());
+        cubeNode->transform.Rotate(glm::vec3(50,120,90) * app.DeltaTime());
 
         Core::Fbo* fbo = renderer.Render(scene, camera, environment);
         while (GLenum error = glGetError()) { std::cerr << "Render error: " << error << std::endl; }

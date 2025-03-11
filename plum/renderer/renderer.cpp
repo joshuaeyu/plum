@@ -257,7 +257,7 @@ namespace Renderer {
         lightingPassPbrModule.irradianceMap = 5;
         lightingPassPbrModule.prefilterMap = 6;
         lightingPassPbrModule.brdfLUT = 7;
-        lightingPassPbrModule.ibl = 0.5f;
+        lightingPassPbrModule.ibl = 1.0f;
         lightingPassPbrModule.shadowmap_2d_array_shadow = 8;
         lightingPassPbrModule.shadowmap_cube_array_shadow = 9;
         lightingPassPbrModule.GetProgram()->Use();
