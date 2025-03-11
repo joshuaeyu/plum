@@ -5,20 +5,19 @@
 
 namespace Material {
 
-
-    Texture::Texture(std::string filename, bool flip, GLenum wrap, GLenum filter) 
+    Texture::Texture(std::string filename, bool flip, GLenum wrap, GLenum minfilter) 
     {
-        loadFile(filename, flip, GL_TEXTURE_2D, wrap, filter);
+        loadFile(filename, flip, GL_TEXTURE_2D, wrap, minfilter);
     }
     
-    Texture::Texture(std::vector<std::string> &cubemap_filenames, bool flip, GLenum wrap, GLenum filter) 
+    Texture::Texture(std::vector<std::string> &cubemap_filenames, bool flip, GLenum wrap, GLenum minfilter)
     {
         for (int i = 0; i < cubemap_filenames.size(); i++) {
-            loadFile(cubemap_filenames[i], flip, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, wrap, filter);
+            loadFile(cubemap_filenames[i], flip, GL_TEXTURE_CUBE_MAP, wrap, minfilter, i);
         }
     }
 
-    void Texture::loadFile(std::string filename, bool flip, GLenum target, GLenum wrap, GLenum filter) {
+    void Texture::loadFile(std::string filename, bool flip, GLenum target, GLenum wrap, GLenum minfilter, int face_idx) {
         // Load texture using stbi
         stbi_set_flip_vertically_on_load(flip);
             
@@ -34,11 +33,10 @@ namespace Material {
             tex_dataf = stbi_loadf(filename.c_str(), &width, &height, &num_channels, 0);
             if (tex_dataf == nullptr) {
                 std::cerr << "stbi_load failed for " << filename << std::endl;
-                stbi_image_free(tex_data);
+                stbi_image_free(tex_dataf);
                 return;
             }
-        }
-        else {
+        } else {
             tex_data = stbi_load(filename.c_str(), &width, &height, &num_channels, 0);
             if (tex_data == nullptr) {
                 std::cerr << "stbi_load failed for " << filename << std::endl;
@@ -76,11 +74,23 @@ namespace Material {
         }
         // Assign to target
         if (isHdr) {
-            tex = std::make_shared<Core::Tex2D>(target, internalformat, width, height, format, GL_FLOAT, wrap, filter);
-            tex->DefineImage(tex_dataf);
+            if (!tex) {
+                tex = std::make_shared<Core::Tex2D>(target, internalformat, width, height, format, GL_FLOAT, wrap, minfilter);
+            }
+            if (face_idx <= -1) {
+                tex->DefineImage(tex_dataf);
+            } else {
+                tex->DefineImageCubeFace(face_idx, tex_dataf);
+            }
         } else {
-            tex = std::make_shared<Core::Tex2D>(target, internalformat, width, height, format, GL_UNSIGNED_BYTE, wrap, filter);
-            tex->DefineImage(tex_data);
+            if (!tex) {
+                tex = std::make_shared<Core::Tex2D>(target, internalformat, width, height, format, GL_UNSIGNED_BYTE, wrap, minfilter);
+            }
+            if (face_idx <= -1) {
+                tex->DefineImage(tex_data);
+            } else {
+                tex->DefineImageCubeFace(face_idx, tex_data);
+            }
         }
         stbi_image_free(tex_dataf);
         stbi_image_free(tex_data);

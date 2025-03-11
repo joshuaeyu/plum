@@ -39,15 +39,14 @@ namespace Material {
             std::vector<std::string> paths;
             std::string name;
             TextureType type;
-
             
-            Texture(std::string filename, bool flip = true, GLenum wrap = GL_REPEAT, GLenum filter = GL_NEAREST);
-            Texture(std::vector<std::string>& cubemap_filenames, bool flip = true, GLenum wrap = GL_REPEAT, GLenum filter = GL_NEAREST);
+            std::shared_ptr<Core::Tex2D> tex;
+
+            Texture(std::string filename, bool flip = true, GLenum wrap = GL_REPEAT, GLenum minfilter = GL_NEAREST);
+            Texture(std::vector<std::string>& cubemap_filenames, bool flip = true, GLenum wrap = GL_REPEAT, GLenum minfilter = GL_NEAREST);
             
         private:
-            std::shared_ptr<Core::Tex> tex;
-
-            void loadFile(std::string filename, bool flip, GLenum target, GLenum wrap, GLenum filter);
+            void loadFile(std::string filename, bool flip, GLenum target, GLenum wrap, GLenum minfilter, int face_idx = -1);
     };
 
 };

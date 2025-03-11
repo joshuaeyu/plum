@@ -14,7 +14,7 @@ namespace Core {
             const GLint internalformat;
             const GLsizei width, height, depth;
             const GLenum format, datatype;
-            const GLint wrap, filter;
+            const GLint wrap, minfilter;
 
             virtual void DefineImage(const void* pixels, const int level = 0) {}
 
@@ -27,7 +27,7 @@ namespace Core {
             
         protected:
             
-            Tex(GLenum target, GLint internalformat, GLsizei width, GLsizei height, GLsizei depth, GLenum format, GLenum datatype, GLint wrap, GLint filter, bool isshadowmap);
+            Tex(GLenum target, GLint internalformat, GLsizei width, GLsizei height, GLsizei depth, GLenum format, GLenum datatype, GLint wrap, GLint minfilter, bool isshadowmap);
             
             virtual void initialize();
             
@@ -40,14 +40,15 @@ namespace Core {
         
     class Tex2D : public Tex {
         public:
-            Tex2D(GLenum target, GLint internalformat, GLsizei width, GLsizei height, GLenum format, GLenum type, GLint wrap, GLint filter, bool isshadowmap = false);
+            Tex2D(GLenum target, GLint internalformat, GLsizei width, GLsizei height, GLenum format, GLenum type, GLint wrap, GLint minfilter, bool isshadowmap = false);
             
             void DefineImage(const void* pixels, const int level = 0) override;
+            void DefineImageCubeFace(const int face_idx, const void* pixels, const int level = 0);
     };
     
     class Tex3D : public Tex {
         public:
-            Tex3D(GLenum target, GLint internalformat, GLsizei width, GLsizei height, GLsizei depth, GLenum format, GLenum type, GLint wrap, GLint filter, bool isshadowmap = false);
+            Tex3D(GLenum target, GLint internalformat, GLsizei width, GLsizei height, GLsizei depth, GLenum format, GLenum type, GLint wrap, GLint minfilter, bool isshadowmap = false);
 
             void DefineImage(const void* pixels, const int level = 0) override;
     };
