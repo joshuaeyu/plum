@@ -14,7 +14,7 @@ namespace Material {
         fbo(map_width, map_height)
     {
         fbo.Bind();
-        fbo.AttachDepthTexture(depthMap);
+        fbo.AttachDepthTex(depthMap);
         glDrawBuffer(GL_NONE);  // No colorbuffer
         glReadBuffer(GL_NONE);  // No colorbuffer
         fbo.CheckStatus();
@@ -60,7 +60,7 @@ namespace Material {
         fbo(map_width, map_height)
     {
         fbo.Bind();
-        fbo.AttachDepthTexture(depthMap);
+        fbo.AttachDepthTex(depthMap);
         glDrawBuffer(GL_NONE);  // No colorbuffer
         glReadBuffer(GL_NONE);  // No colorbuffer
         fbo.CheckStatus();
@@ -131,7 +131,6 @@ namespace Material {
             hdrProgram->SetMat4("view", view);
             hdrProgram->SetMat4("projection", projection);
             hdrProgram->SetInt("cubemap", cubemapUnit);
-
         } else {
             program->SetMat4("view", view);
             program->SetMat4("projection", projection);

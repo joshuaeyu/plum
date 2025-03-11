@@ -80,10 +80,11 @@ namespace Core {
             void Bind();
             void Unbind();
             
-            void AttachColorTexture(std::shared_ptr<Tex> texture, int index = -1, int level = 0);
+            void AttachColorTex(std::shared_ptr<Tex> tex, int index = -1, int level = 0);
+            void AttachColorTexCubeFace(int att_index, int face_idx, int level = 0);
             void AttachDepthRbo16();
             void AttachDepthRbo24();
-            void AttachDepthTexture(std::shared_ptr<Tex> texture, int level = 0);
+            void AttachDepthTex(std::shared_ptr<Tex> tex, int level = 0);
             void UpdateDrawBuffers();
             
             void CheckStatus();

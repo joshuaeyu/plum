@@ -1,6 +1,7 @@
 #include <plum/renderer/renderer.hpp>
 
 #include <plum/component/primitive.hpp>
+#include <plum/material/texture.hpp>
 
 #include <functional>
 #include <iostream>
@@ -76,16 +77,16 @@ namespace Renderer {
         gBuffer.colorAtts = std::vector<std::shared_ptr<Tex>>(4);
         
         auto position = std::make_shared<Tex2D>(GL_TEXTURE_2D, GL_RGBA16F, gBuffer.width, gBuffer.height, GL_RGBA, GL_FLOAT, GL_CLAMP_TO_EDGE, GL_NEAREST);
-        gBuffer.AttachColorTexture(position, 0);
+        gBuffer.AttachColorTex(position, 0);
 
         auto normal = std::make_shared<Tex2D>(GL_TEXTURE_2D, GL_RGBA16F, gBuffer.width, gBuffer.height, GL_RGBA, GL_FLOAT, GL_CLAMP_TO_EDGE, GL_NEAREST);
-        gBuffer.AttachColorTexture(normal, 1);
+        gBuffer.AttachColorTex(normal, 1);
         
         auto albedospec = std::make_shared<Tex2D>(GL_TEXTURE_2D, GL_RGBA, gBuffer.width, gBuffer.height, GL_RGBA, GL_UNSIGNED_BYTE, GL_CLAMP_TO_EDGE, GL_NEAREST);
-        gBuffer.AttachColorTexture(albedospec, 2);
+        gBuffer.AttachColorTex(albedospec, 2);
         
         auto metrou = std::make_shared<Tex2D>(GL_TEXTURE_2D, GL_RGBA, gBuffer.width, gBuffer.height, GL_RGBA, GL_UNSIGNED_BYTE, GL_CLAMP_TO_EDGE, GL_NEAREST);
-        gBuffer.AttachColorTexture(metrou, 3);
+        gBuffer.AttachColorTex(metrou, 3);
         
         gBuffer.AttachDepthRbo16();
     
@@ -99,7 +100,7 @@ namespace Renderer {
         auto color = std::make_shared<Tex2D>(GL_TEXTURE_2D, GL_RGBA, output.width, output.height, GL_RGBA, GL_FLOAT, GL_CLAMP_TO_EDGE, GL_NEAREST);
 
         output.Bind();
-        output.AttachColorTexture(color);
+        output.AttachColorTex(color);
         output.AttachDepthRbo16();
         output.CheckStatus();
     }
@@ -256,7 +257,7 @@ namespace Renderer {
         lightingPassPbrModule.irradianceMap = 5;
         lightingPassPbrModule.prefilterMap = 6;
         lightingPassPbrModule.brdfLUT = 7;
-        lightingPassPbrModule.ibl = 0.0f;
+        lightingPassPbrModule.ibl = 0.5f;
         lightingPassPbrModule.shadowmap_2d_array_shadow = 8;
         lightingPassPbrModule.shadowmap_cube_array_shadow = 9;
         lightingPassPbrModule.GetProgram()->Use();

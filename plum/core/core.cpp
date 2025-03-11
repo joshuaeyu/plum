@@ -96,9 +96,6 @@ namespace Core {
             if (vbo->vertexArray.HasAttributes(attr.flag)) {
                 glEnableVertexAttribArray(attr.index);
                 glVertexAttribPointer(attr.index, attr.ncomps, GL_FLOAT, GL_FALSE, vbo->vertexArray.Stride(), (void *)(vbo->vertexArray.AttributeOffset(attr.flag)));
-                while (GLenum error = glGetError()) {
-                    std::cerr << "VA pointer error: " << error << std::endl;
-                }
             }
         }
     }
@@ -156,27 +153,32 @@ namespace Core {
     void Fbo::ClearDepth() {
         glClear(GL_DEPTH_BUFFER_BIT);
     }
-    void Fbo::AttachColorTexture(std::shared_ptr<Tex> texture, int index, int level) {
-        texture->Bind();
+    void Fbo::AttachColorTex(std::shared_ptr<Tex> tex, int index, int level) {
+        tex->Bind();
         
         if (index == -1) {
             index = colorAtts.size();
             colorAtts.push_back(nullptr);
         }
         
-        switch (texture->target) {
+        switch (tex->target) {
             case GL_TEXTURE_2D:
-                glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + index, GL_TEXTURE_2D, texture->Handle(), level);
+                glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + index, GL_TEXTURE_2D, tex->Handle(), level);
                 break;
             case GL_TEXTURE_CUBE_MAP:
-                for (int i = 0; i < 6; i++) {
-                    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + index, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, texture->Handle(), level);
-                }
+                // Must call AttachColorTexCubeFace to attach individual cubemap faces to this color attachment of the fbo!
                 break;
         }
         
-        colorAtts[index] = texture;
+        colorAtts[index] = tex;
         UpdateDrawBuffers();
+    }
+    void Fbo::AttachColorTexCubeFace(int att_index, int face_idx, int level) {
+        if (colorAtts[att_index]->target != GL_TEXTURE_CUBE_MAP) {
+            std::cerr << "Fbo::AttachColorTexCubeFace error! Can only attach cubemap faces of GL_TEXTURE_CUBE_MAP textures!" << std::endl;
+            exit(-1);
+        }
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + att_index, GL_TEXTURE_CUBE_MAP_POSITIVE_X + face_idx, colorAtts[att_index]->Handle(), level);
     }
     void Fbo::AttachDepthRbo16() {
         depthRboAtt = std::make_shared<Rbo>(width, height);
@@ -188,8 +190,8 @@ namespace Core {
         depthRboAtt->Setup24();
         glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthRboAtt->Handle());
     }
-    void Fbo::AttachDepthTexture(std::shared_ptr<Tex> texture, int level) {
-        depthAtt = texture;
+    void Fbo::AttachDepthTex(std::shared_ptr<Tex> tex, int level) {
+        depthAtt = tex;
         glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depthAtt->Handle(), level);
     }
     void Fbo::UpdateDrawBuffers() {
