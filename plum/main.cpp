@@ -4,6 +4,7 @@
 #include <plum/scene/environment.hpp>
 #include <plum/component/camera.hpp>
 #include <plum/component/primitive.hpp>
+#include <plum/component/model.hpp>
 #include <plum/renderer/renderer.hpp>
 #include <plum/material/texture.hpp>
 
@@ -23,7 +24,7 @@ int main() {
     app.defaultWindow->SetWindowSize(1024,1024);
     
     std::cout << "Setting up environment..." << std::endl;
-    auto skybox = std::make_shared<Material::Texture>("assets/textures/dresden_station_4k.hdr");
+    auto skybox = std::make_shared<Material::Texture>("assets/textures/dresden_station_4k.hdr", Material::TextureType::Diffuse);
     static std::vector<std::string> oceanSkyboxPaths = {
         "assets/textures/skybox/right.jpg",
         "assets/textures/skybox/left.jpg",
@@ -32,7 +33,7 @@ int main() {
         "assets/textures/skybox/front.jpg",
         "assets/textures/skybox/back.jpg"
     };
-    static auto skybox2 = std::make_shared<Material::Texture>(oceanSkyboxPaths, false);
+    static auto skybox2 = std::make_shared<Material::Texture>(oceanSkyboxPaths, Material::TextureType::Diffuse, false);
     Scene::Environment environment(skybox->tex);
     
     std::cout << "Defining materials..." << std::endl;
@@ -68,6 +69,10 @@ int main() {
     auto cube = std::make_shared<Component::Cube>();
     cube->material = ruby;
 
+    std::cout << "Loading models..." << std::endl;
+    // auto backpack = std::make_shared<Component::Model>("assets/models/backpack/backpack.obj");
+    auto backpack = std::make_shared<Component::Model>("assets/models/survival_guitar_backpack/scene.gltf", 0.01f);
+
     std::cout << "Defining scene..." << std::endl;
     Scene::Scene scene;
     auto dlNode = scene.AddChild(dirlight);
@@ -80,6 +85,8 @@ int main() {
     cubeNode->transform.Translate(0,2,0);
     auto sphereNode = cubeNode->AddChild(sphere);
     sphereNode->transform.Translate(0,2,0);
+    auto modelNode = scene.AddChild(backpack);
+    modelNode->transform.Translate(10,5,0);
     
     std::cout << "Creating renderer..." << std::endl;
     Renderer::DeferredRenderer renderer(app.defaultWindow);

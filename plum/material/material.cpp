@@ -1,5 +1,7 @@
 #include <plum/material/material.hpp>
 
+#include <plum/component/model.hpp>
+
 #include <iostream>
 
 namespace Material {
@@ -11,7 +13,30 @@ namespace Material {
     PBRMetallicMaterial::PBRMetallicMaterial() 
     {
         // Set UBO scheme to default (may implement non-default schemes in the future)
-        program->SetUniformBlockBindingScheme(Core::Program::UboScheme::Scheme1);
+        if (!programInitialized) {
+            program->SetUniformBlockBindingScheme(Core::Program::UboScheme::Scheme1);
+            programInitialized = true;
+        }
+    }
+
+    void PBRMetallicMaterial::ProcessMaterialInfo(Component::MaterialInfo info) {
+        albedo = info.diffuse;
+        metallic = info.metalness;
+        roughness = info.roughness;
+        for (auto& texture : info.textures) {
+            if (texture->type == Material::TextureType::Diffuse)
+                albedoMap = texture->tex;
+            else if (texture->type == Material::TextureType::Metalness)
+                metallicMap = texture->tex;
+            else if (texture->type == Material::TextureType::Roughness)
+                roughnessMap = texture->tex;
+            else if (texture->type == Material::TextureType::Normal)
+                normalMap = texture->tex;
+            else if (texture->type == Material::TextureType::Height)
+                displacementMap = texture->tex;
+            else if (texture->type == Material::TextureType::Occlusion)
+                occlusionMap = texture->tex;
+        }
     }
 
     std::shared_ptr<Core::Program> PBRMetallicMaterial::GetProgram() {

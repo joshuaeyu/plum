@@ -5,12 +5,16 @@
 
 namespace Material {
 
-    Texture::Texture(std::string filename, bool flip, GLenum wrap, GLenum minfilter) 
+    Texture::Texture(std::string filename, TextureType type, bool flip, GLenum wrap, GLenum minfilter)
+        : paths({filename}),
+        type(type)
     {
         loadFile(filename, flip, GL_TEXTURE_2D, wrap, minfilter);
     }
     
-    Texture::Texture(std::vector<std::string> &cubemap_filenames, bool flip, GLenum wrap, GLenum minfilter)
+    Texture::Texture(std::vector<std::string> &cubemap_filenames, TextureType type, bool flip, GLenum wrap, GLenum minfilter)
+        : paths(cubemap_filenames),
+        type(type)
     {
         for (int i = 0; i < cubemap_filenames.size(); i++) {
             loadFile(cubemap_filenames[i], flip, GL_TEXTURE_CUBE_MAP, wrap, minfilter, i);
@@ -57,7 +61,7 @@ namespace Material {
                 format = GL_RGB;
                 if (isHdr)
                     internalformat = GL_RGB32F;
-                else if (type == Diffuse)
+                else if (type == Diffuse || type == Emissive)
                     internalformat = GL_SRGB;   // correct any colors to linear space
                 else
                     internalformat = GL_RGB;
@@ -66,7 +70,7 @@ namespace Material {
                 format = GL_RGBA;
                 if (isHdr)
                     internalformat = GL_RGBA32F;
-                else if (type == Diffuse)
+                else if (type == Diffuse || type == Emissive)
                     internalformat = GL_SRGB_ALPHA;   // correct any colors to linear space
                 else
                     internalformat = GL_RGBA;

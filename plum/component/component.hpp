@@ -19,6 +19,7 @@ namespace Component {
         // Meshes
         Mesh,
         Model,
+        ModelNode,
         Primitive,
         // Lights
         DirLight,

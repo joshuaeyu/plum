@@ -9,6 +9,10 @@
 #include <memory>
 #include <string>
 
+namespace Component {
+    struct MaterialInfo;
+}
+
 namespace Material {
     
     class MaterialBase {
@@ -23,6 +27,9 @@ namespace Material {
     class PBRMetallicMaterial : public MaterialBase {
         public:
             PBRMetallicMaterial();
+
+            void ProcessMaterialInfo(Component::MaterialInfo info);
+
             std::shared_ptr<Core::Program> GetProgram() override;
             void SetUniforms(const glm::mat4& model_transform) override;
 
@@ -31,6 +38,7 @@ namespace Material {
             float metallic = 0.5;
             float roughness = 0.5;
         private:
+            inline static bool programInitialized = false;
             inline static const std::shared_ptr<Core::Program> program = std::make_shared<Core::Program>("shaders/shaderv_gen.vs", "shaders/shaderf_basichybrid.fs");
     };
 
@@ -43,7 +51,7 @@ namespace Material {
     //         std::shared_ptr<Core::Tex2D> albedoMap, specularMap, roughnessMap, normalMap, displacementMap, occlusionMap;
     //         glm::vec3 albedo = glm::vec3(0.5);
     //         glm::vec3 specular = glm::vec3(0.5);
-    //         float roughness = 0.5;
+    //         float glossiness = 0.5;
     //     private:
 
     // };

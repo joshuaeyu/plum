@@ -1,9 +1,9 @@
 # RPATH
-# LIB_ASSIMP := ./external/assimp/lib/
+LIB_ASSIMP := ./external/assimp/lib/
 LIB_GLFW := ./external/glfw/lib/
 LIB_GLM := ./external/glm/lib/
 # Includes
-# INCL_ASSIMP := ./external/assimp/include/
+INCL_ASSIMP := ./external/assimp/include/
 INCL_GLAD := ./external/glad/include/
 INCL_GLFW := ./external/glfw/include/
 INCL_GLM := ./external/glm/include/
@@ -17,24 +17,19 @@ CFLAGS := 	-fdiagnostics-color=always \
 			-g	\
 			-I$(INCL_GLAD)
 CXXFLAGS := 	$(CFLAGS)	\
-			-I./	\
-			-I$(EXTDIR)	\
-			-I$(INCL_GLFW)	\
-			-I$(INCL_GLM)	\
-			-std=c++17
-# -I$(INCL_ASSIMP)
+				-I./	\
+				-I$(EXTDIR)	\
+				-I$(INCL_GLFW)	\
+				-I$(INCL_GLM)	\
+				-I$(INCL_ASSIMP) \
+				-std=c++17
 # Linker-only flags
 # -L same as -Wl,-L,
-LDFLAGS := 	-L$(LIB_GLFW)	\
-			-lglfw3	\
-			-L$(LIB_GLM)	\
-			-lglm	\
+LDFLAGS := 	-L$(LIB_GLFW) -lglfw3	\
+			-L$(LIB_GLM) -lglm	\
+			-L$(LIB_ASSIMP)	-Wl,-rpath,$(LIB_ASSIMP) -lassimp	\
 			-framework Cocoa 	\
-			-framework OpenGL	\
 			-framework IOKit
-# -L$(LIB_ASSIMP)	\
-# -Wl,-rpath,$(LIB_ASSIMP)	\
-# -lassimp	\
 
 # Source files
 sources := $(SRCDIR)/main.cpp $(wildcard $(SRCDIR)/*/*.c*) 

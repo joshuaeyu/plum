@@ -5,22 +5,23 @@
 #include <memory>
 
 namespace Material {
+    
+    enum TextureType {
+        Diffuse,
+        Specular,
+        Ambient,
+        Emissive,
+        Height,
+        Normal,
+        Metalness,
+        Roughness,
+        Occlusion,
+        Unknown
+    };
 
     class Texture {
         
         public:            
-            enum TextureType {
-                Ambient,
-                Diffuse,
-                Specular,
-                Height,
-                Normal, 
-                Metalness,
-                Roughness,
-                Occlusion,
-                Unknown
-            };
-
             inline static const std::string texTypeStrings[9] = {
                 "ambient", 
                 "diffuse", 
@@ -42,8 +43,8 @@ namespace Material {
             
             std::shared_ptr<Core::Tex2D> tex;
 
-            Texture(std::string filename, bool flip = true, GLenum wrap = GL_REPEAT, GLenum minfilter = GL_NEAREST);
-            Texture(std::vector<std::string>& cubemap_filenames, bool flip = true, GLenum wrap = GL_REPEAT, GLenum minfilter = GL_NEAREST);
+            Texture(std::string filename, TextureType type, bool flip = true, GLenum wrap = GL_REPEAT, GLenum minfilter = GL_NEAREST);
+            Texture(std::vector<std::string>& cubemap_filenames, TextureType type, bool flip = true, GLenum wrap = GL_REPEAT, GLenum minfilter = GL_NEAREST);
             
         private:
             void loadFile(std::string filename, bool flip, GLenum target, GLenum wrap, GLenum minfilter, int face_idx = -1);
