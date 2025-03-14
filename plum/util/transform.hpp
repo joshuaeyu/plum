@@ -40,14 +40,14 @@ class Transform {
         glm::mat4 matrix = glm::identity<glm::mat4>();
         
         bool isUpdateRequired = false;
-        glm::vec3 lastPosition;
-        glm::quat lastRotationQuat;
-        glm::vec3 lastScale;
+        glm::vec3 lastPosition = glm::vec3(0,0,0);
+        glm::quat lastRotationQuat = glm::quat(0,0,0,1);
+        glm::vec3 lastScale = glm::vec3(1,1,1);
 
         void updateFrontRightUp();
-        glm::vec3 front;
-        glm::vec3 right;
-        glm::vec3 up;
+        glm::vec3 front = glm::vec3(0,0,1);
+        glm::vec3 right = glm::vec3(1,0,0);
+        glm::vec3 up = glm::vec3(0,1,0);
         
 
 };

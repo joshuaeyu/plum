@@ -4,36 +4,32 @@
 #include <glm/gtx/euler_angles.hpp>
 
 Transform::Transform()
-    : Transform(glm::vec3(0), glm::vec3(0), glm::vec3(1)) 
+    : Transform(glm::identity<glm::mat4>()) 
 {}
 
 Transform::Transform(glm::mat4 matrix)
-    : position(glm::vec3(matrix[3])), lastPosition(position),
-    rotationQuat(glm::quat(matrix)), lastRotationQuat(rotationQuat),
-    scale(ExtractScale(matrix)), lastScale(scale)
+    : matrix(matrix),
+    position(matrix[3]),
+    rotationQuat(matrix),
+    scale(ExtractScale(matrix))
 {
-    Update();
     updateFrontRightUp();
 }
 
 Transform::Transform(glm::vec3 position, glm::vec3 rotationEuler, glm::vec3 scale)
-    : position(position), lastPosition(position),
-    rotationQuat(glm::quat(glm::radians(rotationEuler))), lastRotationQuat(rotationQuat),
-    // rotationEuler(rotationEuler), lastRotationEuler(rotationEuler),
-    scale(scale), lastScale(scale)
+    : position(position),
+    rotationQuat(glm::radians(rotationEuler)),
+    scale(scale)
 {
     Update();
-    updateFrontRightUp();
 }
 
 Transform::Transform(glm::vec3 position, glm::quat rotationQuat, glm::vec3 scale) 
-    : position(position), lastPosition(position),
-    rotationQuat(rotationQuat), lastRotationQuat(rotationQuat),
-    // rotationEuler(glm::degrees(glm::eulerAngles(rotationQuat))), lastRotationEuler(rotationEuler),
-    scale(scale), lastScale(scale)
+    : position(position),
+    rotationQuat(rotationQuat),
+    scale(scale)
 {
     Update();
-    updateFrontRightUp();
 }
     
 const glm::mat4& Transform::Matrix() {
