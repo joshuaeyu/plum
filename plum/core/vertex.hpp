@@ -61,14 +61,16 @@ namespace Core {
         class VertexArray {
             public:
                 struct UncollatedVertices {
-                    std::vector<float> positions;
-                    std::vector<float> normals;
-                    std::vector<float> uvs;
-                    std::vector<float> tangents;
-                    std::vector<float> bitangents;
+                    std::vector<float> positions, normals, uvs, tangents, bitangents;
                 };
-
+                /* Construct using a collated vector of attribute data. Except for Position, all attributes are optional. Attributes provided must be in the following order:
+                    - Position2/Position3
+                    - Normal
+                    - Uv
+                    - Tangent
+                    - Bitangent */
                 VertexArray(const std::vector<float>& collated, const unsigned int flags = AttrFlags::Default3D);
+                /* Construct using an instance the UncollatedVertices struct. */
                 VertexArray(const UncollatedVertices& uncollated);
 
             public:
