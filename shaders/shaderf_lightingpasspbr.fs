@@ -93,8 +93,8 @@ void main() {
     vec4 MetRouOcc = texture(gMetRouOcc, TexCoords);
     float Metallic = MetRouOcc.r;
     float Roughness = MetRouOcc.g;
-    // float Occlusion = (MetRouOcc.b == 1) ? MetRouOcc.a : texture(ssao, TexCoords).r;
     float Occlusion = MetRouOcc.a;
+    // float Occlusion = (MetRouOcc.b == 1) ? MetRouOcc.a : texture(ssao, TexCoords).r;
 
     // Process other inputs
     vec3 viewDir = vec3(normalize(-FragPos));
@@ -108,6 +108,12 @@ void main() {
 
     // Output to two colorbuffers
     FragColor = vec4(result, 1.0);
+    
+    float exposure = 1.0;
+    const float gamma = 2.2;
+    vec3 mappedColor = vec3(1) - exp(-vec3(FragColor) * exposure);
+    mappedColor = pow(mappedColor, vec3(1.0/gamma));    // don't gamma correct untextured materials
+    FragColor = vec4(mappedColor, 1);
     // float brightness = dot(FragColor.rgb, vec3(0.2126, 0.7152, 0.0722));
     // BrightColor = vec4(smoothstep(0.825, 1.175, brightness) * FragColor.rgb, 1.0);  // Smoothstep prevents harsh bloom boundary
     // if (brightness > 1.0)
@@ -313,7 +319,7 @@ vec3 CalcIBL(vec3 normal, vec3 albedo, float metallic, float roughness, vec3 vie
     vec3 prefilteredColor = textureLod(prefilterMap, reflection_world, roughness * MAX_REFLECTION_LOD).rgb;
     vec2 envBRDF = texture(brdfLUT, vec2(NdotV, roughness)).rg;
         // Split sum approximation: Prefilter * BRDF
-    vec3 specular = (prefilteredColor) * (F * envBRDF.x + envBRDF.y);
+    vec3 specular = prefilteredColor * (F * envBRDF.x + envBRDF.y);
 
     vec3 ambient = (kD*diffuse + specular) * occlusion;
 

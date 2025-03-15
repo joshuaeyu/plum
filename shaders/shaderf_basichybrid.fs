@@ -46,7 +46,7 @@ void main() {
     gPosition = fs_in.FragPos;
 
     if (material.has_texture_normal) {
-        gNormal = texture(material.texture_height, fs_in.TexCoords).rgb;
+        gNormal = texture(material.texture_normal, fs_in.TexCoords).rgb;
         gNormal = gNormal * 2.0 - 1.0;
         gNormal = normalize(fs_in.TBN * gNormal);
     } else {
@@ -60,20 +60,20 @@ void main() {
     }
 
     if (material.has_texture_metallic) {
-        gMetRouOcc.r = texture(material.texture_metallic, fs_in.TexCoords).r;
+        gMetRouOcc.r = texture(material.texture_metallic, fs_in.TexCoords).b;   // .gltf
     } else {
         gMetRouOcc.r = material.metallic;
     }
 
     if (material.has_texture_roughness) {
-        gMetRouOcc.g = texture(material.texture_roughness, fs_in.TexCoords).r;
+        gMetRouOcc.g = texture(material.texture_roughness, fs_in.TexCoords).g;  // .gltf
     } else {
         gMetRouOcc.g = material.roughness;
     }
 
     if (material.has_texture_occlusion) {
         gMetRouOcc.b = 1.0; // aka, use occlusion texture
-        gMetRouOcc.a = texture(material.texture_occlusion, fs_in.TexCoords).r;
+        gMetRouOcc.a = texture(material.texture_occlusion, fs_in.TexCoords).r;  // .gltf
     } else {
         gMetRouOcc.b = 0.0; // aka, use SSAO
         gMetRouOcc.a = 1.0;

@@ -42,7 +42,7 @@ namespace Context {
     void Application::initialize() {
         EnableDepth();
         EnableCull();
-        EnableFramebufferSrgb();
+        // EnableFramebufferSrgb();
         glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS); // Doesn't change
 
         GLint n;

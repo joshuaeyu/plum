@@ -30,15 +30,15 @@ void main() {
         vec3 L = -normalize(reflect(V, H));             
         float NdotL = max(dot(N,L),0.0);   // Sample weight = alignment of L with N (i.e., closer to normal has greater weight)
 
-        // Determine mip level
-        float D = DistributionGGX(N, H, roughness);
-        float pdf = (D * max(dot(N,H),0.0) / (4.0 * max(dot(H,V),0.0))) + 0.0001;
-        float saTexel = 4.0 * PI / (6.0 * envResolution * envResolution);
-        float saSample = 1.0 / (float(SAMPLE_COUNT) * pdf + 0.0001);
-        float mipLevel = (roughness == 0.0) ? 0.0 : 0.5 * log2(saSample/saTexel);
-
         // Sample environment cubemap and apply weight
         if (NdotL > 0.0) {
+            // Determine mip level
+            float D = DistributionGGX(N, H, roughness);
+            float pdf = (D * max(dot(N,H),0.0) / (4.0 * max(dot(H,V),0.0))) + 0.0001;
+            float saTexel = 4.0 * PI / (6.0 * envResolution * envResolution);
+            float saSample = 1.0 / (float(SAMPLE_COUNT) * pdf + 0.0001);
+            float mipLevel = (roughness == 0.0) ? 0.0 : 0.5 * log2(saSample/saTexel);
+
             prefilteredColor += texture(envCubemap, L, mipLevel).rgb * NdotL;
             totalWeight += NdotL;
         }
