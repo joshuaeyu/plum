@@ -282,7 +282,7 @@ namespace Renderer {
         if (env.skybox) {
             static Component::Cube cube;
             env.skyboxModule.GetProgram()->Use();
-            env.skyboxModule.SetGlobalUniforms(glm::mat4(glm::mat3(camera.View())), camera.projection, 0);
+            env.skyboxModule.SetGlobalUniforms(camera, *env.skybox, 0);
             env.skybox->Bind(0);
             glCullFace(GL_FRONT);
             cube.Draw(env.skyboxModule);

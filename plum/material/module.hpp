@@ -9,6 +9,7 @@ namespace Component
 {
     class DirectionalLight;
     class PointLight;
+    class Camera;
 }
 
 namespace Scene
@@ -95,14 +96,11 @@ namespace Material
     {
         public:
             SkyboxModule();
-            void SetGlobalUniforms(const glm::mat4& view, const glm::mat4& projection, const int cubemapUnit);
+            void SetGlobalUniforms(Component::Camera& camera, Core::Tex2D& skybox, const int tex_unit);
 
             std::shared_ptr<Core::Program> GetProgram() override;
 
-            bool hdr = true;
-
-            inline static const std::shared_ptr<Core::Program> program = std::make_shared<Core::Program>("shaders/shaderv_skybox.vs", "shaders/shaderf_skybox.fs");
-            inline static const std::shared_ptr<Core::Program> hdrProgram = std::make_shared<Core::Program>("shaders/shaderv_skybox.vs", "shaders/shaderf_skyboxhdr.fs");
+            inline static const std::shared_ptr<Core::Program> program = std::make_shared<Core::Program>("shaders/shaderv_skybox.vs", "shaders/shaderf_skyboxhdr.fs");
     };
 
 }

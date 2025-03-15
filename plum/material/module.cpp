@@ -1,5 +1,6 @@
 #include <plum/material/module.hpp>
 
+#include <plum/component/camera.hpp>
 #include <plum/component/light.hpp>
 #include <plum/scene/scene.hpp>
 #include <plum/scene/scenenode.hpp>
@@ -126,23 +127,15 @@ namespace Material {
 
     SkyboxModule::SkyboxModule() {}
     
-    void SkyboxModule::SetGlobalUniforms(const glm::mat4& view, const glm::mat4& projection, const int cubemapUnit) {
-        if (hdr) {
-            hdrProgram->SetMat4("view", view);
-            hdrProgram->SetMat4("projection", projection);
-            hdrProgram->SetInt("cubemap", cubemapUnit);
-        } else {
-            program->SetMat4("view", view);
-            program->SetMat4("projection", projection);
-            program->SetInt("cubemap", cubemapUnit);
-        }
+    void SkyboxModule::SetGlobalUniforms(Component::Camera& camera, Core::Tex2D& skybox, const int tex_unit) {
+        program->SetMat4("view", glm::mat4(glm::mat3(camera.View())));
+        program->SetMat4("projection", camera.projection);
+        program->SetInt("cubemap", tex_unit);
+        program->SetInt("hdr", skybox.isHdr);
     }
 
     std::shared_ptr<Core::Program> SkyboxModule::GetProgram() {
-        if (hdr)
-            return hdrProgram;
-        else
-            return program;
+        return program;
     }
 
 }

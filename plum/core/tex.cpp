@@ -9,7 +9,7 @@
 
 namespace Core {
 
-    Tex::Tex(GLenum target, GLint internalformat, GLsizei width, GLsizei height, GLsizei depth, GLenum format, GLenum datatype, GLint wrap, GLint minfilter, bool isshadowmap) 
+    Tex::Tex(GLenum target, GLint internalformat, GLsizei width, GLsizei height, GLsizei depth, GLenum format, GLenum datatype, GLint wrap, GLint minfilter, bool is_shadowmap, bool is_hdr) 
         : target(target), 
         internalformat(internalformat), 
         width(width), 
@@ -19,7 +19,8 @@ namespace Core {
         datatype(datatype), 
         wrap(wrap), 
         minfilter(minfilter), 
-        isShadowmap(isshadowmap)
+        isShadowmap(is_shadowmap),
+        isHdr(is_hdr)
     {
         initialize();
     }
@@ -75,6 +76,11 @@ namespace Core {
         }
     }
     
+    void Tex::GenerateMipMap() {
+        Bind();
+        glGenerateMipmap(target);
+    }
+
     GLuint Tex::Handle() const {
         return handle;
     }
@@ -91,8 +97,8 @@ namespace Core {
         glBindTexture(target, 0);
     }
 
-    Tex2D::Tex2D(GLenum target, GLint internalformat, GLsizei width, GLsizei height, GLenum format, GLenum datatype, GLint wrap, GLint minfilter, bool isshadowmap)
-    : Tex{target, internalformat, width, height, 0, format, datatype, wrap, minfilter, isshadowmap}
+    Tex2D::Tex2D(GLenum target, GLint internalformat, GLsizei width, GLsizei height, GLenum format, GLenum datatype, GLint wrap, GLint minfilter, bool is_shadowmap, bool is_hdr)
+    : Tex{target, internalformat, width, height, 0, format, datatype, wrap, minfilter, is_shadowmap, is_hdr}
     {
         Bind();
         switch (target) {
@@ -113,8 +119,8 @@ namespace Core {
         glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + face_idx, level, internalformat, width, height, 0, format, datatype, pixels);
     }
 
-    Tex3D::Tex3D(GLenum target, GLint internalformat, GLsizei width, GLsizei height, GLsizei depth, GLenum format, GLenum datatype, GLint wrap, GLint minfilter, bool isshadowmap) 
-    : Tex{target, internalformat, width, height, depth, format, datatype, wrap, minfilter, isshadowmap}
+    Tex3D::Tex3D(GLenum target, GLint internalformat, GLsizei width, GLsizei height, GLsizei depth, GLenum format, GLenum datatype, GLint wrap, GLint minfilter, bool is_shadowmap, bool is_hdr) 
+    : Tex{target, internalformat, width, height, depth, format, datatype, wrap, minfilter, is_shadowmap, is_hdr}
     {
         Bind();
         DefineImage(nullptr);

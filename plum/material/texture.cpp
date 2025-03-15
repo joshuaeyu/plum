@@ -79,7 +79,7 @@ namespace Material {
         // Assign to target
         if (isHdr) {
             if (!tex) {
-                tex = std::make_shared<Core::Tex2D>(target, internalformat, width, height, format, GL_FLOAT, wrap, minfilter);
+                tex = std::make_shared<Core::Tex2D>(target, internalformat, width, height, format, GL_FLOAT, wrap, minfilter, false, isHdr);
             }
             if (face_idx <= -1) {
                 tex->DefineImage(tex_dataf);
@@ -88,7 +88,7 @@ namespace Material {
             }
         } else {
             if (!tex) {
-                tex = std::make_shared<Core::Tex2D>(target, internalformat, width, height, format, GL_UNSIGNED_BYTE, wrap, minfilter);
+                tex = std::make_shared<Core::Tex2D>(target, internalformat, width, height, format, GL_UNSIGNED_BYTE, wrap, minfilter, false, isHdr);
             }
             if (face_idx <= -1) {
                 tex->DefineImage(tex_data);
