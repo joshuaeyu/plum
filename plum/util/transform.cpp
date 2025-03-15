@@ -41,7 +41,7 @@ const glm::mat4& Transform::Matrix() {
 }
 
 glm::vec3 Transform::EulerAngles() const {
-    return glm::eulerAngles(rotationQuat);
+    return glm::degrees(glm::eulerAngles(rotationQuat));
 }
 
 void Transform::Translate(glm::vec3 translation) {
