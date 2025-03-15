@@ -100,7 +100,7 @@ namespace Material
 
             std::shared_ptr<Core::Program> GetProgram() override;
 
-            inline static const std::shared_ptr<Core::Program> program = std::make_shared<Core::Program>("shaders/shaderv_skybox.vs", "shaders/shaderf_skyboxhdr.fs");
+            inline static const std::shared_ptr<Core::Program> program = std::make_shared<Core::Program>("shaders/shaderv_skybox.vs", "shaders/shaderf_skybox.fs");
     };
 
 }
