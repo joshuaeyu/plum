@@ -21,7 +21,7 @@ namespace Component {
     void Camera::ProcessInputs() {
         // Mouse: Rotation
         float deltaYaw = -inputObserver->GetCursorDeltaX() * sensitivity;
-        float deltaPitch = inputObserver->GetCursorDeltaY() * sensitivity;
+        float deltaPitch = -inputObserver->GetCursorDeltaY() * sensitivity;
         rotate(deltaYaw, deltaPitch);
         
         // WASD/Space/Shift: Translation
@@ -41,13 +41,19 @@ namespace Component {
     }
 
     const glm::mat4& Camera::View() {
-        view = glm::lookAt(transform.position, transform.position + transform.Front(), worldUp);
+        view = glm::lookAt(transform.position, transform.position - transform.Front(), worldUp);
         return view;
     }
 
     void Camera::rotate(double delta_yaw, double delta_pitch) {
         glm::vec3 eulerAngles = transform.EulerAngles();
-        float true_delta_pitch = eulerAngles.x + delta_pitch > 89.5 ? 89.5 - eulerAngles.x : delta_pitch;
+        // needs work
+        float true_delta_pitch = delta_pitch;
+        // if (eulerAngles.x + delta_pitch >= 89.5) {
+        //     true_delta_pitch = 89.5 - eulerAngles.x;
+        // } else if (eulerAngles.x + delta_pitch <= -89.5) {
+        //     true_delta_pitch = -89.5 - eulerAngles.x;
+        // }
 
         transform.Rotate(true_delta_pitch, delta_yaw, 0);
     }
@@ -55,16 +61,16 @@ namespace Component {
     void Camera::translate(Direction dir, float dist) {
         switch (dir) {
             case Direction::Forward:
-                transform.Translate(transform.Front() * dist);
+                transform.Translate(-transform.Front() * dist); // Camera faces in -z direction, and front is +z
                 break;
             case Direction::Backward:
-                transform.Translate(-transform.Front() * dist);
+                transform.Translate(transform.Front() * dist);  // Camera faces in -z direction, and front is +z
                 break;
             case Direction::Left:
-                transform.Translate(transform.Right() * dist);  // Because using <0,0,1> as front with RH coordinate system
+                transform.Translate(-transform.Right() * dist);
                 break;
             case Direction::Right:
-                transform.Translate(-transform.Right() * dist); // Because using <0,0,1> as front with RH coordinate system
+                transform.Translate(transform.Right() * dist);
                 break;
             case Direction::Up:
                 transform.Translate(worldUp * dist);
