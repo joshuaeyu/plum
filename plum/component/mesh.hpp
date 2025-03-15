@@ -1,12 +1,12 @@
 #pragma once
 
-#include <plum/core/core.hpp>
-#include <plum/scene/scenenode.hpp>
+#include <plum/component/component.hpp>
 
+#include <plum/core/core.hpp>
 #include <plum/material/material.hpp>
 #include <plum/material/module.hpp>
+#include <plum/scene/scenenode.hpp>
 
-#include <vector>
 #include <memory>
 
 namespace Component {
@@ -16,13 +16,14 @@ namespace Component {
         public:
             Mesh();
             Mesh(std::shared_ptr<Core::Vao> vao);
-            Mesh(std::shared_ptr<Core::Vao> vao, std::shared_ptr<Material::MaterialBase> mat);
+            Mesh(std::shared_ptr<Core::Vao> vao, std::shared_ptr<Material::MaterialBase> material);
             virtual ~Mesh();
             
-            virtual void Draw(const glm::mat4& model_matrix = glm::identity<glm::mat4>());
-            virtual void Draw(Material::MaterialBase& mat, const glm::mat4& model_matrix = glm::identity<glm::mat4>());
-            virtual void Draw(Material::Module& module, const glm::mat4& model_matrix = glm::identity<glm::mat4>());
+            virtual void Draw(const glm::mat4& model_matrix = glm::identity<glm::mat4>()) override;
+            virtual void Draw(Material::MaterialBase& material, const glm::mat4& model_matrix = glm::identity<glm::mat4>()) override;
+            virtual void Draw(Material::Module& module, const glm::mat4& model_matrix = glm::identity<glm::mat4>()) override;
             
+            // Default material is PBRMetallicMaterial
             std::shared_ptr<Material::MaterialBase> material = std::make_shared<Material::PBRMetallicMaterial>();
             
             std::shared_ptr<Core::Vao> vao;

@@ -24,7 +24,9 @@ int main() {
     app.defaultWindow->SetWindowSize(1024,1024);
     
     std::cout << "Setting up environment..." << std::endl;
+    // auto skybox = std::make_shared<Material::Texture>("assets/textures/black.png", Material::TextureType::Diffuse);
     auto skybox = std::make_shared<Material::Texture>("assets/textures/dresden_station_4k.hdr", Material::TextureType::Diffuse);
+    // auto skybox = std::make_shared<Material::Texture>("assets/textures/kloppenheim_4k.hdr", Material::TextureType::Diffuse);
     static std::vector<std::string> oceanSkyboxPaths = {
         "assets/textures/skybox/right.jpg",
         "assets/textures/skybox/left.jpg",
@@ -37,14 +39,16 @@ int main() {
     Scene::Environment environment(skybox->tex);
     
     std::cout << "Defining materials..." << std::endl;
+    auto brdf = std::make_shared<Material::PBRMetallicMaterial>();
+    brdf->albedoMap = environment.brdfLut;
     auto copper = std::make_shared<Material::PBRMetallicMaterial>();
     copper->albedo = glm::vec3(0.72,0.45,0.22);
     copper->metallic = 1.0;
-    copper->roughness = 0.25;
+    copper->roughness = 0.1;
     auto ruby = std::make_shared<Material::PBRMetallicMaterial>();
-    ruby->albedo = glm::vec3(0.7,0.1,0.1);
+    ruby->albedo = glm::vec3(0.6,0.1,0.1);
     ruby->metallic = 0.0;
-    ruby->roughness = 0.2;
+    ruby->roughness = 0.1;
     auto sapphire = std::make_shared<Material::PBRMetallicMaterial>();
     sapphire->albedo = glm::vec3(0.1,0.2,0.7);
     sapphire->metallic = 1.0;
@@ -60,7 +64,7 @@ int main() {
     dirlight->EnableShadows();
     auto pointlight = std::make_shared<Component::PointLight>();
     pointlight->color = glm::vec3(1.0,1.0,0.5);
-    pointlight->intensity = 10.f;
+    pointlight->intensity = 50.f;
     pointlight->EnableShadows();
     auto plane = std::make_shared<Component::Plane>();
     plane->material = copper;
@@ -70,8 +74,9 @@ int main() {
     cube->material = ruby;
 
     std::cout << "Loading models..." << std::endl;
-    // auto backpack = std::make_shared<Component::Model>("assets/models/backpack/backpack.obj");
+    // auto backpack = std::make_shared<Component::Model>("assets/models/backpack/backpack.obj", 1.0f, true);
     auto backpack = std::make_shared<Component::Model>("assets/models/survival_guitar_backpack/scene.gltf", 0.01f);
+    // auto backpack = std::make_shared<Component::Model>("assets/models/sponza/glTF/Sponza.gltf");
 
     std::cout << "Defining scene..." << std::endl;
     Scene::Scene scene;
@@ -86,11 +91,12 @@ int main() {
     auto sphereNode = cubeNode->AddChild(sphere);
     sphereNode->transform.Translate(0,2,0);
     auto modelNode = scene.AddChild(backpack);
-    modelNode->transform.Translate(10,5,0);
+    modelNode->transform.Translate(5,4,0);
+    
     
     std::cout << "Creating renderer..." << std::endl;
     Renderer::DeferredRenderer renderer(app.defaultWindow);
-
+    
     // Put this in some MainLoop() function
     std::cout << "Starting main loop..." << std::endl;
     while (!app.defaultWindow->ShouldClose()) {
@@ -98,6 +104,7 @@ int main() {
         app.PollInputsAndEvents();    // needed!
         camera.ProcessInputs(); // needed because camera uses an inputobserver every frame
         
+        modelNode->transform.Rotate(glm::vec3(0,30,0) * app.DeltaTime());
         cubeNode->transform.Rotate(glm::vec3(50,120,90) * app.DeltaTime());
 
         Core::Fbo* fbo = renderer.Render(scene, camera, environment);

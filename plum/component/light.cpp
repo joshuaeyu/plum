@@ -30,8 +30,8 @@ namespace Component {
         : Light(ComponentType::DirLight) 
     {}
 
-    void DirectionalLight::Draw(const glm::mat4& parent_transf) {
-        glm::mat4 rotation = Transform::ExtractRotation(parent_transf);
+    void DirectionalLight::Draw(const glm::mat4& parent_transform) {
+        glm::mat4 rotation = Transform::ExtractRotation(parent_transform);
         glm::vec3 direction = glm::vec3(rotation * glm::vec4(0,0,1,1));
         updateLightspaceMatrix(direction);
     }
@@ -69,8 +69,8 @@ namespace Component {
         : Light(ComponentType::PointLight) 
     {}
 
-    void PointLight::Draw(const glm::mat4& parent_transf) {
-        updateLightspaceMatrices(parent_transf[3]);
+    void PointLight::Draw(const glm::mat4& parent_transform) {
+        updateLightspaceMatrices(parent_transform[3]);
     }
 
     void PointLight::EnableShadows(const float aspect, const float near, const float far) {

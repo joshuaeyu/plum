@@ -15,7 +15,7 @@ namespace Component {
             glm::vec3 color = glm::vec3(1);
             float intensity = 1.0f;
             
-            virtual void Draw(const glm::mat4& parent_transf) override = 0;
+            virtual void Draw(const glm::mat4& parent_transform) override = 0;
 
             // Accessors
             float GetFarPlane() const;
@@ -36,7 +36,7 @@ namespace Component {
         public:            
             DirectionalLight();
 
-            void Draw(const glm::mat4& parent_transf) override;
+            void Draw(const glm::mat4& parent_transform) override;
             
             // Modifiers
             void EnableShadows(const float width = 50.0f, const float height = 50.0f, const float near = 0.1f, const float far = 50.0f, const float dist = 20.0f);
@@ -57,7 +57,7 @@ namespace Component {
         public:
             PointLight();
 
-            void Draw(const glm::mat4& parent_transf) override;
+            void Draw(const glm::mat4& parent_transform) override;
 
             // Methods     
             void EnableShadows(const float aspect = 1.0f, const float near = 0.1f, const float far = 75.0f);
