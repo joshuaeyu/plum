@@ -36,19 +36,17 @@ namespace Material
             DirectionalShadowModule(int map_width = 512, int map_height = 512, int num_layers = 8);
 
             void Render(Scene::Scene& scene, const std::vector<Scene::SceneNode*>& dirlight_nodes);
-
             void SetObjectUniforms(const glm::mat4& model);
 
             std::shared_ptr<Core::Program> GetProgram() override;
 
-            
             const int mapWidth, mapHeight, numLayers;
             const std::shared_ptr<Core::Tex3D> depthMap;
             
         private:
             Core::Fbo fbo;
 
-            void setGlobalUniforms(Component::DirectionalLight& dl, const GLuint depth_texture, int* shadow_idx);
+            void setGlobalUniforms(Component::DirectionalLight& dl, GLuint depth_texture, int* shadow_idx);
             
             inline static std::shared_ptr<Core::Program> program = std::make_shared<Core::Program>("shaders/shaderv_shadow2d.vs", "shaders/shaderf_shadow2d.fs");
             
@@ -96,7 +94,7 @@ namespace Material
     {
         public:
             SkyboxModule();
-            void SetGlobalUniforms(Component::Camera& camera, Core::Tex2D& skybox, const int tex_unit);
+            void SetGlobalUniforms(Component::Camera& camera, Core::Tex2D& skybox, int tex_unit);
 
             std::shared_ptr<Core::Program> GetProgram() override;
 

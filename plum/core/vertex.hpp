@@ -28,7 +28,7 @@ namespace Core {
         // }
         
         struct AttrTypeInfo {
-            AttrTypeInfo(const AttrFlags flag, const int index, const int ncomps) 
+            AttrTypeInfo(AttrFlags flag, int index, int ncomps) 
                 : flag(flag), 
                 index(index), 
                 ncomps(ncomps), 
@@ -49,7 +49,7 @@ namespace Core {
         
         inline static const std::vector<AttrTypeInfo> AttrTypes = {AttrPosition2, AttrPosition3, AttrNormal, AttrUv, AttrTangent, AttrBitangent};
 
-        inline static const AttrTypeInfo GetAttrTypeInfo(const AttrFlags flag) {
+        inline static const AttrTypeInfo GetAttrTypeInfo(AttrFlags flag) {
             for (const auto& attr : AttrTypes) {
                 if (attr.flag == flag) {
                     return attr;
@@ -69,14 +69,14 @@ namespace Core {
                     - Uv
                     - Tangent
                     - Bitangent */
-                VertexArray(const std::vector<float>& collated, const unsigned int flags = AttrFlags::Default3D);
+                VertexArray(const std::vector<float>& collated, unsigned int flags = AttrFlags::Default3D);
                 /* Construct using an instance the UncollatedVertices struct. */
                 VertexArray(const UncollatedVertices& uncollated);
 
             public:
-                std::vector<float> AttributeData(const AttrFlags flag) const;
-                bool HasAttributes(const AttrFlags flags) const;
-                size_t AttributeOffset(const AttrFlags flag) const;
+                std::vector<float> AttributeData(AttrFlags flag) const;
+                bool HasAttributes(AttrFlags flags) const;
+                size_t AttributeOffset(AttrFlags flag) const;
                 
                 int VertexCount() const;
                 size_t Size() const;

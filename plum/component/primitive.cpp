@@ -28,7 +28,7 @@ namespace Component {
         vao->Draw();
     }
 
-    Cube::Cube(const int nrows, const int ncols) : nRows(nrows), nCols(ncols) {
+    Cube::Cube(int nrows, int ncols) : nRows(nrows), nCols(ncols) {
         const std::vector<float> cubedata = {
             // Positions           // Normals           // UV                    // Tangents
             -0.5f, -0.5f, -0.5f,   0.0f,  0.0f, -1.0f,        0.0f,       0.0f,  1.0f, 0.0f, 0.0f,
@@ -80,7 +80,7 @@ namespace Component {
         vao = std::make_shared<Vao>(vbo);
     }
     
-    Sphere::Sphere(const int nstacks, const int nsectors) : nStacks(nstacks), nSectors(nsectors) {
+    Sphere::Sphere(int nstacks, int nsectors) : nStacks(nstacks), nSectors(nsectors) {
         using namespace Core;
         
         Vertex::VertexArray::UncollatedVertices verts;
@@ -174,7 +174,7 @@ namespace Component {
         vao = std::make_shared<Vao>(vbo, ebo);
     }
     
-    Plane::Plane(const int nrows, const int ncols) : nRows(nrows), nCols(ncols) {
+    Plane::Plane(int nrows, int ncols) : nRows(nrows), nCols(ncols) {
         const std::vector<float> rectdata = {    // Remember CCW (x-z vs x-y)
             // Positions         // Normals         // UV                        // Tangents
             -1.0f, 0.0f, -1.0f,  0.0f, 1.0f, 0.0f,          0.0f,         0.0f,  1.0f, 0.0f, 0.0f,

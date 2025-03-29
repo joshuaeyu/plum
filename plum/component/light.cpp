@@ -20,7 +20,7 @@ namespace Component {
         hasShadows = false;
     }
 
-    Light::Light(const ComponentType type) 
+    Light::Light(ComponentType type) 
         : ComponentBase(type) 
     {}
 
@@ -36,7 +36,7 @@ namespace Component {
         updateLightspaceMatrix(direction);
     }
 
-    void DirectionalLight::EnableShadows(const float width, const float height, const float near, const float far, const float dist) {
+    void DirectionalLight::EnableShadows(float width, float height, float near, float far, float dist) {
         hasShadows = true;
         projWidth = width;
         projHeight = height;
@@ -73,7 +73,7 @@ namespace Component {
         updateLightspaceMatrices(parent_transform[3]);
     }
 
-    void PointLight::EnableShadows(const float aspect, const float near, const float far) {
+    void PointLight::EnableShadows(float aspect, float near, float far) {
         hasShadows = true;
         aspectRatio = aspect;
         nearPlane = near;

@@ -101,7 +101,7 @@ namespace Core {
     }
 
     // Uniform buffer
-    Ubo::Ubo(const unsigned int index, const size_t size) 
+    Ubo::Ubo(unsigned int index, size_t size) 
     {
         glGenBuffers(1, &handle);
         Bind();
@@ -119,7 +119,7 @@ namespace Core {
     void Ubo::Unbind() {
         glBindBuffer(GL_UNIFORM_BUFFER, 0);
     }
-    void Ubo::UpdateData(const unsigned int offset, const size_t size, const void* data) {
+    void Ubo::UpdateData(unsigned int offset, size_t size, const void* data) {
         Bind();
         glBufferSubData(GL_UNIFORM_BUFFER, offset, size, data);
         Unbind();
@@ -213,7 +213,7 @@ namespace Core {
             std::cerr << "Framebuffer error: " << glCheckFramebufferStatus(GL_FRAMEBUFFER) << std::endl;
         }
     }
-    void Fbo::Resize(const int width, const int height) {
+    void Fbo::Resize(int width, int height) {
         this->width = width;
         this->height = height;
         for (auto& color : colorAtts) {
@@ -279,7 +279,7 @@ namespace Core {
         Bind();
         glRenderbufferStorage(GL_RENDERBUFFER, internalformat, width, height);
     }
-    void Rbo::Resize(const int width, const int height) {
+    void Rbo::Resize(int width, int height) {
         this->width = width;
         this->height = height;
         if (internalformat == GL_DEPTH_COMPONENT16) {

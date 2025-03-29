@@ -10,7 +10,7 @@ namespace Scene {
     
     SceneNode::SceneNode() {}
     SceneNode::SceneNode(std::shared_ptr<Component::ComponentBase> component) 
-        : component(component) 
+        : component(std::move(component)) 
     {}
     SceneNode::~SceneNode() {
         // std::cout << "destroying SceneNode" << std::endl;
@@ -44,15 +44,15 @@ namespace Scene {
 
     // Modifiers
     std::shared_ptr<SceneNode> SceneNode::CreateChild() {
-        children.push_back(std::make_shared<SceneNode>());
+        children.emplace_back(std::make_shared<SceneNode>());
         return children.back();
     }
     std::shared_ptr<SceneNode> SceneNode::AddChild(std::shared_ptr<SceneNode> node) {
-        children.push_back(node);
+        children.emplace_back(node);
         return children.back();
     }
     std::shared_ptr<SceneNode> SceneNode::AddChild(std::shared_ptr<Component::ComponentBase> component) {
-        children.push_back(std::make_shared<SceneNode>(component));
+        children.emplace_back(std::make_shared<SceneNode>(component));
         return children.back();
     }
     void SceneNode::RemoveChild(std::shared_ptr<SceneNode> node) {

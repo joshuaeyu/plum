@@ -29,7 +29,7 @@ namespace Component {
             std::shared_ptr<Core::Vao> vao;
             
         protected:
-            Mesh(const ComponentType type);
+            Mesh(ComponentType type);
 
     };
 

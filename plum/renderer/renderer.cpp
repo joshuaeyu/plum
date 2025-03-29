@@ -141,9 +141,9 @@ namespace Renderer {
         glm::mat4 inv_view = glm::inverse(camera.View());
         uboFsMatrices->UpdateData(0, sizeof(glm::mat4), &inv_view);
         // 2 - Camera position, front (viewspace)
-        glm::vec3 dummy_cam_pos = glm::vec3(0); // shaders work in view space
-        uboFsCamera->UpdateData(0, sizeof(glm::vec3), &dummy_cam_pos);
-        uboFsCamera->UpdateData(16, sizeof(glm::vec3), &camera.transform.Front());
+        const glm::vec3 dummy_cam_pos = glm::vec3(0); // shaders work in view space
+        // uboFsCamera->UpdateData(0, sizeof(glm::vec3), &dummy_cam_pos);
+        // uboFsCamera->UpdateData(16, sizeof(glm::vec3), &camera.transform.Front());
 
         // 3 - Directional light colors, direction, lightspace transform
         // 4 - Point light count, colors, attenuations, positions, positions (worldspace)

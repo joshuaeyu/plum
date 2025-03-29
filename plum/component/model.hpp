@@ -49,10 +49,10 @@ namespace Component {
             std::shared_ptr<Mesh> processMesh(aiMesh* aimesh, const aiScene* scene);
             MaterialInfo processMaterial(aiMaterial* aimaterial);
             std::vector<std::shared_ptr<Material::Texture>> loadMaterialTextures(aiMaterial* aimaterial, aiTextureType aitextype);
-        };
+    };
         
-        class Model : public ComponentBase {
-            public:
+    class Model : public ComponentBase {
+        public:
             Model(std::string path, float scale = 1.0f, bool flipUvs = false, GLuint wrap = GL_REPEAT);
             ~Model();
             
@@ -68,13 +68,13 @@ namespace Component {
             
             std::vector<std::shared_ptr<Material::Texture>> textures;
             std::shared_ptr<ModelNode> root;
-        private:
-            
+    
+        private:    
             GLuint wrap;
             std::map<std::string, bool> necessityMap;
 
-            void importFile(const std::string filename, float scale, bool flipUvs);
-            void printSceneInfo(std::string path, const aiScene *scene, std::string outpath = "");
+            void importFile(const std::string& filename, float scale, bool flipUvs);
+            void printSceneInfo(const std::string& path, const aiScene *scene, const std::string& outpath = "");
     };
 
     class Animation {

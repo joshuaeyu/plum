@@ -55,11 +55,11 @@ namespace Core {
 
     class Ubo : public GlObject {
         public:
-            Ubo(const unsigned int index, const size_t size);
+            Ubo(unsigned int index, size_t size);
             ~Ubo();
             virtual void Bind();
             virtual void Unbind();
-            void UpdateData(const unsigned int offset, const size_t size, const void* data);
+            void UpdateData(unsigned int offset, size_t size, const void* data);
     };
 
     class Rbo : public GlObject {
@@ -70,7 +70,7 @@ namespace Core {
             void Unbind();
             void Setup16();
             void Setup24();
-            void Resize(const int width, const int height);
+            void Resize(int width, int height);
             int width, height;
         private:
             GLenum internalformat;
@@ -97,7 +97,7 @@ namespace Core {
             void UpdateDrawBuffers();
             void CheckStatus();
 
-            void Resize(const int width, const int height);
+            void Resize(int width, int height);
             
             void SetViewportDims();
             

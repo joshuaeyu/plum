@@ -28,7 +28,7 @@ namespace Component {
             float nearPlane = 0.1;
             float farPlane = 50;
 
-            Light(const ComponentType type);
+            Light(ComponentType type);
 
     };
 
@@ -39,7 +39,7 @@ namespace Component {
             void Draw(const glm::mat4& parent_transform) override;
             
             // Modifiers
-            void EnableShadows(const float width = 50.0f, const float height = 50.0f, const float near = 0.1f, const float far = 50.0f, const float dist = 20.0f);
+            void EnableShadows(float width = 50.0f, float height = 50.0f, float near = 0.1f, float far = 50.0f, float dist = 20.0f);
             // Accessors
             glm::mat4& GetLightspaceMatrix();
 
@@ -60,7 +60,7 @@ namespace Component {
             void Draw(const glm::mat4& parent_transform) override;
 
             // Methods     
-            void EnableShadows(const float aspect = 1.0f, const float near = 0.1f, const float far = 75.0f);
+            void EnableShadows(float aspect = 1.0f, float near = 0.1f, float far = 75.0f);
             // Modifiers
             void SetAttenuation(float constant, float linear, float quadratic);
             // Accessors

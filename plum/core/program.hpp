@@ -117,18 +117,18 @@ namespace Core {
 
             GLuint handle;
 
-            Program(std::string vertexShaderPath, std::string fragmentShaderPath, std::string geometryShaderPath = "");
+            Program(const std::string& vertexShaderPath, const std::string& fragmentShaderPath, const std::string& geometryShaderPath = "");
             // Shader(std::string vertexShaderCode, std::string fragmentShaderCode, std::string geometryShaderCode = "");
 
             ~Program();
 
-            void SetUniformBlockBindingScheme(const UboScheme scheme);
-            void SetUniformBlockBinding(const std::string name, const GLuint index);
+            void SetUniformBlockBindingScheme(UboScheme scheme);
+            void SetUniformBlockBinding(const std::string& name, GLuint index);
 
-            void SetInt(const std::string name, const int val);
-            void SetFloat(const std::string name, const float val);
-            void SetVec3(const std::string name, const glm::vec3 vec);
-            void SetMat4(const std::string name, const glm::mat4 mat);
+            void SetInt(const std::string& name, int val);
+            void SetFloat(const std::string& name, float val);
+            void SetVec3(const std::string& name, const glm::vec3& vec);
+            void SetMat4(const std::string& name, const glm::mat4& mat);
 
             void Use();
 

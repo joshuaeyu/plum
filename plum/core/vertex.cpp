@@ -4,7 +4,7 @@ namespace Core {
     
     namespace Vertex {
 
-        VertexArray::VertexArray(const std::vector<float>& collated, const unsigned int flags) 
+        VertexArray::VertexArray(const std::vector<float>& collated, unsigned int flags) 
             : data(collated), 
             attributes(flags) 
         {
@@ -79,7 +79,7 @@ namespace Core {
             }
         }
 
-        std::vector<float> VertexArray::AttributeData(const AttrFlags flag) const {
+        std::vector<float> VertexArray::AttributeData(AttrFlags flag) const {
             std::vector<float> result;
             int startIdx = AttributeOffset(flag) / sizeof(float);
             int strideLength = Stride() / sizeof(float);
@@ -91,11 +91,11 @@ namespace Core {
             return result;
         }
 
-        bool VertexArray::HasAttributes(const AttrFlags flags) const {
+        bool VertexArray::HasAttributes(AttrFlags flags) const {
             return !(~attributes & flags);
         }
 
-        size_t VertexArray::AttributeOffset(const AttrFlags flag) const {
+        size_t VertexArray::AttributeOffset(AttrFlags flag) const {
             size_t offset = 0;
             for (const auto& attr : AttrTypes) {
                 if (HasAttributes(attr.flag)) {

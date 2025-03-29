@@ -15,9 +15,9 @@ namespace Core {
             const GLenum format, datatype;
             const GLint wrap, minfilter;
 
-            virtual void DefineImage(const void* pixels, const int level = 0) {}
+            virtual void DefineImage(const void* pixels, int level = 0) {}
 
-            virtual void Resize(const int width, const int height) = 0;
+            virtual void Resize(int width, int height) = 0;
 
             void GenerateMipMap();
             
@@ -45,19 +45,19 @@ namespace Core {
         public:
             Tex2D(GLenum target, GLint internalformat, GLsizei width, GLsizei height, GLenum format, GLenum type, GLint wrap, GLint minfilter, bool is_shadowmap = false, bool is_hdr = false);
             
-            void DefineImage(const void* pixels, const int level = 0) override;
-            void DefineImageCubeFace(const int face_idx, const void* pixels, const int level = 0);
+            void DefineImage(const void* pixels, int level = 0) override;
+            void DefineImageCubeFace(int face_idx, const void* pixels, int level = 0);
 
-            void Resize(const int width, const int height) override;
+            void Resize(int width, int height) override;
     };
     
     class Tex3D : public Tex {
         public:
             Tex3D(GLenum target, GLint internalformat, GLsizei width, GLsizei height, GLsizei depth, GLenum format, GLenum type, GLint wrap, GLint minfilter, bool is_shadowmap = false, bool is_hdr = false);
 
-            void DefineImage(const void* pixels, const int level = 0) override;
+            void DefineImage(const void* pixels, int level = 0) override;
 
-            void Resize(const int width, const int height) override;
+            void Resize(int width, int height) override;
     };
 
 }

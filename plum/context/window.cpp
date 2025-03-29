@@ -55,13 +55,13 @@ namespace Context {
         glfwSetWindowTitle(handle, title);
         this->title = title;
     }
-    void Window::SetWindowSize(const int width, const int height) {
+    void Window::SetWindowSize(int width, int height) {
         glfwSetWindowSize(handle, width, height);
         this->width = width;
         this->height = height;
     }
 
-    void Window::SetInputMode(const int mode, const int value) {
+    void Window::SetInputMode(int mode, int value) {
         glfwSetInputMode(handle, mode, value);
     }
 

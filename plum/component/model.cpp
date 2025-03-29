@@ -261,7 +261,7 @@ namespace Component {
         root->Draw(module, model_matrix);
     }
 
-    void Model::importFile(const std::string filename, float scale, bool flipUvs) {
+    void Model::importFile(const std::string& filename, float scale, bool flipUvs) {
         Assimp::Importer importer;
         unsigned int importerFlags = aiProcessPreset_TargetRealtime_MaxQuality | aiProcess_GlobalScale;
         if (flipUvs)
@@ -278,7 +278,7 @@ namespace Component {
         printSceneInfo(path, scene);
     }
 
-    void Model::printSceneInfo(std::string path, const aiScene *scene, std::string outpath) {            
+    void Model::printSceneInfo(const std::string& path, const aiScene *scene, const std::string& outpath) {            
         // Check if model's scene info was already logged
         if (outpath != "") {
             std::ifstream f(outpath);

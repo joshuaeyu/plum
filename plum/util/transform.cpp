@@ -7,7 +7,7 @@ Transform::Transform()
     : Transform(glm::identity<glm::mat4>()) 
 {}
 
-Transform::Transform(glm::mat4 matrix)
+Transform::Transform(const glm::mat4& matrix)
     : matrix(matrix),
     position(matrix[3]),
     rotationQuat(matrix),
@@ -16,17 +16,17 @@ Transform::Transform(glm::mat4 matrix)
     updateFrontRightUp();
 }
 
-Transform::Transform(glm::vec3 position, glm::vec3 rotationEuler, glm::vec3 scale)
+Transform::Transform(const glm::vec3& position, const glm::vec3& rotation_euler, const glm::vec3& scale)
     : position(position),
-    rotationQuat(glm::radians(rotationEuler)),
+    rotationQuat(glm::radians(rotation_euler)),
     scale(scale)
 {
     Update();
 }
 
-Transform::Transform(glm::vec3 position, glm::quat rotationQuat, glm::vec3 scale) 
+Transform::Transform(const glm::vec3& position, const glm::quat& rotation_quat, const glm::vec3& scale) 
     : position(position),
-    rotationQuat(rotationQuat),
+    rotationQuat(rotation_quat),
     scale(scale)
 {
     Update();
@@ -44,7 +44,7 @@ glm::vec3 Transform::EulerAngles() const {
     return glm::degrees(glm::eulerAngles(rotationQuat));
 }
 
-void Transform::Translate(glm::vec3 translation) {
+void Transform::Translate(const glm::vec3& translation) {
     lastPosition = position;
     position += translation;
     isUpdateRequired = true;
@@ -55,16 +55,16 @@ void Transform::Translate(float dx, float dy, float dz) {
     isUpdateRequired = true;
 }
 
-void Transform::Rotate(glm::vec3 eulerAngles) {
+void Transform::Rotate(const glm::vec3& euler_angles) {
     lastRotationQuat = rotationQuat;
-    rotationQuat *= glm::quat(glm::radians(eulerAngles));
+    rotationQuat *= glm::quat(glm::radians(euler_angles));
     updateFrontRightUp();
     isUpdateRequired = true;
 }
 void Transform::Rotate(float pitch, float yaw, float roll) {
     Rotate(glm::vec3(pitch, yaw, roll));
 }
-void Transform::LookAt(glm::vec3 target, glm::vec3 up) {
+void Transform::LookAt(const glm::vec3& target, const glm::vec3& up) {
     lastRotationQuat = rotationQuat;
     glm::vec3 direction = glm::normalize(target - position);
     rotationQuat = glm::quatLookAt(direction, up);
@@ -77,7 +77,7 @@ void Transform::Scale(float s) {
     scale *= s;
     isUpdateRequired = true;
 }
-void Transform::Scale(glm::vec3 s) {
+void Transform::Scale(const glm::vec3& s) {
     lastScale = scale;
     scale = s;
     isUpdateRequired = true;
@@ -115,14 +115,14 @@ void Transform::updateFrontRightUp() {
     up    = rotationQuat * glm::vec3(0,1,0);
 }
 
-glm::vec3 Transform::ExtractScale(const glm::mat4 matrix) {
+glm::vec3 Transform::ExtractScale(const glm::mat4& matrix) {
     float sx = glm::length(glm::vec3(matrix[0]));
     float sy = glm::length(glm::vec3(matrix[1]));
     float sz = glm::length(glm::vec3(matrix[2]));
     return glm::vec3(sx, sy, sz);
 }
 
-glm::mat4 Transform::ExtractRotation(const glm::mat4 matrix) {
+glm::mat4 Transform::ExtractRotation(const glm::mat4& matrix) {
     glm::vec3 scale = ExtractScale(matrix);
     glm::mat4 result = matrix;
     for (int i = 0; i < 3; i++)

@@ -10,7 +10,7 @@
 
 namespace Core {
 
-    Program::Program(std::string vertexShaderPath, std::string fragmentShaderPath, std::string geometryShaderPath) 
+    Program::Program(const std::string& vertexShaderPath, const std::string& fragmentShaderPath, const std::string& geometryShaderPath) 
         // : handle(glCreateProgram()) 
     {
         Context::Application::Instance();
@@ -103,7 +103,7 @@ namespace Core {
         glDeleteProgram(handle);
     }
 
-    void Program::SetUniformBlockBindingScheme(const UboScheme scheme) {
+    void Program::SetUniformBlockBindingScheme(UboScheme scheme) {
         switch (scheme) {
             case UboScheme::Scheme1:
                 SetUniformBlockBinding("Matrices_Vertex", 0);
@@ -114,31 +114,30 @@ namespace Core {
         }
     }
 
-    void Program::SetUniformBlockBinding(std::string name, GLuint index) {
+    void Program::SetUniformBlockBinding(const std::string& name, GLuint index) {
         GLuint ubo = glGetUniformBlockIndex(handle, name.c_str());
         glUniformBlockBinding(handle, ubo, index);
         while (GLenum error = glGetError()) {
-            std::cerr << "Warning: Uniform block "<< name << " was not found in the program." << std::endl;
-            std::cerr << "Ubo binding error: " << error << std::endl;
+            std::cerr << "Warning: Uniform block "<< name << " was not found in the program. Ubo binding error: " << error << std::endl;
         }
     }
 
-    void Program::SetInt(std::string name, int val) {
+    void Program::SetInt(const std::string& name, int val) {
         GLint location = glGetUniformLocation(handle, name.c_str());
         glUniform1i(location, val);
     }
 
-    void Program::SetFloat(std::string name, float val) {
+    void Program::SetFloat(const std::string& name, float val) {
         GLint location = glGetUniformLocation(handle, name.c_str());
         glUniform1f(location, val);
     }
 
-    void Program::SetVec3(std::string name, glm::vec3 vec) {
+    void Program::SetVec3(const std::string& name, const glm::vec3& vec) {
         GLint location = glGetUniformLocation(handle, name.c_str());
         glUniform3fv(location, 1, glm::value_ptr(vec));
     }
 
-    void Program::SetMat4(std::string name, glm::mat4 mat) {
+    void Program::SetMat4(const std::string& name, const glm::mat4& mat) {
         GLint location = glGetUniformLocation(handle, name.c_str());
         glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(mat));
     }

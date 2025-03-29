@@ -38,7 +38,7 @@ namespace Material {
         }
     }
 
-    void DirectionalShadowModule::setGlobalUniforms(Component::DirectionalLight& dl, const GLuint depth_texture, int* shadow_idx) {
+    void DirectionalShadowModule::setGlobalUniforms(Component::DirectionalLight& dl, GLuint depth_texture, int* shadow_idx) {
         if (!dl.HasShadows())
             return;
         program->SetMat4("lightSpaceMatrix", dl.GetLightspaceMatrix());
@@ -127,7 +127,7 @@ namespace Material {
 
     SkyboxModule::SkyboxModule() {}
     
-    void SkyboxModule::SetGlobalUniforms(Component::Camera& camera, Core::Tex2D& skybox, const int tex_unit) {
+    void SkyboxModule::SetGlobalUniforms(Component::Camera& camera, Core::Tex2D& skybox, int tex_unit) {
         program->SetMat4("view", glm::mat4(glm::mat3(camera.View())));
         program->SetMat4("projection", camera.projection);
         program->SetInt("cubemap", tex_unit);

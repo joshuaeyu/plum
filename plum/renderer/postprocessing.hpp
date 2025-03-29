@@ -7,10 +7,10 @@ namespace PostProcessing {
 
     class PostProcessor {
         public:
-            virtual Core::Fbo* Process(Core::Tex& input, const int width, const int height) = 0;
+            virtual Core::Fbo* Process(Core::Tex& input, int width, int height) = 0;
         protected:
             Core::Fbo output;
-            Core::Fbo* Process(Core::Fbo& input, const int att_idx = 0);
+            Core::Fbo* Process(Core::Fbo& input, int att_idx = 0);
             PostProcessor();
     };
 
@@ -19,7 +19,7 @@ namespace PostProcessing {
             Fxaa();
 
             using PostProcessor::Process;
-            Core::Fbo* Process(Core::Tex& input, const int width, const int height) override;
+            Core::Fbo* Process(Core::Tex& input, int width, int height) override;
             
             inline static std::shared_ptr<Core::Program> program = std::make_shared<Core::Program>("shaders/shaderv_2d.vs", "shaders/shaderf_2dfxaa.fs");
     };
@@ -29,7 +29,7 @@ namespace PostProcessing {
             Bloom();
 
             using PostProcessor::Process;
-            Core::Fbo* Process(Core::Tex& input, const int width, const int height) override;
+            Core::Fbo* Process(Core::Tex& input, int width, int height) override;
             
             Core::Fbo highlights;
             Core::Fbo bloom;
@@ -44,7 +44,7 @@ namespace PostProcessing {
             Ssao();
 
             using PostProcessor::Process;
-            Core::Fbo* Process(Core::Tex& input, const int width, const int height) override;
+            Core::Fbo* Process(Core::Tex& input, int width, int height) override;
             
             // static Core::Fbo fbo;
 
@@ -57,7 +57,7 @@ namespace PostProcessing {
             Hdr();    
 
             using PostProcessor::Process;
-            Core::Fbo* Process(Core::Tex& input, const int width, const int height) override;
+            Core::Fbo* Process(Core::Tex& input, int width, int height) override;
 
             inline static std::shared_ptr<Core::Program> program = std::make_shared<Core::Program>("shaders/shaderv_2d.vs", "shaders/shaderf_2dhdr.fs");
     };

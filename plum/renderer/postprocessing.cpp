@@ -7,7 +7,7 @@ namespace PostProcessing {
         : output(2,2)
     {}
 
-    Core::Fbo* PostProcessor::Process(Core::Fbo& input, const int att_idx) {
+    Core::Fbo* PostProcessor::Process(Core::Fbo& input, int att_idx) {
         return Process(*input.colorAtts[att_idx], input.width, input.height);
     }
 
@@ -21,7 +21,7 @@ namespace PostProcessing {
         output.CheckStatus();
     }
 
-    Core::Fbo* Fxaa::Process(Core::Tex& input, const int width, const int height) {
+    Core::Fbo* Fxaa::Process(Core::Tex& input, int width, int height) {
         if (output.width != width || output.height != height) {
             output.Resize(width, height);
         }
@@ -59,7 +59,7 @@ namespace PostProcessing {
         bloom.CheckStatus();
     }
 
-    Core::Fbo* Bloom::Process(Core::Tex& input, const int width, const int height) {   
+    Core::Fbo* Bloom::Process(Core::Tex& input, int width, int height) {   
         if (output.width != width || output.height != height) {
             output.Resize(width, height);
         }
@@ -111,7 +111,7 @@ namespace PostProcessing {
         return &output;
     }
 
-    Core::Fbo* Ssao::Process(Core::Tex& input, const int width, const int height) {
+    Core::Fbo* Ssao::Process(Core::Tex& input, int width, int height) {
         return nullptr;
     }
 
@@ -125,7 +125,7 @@ namespace PostProcessing {
         output.CheckStatus();
     }
 
-    Core::Fbo* Hdr::Process(Core::Tex& input, const int width, const int height) {
+    Core::Fbo* Hdr::Process(Core::Tex& input, int width, int height) {
         if (output.width != width || output.height != height) {
             output.Resize(width, height);
         }

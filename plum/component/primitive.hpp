@@ -13,21 +13,21 @@ namespace Component {
 
     class Cube : public Primitive {
         public:
-            Cube(const int nrows = 1, const int ncols = 1);
+            Cube(int nrows = 1, int ncols = 1);
         private:
             int nRows, nCols;
     };
 
     class Sphere : public Primitive  {
         public:
-            Sphere(const int nstacks = 30, const int nsectors = 30);
+            Sphere(int nstacks = 30, int nsectors = 30);
         private:
             int nStacks, nSectors;
     };
 
     class Plane : public Primitive {
         public:
-            Plane(const int nrows = 1, const int ncols = 1);
+            Plane(int nrows = 1, int ncols = 1);
         private:
             int nRows, nCols;
     };

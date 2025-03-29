@@ -19,8 +19,8 @@ namespace Context {
             ~Window();
 
             void SetTitle(const char* title);
-            void SetWindowSize(const int width, const int height);
-            void SetInputMode(const int mode, const int value);
+            void SetWindowSize(int width, int height);
+            void SetInputMode(int mode, int value);
             
             float Aspect() const { return static_cast<float>(width)/height; }
             int Width() const { return width; }

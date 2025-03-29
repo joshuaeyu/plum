@@ -23,7 +23,7 @@ namespace Component {
         material(mat)
     {}
     
-    Mesh::Mesh(const ComponentType type) 
+    Mesh::Mesh(ComponentType type) 
         : ComponentBase(type) 
     {}
     

@@ -21,10 +21,10 @@ namespace Scene {
 
         private:
 
-            std::shared_ptr<Core::Tex2D> equirectToCubemap(std::shared_ptr<Core::Tex2D> equirect, const unsigned int width, const unsigned int height);
-            void cubemapToIrradiance(const unsigned int width, const unsigned int height);
-            void cubemapToPrefilter(const unsigned int width, const unsigned int height, const unsigned int envres);
-            void generateBrdfLut(const unsigned int width, const unsigned int height);
+            std::shared_ptr<Core::Tex2D> equirectToCubemap(std::shared_ptr<Core::Tex2D> equirect, unsigned int width, unsigned int height);
+            void cubemapToIrradiance(unsigned int width, unsigned int height);
+            void cubemapToPrefilter(unsigned int width, unsigned int height, unsigned int envres);
+            void generateBrdfLut(unsigned int width, unsigned int height);
 
             inline static const std::shared_ptr<Core::Program> equirectProgram = std::make_shared<Core::Program>("shaders/shaderv_equirect.vs", "shaders/shaderf_equirect.fs");
 

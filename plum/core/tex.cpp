@@ -112,16 +112,16 @@ namespace Core {
         }
     }
 
-    void Tex2D::DefineImage(const void *pixels, const int level) {
+    void Tex2D::DefineImage(const void *pixels, int level) {
         Bind();
         glTexImage2D(target, level, internalformat, width, height, 0, format, datatype, pixels);
     }
-    void Tex2D::DefineImageCubeFace(const int face_idx, const void *pixels, const int level) {
+    void Tex2D::DefineImageCubeFace(int face_idx, const void *pixels, int level) {
         Bind();
         glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + face_idx, level, internalformat, width, height, 0, format, datatype, pixels);
     }
 
-    void Tex2D::Resize(const int width, const int height) {
+    void Tex2D::Resize(int width, int height) {
         this->width = width;
         this->height = height;
         switch (target) {
@@ -142,12 +142,12 @@ namespace Core {
         DefineImage(nullptr);
     }
 
-    void Tex3D::DefineImage(const void *pixels, const int level) {
+    void Tex3D::DefineImage(const void *pixels, int level) {
         Bind();
         glTexImage3D(target, level, internalformat, width, height, depth, 0, format, datatype, pixels);
     }
 
-    void Tex3D::Resize(const int width, const int height) {
+    void Tex3D::Resize(int width, int height) {
         this->width = width;
         this->height = height;
         DefineImage(nullptr);
