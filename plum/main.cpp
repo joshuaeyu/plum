@@ -6,10 +6,13 @@
 #include <plum/component/primitive.hpp>
 #include <plum/component/model.hpp>
 #include <plum/renderer/renderer.hpp>
+#include <plum/renderer/postprocessing.hpp>
 #include <plum/material/texture.hpp>
 
 #include <plum/core/program.hpp>
 #include <plum/material/material.hpp>
+
+#include <glm/glm.hpp>
 
 #include <iostream>
 #include <vector>
@@ -21,7 +24,7 @@ int main() {
     
     std::cout << "Setting window parameters..." << std::endl;
     app.defaultWindow->SetTitle("Woohoo!");
-    app.defaultWindow->SetWindowSize(1024,1024);
+    app.defaultWindow->SetWindowSize(1920,1080);
     
     std::cout << "Setting up environment..." << std::endl;
     // auto skybox = std::make_shared<Material::Texture>("assets/textures/black.png", Material::TextureType::Diffuse);
@@ -35,22 +38,22 @@ int main() {
         "assets/textures/skybox/front.jpg",
         "assets/textures/skybox/back.jpg"
     };
-    static auto skybox2 = std::make_shared<Material::Texture>(oceanSkyboxPaths, Material::TextureType::Diffuse, false);
+    // static auto skybox = std::make_shared<Material::Texture>(oceanSkyboxPaths, Material::TextureType::Diffuse, false);
     Scene::Environment environment(skybox->tex);
     
     std::cout << "Defining materials..." << std::endl;
     auto brdf = std::make_shared<Material::PBRMetallicMaterial>();
     brdf->albedoMap = environment.brdfLut;
     auto copper = std::make_shared<Material::PBRMetallicMaterial>();
-    copper->albedo = glm::vec3(0.72,0.45,0.22);
+    copper->albedo = glm::pow(glm::vec3(0.72,0.45,0.22),glm::vec3(2.2));
     copper->metallic = 1.0;
-    copper->roughness = 0.1;
+    copper->roughness = 0.15;
     auto ruby = std::make_shared<Material::PBRMetallicMaterial>();
-    ruby->albedo = glm::vec3(0.6,0.1,0.1);
+    ruby->albedo = glm::pow(glm::vec3(0.6,0.1,0.1),glm::vec3(2.2));
     ruby->metallic = 0.0;
     ruby->roughness = 0.1;
     auto sapphire = std::make_shared<Material::PBRMetallicMaterial>();
-    sapphire->albedo = glm::vec3(0.1,0.2,0.7);
+    sapphire->albedo = glm::pow(glm::vec3(0.1,0.2,0.7),glm::vec3(2.2));
     sapphire->metallic = 1.0;
     sapphire->roughness = 0.2;
 
@@ -75,7 +78,7 @@ int main() {
 
     std::cout << "Loading models..." << std::endl;
     // auto backpack = std::make_shared<Component::Model>("assets/models/backpack/backpack.obj", 1.0f, true);
-    auto backpack = std::make_shared<Component::Model>("assets/models/survival_guitar_backpack/scene.gltf", 0.01f);
+    // auto backpack = std::make_shared<Component::Model>("assets/models/survival_guitar_backpack/scene.gltf", 0.01f);
     // auto backpack = std::make_shared<Component::Model>("assets/models/sponza/glTF/Sponza.gltf");
 
     std::cout << "Defining scene..." << std::endl;
@@ -90,27 +93,35 @@ int main() {
     cubeNode->transform.Translate(0,2,0);
     auto sphereNode = cubeNode->AddChild(sphere);
     sphereNode->transform.Translate(0,2,0);
-    auto modelNode = scene.AddChild(backpack);
-    modelNode->transform.Translate(5,4,0);
+    // auto modelNode = scene.AddChild(backpack);
+    // modelNode->transform.Translate(5,4,0);
     
     
     std::cout << "Creating renderer..." << std::endl;
     Renderer::DeferredRenderer renderer(app.defaultWindow);
+    auto fxaa = PostProcessing::Fxaa();
+    auto hdr = PostProcessing::Hdr();
     
     // Put this in some MainLoop() function
     std::cout << "Starting main loop..." << std::endl;
     while (!app.defaultWindow->ShouldClose()) {
         
+        // Pre display
         app.PollInputsAndEvents();    // needed!
         camera.ProcessInputs(); // needed because camera uses an inputobserver every frame
         
-        modelNode->transform.Rotate(glm::vec3(0,30,0) * app.DeltaTime());
+        // Display
+        // modelNode->transform.Rotate(glm::vec3(0,30,0) * app.DeltaTime());
         cubeNode->transform.Rotate(glm::vec3(50,120,90) * app.DeltaTime());
 
-        Core::Fbo* fbo = renderer.Render(scene, camera, environment);
-        while (GLenum error = glGetError()) { std::cerr << "Render error: " << error << std::endl; }
+        Core::Fbo* fbo;
+        fbo = renderer.Render(scene, camera, environment);
+        fbo = fxaa.Process(*fbo);
+        fbo = hdr.Process(*fbo);
         fbo->BlitToDefault();
+        while (GLenum error = glGetError()) { std::cerr << "Render error: " << error << std::endl; }
 
+        // Post display?
         app.defaultWindow->SwapBuffers();
 
     }

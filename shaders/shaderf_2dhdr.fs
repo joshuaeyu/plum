@@ -5,7 +5,7 @@ in vec2 TexCoords;
 out vec4 FragColor;
 
 uniform sampler2D hdrBuffer;
-uniform float exposure;
+uniform float exposure = 1.0;
 
 void main() {
     // Exposure tone mapping

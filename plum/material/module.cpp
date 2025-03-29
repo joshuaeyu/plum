@@ -131,7 +131,6 @@ namespace Material {
         program->SetMat4("view", glm::mat4(glm::mat3(camera.View())));
         program->SetMat4("projection", camera.projection);
         program->SetInt("cubemap", tex_unit);
-        program->SetInt("hdr", skybox.isHdr);
     }
 
     std::shared_ptr<Core::Program> SkyboxModule::GetProgram() {

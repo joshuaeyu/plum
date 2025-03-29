@@ -109,11 +109,6 @@ void main() {
     // Output to two colorbuffers
     FragColor = vec4(result, 1.0);
     
-    float exposure = 1.0;
-    const float gamma = 2.2;
-    vec3 mappedColor = vec3(1) - exp(-vec3(FragColor) * exposure);
-    mappedColor = pow(mappedColor, vec3(1.0/gamma));    // don't gamma correct untextured materials
-    FragColor = vec4(mappedColor, 1);
     // float brightness = dot(FragColor.rgb, vec3(0.2126, 0.7152, 0.0722));
     // BrightColor = vec4(smoothstep(0.825, 1.175, brightness) * FragColor.rgb, 1.0);  // Smoothstep prevents harsh bloom boundary
     // if (brightness > 1.0)
