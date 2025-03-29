@@ -14,13 +14,13 @@ namespace Component {
 
     Mesh::Mesh(std::shared_ptr<Core::Vao> vao)
         : ComponentBase(ComponentType::Mesh), 
-        vao(vao) 
+        vao(std::move(vao)) 
     {}
     
     Mesh::Mesh(std::shared_ptr<Core::Vao> vao, std::shared_ptr<Material::MaterialBase> mat)
         : ComponentBase(ComponentType::Mesh), 
-        vao(vao),
-        material(mat)
+        vao(std::move(vao)),
+        material(std::move(mat))
     {}
     
     Mesh::Mesh(ComponentType type) 

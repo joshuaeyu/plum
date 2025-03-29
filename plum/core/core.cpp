@@ -61,8 +61,8 @@ namespace Core {
         : Vao(vb, nullptr) 
     {}
     Vao::Vao(std::shared_ptr<Vbo> vb, std::shared_ptr<Ebo> eb) 
-        : vbo(vb), 
-        ebo(eb) 
+        : vbo(std::move(vb)), 
+        ebo(std::move(eb)) 
     {
         glGenVertexArrays(1, &handle);
         Bind();
@@ -171,7 +171,7 @@ namespace Core {
                 break;
         }
         
-        colorAtts[index] = tex;
+        colorAtts[index] = std::move(tex);
         UpdateDrawBuffers();
     }
     void Fbo::AttachColorTexCubeFace(int att_index, int face_idx, int level) {
@@ -196,7 +196,7 @@ namespace Core {
     }
     void Fbo::AttachDepthTex(std::shared_ptr<Tex> tex, int level) {
         Bind();
-        depthAtt = tex;
+        depthAtt = std::move(tex);
         glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depthAtt->Handle(), level);
     }
     void Fbo::UpdateDrawBuffers() {

@@ -10,7 +10,7 @@
 namespace Renderer {
 
     RendererBase::RendererBase(std::shared_ptr<Context::Window> window) 
-        : window(window)
+        : window(std::move(window))
     {}
 
     RendererBase::~RendererBase() {}
@@ -18,9 +18,9 @@ namespace Renderer {
     DeferredRenderer::DeferredRenderer(std::shared_ptr<Context::Window> window) 
         : RendererBase(window),
         gBuffer(window->Width(), window->Height()), 
+        output(window->Width(), window->Height()),
         dirShadowModule(1024, 1024),
         pointShadowModule(1024, 1024),
-        output(window->Width(), window->Height()),
         eventListener(Context::WindowInputsAndEventsManager::CreateEventListener())
     {
         InitializeUniformBlocks();
@@ -114,7 +114,7 @@ namespace Renderer {
         // ---- Parse scene for Light nodes ----
         std::queue<Scene::SceneNode*> node_queue;
 
-        node_queue.push(&scene);
+        node_queue.emplace(&scene);
         while (!node_queue.empty()) {
             Scene::SceneNode* curr = node_queue.front();
             node_queue.pop();
@@ -122,14 +122,14 @@ namespace Renderer {
             if (curr->component) {
                 if (curr->component->IsLight()) {
                     if (curr->component->type == Component::ComponentType::DirLight)
-                        directionalLightNodes.push_back(curr);
+                        directionalLightNodes.emplace_back(curr);
                     else if (curr->component->type == Component::ComponentType::PointLight)
-                        pointLightNodes.push_back(curr); 
+                        pointLightNodes.emplace_back(curr); 
                 }
             }
 
-            for (auto& child : curr->children)
-                node_queue.push(child.get());
+            for (const auto& child : curr->children)
+                node_queue.emplace(child.get());
         }
     }
 
@@ -142,8 +142,8 @@ namespace Renderer {
         uboFsMatrices->UpdateData(0, sizeof(glm::mat4), &inv_view);
         // 2 - Camera position, front (viewspace)
         const glm::vec3 dummy_cam_pos = glm::vec3(0); // shaders work in view space
-        // uboFsCamera->UpdateData(0, sizeof(glm::vec3), &dummy_cam_pos);
-        // uboFsCamera->UpdateData(16, sizeof(glm::vec3), &camera.transform.Front());
+        uboFsCamera->UpdateData(0, sizeof(glm::vec3), &dummy_cam_pos);
+        uboFsCamera->UpdateData(16, sizeof(glm::vec3), &camera.transform.Front());
 
         // 3 - Directional light colors, direction, lightspace transform
         // 4 - Point light count, colors, attenuations, positions, positions (worldspace)

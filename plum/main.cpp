@@ -24,7 +24,7 @@ int main() {
     
     std::cout << "Setting window parameters..." << std::endl;
     app.defaultWindow->SetTitle("Plum Engine v2.0");
-    app.defaultWindow->SetWindowSize(1920,1080);
+    app.defaultWindow->SetWindowSize(1200,800);
     
     std::cout << "Setting up environment..." << std::endl;
     // auto skybox = std::make_shared<Material::Texture>("assets/textures/black.png", Material::TextureType::Diffuse);
@@ -64,7 +64,7 @@ int main() {
     dirlight->EnableShadows();
     auto pointlight = std::make_shared<Component::PointLight>();
     pointlight->color = glm::vec3(1.0,1.0,0.5);
-    pointlight->intensity = 50.f;
+    pointlight->intensity = 25.f;
     pointlight->EnableShadows();
     auto plane = std::make_shared<Component::Plane>();
     plane->material = copper;

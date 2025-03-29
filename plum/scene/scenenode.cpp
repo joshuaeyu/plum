@@ -48,7 +48,7 @@ namespace Scene {
         return children.back();
     }
     std::shared_ptr<SceneNode> SceneNode::AddChild(std::shared_ptr<SceneNode> node) {
-        children.emplace_back(node);
+        children.emplace_back(std::move(node));
         return children.back();
     }
     std::shared_ptr<SceneNode> SceneNode::AddChild(std::shared_ptr<Component::ComponentBase> component) {

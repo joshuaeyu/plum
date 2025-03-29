@@ -14,7 +14,7 @@ namespace Scene {
     Environment::Environment(std::shared_ptr<Core::Tex2D> envmap) 
     {
         if (envmap->target == GL_TEXTURE_CUBE_MAP) {
-            skybox = envmap;
+            skybox = std::move(envmap);
             skybox->GenerateMipMap();
         } else if (envmap->target == GL_TEXTURE_2D) {
             skybox = equirectToCubemap(envmap, 2048, 2048);
