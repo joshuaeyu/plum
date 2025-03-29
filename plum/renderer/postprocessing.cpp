@@ -13,7 +13,7 @@ namespace PostProcessing {
 
     Fxaa::Fxaa()
     {
-        auto color = std::make_shared<Core::Tex2D>(GL_TEXTURE_2D, GL_RGBA32F, output.width, output.height, GL_RGBA, GL_FLOAT, GL_CLAMP_TO_EDGE, GL_NEAREST, false, true);
+        auto color = std::make_shared<Core::Tex2D>(GL_TEXTURE_2D, GL_RGBA32F, output.width, output.height, GL_RGBA, GL_FLOAT, GL_CLAMP_TO_EDGE, GL_LINEAR, false, true);
         
         output.Bind();
         output.AttachColorTex(color);
@@ -24,7 +24,6 @@ namespace PostProcessing {
     Core::Fbo* Fxaa::Process(Core::Tex& input, const int width, const int height) {
         if (output.width != width || output.height != height) {
             output.Resize(width, height);
-            output.CheckStatus();
         }
         output.Bind();
         output.SetViewportDims();
@@ -43,7 +42,7 @@ namespace PostProcessing {
         : highlights(2,2),
         bloom(2,2)
     {
-        auto color = std::make_shared<Core::Tex2D>(GL_TEXTURE_2D, GL_RGBA32F, output.width, output.height, GL_RGBA, GL_FLOAT, GL_CLAMP_TO_EDGE, GL_NEAREST, false, true);
+        auto color = std::make_shared<Core::Tex2D>(GL_TEXTURE_2D, GL_RGBA32F, output.width, output.height, GL_RGBA, GL_FLOAT, GL_CLAMP_TO_EDGE, GL_LINEAR, false, true);
         
         output.Bind();
         output.AttachColorTex(color);
@@ -118,7 +117,7 @@ namespace PostProcessing {
 
     Hdr::Hdr()
     {
-        auto color = std::make_shared<Core::Tex2D>(GL_TEXTURE_2D, GL_RGBA32F, output.width, output.height, GL_RGBA, GL_FLOAT, GL_CLAMP_TO_EDGE, GL_NEAREST, false, true);
+        auto color = std::make_shared<Core::Tex2D>(GL_TEXTURE_2D, GL_RGBA32F, output.width, output.height, GL_RGBA, GL_FLOAT, GL_CLAMP_TO_EDGE, GL_LINEAR, false, true);
         
         output.Bind();
         output.AttachColorTex(color);

@@ -97,7 +97,7 @@ namespace Renderer {
         
         using namespace Core;
         
-        auto color = std::make_shared<Tex2D>(GL_TEXTURE_2D, GL_RGBA32F, output.width, output.height, GL_RGBA, GL_FLOAT, GL_CLAMP_TO_EDGE, GL_NEAREST);
+        auto color = std::make_shared<Tex2D>(GL_TEXTURE_2D, GL_RGBA32F, output.width, output.height, GL_RGBA, GL_FLOAT, GL_CLAMP_TO_EDGE, GL_LINEAR);
 
         output.Bind();
         output.AttachColorTex(color);

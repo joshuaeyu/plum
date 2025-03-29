@@ -161,18 +161,11 @@ vec4 fxaa(float EDGE_THRESHOLD_MIN, float EDGE_THRESHOLD_MAX, float SUBPIXEL_QUA
 }
 
 void main() {
-    // Constants
+    // Settings
     float EDGE_THRESHOLD_MIN = 0.0312;
     float EDGE_THRESHOLD_MAX = 0.125;
     float SUBPIXEL_QUALITY = 0.75;
     int ITERATIONS = 12;
-    // if (gl_FragCoord.x < 3024/4) {
-    //     FragColor = fxaa(EDGE_THRESHOLD_MIN, EDGE_THRESHOLD_MAX, SUBPIXEL_QUALITY, ITERATIONS);
-    // // } else if (gl_FragCoord.x > 3024/4 - 4 && gl_FragCoord.x < 3024/4 + 4) {
-    // //     FragColor = vec4(1);
-    // } else {
-    //     FragColor = fxaa(EDGE_THRESHOLD_MIN, EDGE_THRESHOLD_MAX, 0.75, ITERATIONS);
-    //     // FragColor = texture(screenTexture, TexCoords);
-    // }
+
     FragColor = fxaa(EDGE_THRESHOLD_MIN, EDGE_THRESHOLD_MAX, SUBPIXEL_QUALITY, ITERATIONS);
 }

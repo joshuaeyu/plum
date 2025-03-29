@@ -114,12 +114,12 @@ int main() {
 
         Core::Fbo* fbo;
         fbo = renderer.Render(scene, camera, environment);
-        if (glfwGetKey(app.activeWindow->Handle(), GLFW_KEY_0) != GLFW_PRESS)
-            fbo = fxaa.Process(*fbo);
         if (glfwGetKey(app.activeWindow->Handle(), GLFW_KEY_1) == GLFW_PRESS)
             fbo = bloom.Process(*fbo);
         if (glfwGetKey(app.activeWindow->Handle(), GLFW_KEY_2) != GLFW_PRESS)
             fbo = hdr.Process(*fbo);
+        if (glfwGetKey(app.activeWindow->Handle(), GLFW_KEY_0) != GLFW_PRESS)
+            fbo = fxaa.Process(*fbo);
         fbo->BlitToDefault();
         while (GLenum error = glGetError()) { std::cerr << "Render error: " << error << std::endl; }
 
