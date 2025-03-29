@@ -26,7 +26,8 @@ namespace Material
         public:
             virtual std::shared_ptr<Core::Program> GetProgram() = 0;
         protected:
-            Module() {}
+            Module() = default;
+            virtual ~Module() = default;
             // std::shared_ptr<Program> program;
     };
 

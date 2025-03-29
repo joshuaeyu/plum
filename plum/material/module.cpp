@@ -41,7 +41,7 @@ namespace Material {
     void DirectionalShadowModule::setGlobalUniforms(Component::DirectionalLight& dl, GLuint depth_texture, int* shadow_idx) {
         if (!dl.HasShadows())
             return;
-        program->SetMat4("lightSpaceMatrix", dl.GetLightspaceMatrix());
+        program->SetMat4("lightSpaceMatrix", dl.LightspaceMatrix());
         glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depth_texture, 0, (*shadow_idx)++);
     }
 
@@ -90,10 +90,10 @@ namespace Material {
             return;
         program->SetInt("layer", *(shadow_idx)++);
         for (int j = 0; j < 6; j++) {
-            program->SetMat4("lightSpaceMatrices[" + std::to_string(j) + "]", pl.GetLightspaceMatrices()[j]);
+            program->SetMat4("lightSpaceMatrices[" + std::to_string(j) + "]", pl.LightspaceMatrices()[j]);
         }
         program->SetVec3("lightPos", position);
-        program->SetFloat("far", pl.GetFarPlane());
+        program->SetFloat("far", pl.FarPlane());
     }
 
     void PointShadowModule::SetObjectUniforms(const glm::mat4& model) {

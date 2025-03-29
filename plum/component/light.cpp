@@ -8,7 +8,7 @@
 
 namespace Component {
 
-    float Light::GetFarPlane() const { 
+    float Light::FarPlane() const { 
         return farPlane; 
     }
 
@@ -45,7 +45,7 @@ namespace Component {
         distance = dist;
     }
 
-    glm::mat4& DirectionalLight::GetLightspaceMatrix() { 
+    glm::mat4& DirectionalLight::LightspaceMatrix() { 
         if (!hasShadows) {
             std::cout << "Shadows are disabled for this light source!" << std::endl;
             exit(-1);
@@ -87,23 +87,23 @@ namespace Component {
         updateRadius();
     }
 
-    std::vector<glm::mat4>& PointLight::GetLightspaceMatrices() {
+    std::vector<glm::mat4>& PointLight::LightspaceMatrices() {
         if (!hasShadows) {
             std::cout << "Shadows are disabled for this light source!" << std::endl;
             exit(-1);
         }
         return lightspaceMatrices; 
     }
-    float PointLight::GetRadius() const { 
+    float PointLight::Radius() const { 
         return radius; 
     }
-    float PointLight::GetAttenuationConstant() const { 
+    float PointLight::AttenuationConstant() const { 
         return attenuationConstant; 
     }
-    float PointLight::GetAttenuationLinear() const { 
+    float PointLight::AttenuationLinear() const { 
         return attenuationLinear; 
     }
-    float PointLight::GetAttenuationQuadratic() const { 
+    float PointLight::AttenuationQuadratic() const { 
         return attenuationQuadratic; 
     }
 

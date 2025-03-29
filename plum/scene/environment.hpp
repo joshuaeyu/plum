@@ -8,7 +8,6 @@ namespace Scene {
 
     class Environment {
         public:
-
             Environment();
             Environment(std::shared_ptr<Core::Tex2D> envmap);
 
@@ -20,7 +19,6 @@ namespace Scene {
             Material::SkyboxModule skyboxModule;
 
         private:
-
             std::shared_ptr<Core::Tex2D> equirectToCubemap(std::shared_ptr<Core::Tex2D> equirect, unsigned int width, unsigned int height);
             void cubemapToIrradiance(unsigned int width, unsigned int height);
             void cubemapToPrefilter(unsigned int width, unsigned int height, unsigned int envres);

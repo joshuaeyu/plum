@@ -18,7 +18,7 @@ namespace Component {
             virtual void Draw(const glm::mat4& parent_transform) override = 0;
 
             // Accessors
-            float GetFarPlane() const;
+            float FarPlane() const;
             bool HasShadows() const;  
             // Modifiers
             void DisableShadows();
@@ -29,7 +29,7 @@ namespace Component {
             float farPlane = 50;
 
             Light(ComponentType type);
-
+            virtual ~Light() = default;
     };
 
     class DirectionalLight : public Light {
@@ -38,10 +38,9 @@ namespace Component {
 
             void Draw(const glm::mat4& parent_transform) override;
             
-            // Modifiers
             void EnableShadows(float width = 50.0f, float height = 50.0f, float near = 0.1f, float far = 50.0f, float dist = 20.0f);
-            // Accessors
-            glm::mat4& GetLightspaceMatrix();
+
+            glm::mat4& LightspaceMatrix();
 
         private:
             glm::mat4 lightspaceMatrix = glm::identity<glm::mat4>();
@@ -59,16 +58,15 @@ namespace Component {
 
             void Draw(const glm::mat4& parent_transform) override;
 
-            // Methods     
             void EnableShadows(float aspect = 1.0f, float near = 0.1f, float far = 75.0f);
-            // Modifiers
+
             void SetAttenuation(float constant, float linear, float quadratic);
-            // Accessors
-            std::vector<glm::mat4>& GetLightspaceMatrices();
-            float GetRadius() const;
-            float GetAttenuationConstant() const;
-            float GetAttenuationLinear() const;
-            float GetAttenuationQuadratic() const;
+
+            std::vector<glm::mat4>& LightspaceMatrices();
+            float Radius() const;
+            float AttenuationConstant() const;
+            float AttenuationLinear() const;
+            float AttenuationQuadratic() const;
 
         private:
             float radius = 5;

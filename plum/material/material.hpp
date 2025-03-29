@@ -20,8 +20,9 @@ namespace Material {
             virtual ~MaterialBase();
             virtual std::shared_ptr<Core::Program> GetProgram() { return nullptr; }
             virtual void SetUniforms(const glm::mat4& model_transform) {};
+        
         protected:
-            MaterialBase() {}
+            MaterialBase() = default;
     };
 
     class PBRMetallicMaterial : public MaterialBase {
@@ -37,6 +38,7 @@ namespace Material {
             glm::vec3 albedo = glm::vec3(0.5);
             float metallic = 0.5;
             float roughness = 0.5;
+            
         private:
             inline static bool programInitialized = false;
             inline static const std::shared_ptr<Core::Program> program = std::make_shared<Core::Program>("shaders/shaderv_gen.vs", "shaders/shaderf_basichybrid.fs");

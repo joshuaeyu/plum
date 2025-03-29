@@ -7,7 +7,9 @@ namespace PostProcessing {
 
     class PostProcessor {
         public:
+            virtual ~PostProcessor() = default;
             virtual Core::Fbo* Process(Core::Tex& input, int width, int height) = 0;
+        
         protected:
             Core::Fbo output;
             Core::Fbo* Process(Core::Fbo& input, int att_idx = 0);

@@ -32,7 +32,7 @@ namespace Component {
 
         public:
             ModelNode(Model& model, aiNode* ainode, const aiScene* aiscene);
-            ~ModelNode();
+            ~ModelNode() = default;
 
             void Draw(const glm::mat4& model_matrix);
             void Draw(Material::MaterialBase& material, const glm::mat4& parent_transform);

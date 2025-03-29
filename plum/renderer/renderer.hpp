@@ -22,7 +22,7 @@ namespace Renderer {
     class RendererBase {
         protected:
             RendererBase(std::shared_ptr<Context::Window> window);
-            virtual ~RendererBase();
+            virtual ~RendererBase() = default;
             virtual Core::Fbo* Render(Scene::Scene& scene, Component::Camera& camera) = 0;
             
             std::shared_ptr<Context::Window> window;

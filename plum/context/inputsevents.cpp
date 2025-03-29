@@ -74,7 +74,6 @@ namespace Context {
 
     // ========== WindowInputObserver ==========
 
-    WindowInputObserver::WindowInputObserver() {}
     WindowInputObserver::WindowInputObserver(std::vector<int> keysToMonitor)
     {
         for (int key : keysToMonitor) {
@@ -146,7 +145,6 @@ namespace Context {
 
     // ========== WindowEventListener ==========
 
-    WindowEventListener::WindowEventListener() {}
     WindowEventListener::~WindowEventListener() {
         // std::cout << "Destroying WindowEventListener" << std::endl;
     }

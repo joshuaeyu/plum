@@ -36,7 +36,7 @@ namespace Context {
         private:
             friend class WindowInputsAndEventsManager;
 
-            WindowInputObserver();
+            WindowInputObserver() = default;
             WindowInputObserver(std::vector<int> keysToMonitor);
             
             static void perFrameRoutine();
@@ -69,7 +69,7 @@ namespace Context {
         private:
             friend class WindowInputsAndEventsManager;
             
-            WindowEventListener();
+            WindowEventListener() = default;
 
             std::function<void(double,double)> cursorPosCallback;
             std::function<void(int,int,int,int)> keyCallback;

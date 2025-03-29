@@ -33,10 +33,10 @@ namespace Context {
             exit(-1);
         }
         
-        return std::make_shared<Window>(window, width, height, title);
+        return std::shared_ptr<Window>(new Window(window, width, height, title));
     }
 
-    Window::Window(GLFWwindow *window, int width, int height, std::string title) 
+    Window::Window(GLFWwindow *window, int width, int height, const std::string& title) 
         : handle(window),
         width(width),
         height(height),
@@ -46,9 +46,10 @@ namespace Context {
         std::function<void(int,int,int,int)> staticFunc = std::bind(&Window::keyCallback, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4);   
         eventListener->SetKeyCallback(staticFunc);
     }
-    Window::~Window()
+
+    Window::~Window() 
     {
-        // std::cout << "calling Window destructor" << std::endl;
+        glfwDestroyWindow(handle);
     }
 
     void Window::SetTitle(const char* title) {

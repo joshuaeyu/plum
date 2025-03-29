@@ -30,7 +30,12 @@ namespace Core {
             const bool isShadowmap;
             const bool isHdr;
             
-            ~Tex();
+            // Rule of five
+            virtual ~Tex();
+            Tex(const Tex& other) = delete;
+            Tex(Tex&& other) = delete;
+            Tex& operator=(const Tex& other) = delete;
+            Tex& operator=(Tex&& other) = delete;
             
         protected:
             Tex(GLenum target, GLint internalformat, GLsizei width, GLsizei height, GLsizei depth, GLenum format, GLenum datatype, GLint wrap, GLint minfilter, bool is_shadowmap, bool is_hdr);

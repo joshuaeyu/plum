@@ -66,7 +66,6 @@ namespace Component {
         }
 
     }
-    ModelNode::~ModelNode() {}
 
     void ModelNode::Draw(const glm::mat4& parent_transform) {
         glm::mat4 model_matrix = parent_transform * transform.Matrix();

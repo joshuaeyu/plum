@@ -13,8 +13,6 @@ namespace Renderer {
         : window(std::move(window))
     {}
 
-    RendererBase::~RendererBase() {}
-
     DeferredRenderer::DeferredRenderer(std::shared_ptr<Context::Window> window) 
         : RendererBase(window),
         gBuffer(window->Width(), window->Height()), 
@@ -171,7 +169,7 @@ namespace Renderer {
             glm::vec4 direction = glm::vec4( glm::mat3(glm::transpose(glm::inverse(camera.View()))) * directionalLightNodes[i]->transform.Front(), -1 );
             if (dirlight.HasShadows()) {
                 direction = glm::vec4( glm::mat3(glm::transpose(glm::inverse(camera.View()))) * directionalLightNodes[i]->transform.Front(), shadow_count++ );
-                uboFsDirlight->UpdateData(offset + 32, sizeof(glm::mat4), &dirlight.GetLightspaceMatrix());
+                uboFsDirlight->UpdateData(offset + 32, sizeof(glm::mat4), &dirlight.LightspaceMatrix());
             }
             uboFsDirlight->UpdateData(offset + 16, sizeof(glm::vec4), &direction);
         }
@@ -193,12 +191,12 @@ namespace Renderer {
             uboFsPointlight->UpdateData(offset, sizeof(glm::vec4), &color);
 
             // Attenuation
-            glm::vec4 attenuation = glm::vec4(pointlight.GetAttenuationConstant(), pointlight.GetAttenuationLinear(), pointlight.GetAttenuationQuadratic(), 0);
+            glm::vec4 attenuation = glm::vec4(pointlight.AttenuationConstant(), pointlight.AttenuationLinear(), pointlight.AttenuationQuadratic(), 0);
             uboFsPointlight->UpdateData(offset + 16, sizeof(glm::vec4), &attenuation);
             
             // Position (viewspace)
             glm::vec4 position_view = camera.View() * glm::vec4(pointLightNodes[i]->transform.position, 1);
-            position_view.w = pointlight.GetFarPlane();
+            position_view.w = pointlight.FarPlane();
             uboFsPointlight->UpdateData(offset + 32, sizeof(glm::vec4), &position_view);
             // Position (worldspace) and shadow map index
             glm::vec4 position_world = glm::vec4(pointLightNodes[i]->transform.position, -1);

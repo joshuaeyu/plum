@@ -10,13 +10,15 @@
 #include <string>
 
 namespace Context {
-    
-    // GLFWglproc (*const GLLoadFunction)(const char *) = glfwGetProcAddress;
 
     class Window {
         public:
-            Window(GLFWwindow *window, int width, int height, std::string title);
+            // Rule of five
             ~Window();
+            Window(const Window& other) = delete;
+            Window(Window&& other) = delete;
+            Window& operator=(const Window& other) = delete;
+            Window& operator=(Window&& other) = delete;
 
             void SetTitle(const char* title);
             void SetWindowSize(int width, int height);
@@ -26,16 +28,17 @@ namespace Context {
             int Width() const { return width; }
             int Height() const { return height; }
             std::string Title() const { return title; }          
-
+            
             void MakeCurrent();
             void SwapBuffers();
-
+            
             bool ShouldClose() const;
             GLFWwindow* Handle() const { return handle; }
-            
-            Window Clone() { return Window(*this); }
-
+        
         private:
+            friend class WindowCreator;
+            Window(GLFWwindow *window, int width, int height, const std::string& title);
+            
             int width, height;
             std::string title;
             
@@ -58,8 +61,8 @@ namespace Context {
             std::map<int, int> hints;
     };
 
-    class Gui {
-        public:
-            Gui(GLFWwindow *window);
-    };
+    // class Gui {
+    //     public:
+    //         Gui(GLFWwindow *window);
+    // };
 }
