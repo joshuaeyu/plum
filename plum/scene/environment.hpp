@@ -19,10 +19,10 @@ namespace Scene {
             Material::SkyboxModule skyboxModule;
 
         private:
-            std::shared_ptr<Core::Tex2D> equirectToCubemap(std::shared_ptr<Core::Tex2D> equirect, unsigned int width, unsigned int height);
-            void cubemapToIrradiance(unsigned int width, unsigned int height);
-            void cubemapToPrefilter(unsigned int width, unsigned int height, unsigned int envres);
-            void generateBrdfLut(unsigned int width, unsigned int height);
+            std::shared_ptr<Core::Tex2D> equirectToCubemap(std::shared_ptr<Core::Tex2D> equirect, int width, int height);
+            void cubemapToIrradiance(int width, int height);
+            void cubemapToPrefilter(int width, int height, int envres);
+            void generateBrdfLut(int width, int height);
 
             inline static const std::shared_ptr<Core::Program> equirectProgram = std::make_shared<Core::Program>("shaders/shaderv_equirect.vs", "shaders/shaderf_equirect.fs");
 

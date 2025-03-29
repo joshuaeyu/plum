@@ -25,7 +25,7 @@ namespace Scene {
         generateBrdfLut(512, 512);
     }
 
-    std::shared_ptr<Core::Tex2D> Environment::equirectToCubemap(std::shared_ptr<Core::Tex2D> equirect, unsigned int width, unsigned int height) {
+    std::shared_ptr<Core::Tex2D> Environment::equirectToCubemap(std::shared_ptr<Core::Tex2D> equirect, int width, int height) {
         
         Core::Fbo fbo(width, height);
         auto cubemap = std::make_shared<Core::Tex2D>(GL_TEXTURE_CUBE_MAP, GL_RGB32F, fbo.width, fbo.height, GL_RGB, GL_FLOAT, GL_CLAMP_TO_EDGE, GL_LINEAR_MIPMAP_LINEAR, false, equirect->isHdr);
@@ -68,7 +68,7 @@ namespace Scene {
         return cubemap;
     }
 
-    void Environment::cubemapToIrradiance(unsigned int width, unsigned int height) {
+    void Environment::cubemapToIrradiance(int width, int height) {
        
         Core::Fbo fbo(width, height);
         irradiance = std::make_shared<Core::Tex2D>(GL_TEXTURE_CUBE_MAP, GL_RGB32F, fbo.width, fbo.height, GL_RGB, GL_FLOAT, GL_CLAMP_TO_EDGE, GL_LINEAR, false, true);
@@ -108,7 +108,7 @@ namespace Scene {
         }
     }
 
-    void Environment::cubemapToPrefilter(unsigned int width, unsigned int height, unsigned int envres) {
+    void Environment::cubemapToPrefilter(int width, int height, int envres) {
 
         Core::Fbo fbo(width, height);
         prefilter = std::make_shared<Core::Tex2D>(GL_TEXTURE_CUBE_MAP, GL_RGB32F, fbo.width, fbo.height, GL_RGB, GL_FLOAT, GL_CLAMP_TO_EDGE, GL_LINEAR_MIPMAP_LINEAR, false, true);
@@ -163,7 +163,7 @@ namespace Scene {
         }
     }
 
-    void Environment::generateBrdfLut(unsigned int width, unsigned int height) {
+    void Environment::generateBrdfLut(int width, int height) {
 
         Core::Fbo fbo(width, height);
         brdfLut = std::make_shared<Core::Tex2D>(GL_TEXTURE_2D, GL_RG16F, fbo.width, fbo.height, GL_RG, GL_FLOAT, GL_CLAMP_TO_EDGE, GL_LINEAR, false, true);
