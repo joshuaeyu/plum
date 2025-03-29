@@ -47,7 +47,6 @@ namespace Renderer {
         return &output;
         // some postprocessing like Bloom requires additional render info
         // need to support intraprocessing rendering options
-            // - Bloom
             // - SSAO
             // ....
     }
@@ -83,10 +82,10 @@ namespace Renderer {
         auto normal = std::make_shared<Tex2D>(GL_TEXTURE_2D, GL_RGBA32F, gBuffer.width, gBuffer.height, GL_RGBA, GL_FLOAT, GL_CLAMP_TO_EDGE, GL_NEAREST);
         gBuffer.AttachColorTex(normal, 1);
         
-        auto albedospec = std::make_shared<Tex2D>(GL_TEXTURE_2D, GL_RGBA32F, gBuffer.width, gBuffer.height, GL_RGBA, GL_UNSIGNED_BYTE, GL_CLAMP_TO_EDGE, GL_NEAREST);
+        auto albedospec = std::make_shared<Tex2D>(GL_TEXTURE_2D, GL_RGBA32F, gBuffer.width, gBuffer.height, GL_RGBA, GL_FLOAT, GL_CLAMP_TO_EDGE, GL_NEAREST);
         gBuffer.AttachColorTex(albedospec, 2);
         
-        auto metrou = std::make_shared<Tex2D>(GL_TEXTURE_2D, GL_RGBA32F, gBuffer.width, gBuffer.height, GL_RGBA, GL_UNSIGNED_BYTE, GL_CLAMP_TO_EDGE, GL_NEAREST);
+        auto metrou = std::make_shared<Tex2D>(GL_TEXTURE_2D, GL_RGBA, gBuffer.width, gBuffer.height, GL_RGBA, GL_UNSIGNED_BYTE, GL_CLAMP_TO_EDGE, GL_NEAREST);
         gBuffer.AttachColorTex(metrou, 3);
         
         gBuffer.AttachDepthRbo24();
@@ -102,7 +101,7 @@ namespace Renderer {
 
         output.Bind();
         output.AttachColorTex(color);
-        output.AttachDepthRbo16();
+        output.AttachDepthRbo24();
         output.CheckStatus();
     }
 

@@ -259,7 +259,7 @@ namespace Component {
 
     void Model::importFile(const std::string filename, float scale, bool flipUvs) {
         Assimp::Importer importer;
-        unsigned int importerFlags = aiProcessPreset_TargetRealtime_MaxQuality;
+        unsigned int importerFlags = aiProcessPreset_TargetRealtime_MaxQuality | aiProcess_GlobalScale;
         if (flipUvs)
             importerFlags |= aiProcess_FlipUVs;
         
