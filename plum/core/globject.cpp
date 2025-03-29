@@ -1,4 +1,4 @@
-#include <plum/core/core.hpp>
+#include <plum/core/globject.hpp>
 
 #include <glad/gl.h>
 
@@ -226,7 +226,7 @@ namespace Core {
             depthRboAtt->Resize(width, height);
         }
     }
-    void Fbo::BlitTo(Fbo& target, bool color, bool depth, int source_buffer_idx, int target_buffer_index) {
+    void Fbo::BlitTo(Fbo& target, bool color, bool depth, int source_buffer_idx, int target_buffer_idx) {
         GLbitfield mask = 0;
         mask |= GL_COLOR_BUFFER_BIT * color;
         mask |= GL_DEPTH_BUFFER_BIT * depth;
@@ -234,7 +234,7 @@ namespace Core {
         glBindFramebuffer(GL_READ_FRAMEBUFFER, handle);
         glBindFramebuffer(GL_DRAW_FRAMEBUFFER, target.handle);
         glReadBuffer(GL_COLOR_ATTACHMENT0 + source_buffer_idx);
-        glDrawBuffer(GL_COLOR_ATTACHMENT0 + target_buffer_index);
+        glDrawBuffer(GL_COLOR_ATTACHMENT0 + target_buffer_idx);
         glBlitFramebuffer(0, 0, width, height, 0, 0, target.width, target.height, mask, GL_NEAREST);   // Internal formats need to match!
     }
     void Fbo::BlitToDefault(bool color, bool depth, int source_buffer_idx) {
@@ -247,8 +247,8 @@ namespace Core {
         glReadBuffer(GL_COLOR_ATTACHMENT0 + source_buffer_idx);
         glBlitFramebuffer(0, 0, width, height, 0, 0, width, height, mask, GL_NEAREST);   // Internal formats need to match!
     }
-    void Fbo::BlitFrom(Fbo& source, bool color, bool depth, int source_buffer_idx, int target_buffer_index) {
-        source.BlitTo(*this, color, depth, source_buffer_idx, target_buffer_index);
+    void Fbo::BlitFrom(Fbo& source, bool color, bool depth, int source_buffer_idx, int target_buffer_idx) {
+        source.BlitTo(*this, color, depth, source_buffer_idx, target_buffer_idx);
     }
 
     // Renderbuffer

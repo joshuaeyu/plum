@@ -1,5 +1,5 @@
 #include <plum/component/camera.hpp>
-#include <plum/context/context.hpp>
+#include <plum/context/application.hpp>
 
 #include <glm/gtc/matrix_transform.hpp>
 

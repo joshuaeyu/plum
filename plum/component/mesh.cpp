@@ -1,6 +1,6 @@
 #include <plum/component/mesh.hpp>
 
-#include <plum/core/core.hpp>
+#include <plum/core/globject.hpp>
 
 #include <vector>
 #include <memory>

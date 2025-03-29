@@ -1,6 +1,6 @@
 #pragma once
 
-#include <plum/core/core.hpp>
+#include <plum/core/globject.hpp>
 #include <plum/core/tex.hpp>
 
 #include <plum/scene/scene.hpp>

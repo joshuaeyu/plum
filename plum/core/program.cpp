@@ -1,5 +1,5 @@
 #include <plum/core/program.hpp>
-#include <plum/context/context.hpp>
+#include <plum/context/application.hpp>
 
 #include <glm/gtc/type_ptr.hpp>
 

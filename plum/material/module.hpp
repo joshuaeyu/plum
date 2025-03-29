@@ -1,7 +1,7 @@
 #pragma once
 
 #include <plum/core/program.hpp>
-#include <plum/core/core.hpp>
+#include <plum/core/globject.hpp>
 
 #include <memory>
 

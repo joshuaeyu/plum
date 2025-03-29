@@ -1,6 +1,6 @@
 #include <plum/scene/environment.hpp>
 
-#include <plum/core/core.hpp>
+#include <plum/core/globject.hpp>
 #include <plum/component/primitive.hpp>
 
 #include <glm/glm.hpp>

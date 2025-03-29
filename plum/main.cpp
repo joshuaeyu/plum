@@ -1,16 +1,8 @@
-#include <plum/context/context.hpp>
-#include <plum/context/window.hpp>
-#include <plum/scene/scene.hpp>
-#include <plum/scene/environment.hpp>
-#include <plum/component/camera.hpp>
-#include <plum/component/primitive.hpp>
-#include <plum/component/model.hpp>
-#include <plum/renderer/renderer.hpp>
-#include <plum/renderer/postprocessing.hpp>
-#include <plum/material/texture.hpp>
-
-#include <plum/core/program.hpp>
-#include <plum/material/material.hpp>
+#include <plum/component/all.hpp>
+#include <plum/context/all.hpp>
+#include <plum/core/all.hpp>
+#include <plum/renderer/all.hpp>
+#include <plum/scene/all.hpp>
 
 #include <glm/glm.hpp>
 

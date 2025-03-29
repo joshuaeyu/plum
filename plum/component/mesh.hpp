@@ -2,7 +2,7 @@
 
 #include <plum/component/component.hpp>
 
-#include <plum/core/core.hpp>
+#include <plum/core/globject.hpp>
 #include <plum/material/material.hpp>
 #include <plum/material/module.hpp>
 #include <plum/scene/scenenode.hpp>
