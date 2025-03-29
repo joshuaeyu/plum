@@ -79,7 +79,7 @@ int main() {
     std::cout << "Loading models..." << std::endl;
     // auto backpack = std::make_shared<Component::Model>("assets/models/backpack/backpack.obj", 1.0f, true);
     // auto backpack = std::make_shared<Component::Model>("assets/models/survival_guitar_backpack/scene.gltf", 0.01f);
-    // auto backpack = std::make_shared<Component::Model>("assets/models/sponza/glTF/Sponza.gltf");
+    auto sponza = std::make_shared<Component::Model>("assets/models/sponza/glTF/Sponza.gltf");
 
     std::cout << "Defining scene..." << std::endl;
     Scene::Scene scene;
@@ -93,9 +93,9 @@ int main() {
     cubeNode->transform.Translate(0,2,0);
     auto sphereNode = cubeNode->AddChild(sphere);
     sphereNode->transform.Translate(0,2,0);
-    // auto modelNode = scene.AddChild(backpack);
-    // modelNode->transform.Translate(5,4,0);
-    
+    // auto backpackNode = scene.AddChild(backpack);
+    // backpackNode->transform.Translate(5,4,0);
+    auto sponzaNode = scene.AddChild(sponza);
     
     std::cout << "Creating renderer..." << std::endl;
     Renderer::DeferredRenderer renderer(app.defaultWindow);
@@ -119,7 +119,7 @@ int main() {
         fbo = renderer.Render(scene, camera, environment);
         if (glfwGetKey(app.activeWindow->Handle(), GLFW_KEY_0) != GLFW_PRESS)
             fbo = fxaa.Process(*fbo);
-        if (glfwGetKey(app.activeWindow->Handle(), GLFW_KEY_1) != GLFW_PRESS)
+        if (glfwGetKey(app.activeWindow->Handle(), GLFW_KEY_1) == GLFW_PRESS)
             fbo = bloom.Process(*fbo);
         if (glfwGetKey(app.activeWindow->Handle(), GLFW_KEY_2) != GLFW_PRESS)
             fbo = hdr.Process(*fbo);

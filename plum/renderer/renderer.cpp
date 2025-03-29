@@ -77,19 +77,19 @@ namespace Renderer {
         gBuffer.Bind();
         gBuffer.colorAtts = std::vector<std::shared_ptr<Tex>>(4);
         
-        auto position = std::make_shared<Tex2D>(GL_TEXTURE_2D, GL_RGBA16F, gBuffer.width, gBuffer.height, GL_RGBA, GL_FLOAT, GL_CLAMP_TO_EDGE, GL_NEAREST);
+        auto position = std::make_shared<Tex2D>(GL_TEXTURE_2D, GL_RGBA32F, gBuffer.width, gBuffer.height, GL_RGBA, GL_FLOAT, GL_CLAMP_TO_EDGE, GL_NEAREST);
         gBuffer.AttachColorTex(position, 0);
 
-        auto normal = std::make_shared<Tex2D>(GL_TEXTURE_2D, GL_RGBA16F, gBuffer.width, gBuffer.height, GL_RGBA, GL_FLOAT, GL_CLAMP_TO_EDGE, GL_NEAREST);
+        auto normal = std::make_shared<Tex2D>(GL_TEXTURE_2D, GL_RGBA32F, gBuffer.width, gBuffer.height, GL_RGBA, GL_FLOAT, GL_CLAMP_TO_EDGE, GL_NEAREST);
         gBuffer.AttachColorTex(normal, 1);
         
-        auto albedospec = std::make_shared<Tex2D>(GL_TEXTURE_2D, GL_RGBA, gBuffer.width, gBuffer.height, GL_RGBA, GL_UNSIGNED_BYTE, GL_CLAMP_TO_EDGE, GL_NEAREST);
+        auto albedospec = std::make_shared<Tex2D>(GL_TEXTURE_2D, GL_RGBA32F, gBuffer.width, gBuffer.height, GL_RGBA, GL_UNSIGNED_BYTE, GL_CLAMP_TO_EDGE, GL_NEAREST);
         gBuffer.AttachColorTex(albedospec, 2);
         
-        auto metrou = std::make_shared<Tex2D>(GL_TEXTURE_2D, GL_RGBA, gBuffer.width, gBuffer.height, GL_RGBA, GL_UNSIGNED_BYTE, GL_CLAMP_TO_EDGE, GL_NEAREST);
+        auto metrou = std::make_shared<Tex2D>(GL_TEXTURE_2D, GL_RGBA32F, gBuffer.width, gBuffer.height, GL_RGBA, GL_UNSIGNED_BYTE, GL_CLAMP_TO_EDGE, GL_NEAREST);
         gBuffer.AttachColorTex(metrou, 3);
         
-        gBuffer.AttachDepthRbo16();
+        gBuffer.AttachDepthRbo24();
     
         gBuffer.CheckStatus();
     }
@@ -98,7 +98,7 @@ namespace Renderer {
         
         using namespace Core;
         
-        auto color = std::make_shared<Tex2D>(GL_TEXTURE_2D, GL_RGBA16F, output.width, output.height, GL_RGBA, GL_FLOAT, GL_CLAMP_TO_EDGE, GL_NEAREST);
+        auto color = std::make_shared<Tex2D>(GL_TEXTURE_2D, GL_RGBA32F, output.width, output.height, GL_RGBA, GL_FLOAT, GL_CLAMP_TO_EDGE, GL_NEAREST);
 
         output.Bind();
         output.AttachColorTex(color);

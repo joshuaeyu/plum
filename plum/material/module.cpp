@@ -11,7 +11,7 @@ namespace Material {
         : mapWidth(map_width),
         mapHeight(map_height),
         numLayers(num_layers),
-        depthMap(std::make_shared<Core::Tex3D>(GL_TEXTURE_2D_ARRAY, GL_DEPTH_COMPONENT16, map_width, map_height, num_layers, GL_DEPTH_COMPONENT, GL_FLOAT, GL_CLAMP_TO_EDGE, GL_LINEAR, true)),
+        depthMap(std::make_shared<Core::Tex3D>(GL_TEXTURE_2D_ARRAY, GL_DEPTH_COMPONENT24, map_width, map_height, num_layers, GL_DEPTH_COMPONENT, GL_FLOAT, GL_CLAMP_TO_EDGE, GL_LINEAR, true)),
         fbo(map_width, map_height)
     {
         fbo.Bind();
@@ -57,7 +57,7 @@ namespace Material {
         : mapWidth(map_width),
         mapHeight(map_height),
         numLayers(num_layers),
-        depthMap(std::make_shared<Core::Tex3D>(GL_TEXTURE_CUBE_MAP_ARRAY, GL_DEPTH_COMPONENT16, map_width, map_height, 6 * num_layers, GL_DEPTH_COMPONENT, GL_FLOAT, GL_CLAMP_TO_EDGE, GL_LINEAR, true)),
+        depthMap(std::make_shared<Core::Tex3D>(GL_TEXTURE_CUBE_MAP_ARRAY, GL_DEPTH_COMPONENT24, map_width, map_height, 6 * num_layers, GL_DEPTH_COMPONENT, GL_FLOAT, GL_CLAMP_TO_EDGE, GL_LINEAR, true)),
         fbo(map_width, map_height)
     {
         fbo.Bind();

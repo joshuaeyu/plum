@@ -28,7 +28,7 @@ namespace Scene {
     std::shared_ptr<Core::Tex2D> Environment::equirectToCubemap(std::shared_ptr<Core::Tex2D> equirect, const unsigned int width, const unsigned int height) {
         
         Core::Fbo fbo(width, height);
-        auto cubemap = std::make_shared<Core::Tex2D>(GL_TEXTURE_CUBE_MAP, GL_RGB16F, fbo.width, fbo.height, GL_RGB, GL_FLOAT, GL_CLAMP_TO_EDGE, GL_LINEAR_MIPMAP_LINEAR, false, equirect->isHdr);
+        auto cubemap = std::make_shared<Core::Tex2D>(GL_TEXTURE_CUBE_MAP, GL_RGB32F, fbo.width, fbo.height, GL_RGB, GL_FLOAT, GL_CLAMP_TO_EDGE, GL_LINEAR_MIPMAP_LINEAR, false, equirect->isHdr);
 
         fbo.Bind();
         fbo.AttachColorTex(cubemap);
@@ -71,7 +71,7 @@ namespace Scene {
     void Environment::cubemapToIrradiance(const unsigned int width, const unsigned int height) {
        
         Core::Fbo fbo(width, height);
-        irradiance = std::make_shared<Core::Tex2D>(GL_TEXTURE_CUBE_MAP, GL_RGB16F, fbo.width, fbo.height, GL_RGB, GL_FLOAT, GL_CLAMP_TO_EDGE, GL_LINEAR, false, true);
+        irradiance = std::make_shared<Core::Tex2D>(GL_TEXTURE_CUBE_MAP, GL_RGB32F, fbo.width, fbo.height, GL_RGB, GL_FLOAT, GL_CLAMP_TO_EDGE, GL_LINEAR, false, true);
 
         fbo.Bind();
         fbo.AttachColorTex(irradiance);
@@ -111,7 +111,7 @@ namespace Scene {
     void Environment::cubemapToPrefilter(const unsigned int width, const unsigned int height, const unsigned int envres) {
 
         Core::Fbo fbo(width, height);
-        prefilter = std::make_shared<Core::Tex2D>(GL_TEXTURE_CUBE_MAP, GL_RGB16F, fbo.width, fbo.height, GL_RGB, GL_FLOAT, GL_CLAMP_TO_EDGE, GL_LINEAR_MIPMAP_LINEAR, false, true);
+        prefilter = std::make_shared<Core::Tex2D>(GL_TEXTURE_CUBE_MAP, GL_RGB32F, fbo.width, fbo.height, GL_RGB, GL_FLOAT, GL_CLAMP_TO_EDGE, GL_LINEAR_MIPMAP_LINEAR, false, true);
         prefilter->Bind();
         prefilter->GenerateMipMap();
         fbo.Bind();

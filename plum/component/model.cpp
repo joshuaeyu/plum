@@ -228,7 +228,8 @@ namespace Component {
             // Load and push any new textures
             if (!skip) {
                 std::cout << "  Loading texture " << filename << " as " << aiTextureTypeToString(aitextype) << std::endl;
-                auto texture = std::make_shared<Material::Texture>(filename, textype);
+                auto texture = std::make_shared<Material::Texture>(filename, textype, true, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR);
+                texture->tex->GenerateMipMap();
                 textures.push_back(texture);
                 model.textures.push_back(texture);
             }
@@ -258,8 +259,7 @@ namespace Component {
 
     void Model::importFile(const std::string filename, float scale, bool flipUvs) {
         Assimp::Importer importer;
-        unsigned int importerFlags = aiProcess_Triangulate | aiProcess_CalcTangentSpace | aiProcess_GenNormals | aiProcess_GlobalScale | aiProcess_JoinIdenticalVertices | aiProcess_RemoveRedundantMaterials | aiProcess_ValidateDataStructure;
-        // can also have aiProcess_SplitLargeMeshes, aiProcess_OptimizeMeshes, ...
+        unsigned int importerFlags = aiProcessPreset_TargetRealtime_MaxQuality;
         if (flipUvs)
             importerFlags |= aiProcess_FlipUVs;
         
