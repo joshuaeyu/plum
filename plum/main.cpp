@@ -101,6 +101,7 @@ int main() {
     Renderer::DeferredRenderer renderer(app.defaultWindow);
     auto fxaa = PostProcessing::Fxaa();
     auto hdr = PostProcessing::Hdr();
+    auto bloom = PostProcessing::Bloom();
     
     // Put this in some MainLoop() function
     std::cout << "Starting main loop..." << std::endl;
@@ -116,8 +117,12 @@ int main() {
 
         Core::Fbo* fbo;
         fbo = renderer.Render(scene, camera, environment);
-        fbo = fxaa.Process(*fbo);
-        fbo = hdr.Process(*fbo);
+        if (glfwGetKey(app.activeWindow->Handle(), GLFW_KEY_0) != GLFW_PRESS)
+            fbo = fxaa.Process(*fbo);
+        if (glfwGetKey(app.activeWindow->Handle(), GLFW_KEY_1) != GLFW_PRESS)
+            fbo = bloom.Process(*fbo);
+        if (glfwGetKey(app.activeWindow->Handle(), GLFW_KEY_2) != GLFW_PRESS)
+            fbo = hdr.Process(*fbo);
         fbo->BlitToDefault();
         while (GLenum error = glGetError()) { std::cerr << "Render error: " << error << std::endl; }
 

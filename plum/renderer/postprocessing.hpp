@@ -9,7 +9,7 @@ namespace PostProcessing {
         public:
             virtual Core::Fbo* Process(Core::Tex& input, const int width, const int height) = 0;
         protected:
-            Core::Fbo fbo;
+            Core::Fbo output;
             Core::Fbo* Process(Core::Fbo& input, const int att_idx = 0);
             PostProcessor();
     };
@@ -21,8 +21,6 @@ namespace PostProcessing {
             using PostProcessor::Process;
             Core::Fbo* Process(Core::Tex& input, const int width, const int height) override;
             
-            // static Core::Fbo fbo;
-            
             inline static std::shared_ptr<Core::Program> program = std::make_shared<Core::Program>("shaders/shaderv_2d.vs", "shaders/shaderf_2dfxaa.fs");
     };
 
@@ -33,10 +31,12 @@ namespace PostProcessing {
             using PostProcessor::Process;
             Core::Fbo* Process(Core::Tex& input, const int width, const int height) override;
             
-            // static Core::Fbo fbo;
+            Core::Fbo highlights;
+            Core::Fbo bloom;
 
-            inline static std::shared_ptr<Core::Program> program = std::make_shared<Core::Program>("shaders/shaderv_2d.vs", "shaders/shaderf_2dbloom.fs");
+            inline static std::shared_ptr<Core::Program> programHighlights = std::make_shared<Core::Program>("shaders/shaderv_2d.vs", "shaders/shaderf_2dhighlights.fs");
             inline static std::shared_ptr<Core::Program> programBlur = std::make_shared<Core::Program>("shaders/shaderv_2d.vs", "shaders/shaderf_2dgaussian.fs");
+            inline static std::shared_ptr<Core::Program> programDisplay = std::make_shared<Core::Program>("shaders/shaderv_2d.vs", "shaders/shaderf_2dbloom.fs");
     };
 
     class Ssao : public PostProcessor {
@@ -58,8 +58,6 @@ namespace PostProcessing {
 
             using PostProcessor::Process;
             Core::Fbo* Process(Core::Tex& input, const int width, const int height) override;
-            
-            // static Core::Fbo fbo;
 
             inline static std::shared_ptr<Core::Program> program = std::make_shared<Core::Program>("shaders/shaderv_2d.vs", "shaders/shaderf_2dhdr.fs");
     };

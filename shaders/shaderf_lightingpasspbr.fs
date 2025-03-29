@@ -5,8 +5,7 @@
 // Space: Viewspace
 
 // OUTPUTS
-layout (location = 0) out vec4 FragColor;   // GL_COLOR_ATTACHMENT0 from glDrawBuffers
-// layout (location = 1) out vec4 BrightColor; // GL_COLOR_ATTACHMENT1 from glDrawBuffers
+layout (location = 0) out vec4 FragColor;
 
 // INPUTS
 in vec2 TexCoords;
@@ -106,15 +105,8 @@ void main() {
     if (ibl > 0.0)
         result += ibl * CalcIBL(Normal, Albedo, Metallic, Roughness, viewDir, Occlusion);
 
-    // Output to two colorbuffers
+    // Final output
     FragColor = vec4(result, 1.0);
-    
-    // float brightness = dot(FragColor.rgb, vec3(0.2126, 0.7152, 0.0722));
-    // BrightColor = vec4(smoothstep(0.825, 1.175, brightness) * FragColor.rgb, 1.0);  // Smoothstep prevents harsh bloom boundary
-    // if (brightness > 1.0)
-    //     BrightColor = vec4(FragColor.rgb, 1.0);
-    // else
-    //     BrightColor = vec4(0, 0, 0, 1.0);
 }
 // ==================================
 

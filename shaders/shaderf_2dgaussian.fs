@@ -2,8 +2,8 @@
 
 in vec2 TexCoords;
 
-layout (location = 0) out vec4 RawColor;   // GL_COLOR_ATTACHMENT0 from glDrawBuffers
-layout (location = 1) out vec4 BlurredColor;     // GL_COLOR_ATTACHMENT1 from glDrawBuffers
+// layout (location = 0) out vec4 RawColor;   // GL_COLOR_ATTACHMENT0 from glDrawBuffers
+layout (location = 0) out vec4 BlurredColor;     // GL_COLOR_ATTACHMENT1 from glDrawBuffers
 
 uniform sampler2D image;
 

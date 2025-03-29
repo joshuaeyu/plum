@@ -4,7 +4,7 @@
 namespace PostProcessing {
 
     PostProcessor::PostProcessor()
-        : fbo(2,2)
+        : output(2,2)
     {}
 
     Core::Fbo* PostProcessor::Process(Core::Fbo& input, const int att_idx) {
@@ -13,72 +13,103 @@ namespace PostProcessing {
 
     Fxaa::Fxaa()
     {
-        auto colorAtt = std::make_shared<Core::Tex2D>(GL_TEXTURE_2D, GL_RGBA32F, fbo.width, fbo.height, GL_RGBA, GL_FLOAT, GL_CLAMP_TO_EDGE, GL_NEAREST, false, true);
+        auto color = std::make_shared<Core::Tex2D>(GL_TEXTURE_2D, GL_RGBA32F, output.width, output.height, GL_RGBA, GL_FLOAT, GL_CLAMP_TO_EDGE, GL_NEAREST, false, true);
         
-        fbo.Bind();
-        fbo.AttachColorTex(colorAtt);
-        fbo.AttachDepthRbo16();
-        fbo.CheckStatus();
+        output.Bind();
+        output.AttachColorTex(color);
+        output.AttachDepthRbo16();
+        output.CheckStatus();
     }
 
     Core::Fbo* Fxaa::Process(Core::Tex& input, const int width, const int height) {
-        if (fbo.width != width || fbo.height != height) {
-            fbo.Resize(width, height);
-            fbo.CheckStatus();
+        if (output.width != width || output.height != height) {
+            output.Resize(width, height);
+            output.CheckStatus();
         }
-        fbo.Bind();
-        fbo.SetViewportDims();
-        fbo.ClearColor();
-        fbo.ClearDepth();
+        output.Bind();
+        output.SetViewportDims();
+        output.ClearColor();
+        output.ClearDepth();
         
         program->Use();
         program->SetInt("screenTexture", 0);
         input.Bind(0);
         Component::Primitive::DrawQuad();
 
-        return &fbo;
+        return &output;
+    }
+
+    Bloom::Bloom()
+        : highlights(2,2),
+        bloom(2,2)
+    {
+        auto color = std::make_shared<Core::Tex2D>(GL_TEXTURE_2D, GL_RGBA32F, output.width, output.height, GL_RGBA, GL_FLOAT, GL_CLAMP_TO_EDGE, GL_NEAREST, false, true);
+        
+        output.Bind();
+        output.AttachColorTex(color);
+        output.AttachDepthRbo16();
+        output.CheckStatus();
+        
+        auto color1 = std::make_shared<Core::Tex2D>(GL_TEXTURE_2D, GL_RGBA32F, output.width, output.height, GL_RGBA, GL_FLOAT, GL_CLAMP_TO_EDGE, GL_LINEAR, false, true);
+        auto color2 = std::make_shared<Core::Tex2D>(GL_TEXTURE_2D, GL_RGBA32F, output.width, output.height, GL_RGBA, GL_FLOAT, GL_CLAMP_TO_EDGE, GL_LINEAR, false, true);
+        
+        bloom.Bind();
+        bloom.AttachColorTex(color1);
+        bloom.AttachColorTex(color2);
+        bloom.AttachDepthRbo16();
+        bloom.CheckStatus();
     }
 
     Core::Fbo* Bloom::Process(Core::Tex& input, const int width, const int height) {   
-        if (fbo.width != width || fbo.height != height) {
-            fbo.Resize(width, height);
+        if (output.width != width || output.height != height) {
+            output.Resize(width, height);
         }
-        fbo.SetViewportDims();
-        fbo.ClearColor();
-        fbo.ClearDepth();
+        if (bloom.width != width || bloom.height != height) {
+            bloom.Resize(width, height);
+        }
 
-        // // Render to Bloom2 using Bloom1 first, then to Bloom1 using Bloom2, swapping repeatedly
-        // const int amount = 3;
-        // bool horizontal = true;
-        // for (int i = 0; i < amount*2; i++, horizontal = !horizontal) {
-        //     Engine::Framebuffer drawFb, readFb;
-        //     if (!horizontal) {
-        //         drawFb = engine->Bloom1;
-        //         readFb = engine->Bloom2;
-        //     } else {
-        //         drawFb = engine->Bloom2;
-        //         readFb = engine->Bloom1;
-        //     }
-        //     glBindFramebuffer(GL_FRAMEBUFFER, drawFb.fbo);
-        //     shader_2dbloomblur.setInt("horizontal", horizontal);
-        //     glBindTexture(GL_TEXTURE_2D, readFb.colors[1]);   // Use raw HDR scene highlights first, then ping pong
-        //     engine->RenderQuad();
-        //     horizontal = !horizontal;
-        // }
-        // glBindFramebuffer(GL_FRAMEBUFFER, framebuffers.front());
-        // framebuffers.pop();
-        // glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        // program->Use();
-        // program->SetInt("sceneRaw", 0);
-        // program->SetInt("sceneBloom", 1);
-        //     glBindTexture(GL_TEXTURE_2D, engine->Bloom1.colors[0]);
-        //     glActiveTexture(GL_TEXTURE1);
-        //     glBindTexture(GL_TEXTURE_2D, engine->Bloom1.colors[1]);
-        //     Component::Primitive::DrawQuad();
-        // program->SetInt("screenTexture", 0);
-        // input.Bind(0);
+        // Extract highlights from scene
+        bloom.Bind();
+        bloom.SetViewportDims();
+        bloom.ClearColor();
+        bloom.ClearDepth();
+        glDrawBuffer(GL_COLOR_ATTACHMENT0);
 
-        return &fbo;
+        programHighlights->Use();
+        programHighlights->SetInt("rawScene", 0);
+        input.Bind(0);
+        Component::Primitive::DrawQuad();
+
+        // Ping pong between color attachments 0 and 1 to achieve Gaussian blur
+        const int amount = 6;
+        bool horizontal = true;
+
+        programBlur->Use();
+        programBlur->SetInt("image", 0);
+        for (int i = 0; i < amount; i++) {
+            const int readIdx = horizontal ? 0 : 1;
+            const int drawIdx = horizontal ? 1 : 0;
+            programBlur->SetInt("horizontal", horizontal);
+            bloom.colorAtts[readIdx]->Bind(0); // Sample from color attachment at readIdx
+            glDrawBuffer(GL_COLOR_ATTACHMENT0 + drawIdx); // Draw to color attachment at drawIdx
+            Component::Primitive::DrawQuad();
+            horizontal = !horizontal;
+        }
+        
+        output.Bind();
+        output.SetViewportDims();
+        output.ClearColor();
+        output.ClearDepth();
+
+        programDisplay->Use();
+        programDisplay->SetFloat("intensity", 0.75f);
+        programDisplay->SetInt("sceneRaw", 0);
+        programDisplay->SetInt("sceneBloom", 1);
+        input.Bind(0);
+        bloom.colorAtts[amount % 2]->Bind(1);
+        Component::Primitive::DrawQuad();
+
+        return &output;
     }
 
     Core::Fbo* Ssao::Process(Core::Tex& input, const int width, const int height) {
@@ -87,22 +118,22 @@ namespace PostProcessing {
 
     Hdr::Hdr()
     {
-        auto colorAtt = std::make_shared<Core::Tex2D>(GL_TEXTURE_2D, GL_RGBA32F, fbo.width, fbo.height, GL_RGBA, GL_FLOAT, GL_CLAMP_TO_EDGE, GL_NEAREST, false, true);
+        auto color = std::make_shared<Core::Tex2D>(GL_TEXTURE_2D, GL_RGBA32F, output.width, output.height, GL_RGBA, GL_FLOAT, GL_CLAMP_TO_EDGE, GL_NEAREST, false, true);
         
-        fbo.Bind();
-        fbo.AttachColorTex(colorAtt);
-        fbo.AttachDepthRbo16();
-        fbo.CheckStatus();
+        output.Bind();
+        output.AttachColorTex(color);
+        output.AttachDepthRbo16();
+        output.CheckStatus();
     }
 
     Core::Fbo* Hdr::Process(Core::Tex& input, const int width, const int height) {
-        if (fbo.width != width || fbo.height != height) {
-            fbo.Resize(width, height);
+        if (output.width != width || output.height != height) {
+            output.Resize(width, height);
         }
-        fbo.Bind();
-        fbo.SetViewportDims();
-        fbo.ClearColor();
-        fbo.ClearDepth();
+        output.Bind();
+        output.SetViewportDims();
+        output.ClearColor();
+        output.ClearDepth();
         
         program->Use();
         program->SetFloat("exposure", 1.0f);
@@ -110,7 +141,7 @@ namespace PostProcessing {
         input.Bind(0);
         Component::Primitive::DrawQuad();
 
-        return &fbo;
+        return &output;
     }
 
 }
