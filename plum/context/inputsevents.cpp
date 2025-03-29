@@ -2,6 +2,7 @@
 
 #include <plum/context/window.hpp>
 #include <iostream>
+
 namespace Context {
 
     // ========== WindowInputsAndEventsManager ==========
@@ -14,15 +15,15 @@ namespace Context {
     }
 
     std::shared_ptr<WindowInputObserver> WindowInputsAndEventsManager::CreateInputObserver(std::vector<int> keysToMonitor) {
-        std::shared_ptr<WindowInputObserver> wio = std::make_shared<WindowInputObserver>(keysToMonitor);
-        observers.emplace_back(wio);
-        return wio;
+        auto observer = std::shared_ptr<WindowInputObserver>(new WindowInputObserver(keysToMonitor));
+        observers.emplace_back(observer);
+        return observer;
     }
 
     std::shared_ptr<WindowEventListener> WindowInputsAndEventsManager::CreateEventListener() {
-        std::shared_ptr<WindowEventListener> wel = std::make_shared<WindowEventListener>();
-        listeners.emplace_back(wel);
-        return wel;
+        auto listener = std::shared_ptr<WindowEventListener>(new WindowEventListener);
+        listeners.emplace_back(listener);
+        return listener;
     }
 
     void WindowInputsAndEventsManager::PerFrameRoutine() {
@@ -150,16 +151,16 @@ namespace Context {
         // std::cout << "Destroying WindowEventListener" << std::endl;
     }
 
-    void WindowEventListener::SetCursorPosCallback(std::function<void(double,double)> callback) {
+    void WindowEventListener::SetCursorPosCallback(const std::function<void(double,double)>& callback) {
         cursorPosCallback = callback;
     }
-    void WindowEventListener::SetKeyCallback(std::function<void(int,int,int,int)> callback) {
+    void WindowEventListener::SetKeyCallback(const std::function<void(int,int,int,int)>& callback) {
         keyCallback = callback;
     }
-    void WindowEventListener::SetFramebufferSizeCallback(std::function<void(int,int)> callback) {
+    void WindowEventListener::SetFramebufferSizeCallback(const std::function<void(int,int)>& callback) {
         framebufferSizeCallback = callback;
     }
-    void WindowEventListener::SetWindowSizeCallback(std::function<void(int,int)> callback) {
+    void WindowEventListener::SetWindowSizeCallback(const std::function<void(int,int)>& callback) {
         windowSizeCallback = callback;
     }
 

@@ -113,11 +113,27 @@ namespace Core {
     }
 
     void Tex2D::DefineImage(const void *pixels, const int level) {
+        Bind();
         glTexImage2D(target, level, internalformat, width, height, 0, format, datatype, pixels);
     }
     void Tex2D::DefineImageCubeFace(const int face_idx, const void *pixels, const int level) {
+        Bind();
         glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + face_idx, level, internalformat, width, height, 0, format, datatype, pixels);
     }
+
+    void Tex2D::Resize(const int width, const int height) {
+        this->width = width;
+        this->height = height;
+        switch (target) {
+            case GL_TEXTURE_2D:
+                DefineImage(nullptr);
+                break;
+            case GL_TEXTURE_CUBE_MAP:
+                for (int i = 0; i < 6; i++)
+                    DefineImageCubeFace(i, nullptr);
+                break;
+        }
+    } 
 
     Tex3D::Tex3D(GLenum target, GLint internalformat, GLsizei width, GLsizei height, GLsizei depth, GLenum format, GLenum datatype, GLint wrap, GLint minfilter, bool is_shadowmap, bool is_hdr) 
     : Tex{target, internalformat, width, height, depth, format, datatype, wrap, minfilter, is_shadowmap, is_hdr}
@@ -127,7 +143,14 @@ namespace Core {
     }
 
     void Tex3D::DefineImage(const void *pixels, const int level) {
+        Bind();
         glTexImage3D(target, level, internalformat, width, height, depth, 0, format, datatype, pixels);
     }
+
+    void Tex3D::Resize(const int width, const int height) {
+        this->width = width;
+        this->height = height;
+        DefineImage(nullptr);
+    } 
 
 }

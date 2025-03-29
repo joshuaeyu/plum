@@ -154,6 +154,7 @@ namespace Core {
         glClear(GL_DEPTH_BUFFER_BIT);
     }
     void Fbo::AttachColorTex(std::shared_ptr<Tex> tex, int index, int level) {
+        Bind();
         tex->Bind();
         
         if (index == -1) {
@@ -174,6 +175,7 @@ namespace Core {
         UpdateDrawBuffers();
     }
     void Fbo::AttachColorTexCubeFace(int att_index, int face_idx, int level) {
+        Bind();
         if (colorAtts[att_index]->target != GL_TEXTURE_CUBE_MAP) {
             std::cerr << "Fbo::AttachColorTexCubeFace error! Can only attach cubemap faces of GL_TEXTURE_CUBE_MAP textures!" << std::endl;
             exit(-1);
@@ -181,16 +183,19 @@ namespace Core {
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + att_index, GL_TEXTURE_CUBE_MAP_POSITIVE_X + face_idx, colorAtts[att_index]->Handle(), level);
     }
     void Fbo::AttachDepthRbo16() {
+        Bind();
         depthRboAtt = std::make_shared<Rbo>(width, height);
         depthRboAtt->Setup16();
         glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthRboAtt->Handle());
     }
     void Fbo::AttachDepthRbo24() {
+        Bind();
         depthRboAtt = std::make_shared<Rbo>(width, height);
         depthRboAtt->Setup24();
         glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthRboAtt->Handle());
     }
     void Fbo::AttachDepthTex(std::shared_ptr<Tex> tex, int level) {
+        Bind();
         depthAtt = tex;
         glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depthAtt->Handle(), level);
     }
@@ -206,6 +211,19 @@ namespace Core {
     void Fbo::CheckStatus() {
         if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
             std::cerr << "Framebuffer error: " << glCheckFramebufferStatus(GL_FRAMEBUFFER) << std::endl;
+        }
+    }
+    void Fbo::Resize(const int width, const int height) {
+        this->width = width;
+        this->height = height;
+        for (auto& color : colorAtts) {
+            color->Resize(width, height);
+        }
+        if (depthAtt) {
+            depthAtt->Resize(width, height);
+        }
+        if (depthRboAtt) {
+            depthRboAtt->Resize(width, height);
         }
     }
     void Fbo::BlitTo(Fbo& target, bool color, bool depth, int source_buffer_idx, int target_buffer_index) {
@@ -252,12 +270,23 @@ namespace Core {
         glBindRenderbuffer(GL_RENDERBUFFER, 0);
     }
     void Rbo::Setup16() {
+        internalformat = GL_DEPTH_COMPONENT16;
         Bind();
-        glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, width, height);
+        glRenderbufferStorage(GL_RENDERBUFFER, internalformat, width, height);
     }
     void Rbo::Setup24() {
+        internalformat = GL_DEPTH_COMPONENT24;
         Bind();
-        glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, width, height);
+        glRenderbufferStorage(GL_RENDERBUFFER, internalformat, width, height);
+    }
+    void Rbo::Resize(const int width, const int height) {
+        this->width = width;
+        this->height = height;
+        if (internalformat == GL_DEPTH_COMPONENT16) {
+            Setup16();
+        } else if (internalformat == GL_DEPTH_COMPONENT24) {
+            Setup24();
+        }
     }
 
 }

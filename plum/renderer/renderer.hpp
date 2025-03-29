@@ -103,7 +103,7 @@ namespace Renderer {
 
             void framebufferSizeCallback(int width, int height);
 
-            Context::WindowEventListener eventListener;
+            std::shared_ptr<Context::WindowEventListener> eventListener;
     };
 
 }

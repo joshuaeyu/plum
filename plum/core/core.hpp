@@ -70,13 +70,22 @@ namespace Core {
             void Unbind();
             void Setup16();
             void Setup24();
+            void Resize(const int width, const int height);
             int width, height;
+        private:
+            GLenum internalformat;
     };
 
     class Fbo : public GlObject {
         public:
             Fbo(int width, int height);
+            // Rule of five
             ~Fbo();
+            Fbo(const Fbo& other) = delete;
+            Fbo(Fbo&& other) = delete;
+            Fbo& operator=(const Fbo& other) = delete;
+            Fbo& operator=(Fbo&& other) = delete;
+            
             void Bind();
             void Unbind();
             
@@ -86,8 +95,9 @@ namespace Core {
             void AttachDepthRbo24();
             void AttachDepthTex(std::shared_ptr<Tex> tex, int level = 0);
             void UpdateDrawBuffers();
-            
             void CheckStatus();
+
+            void Resize(const int width, const int height);
             
             void SetViewportDims();
             

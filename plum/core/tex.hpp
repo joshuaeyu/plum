@@ -11,11 +11,13 @@ namespace Core {
         public:
             const GLenum target;
             const GLint internalformat;
-            const GLsizei width, height, depth;
+            GLsizei width, height, depth;
             const GLenum format, datatype;
             const GLint wrap, minfilter;
 
             virtual void DefineImage(const void* pixels, const int level = 0) {}
+
+            virtual void Resize(const int width, const int height) = 0;
 
             void GenerateMipMap();
             
@@ -45,6 +47,8 @@ namespace Core {
             
             void DefineImage(const void* pixels, const int level = 0) override;
             void DefineImageCubeFace(const int face_idx, const void* pixels, const int level = 0);
+
+            void Resize(const int width, const int height) override;
     };
     
     class Tex3D : public Tex {
@@ -52,6 +56,8 @@ namespace Core {
             Tex3D(GLenum target, GLint internalformat, GLsizei width, GLsizei height, GLsizei depth, GLenum format, GLenum type, GLint wrap, GLint minfilter, bool is_shadowmap = false, bool is_hdr = false);
 
             void DefineImage(const void* pixels, const int level = 0) override;
+
+            void Resize(const int width, const int height) override;
     };
 
 }

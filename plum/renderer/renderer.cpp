@@ -20,14 +20,15 @@ namespace Renderer {
         gBuffer(window->Width(), window->Height()), 
         dirShadowModule(1024, 1024),
         pointShadowModule(1024, 1024),
-        output(window->Width(), window->Height())
+        output(window->Width(), window->Height()),
+        eventListener(Context::WindowInputsAndEventsManager::CreateEventListener())
     {
         InitializeUniformBlocks();
         InitGbuffer();
         InitOutput();
 
         std::function<void(int,int)> staticFunc = std::bind(&DeferredRenderer::framebufferSizeCallback, this, std::placeholders::_1, std::placeholders::_2);
-        eventListener.SetFramebufferSizeCallback(staticFunc);
+        eventListener->SetFramebufferSizeCallback(staticFunc);
     }
 
     DeferredRenderer::~DeferredRenderer() {}
@@ -291,7 +292,7 @@ namespace Renderer {
     }
 
     void DeferredRenderer::framebufferSizeCallback(int width, int height) {
-        gBuffer = Core::Fbo(width, height);
-        InitGbuffer();
+        gBuffer.Resize(width, height);
+        output.Resize(width, height);
     }
 }

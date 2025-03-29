@@ -19,8 +19,6 @@ namespace Context {
     class WindowInputObserver {
 
         public:
-            WindowInputObserver();
-            WindowInputObserver(std::vector<int> keysToMonitor);
             ~WindowInputObserver();
 
             bool GetKeyDown(int key);
@@ -37,6 +35,9 @@ namespace Context {
             
         private:
             friend class WindowInputsAndEventsManager;
+
+            WindowInputObserver();
+            WindowInputObserver(std::vector<int> keysToMonitor);
             
             static void perFrameRoutine();
 
@@ -58,16 +59,17 @@ namespace Context {
 
     class WindowEventListener {
         public:
-            WindowEventListener();
             ~WindowEventListener();
-
-            void SetCursorPosCallback(std::function<void(double,double)> callback);
-            void SetKeyCallback(std::function<void(int,int,int,int)> callback);
-            void SetFramebufferSizeCallback(std::function<void(int,int)> callback);
-            void SetWindowSizeCallback(std::function<void(int,int)> callback);
-
+            
+            void SetCursorPosCallback(const std::function<void(double,double)>& callback);
+            void SetKeyCallback(const std::function<void(int,int,int,int)>& callback);
+            void SetFramebufferSizeCallback(const std::function<void(int,int)>& callback);
+            void SetWindowSizeCallback(const std::function<void(int,int)>& callback);
+        
         private:
             friend class WindowInputsAndEventsManager;
+            
+            WindowEventListener();
 
             std::function<void(double,double)> cursorPosCallback;
             std::function<void(int,int,int,int)> keyCallback;
