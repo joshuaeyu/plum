@@ -219,8 +219,12 @@ namespace Component {
             // If texture was already loaded from file, just push its existing representation
             bool skip = false;
             for (const auto& texture : model.textures) {
-                if (texture->type == textype && texture->paths[0] == filename) {
-                    textures.push_back(texture);
+                if (texture->paths[0] == filename) {
+                    if (texture->type == textype) {
+                        textures.push_back(texture);
+                    } else {
+                        // future: reuse same files
+                    }
                     skip = true;
                     break;
                 }

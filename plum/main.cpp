@@ -28,8 +28,8 @@ int main() {
     
     std::cout << "Setting up environment..." << std::endl;
     // auto skybox = std::make_shared<Material::Texture>("assets/textures/black.png", Material::TextureType::Diffuse);
-    auto skybox = std::make_shared<Material::Texture>("assets/textures/dresden_station_4k.hdr", Material::TextureType::Diffuse);
-    // auto skybox = std::make_shared<Material::Texture>("assets/textures/kloppenheim_4k.hdr", Material::TextureType::Diffuse);
+    // auto skybox = std::make_shared<Material::Texture>("assets/textures/dresden_station_4k.hdr", Material::TextureType::Diffuse);
+    auto skybox = std::make_shared<Material::Texture>("assets/textures/kloppenheim_4k.hdr", Material::TextureType::Diffuse);
     // static std::vector<std::string> oceanSkyboxPaths = {
     //     "assets/textures/skybox/right.jpg",
     //     "assets/textures/skybox/left.jpg",
@@ -74,7 +74,7 @@ int main() {
     cube->material = ruby;
 
     std::cout << "Loading models..." << std::endl;
-    auto backpack = std::make_shared<Component::Model>("assets/models/survival_guitar_backpack/scene.gltf", 0.01f);
+    auto backpack = std::make_shared<Component::Model>("assets/models/survival_guitar_backpack/scene.gltf", 0.005f);
     auto sponza = std::make_shared<Component::Model>("assets/models/sponza/glTF/Sponza.gltf");
 
     std::cout << "Defining scene..." << std::endl;
@@ -82,7 +82,7 @@ int main() {
     auto dlNode = scene.AddChild(dirlight);
     dlNode->transform.Rotate(45,0,0);
     auto plNode = scene.AddChild(pointlight);
-    plNode->transform.Translate(0,10,0);
+    plNode->transform.Translate(0,5,0);
     auto planeNode = scene.AddChild(plane);
     planeNode->transform.Scale(25);
     planeNode->transform.Translate(0,-5,0);
