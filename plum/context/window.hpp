@@ -22,8 +22,9 @@ namespace Context {
             void SetWindowSize(const int width, const int height);
             void SetInputMode(const int mode, const int value);
             
-            int Width() const { return width; }  
-            int Height() const { return height; }  
+            float Aspect() const { return static_cast<float>(width)/height; }
+            int Width() const { return width; }
+            int Height() const { return height; }
             std::string Title() const { return title; }          
 
             void MakeCurrent();

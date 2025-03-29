@@ -8,15 +8,19 @@
 namespace Component {
 
     Camera::Camera() 
-        : Camera(Transform(), glm::perspective(45.f, 1.f, 0.1f, 100.f)) 
+        : Camera(Transform(), glm::perspective(45.f, Context::Application::Instance().activeWindow->Aspect(), 0.1f, 100.f)) 
     {}
 
     Camera::Camera(Transform transform, glm::mat4 projection) 
         : transform(transform), 
         projection(projection),
         view(View()),
-        inputObserver(Context::WindowInputsAndEventsManager::CreateInputObserver({GLFW_KEY_W, GLFW_KEY_S, GLFW_KEY_A, GLFW_KEY_D, GLFW_KEY_SPACE, GLFW_KEY_LEFT_SHIFT}))
-    {}
+        inputObserver(Context::WindowInputsAndEventsManager::CreateInputObserver({GLFW_KEY_W, GLFW_KEY_S, GLFW_KEY_A, GLFW_KEY_D, GLFW_KEY_SPACE, GLFW_KEY_LEFT_SHIFT})),
+        eventListener(Context::WindowInputsAndEventsManager::CreateEventListener())
+    {
+        std::function<void(int,int)> staticFunc = std::bind(&Camera::framebufferSizeCallback, this, std::placeholders::_1, std::placeholders::_2);   
+        eventListener->SetFramebufferSizeCallback(staticFunc);
+    }
 
     void Camera::ProcessInputs() {
         // Mouse: Rotation
@@ -79,6 +83,10 @@ namespace Component {
                 transform.Translate(-worldUp * dist);
                 break;
         }
+    }
+
+    void Camera::framebufferSizeCallback(int width, int height) {
+        projection = glm::perspective(45.f, static_cast<float>(width)/height, 0.1f, 100.f);
     }
 
 }

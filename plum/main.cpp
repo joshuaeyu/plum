@@ -59,7 +59,7 @@ int main() {
 
     std::cout << "Creating components..." << std::endl;
     Component::Camera camera;
-    camera.projection = glm::perspective(45.f, 1024.f/1024.f, 0.1f, 100.f);
+    camera.projection = glm::perspective(45.f, app.defaultWindow->Aspect(), 0.1f, 100.f);
     camera.transform.Translate(0,3,-5);
     auto dirlight = std::make_shared<Component::DirectionalLight>();
     dirlight->color = glm::vec3(0.5,0.5,1.0);
