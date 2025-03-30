@@ -56,8 +56,6 @@ namespace Renderer {
             // renderer is what sets uniforms.
 
         private:
-            bool noEnvironment;
-
             // Setup
             void InitializeUniformBlocks();
             void InitGbuffer();
@@ -69,6 +67,7 @@ namespace Renderer {
             void SetDirectionalLightUniforms(Component::Camera& camera);
             void SetPointLightUniforms(Component::Camera& camera);
             void GeometryPass(Scene::Scene& scene);
+            void SsaoPass(Component::Camera& camera);
             void ShadowMapPass(Scene::Scene& scene);
             
             // shadow module as its own thing, to support 3D texture
@@ -80,7 +79,6 @@ namespace Renderer {
             // light.shadow.render(scene)
             // light.shadow.getmap()
 
-            // void SSAOPass();
             void LightingPass(Scene::Environment& env);
             void ForwardPass(Component::Camera& camera, Scene::Environment& env);
 
@@ -91,6 +89,8 @@ namespace Renderer {
             
             Core::Fbo output;
             Material::LightingPassPBRModule lightingPassPbrModule;
+
+            Material::SsaoModule ssaoModule;
 
             std::shared_ptr<Core::Ubo> uboVsMatrices;
             std::shared_ptr<Core::Ubo> uboFsMatrices;

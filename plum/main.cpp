@@ -56,7 +56,7 @@ int main() {
     dirlight->EnableShadows();
     auto pointlight = std::make_shared<Component::PointLight>();
     pointlight->color = glm::vec3(1.0,1.0,0.5);
-    pointlight->intensity = 25.f;
+    pointlight->intensity = 10.f;
     pointlight->EnableShadows();
     auto plane = std::make_shared<Component::Plane>();
     plane->material = copper;
@@ -72,7 +72,7 @@ int main() {
     std::cout << "Defining scene..." << std::endl;
     Scene::Scene scene;
     auto dlNode = scene.AddChild(dirlight);
-    dlNode->transform.Rotate(45,0,0);
+    dlNode->transform.Rotate(80,0,0);
     auto plNode = scene.AddChild(pointlight);
     plNode->transform.Translate(0,5,0);
     auto planeNode = scene.AddChild(plane);

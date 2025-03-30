@@ -39,6 +39,7 @@ namespace Renderer {
     Core::Fbo* DeferredRenderer::Render(Scene::Scene& scene, Component::Camera& camera, Scene::Environment& env) {
         UpdateGlobalUniforms(scene, camera);
         GeometryPass(scene);
+        SsaoPass(camera);
         ShadowMapPass(scene);
         LightingPass(env);
         ForwardPass(camera, env);
@@ -218,6 +219,10 @@ namespace Renderer {
         scene.Draw();
     }
 
+    void DeferredRenderer::SsaoPass(Component::Camera& camera) {
+        ssaoModule.Render(*gBuffer.colorAtts[0], *gBuffer.colorAtts[1], camera.projection);
+    }
+
     void DeferredRenderer::ShadowMapPass(Scene::Scene& scene) {        
         dirShadowModule.Render(scene, directionalLightNodes);
         pointShadowModule.Render(scene, pointLightNodes);
@@ -236,7 +241,7 @@ namespace Renderer {
             gBuffer.colorAtts[i]->Bind(i);
         }
         // SSAO
-            // (future)
+        ssaoModule.ssao->Bind(4);
         // IBL
         if (env.skybox) {
             env.irradiance->Bind(5);
@@ -252,6 +257,7 @@ namespace Renderer {
         lightingPassPbrModule.gNormal = 1;
         lightingPassPbrModule.gAlbedoSpec = 2;
         lightingPassPbrModule.gMetRouOcc = 3;
+        lightingPassPbrModule.ssao = 4;
         lightingPassPbrModule.irradianceMap = 5;
         lightingPassPbrModule.prefilterMap = 6;
         lightingPassPbrModule.brdfLUT = 7;

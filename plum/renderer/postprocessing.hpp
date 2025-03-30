@@ -41,19 +41,6 @@ namespace PostProcessing {
             inline static std::shared_ptr<Core::Program> programDisplay = std::make_shared<Core::Program>("shaders/shaderv_2d.vs", "shaders/shaderf_2dbloom.fs");
     };
 
-    class Ssao : public PostProcessor {
-        public:
-            Ssao();
-
-            using PostProcessor::Process;
-            Core::Fbo* Process(Core::Tex& input, int width, int height) override;
-            
-            // static Core::Fbo fbo;
-
-            inline static std::shared_ptr<Core::Program> program = std::make_shared<Core::Program>("shaders/shaderv_2d.vs", "shaders/shaderf_2dssao.fs");
-            inline static std::shared_ptr<Core::Program> programBlur = std::make_shared<Core::Program>("shaders/shaderv_2d.vs", "shaders/shaderf_2dssaoblur.fs");
-    };
-
     class Hdr : public PostProcessor {
         public:
             Hdr();    

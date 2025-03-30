@@ -111,12 +111,7 @@ namespace PostProcessing {
         return &output;
     }
 
-    Core::Fbo* Ssao::Process(Core::Tex& input, int width, int height) {
-        return nullptr;
-    }
-
-    Hdr::Hdr()
-    {
+    Hdr::Hdr() {
         auto color = std::make_shared<Core::Tex2D>(GL_TEXTURE_2D, GL_RGBA32F, output.width, output.height, GL_RGBA, GL_FLOAT, GL_CLAMP_TO_EDGE, GL_LINEAR, false, true);
         
         output.Bind();

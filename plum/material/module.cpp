@@ -2,8 +2,13 @@
 
 #include <plum/component/camera.hpp>
 #include <plum/component/light.hpp>
+#include <plum/component/primitive.hpp>
 #include <plum/scene/scene.hpp>
 #include <plum/scene/scenenode.hpp>
+
+#include <random>
+
+#include <iostream>
 
 namespace Material {
 
@@ -111,7 +116,7 @@ namespace Material {
         program->SetInt("gNormal", gNormal);
         program->SetInt("gAlbedoSpec", gAlbedoSpec);
         program->SetInt("gMetRouOcc", gMetRouOcc);
-
+        program->SetInt("ssao", ssao);
         program->SetInt("irradianceMap", irradianceMap);
         program->SetInt("prefilterMap", prefilterMap);
         program->SetInt("brdfLUT", brdfLUT);
@@ -134,6 +139,87 @@ namespace Material {
     }
 
     std::shared_ptr<Core::Program> SkyboxModule::GetProgram() {
+        return program;
+    }
+
+    SsaoModule::SsaoModule()
+        : ssao(std::make_shared<Core::Tex2D>(GL_TEXTURE_2D, GL_RED, 2, 2, GL_RED, GL_FLOAT, GL_CLAMP_TO_EDGE, GL_LINEAR)),
+        ssaoBlurred(std::make_shared<Core::Tex2D>(GL_TEXTURE_2D, GL_RED, 2, 2, GL_RED, GL_FLOAT, GL_CLAMP_TO_EDGE, GL_LINEAR)),
+        noise(GL_TEXTURE_2D, GL_RGBA16F, 4, 4, GL_RGB, GL_FLOAT, GL_REPEAT, GL_NEAREST),
+        fbo(2,2)
+    {
+        fbo.Bind();
+        fbo.AttachColorTex(ssao);
+        fbo.AttachColorTex(ssaoBlurred);
+        fbo.CheckStatus();
+
+        // Generate sampling kernel (random vectors in tangent space in the +normal hemisphere)
+        std::uniform_real_distribution<float> randomFloats(0.0, 1.0);
+        std::default_random_engine generator;
+        for (int i = 0; i < 64; i++) {
+            glm::vec3 sample(
+                randomFloats(generator) * 2.0f - 1.0f,
+                randomFloats(generator) * 2.0f - 1.0f,
+                randomFloats(generator)
+            );
+            sample = randomFloats(generator) * glm::normalize(sample);
+            float scale = (float)i / 64.0f;
+            scale = 0.1f + scale*scale * (1.0f - 0.1f);    // lerp, places more samples closer to origin of hemisphere
+            sample *= scale;
+            kernel.push_back(sample);
+        }
+
+        // Generate noise texture (random vectors in tangent space on the tangent-bitangent plane)
+        std::vector<glm::vec3> noiseVector;    
+        for (int i = 0; i < 16; i++) {
+            glm::vec3 sample(
+                randomFloats(generator) * 2.0f - 1.0f,
+                randomFloats(generator) * 2.0f - 1.0f, 
+                0.0f
+            );
+            noiseVector.push_back(sample);
+        }
+        noise.Bind();
+        noise.DefineImage(noiseVector.data());
+    }
+
+    void SsaoModule::Render(Core::Tex& positions, Core::Tex& normals, const glm::mat4& projection) {
+        if (positions.width != fbo.width || positions.height != fbo.height) {
+            fbo.Resize(positions.width, positions.height);
+        }
+
+        fbo.Bind();
+        fbo.SetViewportDims();
+
+        // SSAO unblurred
+        glDrawBuffer(GL_COLOR_ATTACHMENT0);
+        fbo.ClearColor();
+        
+        program->Use();
+        program->SetInt("gPosition", 0);
+        program->SetInt("gNormal", 1);
+        program->SetInt("noiseTexture", 2);
+        program->SetMat4("projection", projection);
+        positions.Bind(0);
+        normals.Bind(1);
+        noise.Bind(2);
+        
+        for (int i = 0; i < kernel.size(); i++) {
+            program->SetVec3("samples[" + std::to_string(i) + "]", kernel[i]);
+        }
+        Component::Primitive::DrawQuad();
+        
+        // Blurring
+        glDrawBuffer(GL_COLOR_ATTACHMENT1);
+        fbo.ClearColor(1,1,1,1);
+        
+        programBlur->Use();
+        programBlur->SetInt("ssaoInput", 0);
+        fbo.colorAtts[0]->Bind();
+        Component::Primitive::DrawQuad();
+    }
+
+    std::shared_ptr<Core::Program> SsaoModule::GetProgram() {
         return program;
     }
 
