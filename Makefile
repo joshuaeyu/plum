@@ -33,18 +33,12 @@ LDFLAGS := 	-L$(LIB_GLFW) -lglfw3	\
 
 # Source files
 sources := $(SRCDIR)/main.cpp $(wildcard $(SRCDIR)/*/*.c*) 
-externs := $(filter-out $(EXTDIR)/imgui%,$(wildcard $(EXTDIR)/*/*.c*) $(wildcard $(EXTDIR)/*/*/*.c*))
+externs := $(filter-out $(EXTDIR)/sdf%,$(wildcard $(EXTDIR)/*/*.c*) $(wildcard $(EXTDIR)/*/*/*.c*))
 SOURCES := $(sources) $(externs)
 # Object files
 objects := $(SOURCES:.cpp=.o)
 objects := $(objects:.c=.o)
 OBJECTS := $(addprefix $(OBJDIR)/,$(objects))
-
-# ImGui resources
-# IMGUI_CORE_CPP := $(wildcard $(EXTDIR)/imgui/imgui*.cpp)
-# IMGUI_CORE_O := $(patsubst $(EXTDIR)/imgui/imgui%.cpp, $(OBJDIR)/imgui%.o, $(IMGUI_CORE_CPP))
-# IMGUI_MISC_O := $(OBJDIR)/imgui_stdlib.o
-# IMGUI_BACKENDS_O := $(OBJDIR)/imgui_impl_glfw.o $(OBJDIR)/imgui_impl_opengl3.o
 
 # Targets
 all: objdirs main
@@ -70,9 +64,9 @@ $(OBJDIR)/%.o: %.c
 	@echo Compiling $@
 	@$(CC) $(CFLAGS) $< -c -o $@
 
-
+# Clean
 .PHONY: clean
 clean:
 	@rm -fr $(OBJDIR)
 	@rm -f main
-# @rm -f imgui.ini
+	@rm -f imgui.ini

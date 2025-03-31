@@ -20,7 +20,8 @@ To do:
   - SSAO X
 
 Remaining major:
-- GUI
+- GUI WIP
+- asset manager - textures, models
 
 Remaining minor:
 - window vs context (e.g., getTime) WIP
@@ -36,7 +37,7 @@ Remaining minor:
   - specular
   - Phong
 - streamline modules, environment, postprocessing WIP
-- rules of 0/3/5 IP
+- rules of 0/3/5 WIP
 - reorder class members
 - Error handling and logging
 - cloning

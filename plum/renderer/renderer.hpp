@@ -23,6 +23,7 @@ namespace Renderer {
         protected:
             RendererBase(std::shared_ptr<Context::Window> window);
             virtual ~RendererBase() = default;
+            
             virtual Core::Fbo* Render(Scene::Scene& scene, Component::Camera& camera) = 0;
             
             std::shared_ptr<Context::Window> window;
@@ -53,20 +54,20 @@ namespace Renderer {
 
         private:
             // Setup
-            void InitializeUniformBlocks();
-            void InitGbuffer();
-            void InitOutput();
+            void initUniformBlocks();
+            void initGbuffer();
+            void initOutput();
             
             // Per frame
-            void ParseLights(Scene::Scene& scene);
-            void UpdateGlobalUniforms(Scene::Scene& scene, Component::Camera& camera);
-            void SetDirectionalLightUniforms(Component::Camera& camera);
-            void SetPointLightUniforms(Component::Camera& camera);
-            void GeometryPass(Scene::Scene& scene);
-            void SsaoPass(Component::Camera& camera);
-            void ShadowMapPass(Scene::Scene& scene);
-            void LightingPass(Scene::Environment& env);
-            void ForwardPass(Component::Camera& camera, Scene::Environment& env);
+            void parseLights(Scene::Scene& scene);
+            void updateGlobalUniforms(Scene::Scene& scene, Component::Camera& camera);
+            void setDirectionalLightUniforms(Component::Camera& camera);
+            void setPointLightUniforms(Component::Camera& camera);
+            void geometryPass(Scene::Scene& scene);
+            void ssaoPass(Component::Camera& camera);
+            void shadowMapPass(Scene::Scene& scene);
+            void lightingPass(Scene::Environment& env);
+            void forwardPass(Component::Camera& camera, Scene::Environment& env);
             
             Core::Fbo gBuffer;
             Core::Fbo output;

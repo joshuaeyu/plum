@@ -1,6 +1,7 @@
 #include <plum/component/all.hpp>
 #include <plum/context/all.hpp>
 #include <plum/core/all.hpp>
+#include <plum/interface/all.hpp>
 #include <plum/renderer/all.hpp>
 #include <plum/scene/all.hpp>
 
@@ -49,7 +50,9 @@ int main() {
 
     std::cout << "Creating components..." << std::endl;
     Component::Camera camera;
-    camera.transform.Translate(0,3,-5);
+    camera.transform.Translate(-5,3,-0.25);
+    camera.Rotate(-90,0);
+    camera.transform.Update();
     auto dirlight = std::make_shared<Component::DirectionalLight>();
     dirlight->color = glm::vec3(0.5,0.5,1.0);
     dirlight->intensity = 10.f;
@@ -91,14 +94,19 @@ int main() {
     auto fxaa = PostProcessing::Fxaa();
     auto hdr = PostProcessing::Hdr();
     auto bloom = PostProcessing::Bloom();
+
+    std::cout << "Creating interface..." << std::endl;
+    Interface interface;
     
     // Put this in some MainLoop() function
     std::cout << "Starting main loop..." << std::endl;
+    // while(app.Run())
     while (!app.defaultWindow->ShouldClose()) {
         
         // Pre display
         app.PollInputsAndEvents();    // needed!
         camera.ProcessInputs(); // needed because camera uses an inputobserver every frame
+        interface.Predisplay();
         
         // Display
         backpackNode->transform.Rotate(glm::vec3(0,30,0) * app.DeltaTime());
@@ -106,14 +114,19 @@ int main() {
 
         Core::Fbo* fbo;
         fbo = renderer.Render(scene, camera, environment);
-        if (glfwGetKey(app.activeWindow->Handle(), GLFW_KEY_1) == GLFW_PRESS)
+        if (interface.RenderOptions.bloom)
             fbo = bloom.Process(*fbo);
-        if (glfwGetKey(app.activeWindow->Handle(), GLFW_KEY_2) != GLFW_PRESS)
+        if (interface.RenderOptions.hdr)
             fbo = hdr.Process(*fbo);
-        if (glfwGetKey(app.activeWindow->Handle(), GLFW_KEY_0) != GLFW_PRESS)
+        if (interface.RenderOptions.fxaa)
             fbo = fxaa.Process(*fbo);
         fbo->BlitToDefault();
         while (GLenum error = glGetError()) { std::cerr << "Render error: " << error << std::endl; }
+
+        interface.Display();
+        // How to cleanly integrate GUI with main loop?
+        // How to represent each class in the GUI?
+        // Big fat interface class? Or interface modules in each class?
 
         // Post display?
         app.defaultWindow->SwapBuffers();

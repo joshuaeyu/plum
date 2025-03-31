@@ -21,9 +21,9 @@ namespace Renderer {
         pointShadowModule(1024, 1024),
         eventListener(Context::WindowInputsAndEventsManager::CreateEventListener())
     {
-        InitializeUniformBlocks();
-        InitGbuffer();
-        InitOutput();
+        initUniformBlocks();
+        initGbuffer();
+        initOutput();
 
         std::function<void(int,int)> staticFunc = std::bind(&DeferredRenderer::framebufferSizeCallback, this, std::placeholders::_1, std::placeholders::_2);
         eventListener->SetFramebufferSizeCallback(staticFunc);
@@ -37,12 +37,12 @@ namespace Renderer {
     }
 
     Core::Fbo* DeferredRenderer::Render(Scene::Scene& scene, Component::Camera& camera, Scene::Environment& env) {
-        UpdateGlobalUniforms(scene, camera);
-        GeometryPass(scene);
-        SsaoPass(camera);
-        ShadowMapPass(scene);
-        LightingPass(env);
-        ForwardPass(camera, env);
+        updateGlobalUniforms(scene, camera);
+        geometryPass(scene);
+        ssaoPass(camera);
+        shadowMapPass(scene);
+        lightingPass(env);
+        forwardPass(camera, env);
         return &output;
         // some postprocessing like Bloom requires additional render info
         // need to support intraprocessing rendering options
@@ -50,7 +50,7 @@ namespace Renderer {
             // ....
     }
     
-    void DeferredRenderer::InitializeUniformBlocks() {
+    void DeferredRenderer::initUniformBlocks() {
         // Core::Program::UboScheme::Scheme1
         // Should have some help from Program to enforce this sceheme
         // 0 - View, projection transforms  
@@ -68,23 +68,20 @@ namespace Renderer {
         lightingPassProgram->SetUniformBlockBindingScheme(Core::Program::UboScheme::Scheme1);
     }
 
-    void DeferredRenderer::InitGbuffer() {
-        
-        using namespace Core;
-        
+    void DeferredRenderer::initGbuffer() {
         gBuffer.Bind();
-        gBuffer.colorAtts = std::vector<std::shared_ptr<Tex>>(4);
+        gBuffer.colorAtts.resize(4);
         
-        auto position = std::make_shared<Tex2D>(GL_TEXTURE_2D, GL_RGBA32F, gBuffer.width, gBuffer.height, GL_RGBA, GL_FLOAT, GL_CLAMP_TO_EDGE, GL_NEAREST);
+        auto position = std::make_shared<Core::Tex2D>(GL_TEXTURE_2D, GL_RGBA32F, gBuffer.width, gBuffer.height, GL_RGBA, GL_FLOAT, GL_CLAMP_TO_EDGE, GL_NEAREST);
         gBuffer.AttachColorTex(position, 0);
 
-        auto normal = std::make_shared<Tex2D>(GL_TEXTURE_2D, GL_RGBA32F, gBuffer.width, gBuffer.height, GL_RGBA, GL_FLOAT, GL_CLAMP_TO_EDGE, GL_NEAREST);
+        auto normal = std::make_shared<Core::Tex2D>(GL_TEXTURE_2D, GL_RGBA32F, gBuffer.width, gBuffer.height, GL_RGBA, GL_FLOAT, GL_CLAMP_TO_EDGE, GL_NEAREST);
         gBuffer.AttachColorTex(normal, 1);
         
-        auto albedospec = std::make_shared<Tex2D>(GL_TEXTURE_2D, GL_RGBA32F, gBuffer.width, gBuffer.height, GL_RGBA, GL_FLOAT, GL_CLAMP_TO_EDGE, GL_NEAREST);
+        auto albedospec = std::make_shared<Core::Tex2D>(GL_TEXTURE_2D, GL_RGBA32F, gBuffer.width, gBuffer.height, GL_RGBA, GL_FLOAT, GL_CLAMP_TO_EDGE, GL_NEAREST);
         gBuffer.AttachColorTex(albedospec, 2);
         
-        auto metrou = std::make_shared<Tex2D>(GL_TEXTURE_2D, GL_RGBA, gBuffer.width, gBuffer.height, GL_RGBA, GL_UNSIGNED_BYTE, GL_CLAMP_TO_EDGE, GL_NEAREST);
+        auto metrou = std::make_shared<Core::Tex2D>(GL_TEXTURE_2D, GL_RGBA, gBuffer.width, gBuffer.height, GL_RGBA, GL_UNSIGNED_BYTE, GL_CLAMP_TO_EDGE, GL_NEAREST);
         gBuffer.AttachColorTex(metrou, 3);
         
         gBuffer.AttachDepthRbo24();
@@ -92,11 +89,8 @@ namespace Renderer {
         gBuffer.CheckStatus();
     }
 
-    void DeferredRenderer::InitOutput() {
-        
-        using namespace Core;
-        
-        auto color = std::make_shared<Tex2D>(GL_TEXTURE_2D, GL_RGBA32F, output.width, output.height, GL_RGBA, GL_FLOAT, GL_CLAMP_TO_EDGE, GL_LINEAR);
+    void DeferredRenderer::initOutput() {\
+        auto color = std::make_shared<Core::Tex2D>(GL_TEXTURE_2D, GL_RGBA32F, output.width, output.height, GL_RGBA, GL_FLOAT, GL_CLAMP_TO_EDGE, GL_LINEAR);
 
         output.Bind();
         output.AttachColorTex(color);
@@ -104,8 +98,7 @@ namespace Renderer {
         output.CheckStatus();
     }
 
-    void DeferredRenderer::ParseLights(Scene::Scene& scene) {
-
+    void DeferredRenderer::parseLights(Scene::Scene& scene) {
         // ---- Clear existing lists ----
         directionalLightNodes.clear();
         pointLightNodes.clear();
@@ -132,7 +125,7 @@ namespace Renderer {
         }
     }
 
-    void DeferredRenderer::UpdateGlobalUniforms(Scene::Scene& scene, Component::Camera& camera) {
+    void DeferredRenderer::updateGlobalUniforms(Scene::Scene& scene, Component::Camera& camera) {
         // 0 - View, projection transforms  
         uboVsMatrices->UpdateData(0, sizeof(glm::mat4), &camera.View());
         uboVsMatrices->UpdateData(sizeof(glm::mat4), sizeof(glm::mat4), &camera.projection);
@@ -146,12 +139,12 @@ namespace Renderer {
 
         // 3 - Directional light colors, direction, lightspace transform
         // 4 - Point light count, colors, attenuations, positions, positions (worldspace)
-        ParseLights(scene);
-        SetDirectionalLightUniforms(camera);
-        SetPointLightUniforms(camera);
+        parseLights(scene);
+        setDirectionalLightUniforms(camera);
+        setPointLightUniforms(camera);
     }
 
-    void DeferredRenderer::SetDirectionalLightUniforms(Component::Camera& camera) {
+    void DeferredRenderer::setDirectionalLightUniforms(Component::Camera& camera) {
         float total_count = directionalLightNodes.size();
         int shadow_count = 0;
         
@@ -176,7 +169,7 @@ namespace Renderer {
         }
     }
 
-    void DeferredRenderer::SetPointLightUniforms(Component::Camera& camera) {
+    void DeferredRenderer::setPointLightUniforms(Component::Camera& camera) {
         float total_count = pointLightNodes.size();
         int shadow_count = 0;
 
@@ -208,7 +201,7 @@ namespace Renderer {
         }
     }
 
-    void DeferredRenderer::GeometryPass(Scene::Scene& scene) {
+    void DeferredRenderer::geometryPass(Scene::Scene& scene) {
         gBuffer.Bind();
         gBuffer.SetViewportDims();
         gBuffer.ClearColor();
@@ -219,16 +212,16 @@ namespace Renderer {
         scene.Draw();
     }
 
-    void DeferredRenderer::SsaoPass(Component::Camera& camera) {
+    void DeferredRenderer::ssaoPass(Component::Camera& camera) {
         ssaoModule.Render(*gBuffer.colorAtts[0], *gBuffer.colorAtts[1], camera.projection);
     }
 
-    void DeferredRenderer::ShadowMapPass(Scene::Scene& scene) {        
+    void DeferredRenderer::shadowMapPass(Scene::Scene& scene) {        
         dirShadowModule.Render(scene, directionalLightNodes);
         pointShadowModule.Render(scene, pointLightNodes);
     }
 
-    void DeferredRenderer::LightingPass(Scene::Environment& env) {
+    void DeferredRenderer::lightingPass(Scene::Environment& env) {
         // ---- Prep framebuffer ----
         output.Bind();
         output.SetViewportDims();
@@ -270,7 +263,7 @@ namespace Renderer {
         Component::Primitive::DrawQuad();
     }
 
-    void DeferredRenderer::ForwardPass(Component::Camera& camera, Scene::Environment& env) {
+    void DeferredRenderer::forwardPass(Component::Camera& camera, Scene::Environment& env) {
         // ---- Blit depth data from gBuffer to output ----
         gBuffer.BlitTo(output, false, true);
         
