@@ -25,6 +25,11 @@ namespace Scene {
         generateBrdfLut(512, 512);
     }
 
+    void Environment::DrawSkybox(Component::Camera& camera) {
+        if (skybox)
+            skyboxModule.Render(*skybox, camera);
+    }
+
     std::shared_ptr<Core::Tex2D> Environment::equirectToCubemap(std::shared_ptr<Core::Tex2D> equirect, int width, int height) {
         
         Core::Fbo fbo(width, height);

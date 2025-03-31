@@ -1,4 +1,4 @@
-#include <plum/material/module.hpp>
+#include <plum/renderer/module.hpp>
 
 #include <plum/component/camera.hpp>
 #include <plum/component/light.hpp>
@@ -10,7 +10,7 @@
 
 #include <iostream>
 
-namespace Material {
+namespace Renderer {
 
     DirectionalShadowModule::DirectionalShadowModule(int map_width, int map_height, int num_layers)
         : mapWidth(map_width),
@@ -109,30 +109,21 @@ namespace Material {
         return program;
     }
 
-    LightingPassPBRModule::LightingPassPBRModule() {}
-
-    void LightingPassPBRModule::SetGlobalUniforms() {
-        program->SetInt("gPosition", gPosition);
-        program->SetInt("gNormal", gNormal);
-        program->SetInt("gAlbedoSpec", gAlbedoSpec);
-        program->SetInt("gMetRouOcc", gMetRouOcc);
-        program->SetInt("ssao", ssao);
-        program->SetInt("irradianceMap", irradianceMap);
-        program->SetInt("prefilterMap", prefilterMap);
-        program->SetInt("brdfLUT", brdfLUT);
-        program->SetFloat("ibl", ibl);
-
-        program->SetInt("shadowmap_2d_array_shadow", shadowmap_2d_array_shadow);
-        program->SetInt("shadowmap_cube_array_shadow", shadowmap_cube_array_shadow);
-    }
-
-    std::shared_ptr<Core::Program> LightingPassPBRModule::GetProgram() {
-        return program;
-    }
-
     SkyboxModule::SkyboxModule() {}
     
-    void SkyboxModule::SetGlobalUniforms(Component::Camera& camera, Core::Tex2D& skybox, int tex_unit) {
+    void SkyboxModule::Render(Core::Tex2D& skybox, Component::Camera& camera) {
+        static Component::Cube cube(1,1);
+        
+        program->Use();
+        setGlobalUniforms(camera, 0);
+        skybox.Bind(0);
+        
+        glCullFace(GL_FRONT);
+        cube.Draw(*this);
+        glCullFace(GL_BACK);
+    }
+
+    void SkyboxModule::setGlobalUniforms(Component::Camera& camera, int tex_unit) {
         program->SetMat4("view", glm::mat4(glm::mat3(camera.View())));
         program->SetMat4("projection", camera.projection);
         program->SetInt("cubemap", tex_unit);

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <plum/material/material.hpp>
-#include <plum/material/module.hpp>
+#include <plum/renderer/module.hpp>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -32,7 +32,7 @@ namespace Component {
             
             virtual void Draw(const glm::mat4& model_matrix = glm::identity<glm::mat4>()) {}
             virtual void Draw(Material::MaterialBase& material, const glm::mat4& model_matrix = glm::identity<glm::mat4>()) {}
-            virtual void Draw(Material::Module& module, const glm::mat4& model_matrix = glm::identity<glm::mat4>()) {}
+            virtual void Draw(Renderer::Module& module, const glm::mat4& model_matrix = glm::identity<glm::mat4>()) {}
 
             const ComponentType type;
             

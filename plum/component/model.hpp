@@ -36,7 +36,7 @@ namespace Component {
 
             void Draw(const glm::mat4& model_matrix);
             void Draw(Material::MaterialBase& material, const glm::mat4& parent_transform);
-            void Draw(Material::Module& module, const glm::mat4& parent_transform);
+            void Draw(Renderer::Module& module, const glm::mat4& parent_transform);
 
             Transform transform;
 
@@ -58,7 +58,7 @@ namespace Component {
             
             void Draw(const glm::mat4& model_matrix);
             void Draw(Material::MaterialBase& material, const glm::mat4& model_matrix);
-            void Draw(Material::Module& module, const glm::mat4& model_matrix);
+            void Draw(Renderer::Module& module, const glm::mat4& model_matrix);
             void Animate(float speed = 1.f, bool interpolate = true);
             
             // bones and animation

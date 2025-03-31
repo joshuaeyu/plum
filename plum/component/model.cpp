@@ -85,7 +85,7 @@ namespace Component {
             child->Draw(material, model_matrix);
         }
     }
-    void ModelNode::Draw(Material::Module& module, const glm::mat4& parent_transform) {
+    void ModelNode::Draw(Renderer::Module& module, const glm::mat4& parent_transform) {
         glm::mat4 model_matrix = parent_transform * transform.Matrix();
         for (auto& mesh : meshes) {
             mesh->Draw(module, model_matrix);
@@ -256,7 +256,7 @@ namespace Component {
     void Model::Draw(Material::MaterialBase& material, const glm::mat4& model_matrix) {
         root->Draw(material, model_matrix);
     }
-    void Model::Draw(Material::Module& module, const glm::mat4& model_matrix) {
+    void Model::Draw(Renderer::Module& module, const glm::mat4& model_matrix) {
         root->Draw(module, model_matrix);
     }
 

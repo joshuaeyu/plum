@@ -9,7 +9,7 @@
 #include <plum/component/camera.hpp>
 #include <plum/component/light.hpp>
 
-#include <plum/material/module.hpp>
+#include <plum/renderer/module.hpp>
 
 #include <plum/context/inputsevents.hpp>
 #include <plum/context/window.hpp>
@@ -51,10 +51,6 @@ namespace Renderer {
             //  - affects calculations and textures in shaders
             // shader: some kind of preprocessed composite of renderer and material requirements
 
-            // separate renderer and scene graph, i.e., draw calls should come from renderer
-            // renderer.render(scene, camera); // like three.js
-            // renderer is what sets uniforms.
-
         private:
             // Setup
             void InitializeUniformBlocks();
@@ -69,28 +65,17 @@ namespace Renderer {
             void GeometryPass(Scene::Scene& scene);
             void SsaoPass(Component::Camera& camera);
             void ShadowMapPass(Scene::Scene& scene);
-            
-            // shadow module as its own thing, to support 3D texture
-            // shadowmodule.setparams()
-            // shadowmodule.render(scene, lights = {})
-
-            // shadow module per light like three.js, only supports 2D textures?
-            // light.shadow.setparams(...)
-            // light.shadow.render(scene)
-            // light.shadow.getmap()
-
             void LightingPass(Scene::Environment& env);
             void ForwardPass(Component::Camera& camera, Scene::Environment& env);
-
+            
             Core::Fbo gBuffer;
-            
-            Material::DirectionalShadowModule dirShadowModule;
-            Material::PointShadowModule pointShadowModule;
-            
             Core::Fbo output;
-            Material::LightingPassPBRModule lightingPassPbrModule;
+            
+            SsaoModule ssaoModule;
+            DirectionalShadowModule dirShadowModule;
+            PointShadowModule pointShadowModule;
 
-            Material::SsaoModule ssaoModule;
+            inline static std::shared_ptr<Core::Program> lightingPassProgram = std::make_shared<Core::Program>("shaders/shaderv_2d.vs", "shaders/shaderf_lightingpasspbr.fs");
 
             std::shared_ptr<Core::Ubo> uboVsMatrices;
             std::shared_ptr<Core::Ubo> uboFsMatrices;

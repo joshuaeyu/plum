@@ -4,7 +4,7 @@
 
 #include <plum/core/globject.hpp>
 #include <plum/material/material.hpp>
-#include <plum/material/module.hpp>
+#include <plum/renderer/module.hpp>
 #include <plum/scene/scenenode.hpp>
 
 #include <memory>
@@ -21,7 +21,7 @@ namespace Component {
             
             virtual void Draw(const glm::mat4& model_matrix = glm::identity<glm::mat4>()) override;
             virtual void Draw(Material::MaterialBase& material, const glm::mat4& model_matrix = glm::identity<glm::mat4>()) override;
-            virtual void Draw(Material::Module& module, const glm::mat4& model_matrix = glm::identity<glm::mat4>()) override;
+            virtual void Draw(Renderer::Module& module, const glm::mat4& model_matrix = glm::identity<glm::mat4>()) override;
             
             // Default material is PBRMetallicMaterial
             std::shared_ptr<Material::MaterialBase> material = std::make_shared<Material::PBRMetallicMaterial>();

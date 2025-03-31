@@ -65,7 +65,7 @@ namespace Renderer {
         uboFsPointlight = std::make_shared<Core::Ubo>(4, 16 + 32 * (4*16));
 
         // Set UBO scheme to default (may implement non-default schemes in the future)
-        lightingPassPbrModule.GetProgram()->SetUniformBlockBindingScheme(Core::Program::UboScheme::Scheme1);
+        lightingPassProgram->SetUniformBlockBindingScheme(Core::Program::UboScheme::Scheme1);
     }
 
     void DeferredRenderer::InitGbuffer() {
@@ -253,19 +253,18 @@ namespace Renderer {
         pointShadowModule.depthMap->Bind(9);
         
         // ---- Set uniforms ---- 
-        lightingPassPbrModule.gPosition = 0;
-        lightingPassPbrModule.gNormal = 1;
-        lightingPassPbrModule.gAlbedoSpec = 2;
-        lightingPassPbrModule.gMetRouOcc = 3;
-        lightingPassPbrModule.ssao = 4;
-        lightingPassPbrModule.irradianceMap = 5;
-        lightingPassPbrModule.prefilterMap = 6;
-        lightingPassPbrModule.brdfLUT = 7;
-        lightingPassPbrModule.ibl = 1.0f;
-        lightingPassPbrModule.shadowmap_2d_array_shadow = 8;
-        lightingPassPbrModule.shadowmap_cube_array_shadow = 9;
-        lightingPassPbrModule.GetProgram()->Use();
-        lightingPassPbrModule.SetGlobalUniforms();
+        lightingPassProgram->Use();
+        lightingPassProgram->SetInt("gPosition", 0);
+        lightingPassProgram->SetInt("gNormal", 1);
+        lightingPassProgram->SetInt("gAlbedoSpec", 2);
+        lightingPassProgram->SetInt("gMetRouOcc", 3);
+        lightingPassProgram->SetInt("ssao", 4);
+        lightingPassProgram->SetInt("irradianceMap", 5);
+        lightingPassProgram->SetInt("prefilterMap", 6);
+        lightingPassProgram->SetInt("brdfLUT", 7);
+        lightingPassProgram->SetInt("shadowmap_2d_array_shadow", 8);
+        lightingPassProgram->SetInt("shadowmap_cube_array_shadow", 9);
+        lightingPassProgram->SetFloat("ibl", 1.0f);
         
         // ---- Draw ----
         Component::Primitive::DrawQuad();
@@ -279,19 +278,8 @@ namespace Renderer {
         output.Bind();
         output.SetViewportDims();
 
-        // draw...
-            // anything bypassing lighting calcs
-        
-        // ---- Draw skybox ----
-        if (env.skybox) {
-            static Component::Cube cube;
-            env.skyboxModule.GetProgram()->Use();
-            env.skyboxModule.SetGlobalUniforms(camera, *env.skybox, 0);
-            env.skybox->Bind(0);
-            glCullFace(GL_FRONT);
-            cube.Draw(env.skyboxModule);
-            glCullFace(GL_BACK);
-        }
+        // ---- Draw ----
+        env.DrawSkybox(camera);
     }
 
     void DeferredRenderer::framebufferSizeCallback(int width, int height) {

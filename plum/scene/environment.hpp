@@ -1,8 +1,9 @@
 #pragma once
 
+#include <plum/component/camera.hpp>
 #include <plum/core/program.hpp>
 #include <plum/core/tex.hpp>
-#include <plum/material/module.hpp>
+#include <plum/renderer/module.hpp>
 
 namespace Scene {
 
@@ -11,14 +12,16 @@ namespace Scene {
             Environment();
             Environment(std::shared_ptr<Core::Tex2D> envmap);
 
+            void DrawSkybox(Component::Camera& camera);
+
             std::shared_ptr<Core::Tex2D> skybox;
             std::shared_ptr<Core::Tex2D> irradiance;
             std::shared_ptr<Core::Tex2D> prefilter;
             std::shared_ptr<Core::Tex2D> brdfLut;
 
-            Material::SkyboxModule skyboxModule;
-
         private:
+            Renderer::SkyboxModule skyboxModule;
+
             std::shared_ptr<Core::Tex2D> equirectToCubemap(std::shared_ptr<Core::Tex2D> equirect, int width, int height);
             void cubemapToIrradiance(int width, int height);
             void cubemapToPrefilter(int width, int height, int envres);

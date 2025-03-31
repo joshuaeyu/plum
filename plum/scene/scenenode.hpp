@@ -4,7 +4,7 @@
 
 #include <plum/component/component.hpp>
 #include <plum/material/material.hpp>
-#include <plum/material/module.hpp>
+#include <plum/renderer/module.hpp>
 #include <plum/util/transform.hpp>
 
 namespace Scene {
@@ -26,7 +26,7 @@ namespace Scene {
             
             virtual void Draw(const glm::mat4& parent_transform = glm::identity<glm::mat4>());
             virtual void Draw(Material::MaterialBase& m, const glm::mat4& parent_transform = glm::identity<glm::mat4>());
-            virtual void Draw(Material::Module& m, const glm::mat4& parent_transform = glm::identity<glm::mat4>());
+            virtual void Draw(Renderer::Module& m, const glm::mat4& parent_transform = glm::identity<glm::mat4>());
             
             std::string name;
 

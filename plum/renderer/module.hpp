@@ -19,7 +19,7 @@ namespace Scene {
     typedef SceneNode Scene;
 }
 
-namespace Material {
+namespace Renderer {
 
     class Module {
         public:
@@ -30,13 +30,21 @@ namespace Material {
             // std::shared_ptr<Program> program;
     };
 
+    // shadow module as its own thing, to support 3D texture
+    // shadowmodule.setparams()
+    // shadowmodule.render(scene, lights = {})
+
+    // shadow module per light like three.js, only supports 2D textures?
+    // light.shadow.setparams(...)
+    // light.shadow.render(scene)
+    // light.shadow.getmap()
+
     class DirectionalShadowModule : public Module {
         public:
             DirectionalShadowModule(int map_width = 512, int map_height = 512, int num_layers = 8);
 
             void Render(Scene::Scene& scene, const std::vector<Scene::SceneNode*>& dirlight_nodes);
             void SetObjectUniforms(const glm::mat4& model);
-
             std::shared_ptr<Core::Program> GetProgram() override;
 
             const int mapWidth, mapHeight, numLayers;
@@ -56,9 +64,7 @@ namespace Material {
             PointShadowModule(int map_width = 512, int map_height = 512, int num_layers = 8);
 
             void Render(Scene::Scene& scene, const std::vector<Scene::SceneNode*>& pointlight_nodes);
-            
             void SetObjectUniforms(const glm::mat4& model);
-            
             std::shared_ptr<Core::Program> GetProgram() override;
             
             const int mapWidth, mapHeight, numLayers;
@@ -72,28 +78,15 @@ namespace Material {
             inline static std::shared_ptr<Core::Program> program = std::make_shared<Core::Program>("shaders/shaderv_shadowcube.vs", "shaders/shaderf_shadowcube.fs", "shaders/shaderg_shadowcube.gs");
         };
 
-    class LightingPassPBRModule : public Module {
-        public:
-            LightingPassPBRModule();
-            void SetGlobalUniforms();
-
-            std::shared_ptr<Core::Program> GetProgram() override;
-
-            int gPosition, gNormal, gAlbedoSpec, gMetRouOcc;
-            int ssao;
-            int irradianceMap, prefilterMap, brdfLUT;
-            float ibl;
-            int shadowmap_2d_array_shadow, shadowmap_cube_array_shadow;
-
-            inline static std::shared_ptr<Core::Program> program = std::make_shared<Core::Program>("shaders/shaderv_2d.vs", "shaders/shaderf_lightingpasspbr.fs");
-    };
-
     class SkyboxModule : public Module {
         public:
             SkyboxModule();
-            void SetGlobalUniforms(Component::Camera& camera, Core::Tex2D& skybox, int tex_unit);
 
+            void Render(Core::Tex2D& skybox, Component::Camera& camear);
             std::shared_ptr<Core::Program> GetProgram() override;
+            
+        private:
+            void setGlobalUniforms(Component::Camera& camera, int tex_unit);
 
             inline static const std::shared_ptr<Core::Program> program = std::make_shared<Core::Program>("shaders/shaderv_skybox.vs", "shaders/shaderf_skybox.fs");
     };
@@ -103,7 +96,6 @@ namespace Material {
             SsaoModule();
 
             void Render(Core::Tex& positions, Core::Tex& normals, const glm::mat4& projection);
-
             std::shared_ptr<Core::Program> GetProgram() override;
 
             const std::shared_ptr<Core::Tex> ssao;
