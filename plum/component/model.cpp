@@ -99,12 +99,12 @@ namespace Component {
         std::vector<float> vertices;
         std::vector<unsigned int> indices;
         
-        unsigned int vertexAttrFlags = Core::Vertex::AttrFlags::None
-            | (aimesh->HasPositions()       ? Core::Vertex::AttrFlags::Position3 : 0)
-            | (aimesh->HasNormals()         ? Core::Vertex::AttrFlags::Normal    : 0)
-            | (aimesh->HasTextureCoords(0)  ? Core::Vertex::AttrFlags::Uv        : 0)
-            | (aimesh->HasTangentsAndBitangents()  ? Core::Vertex::AttrFlags::Tangent | Core::Vertex::AttrFlags::Bitangent : 0)
-            | (aimesh->HasPositions()       ? Core::Vertex::AttrFlags::Position3 : 0);
+        using Core::Vertex::AttrFlags;
+        AttrFlags vertexAttrFlags = Core::Vertex::AttrFlags::None;
+        if (aimesh->HasPositions())             vertexAttrFlags |= AttrFlags::Position3;
+        if (aimesh->HasNormals())               vertexAttrFlags |= AttrFlags::Normal;
+        if (aimesh->HasTextureCoords(0))        vertexAttrFlags |= AttrFlags::Uv;  
+        if (aimesh->HasTangentsAndBitangents()) vertexAttrFlags |= AttrFlags::Tangent | AttrFlags::Bitangent;
         
         // VERTICES
         for (int i = 0; i < aimesh->mNumVertices; i++) {

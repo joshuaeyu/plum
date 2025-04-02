@@ -13,12 +13,14 @@ namespace Core {
         public:
             virtual void Bind() = 0;
             virtual void Unbind() = 0;
-            virtual ~GlObject() = default;
             GLuint Handle() const;
             GLenum Target() const;
         protected:
+            GlObject() = default;
             GLuint handle;
             GLenum target;
+        public:
+            virtual ~GlObject() = default;
     };
 
     class Vbo : public GlObject {

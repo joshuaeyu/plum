@@ -5,7 +5,6 @@
 #include <plum/component/all.hpp>
 #include <plum/context/all.hpp>
 #include <plum/core/all.hpp>
-#include <plum/interface/all.hpp>
 #include <plum/renderer/all.hpp>
 #include <plum/scene/all.hpp>
 

@@ -4,13 +4,13 @@ namespace Core {
     
     namespace Vertex {
 
-        VertexArray::VertexArray(const std::vector<float>& collated, unsigned int flags) 
+        VertexArray::VertexArray(const std::vector<float>& collated, AttrFlags flags) 
             : data(collated), 
             attributes(flags) 
         {
             // Compute stride
             stride = 0;
-            for (const auto& attr : AttrTypes) {
+            for (const auto& attr : Attributes) {
                 if (HasAttributes(attr.flag))
                     stride += attr.size;
             }
@@ -21,7 +21,7 @@ namespace Core {
         VertexArray::VertexArray(const UncollatedVertices& uncollated) 
         {
             // Determine attribute flags
-            attributes = 0;
+            attributes = AttrFlags::None;
             attributes = attributes | ((uncollated.positions.size() > 0) * AttrFlags::Position3); // Assume three dimensional position vector if provided this way
             attributes = attributes | ((uncollated.normals.size() > 0) * AttrFlags::Normal);
             attributes = attributes | ((uncollated.uvs.size() > 0) * AttrFlags::Uv);
@@ -73,7 +73,7 @@ namespace Core {
 
             // Compute stride
             stride = 0;
-            for (const auto& attr : AttrTypes) {
+            for (const auto& attr : Attributes) {
                 if (HasAttributes(attr.flag))
                     stride += attr.size;
             }
@@ -83,7 +83,7 @@ namespace Core {
             std::vector<float> result;
             int startIdx = AttributeOffset(flag) / sizeof(float);
             int strideLength = Stride() / sizeof(float);
-            auto attr = GetAttrTypeInfo(flag);
+            auto attr = AttributeFromFlag(flag);
             for (int i = startIdx; i < data.size(); i += strideLength) {
                 for (int j = i; j < i + attr.ncomps; j++)
                     result.push_back(data[j]);
@@ -97,9 +97,9 @@ namespace Core {
 
         size_t VertexArray::AttributeOffset(AttrFlags flag) const {
             size_t offset = 0;
-            for (const auto& attr : AttrTypes) {
+            for (const auto& attr : Attributes) {
                 if (HasAttributes(attr.flag)) {
-                    if (attr.index == GetAttrTypeInfo(flag).index)
+                    if (attr.index == AttributeFromFlag(flag).index)
                         break;
                     else
                         offset += attr.size;

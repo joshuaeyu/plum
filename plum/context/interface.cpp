@@ -1,9 +1,12 @@
-#include <plum/interface/interface.hpp>
+#include <plum/context/interface.hpp>
 
 #include <plum/scene/scene.hpp>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
+
+#include <imgui/imgui_impl_glfw.h>
+#include <imgui/imgui_impl_opengl3.h>
 
 void Interface::Initialize(Context::Window& window) {
     IMGUI_CHECKVERSION();

@@ -1,8 +1,8 @@
 #include <plum/context/application.hpp>
 
 #include <plum/demo/demo.hpp>
-#include <plum/interface/interface.hpp>
-#include <plum/context/time.hpp>
+#include <plum/context/interface.hpp>
+#include <plum/util/time.hpp>
 
 #include <iostream>
 

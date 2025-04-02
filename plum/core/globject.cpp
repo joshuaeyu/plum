@@ -1,4 +1,5 @@
 #include <plum/core/globject.hpp>
+#include <plum/core/attribute.hpp>
 
 #include <glad/gl.h>
 
@@ -92,7 +93,7 @@ namespace Core {
     }
     void Vao::SetAttribPointerFormat() {
         // Specify vertex attribute pointer
-        for (const auto& attr : Vertex::AttrTypes) {
+        for (const auto& attr : Vertex::Attributes) {
             if (vbo->vertexArray.HasAttributes(attr.flag)) {
                 glEnableVertexAttribArray(attr.index);
                 glVertexAttribPointer(attr.index, attr.ncomps, GL_FLOAT, GL_FALSE, vbo->vertexArray.Stride(), (void *)(vbo->vertexArray.AttributeOffset(attr.flag)));
