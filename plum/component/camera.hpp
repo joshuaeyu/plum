@@ -40,8 +40,8 @@ namespace Component {
             float yaw, pitch;
             glm::mat4 view;
 
-            std::shared_ptr<Context::WindowInputObserver> inputObserver;
-            std::shared_ptr<Context::WindowEventListener> eventListener;
+            std::shared_ptr<Context::InputObserver> inputObserver;
+            std::shared_ptr<Context::EventListener> eventListener;
     };
 
 }

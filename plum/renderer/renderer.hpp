@@ -21,10 +21,24 @@ namespace Renderer {
 
     class RendererBase {
         protected:
-            RendererBase(std::shared_ptr<Context::Window> window);
+            RendererBase();
             virtual ~RendererBase() = default;
             
             virtual Core::Fbo* Render(Scene::Scene& scene, Component::Camera& camera) = 0;
+
+            void EnableDepth(GLenum func = GL_LEQUAL);
+            void EnableCull(GLenum mode = GL_BACK);
+            void EnableFramebufferSrgb();
+            void EnableSeamlessCubeMap();
+            // future: stencil, blend
+        
+            // void DisableDepth();
+            // void DisableCull();
+            // void DisableFramebufferSrgb();
+
+            // void ClearColor();
+            // void ClearDepth();
+            // void ClearStencil();
             
             std::shared_ptr<Context::Window> window;
     };
@@ -32,7 +46,7 @@ namespace Renderer {
     class DeferredRenderer : public RendererBase {
         
         public:
-            DeferredRenderer(std::shared_ptr<Context::Window> window);
+            DeferredRenderer();
             ~DeferredRenderer();
 
             Core::Fbo* Render(Scene::Scene& scene, Component::Camera& camera) override;
@@ -76,7 +90,7 @@ namespace Renderer {
             DirectionalShadowModule dirShadowModule;
             PointShadowModule pointShadowModule;
 
-            inline static std::shared_ptr<Core::Program> lightingPassProgram = std::make_shared<Core::Program>("shaders/shaderv_2d.vs", "shaders/shaderf_lightingpasspbr.fs");
+            inline static std::shared_ptr<Core::Program> lightingPassProgram;
 
             std::shared_ptr<Core::Ubo> uboVsMatrices;
             std::shared_ptr<Core::Ubo> uboFsMatrices;
@@ -89,7 +103,7 @@ namespace Renderer {
 
             void framebufferSizeCallback(int width, int height);
 
-            std::shared_ptr<Context::WindowEventListener> eventListener;
+            std::shared_ptr<Context::EventListener> eventListener;
     };
 
 }

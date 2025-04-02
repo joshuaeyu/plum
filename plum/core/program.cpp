@@ -11,12 +11,8 @@
 namespace Core {
 
     Program::Program(const std::string& vertexShaderPath, const std::string& fragmentShaderPath, const std::string& geometryShaderPath) 
-        // : handle(glCreateProgram()) 
+        : handle(glCreateProgram()) 
     {
-        Context::Application::Instance();
-
-        handle = glCreateProgram();
-
         std::cout << "  Loading shader: " << vertexShaderPath << " " << fragmentShaderPath << " " << geometryShaderPath << std::endl;
 
         // ==== File to cstring ====
@@ -96,6 +92,8 @@ namespace Core {
             std::cout << " ERROR::PROGRAM::LINKFAIL\n" << infoLog << std::endl;
             exit(-1);
         }
+
+        SetUniformBlockBindingScheme();
     }
 
     Program::~Program()

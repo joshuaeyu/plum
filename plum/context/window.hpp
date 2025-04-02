@@ -13,25 +13,17 @@ namespace Context {
 
     class Window {
         public:
-            // Rule of five
-            ~Window();
-            Window(const Window& other) = delete;
-            Window(Window&& other) = delete;
-            Window& operator=(const Window& other) = delete;
-            Window& operator=(Window&& other) = delete;
-
+            void MakeCurrent();
+            void SwapBuffers();
+            
             void SetTitle(const char* title);
             void SetWindowSize(int width, int height);
             void SetInputMode(int mode, int value);
             
+            std::string Title() const { return title; }          
             float Aspect() const { return static_cast<float>(width)/height; }
             int Width() const { return width; }
             int Height() const { return height; }
-            std::string Title() const { return title; }          
-            
-            void MakeCurrent();
-            void SwapBuffers();
-            
             bool ShouldClose() const;
             GLFWwindow* Handle() const { return handle; }
         
@@ -41,28 +33,30 @@ namespace Context {
             
             int width, height;
             std::string title;
-            
             GLFWwindow* handle;
 
             void keyCallback(int key, int scancode, int action, int mods);
         
-            std::shared_ptr<WindowEventListener> eventListener;
+            std::shared_ptr<EventListener> eventListener;
+        
+        public:
+            // Rule of five
+            ~Window();
+            Window(const Window& other) = delete;
+            Window(Window&& other) = delete;
+            Window& operator=(const Window& other) = delete;
+            Window& operator=(Window&& other) = delete;
     };
 
     class WindowCreator {
         public:
             WindowCreator();
 
-            std::shared_ptr<Window> Create();
+            std::shared_ptr<Window> Create() const;
 
-            std::string title = "Plum Engine";
+            std::string title = "Plum Engine v2.0";
             int width = 1920;
             int height = 1080;
             std::map<int, int> hints;
     };
-
-    // class Gui {
-    //     public:
-    //         Gui(GLFWwindow *window);
-    // };
 }

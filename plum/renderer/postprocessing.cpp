@@ -13,6 +13,10 @@ namespace PostProcessing {
 
     Fxaa::Fxaa()
     {
+        if (!program) {
+            program = std::make_shared<Core::Program>("shaders/shaderv_2d.vs", "shaders/shaderf_2dfxaa.fs");
+        }
+
         auto color = std::make_shared<Core::Tex2D>(GL_TEXTURE_2D, GL_RGBA32F, output.width, output.height, GL_RGBA, GL_FLOAT, GL_CLAMP_TO_EDGE, GL_LINEAR, false, true);
         
         output.Bind();
@@ -42,6 +46,12 @@ namespace PostProcessing {
         : highlights(2,2),
         bloom(2,2)
     {
+        if (!programHighlights) {
+            programHighlights = std::make_shared<Core::Program>("shaders/shaderv_2d.vs", "shaders/shaderf_2dhighlights.fs");
+            programBlur = std::make_shared<Core::Program>("shaders/shaderv_2d.vs", "shaders/shaderf_2dgaussian.fs");
+            programDisplay = std::make_shared<Core::Program>("shaders/shaderv_2d.vs", "shaders/shaderf_2dbloom.fs");
+        }
+
         auto color = std::make_shared<Core::Tex2D>(GL_TEXTURE_2D, GL_RGBA32F, output.width, output.height, GL_RGBA, GL_FLOAT, GL_CLAMP_TO_EDGE, GL_LINEAR, false, true);
         
         output.Bind();
@@ -111,7 +121,12 @@ namespace PostProcessing {
         return &output;
     }
 
-    Hdr::Hdr() {
+    Hdr::Hdr() 
+    {
+        if (!program) {
+            program = std::make_shared<Core::Program>("shaders/shaderv_2d.vs", "shaders/shaderf_2dhdr.fs");
+        }
+        
         auto color = std::make_shared<Core::Tex2D>(GL_TEXTURE_2D, GL_RGBA32F, output.width, output.height, GL_RGBA, GL_FLOAT, GL_CLAMP_TO_EDGE, GL_LINEAR, false, true);
         
         output.Bind();

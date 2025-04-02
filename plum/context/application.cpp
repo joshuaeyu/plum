@@ -1,5 +1,9 @@
 #include <plum/context/application.hpp>
 
+#include <plum/demo/demo.hpp>
+#include <plum/interface/interface.hpp>
+#include <plum/context/time.hpp>
+
 #include <iostream>
 
 namespace Context {
@@ -15,36 +19,22 @@ namespace Context {
     }
 
     Application::Application() 
-    {
-        if (!glfwInit()) {
-            std::cerr << "glfwInit failed" << std::endl;
-            exit(-1);
-        }
-        
+    {   
         WindowCreator creator;
-        defaultWindow = creator.Create();
-        defaultWindow->MakeCurrent();
-        activeWindow = defaultWindow;
-
-        WindowInputsAndEventsManager::Setup(*defaultWindow);
-        currentTime = glfwGetTime();
-        lastTime = currentTime;
+        activeWindow = creator.Create();
+        activeWindow->MakeCurrent();
+        activeWindow->SetTitle("Plum Engine v2.0");
+        activeWindow->SetWindowSize(1200, 800);
 
         if (!gladLoadGL(glfwGetProcAddress)) {
             std::cerr << "gladLoadGLLoader failed" << std::endl;
             glfwTerminate();
             exit(-1);
         }
-
-        initialize();
-    }
-
-    void Application::initialize() {
-        EnableDepth();
-        EnableCull();
-        // EnableFramebufferSrgb();
-        glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS); // Doesn't change
-
+        
+        Time::Update();
+        Interface::Initialize(*activeWindow);
+        
         GLint n;
         glGetIntegerv(GL_MAX_ARRAY_TEXTURE_LAYERS, &n); // 2048
         glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &n);  // 16
@@ -54,49 +44,37 @@ namespace Context {
         glGetIntegerv(GL_MAX_3D_TEXTURE_SIZE, &n); // 2048
         glGetIntegerv(GL_MAX_TEXTURE_SIZE, &n); // 16384
     }
+    
+    void Application::Run() {
+        if (!activeDemo) {
+            std::cerr << "Demo not set!" << std::endl;
+            exit(-1);
+        }
 
-    void Application::PollInputsAndEvents() {
-        WindowInputsAndEventsManager::PerFrameRoutine();
-        glfwPollEvents();
-        lastTime = currentTime;
-        currentTime = glfwGetTime();
-    }
-
-    float Application::CurrentTime() {
-        return lastTime;
-    }
-
-    float Application::DeltaTime() {
-        return currentTime - lastTime;
-    }
-
-    void Application::EnableDepth(GLenum func) {
-        // Default LEQUAL for skybox optimization, since depth buffer is cleared to 1.0 by default
-        glEnable(GL_DEPTH_TEST);
-        glDepthFunc(func);
-    }
-    void Application::EnableCull(GLenum mode) {
-        glEnable(GL_CULL_FACE);
-        glCullFace(mode);
-    }
-    void Application::EnableFramebufferSrgb() {
-        glEnable(GL_FRAMEBUFFER_SRGB);
+        while (!activeWindow->ShouldClose()) {
+            activeDemo->Initialize();
+            while (!activeWindow->ShouldClose() && !activeDemo->ShouldEnd()) {
+                predisplay();
+                display();
+                postdisplay();
+            }
+            activeDemo->CleanUp();
+        }
     }
 
-    void Application::DisableDepth() {
-        glDisable(GL_DEPTH_TEST);
+    void Application::predisplay() {
+        InputsAndEventsManager::PollEvents();
+        Time::Update();
+        Interface::Predisplay();
     }
-    void Application::DisableCull() {
-        glDisable(GL_CULL_FACE);
-    }
-    void Application::DisableFramebufferSrgb() {
-        glDisable(GL_FRAMEBUFFER_SRGB);
+
+    void Application::display() {
+        activeDemo->Display();
+        Interface::Display();
     }
     
-    // void ClearColor() {}
-    // void ClearDepth() {}
-    // void ClearStencil() {}
-    
-    // void SetViewport() {}
-    // void UseProgram() {}
+    void Application::postdisplay() {
+        activeWindow->SwapBuffers();
+    }
+
 }

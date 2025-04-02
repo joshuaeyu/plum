@@ -13,9 +13,9 @@ namespace Material {
     PBRMetallicMaterial::PBRMetallicMaterial() 
     {
         // Set UBO scheme to default (may implement non-default schemes in the future)
-        if (!programInitialized) {
+        if (!program) {
+            program = std::make_shared<Core::Program>("shaders/shaderv_gen.vs", "shaders/shaderf_basichybrid.fs");
             program->SetUniformBlockBindingScheme(Core::Program::UboScheme::Scheme1);
-            programInitialized = true;
         }
     }
 

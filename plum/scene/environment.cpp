@@ -9,9 +9,17 @@
 
 namespace Scene {
 
-    Environment::Environment() {}
+    Environment::Environment() {
+        if (!equirectProgram) {
+            equirectProgram = std::make_shared<Core::Program>("shaders/shaderv_equirect.vs", "shaders/shaderf_equirect.fs");
+            irradianceProgram = std::make_shared<Core::Program>("shaders/shaderv_equirect.vs", "shaders/shaderf_irradiance.fs");
+            prefilterProgram = std::make_shared<Core::Program>("shaders/shaderv_equirect.vs", "shaders/shaderf_prefilter.fs");
+            brdfLutProgram = std::make_shared<Core::Program>("shaders/shaderv_2d.vs", "shaders/shaderf_2dbrdflut.fs");
+        }
+    }
 
-    Environment::Environment(std::shared_ptr<Core::Tex2D> envmap) 
+    Environment::Environment(std::shared_ptr<Core::Tex2D> envmap)
+        : Environment()
     {
         if (envmap->target == GL_TEXTURE_CUBE_MAP) {
             skybox = std::move(envmap);

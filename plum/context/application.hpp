@@ -7,48 +7,33 @@
 
 #include <memory>
 
+class Demo;
+
 namespace Context {
 
     class Application {
-        private:
-            Application();
-            
-            // Enforce singleton
-            Application(Application&) = delete;
-            Application operator=(Application&) = delete;
-            
-            void initialize();
-
-            float lastTime, currentTime;
-            
+        
         public:
             ~Application();
 
             static Application& Instance();
+
+            void Run();
         
-            std::shared_ptr<Window> defaultWindow;
             std::shared_ptr<Window> activeWindow;
+            std::shared_ptr<Demo> activeDemo;
+
+        private:
+            Application();
             
-            void PollInputsAndEvents();
-
-            float CurrentTime();
-            float DeltaTime();
-
-            void EnableDepth(GLenum func = GL_LEQUAL);
-            void EnableCull(GLenum mode = GL_BACK);
-            void EnableFramebufferSrgb();
-            // future: stencil, blend
-        
-            void DisableDepth();
-            void DisableCull();
-            void DisableFramebufferSrgb();
-
-            void ClearColor();
-            void ClearDepth();
-            void ClearStencil();
-
-            void SetViewport();
-            void UseProgram();
+            void predisplay();
+            void display();
+            void postdisplay();
+            
+        public:            
+            // Enforce singleton
+            Application(Application&) = delete;
+            Application operator=(Application&) = delete;
     };
 
 }

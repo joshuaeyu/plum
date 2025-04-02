@@ -25,7 +25,7 @@ namespace Core {
             Program& operator=(const Program& other) = delete;
             Program& operator=(Program&& other) = delete;
 
-            void SetUniformBlockBindingScheme(UboScheme scheme);
+            void SetUniformBlockBindingScheme(UboScheme scheme = UboScheme::Scheme1);
             void SetUniformBlockBinding(const std::string& name, GLuint index);
 
             void SetInt(const std::string& name, int val);

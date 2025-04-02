@@ -23,7 +23,7 @@ namespace PostProcessing {
             using PostProcessor::Process;
             Core::Fbo* Process(Core::Tex& input, int width, int height) override;
             
-            inline static std::shared_ptr<Core::Program> program = std::make_shared<Core::Program>("shaders/shaderv_2d.vs", "shaders/shaderf_2dfxaa.fs");
+            inline static std::shared_ptr<Core::Program> program;
     };
 
     class Bloom : public PostProcessor {
@@ -36,9 +36,9 @@ namespace PostProcessing {
             Core::Fbo highlights;
             Core::Fbo bloom;
 
-            inline static std::shared_ptr<Core::Program> programHighlights = std::make_shared<Core::Program>("shaders/shaderv_2d.vs", "shaders/shaderf_2dhighlights.fs");
-            inline static std::shared_ptr<Core::Program> programBlur = std::make_shared<Core::Program>("shaders/shaderv_2d.vs", "shaders/shaderf_2dgaussian.fs");
-            inline static std::shared_ptr<Core::Program> programDisplay = std::make_shared<Core::Program>("shaders/shaderv_2d.vs", "shaders/shaderf_2dbloom.fs");
+            inline static std::shared_ptr<Core::Program> programHighlights;
+            inline static std::shared_ptr<Core::Program> programBlur;
+            inline static std::shared_ptr<Core::Program> programDisplay;
     };
 
     class Hdr : public PostProcessor {
@@ -48,7 +48,7 @@ namespace PostProcessing {
             using PostProcessor::Process;
             Core::Fbo* Process(Core::Tex& input, int width, int height) override;
 
-            inline static std::shared_ptr<Core::Program> program = std::make_shared<Core::Program>("shaders/shaderv_2d.vs", "shaders/shaderf_2dhdr.fs");
+            inline static std::shared_ptr<Core::Program> program;
     };
 
 }

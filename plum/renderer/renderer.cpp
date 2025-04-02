@@ -1,6 +1,7 @@
 #include <plum/renderer/renderer.hpp>
 
 #include <plum/component/primitive.hpp>
+#include <plum/context/application.hpp>
 #include <plum/material/texture.hpp>
 
 #include <functional>
@@ -9,18 +10,56 @@
 
 namespace Renderer {
 
-    RendererBase::RendererBase(std::shared_ptr<Context::Window> window) 
-        : window(std::move(window))
-    {}
+    RendererBase::RendererBase() 
+        : window(Context::Application::Instance().activeWindow)
+    {
+        EnableDepth();
+        EnableCull();
+        // EnableFramebufferSrgb();
+        EnableSeamlessCubeMap();
+    }
+    
+    void RendererBase::EnableDepth(GLenum func) {
+        // Default LEQUAL for skybox optimization, since depth buffer is cleared to 1.0 by default
+        glEnable(GL_DEPTH_TEST);
+        glDepthFunc(func);
+    }
+    void RendererBase::EnableCull(GLenum mode) {
+        glEnable(GL_CULL_FACE);
+        glCullFace(mode);
+    }
+    void RendererBase::EnableFramebufferSrgb() {
+        glEnable(GL_FRAMEBUFFER_SRGB);
+    }
+    void RendererBase::EnableSeamlessCubeMap() {
+        glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS); // Doesn't change
+    }
 
-    DeferredRenderer::DeferredRenderer(std::shared_ptr<Context::Window> window) 
-        : RendererBase(window),
-        gBuffer(window->Width(), window->Height()), 
+    // void RendererBase::DisableDepth() {
+    //     glDisable(GL_DEPTH_TEST);
+    // }
+    // void RendererBase::DisableCull() {
+    //     glDisable(GL_CULL_FACE);
+    // }
+    // void RendererBase::DisableFramebufferSrgb() {
+    //     glDisable(GL_FRAMEBUFFER_SRGB);
+    // }
+    
+    // void ClearColor() {}
+    // void ClearDepth() {}
+    // void ClearStencil() {}
+
+    DeferredRenderer::DeferredRenderer() 
+        : gBuffer(window->Width(), window->Height()), 
         output(window->Width(), window->Height()),
         dirShadowModule(1024, 1024),
         pointShadowModule(1024, 1024),
-        eventListener(Context::WindowInputsAndEventsManager::CreateEventListener())
+        eventListener(Context::InputsAndEventsManager::CreateEventListener())
     {
+        if (!lightingPassProgram) {
+            lightingPassProgram = std::make_shared<Core::Program>("shaders/shaderv_2d.vs", "shaders/shaderf_lightingpasspbr.fs");
+        }
+
         initUniformBlocks();
         initGbuffer();
         initOutput();

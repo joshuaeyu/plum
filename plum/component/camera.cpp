@@ -1,6 +1,8 @@
 #include <plum/component/camera.hpp>
 #include <plum/context/application.hpp>
+#include <plum/context/time.hpp>
 
+#include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
 #include <iostream>
@@ -15,8 +17,8 @@ namespace Component {
         : transform(transform), 
         projection(projection),
         view(View()),
-        inputObserver(Context::WindowInputsAndEventsManager::CreateInputObserver({GLFW_KEY_W, GLFW_KEY_S, GLFW_KEY_A, GLFW_KEY_D, GLFW_KEY_SPACE, GLFW_KEY_LEFT_SHIFT})),
-        eventListener(Context::WindowInputsAndEventsManager::CreateEventListener())
+        inputObserver(Context::InputsAndEventsManager::CreateInputObserver({GLFW_KEY_W, GLFW_KEY_S, GLFW_KEY_A, GLFW_KEY_D, GLFW_KEY_SPACE, GLFW_KEY_LEFT_SHIFT})),
+        eventListener(Context::InputsAndEventsManager::CreateEventListener())
     {
         std::function<void(int,int)> staticFunc = std::bind(&Camera::framebufferSizeCallback, this, std::placeholders::_1, std::placeholders::_2);   
         eventListener->SetFramebufferSizeCallback(staticFunc);
@@ -29,7 +31,7 @@ namespace Component {
         Rotate(deltaYaw, deltaPitch);
         
         // WASD/Space/Shift: Translation
-        float distance = speed * Context::Application::Instance().DeltaTime();
+        float distance = speed * Context::Time::DeltaTime();
         if (inputObserver->GetKeyDown(GLFW_KEY_W))
             Translate(Direction::Forward, distance);
         if (inputObserver->GetKeyDown(GLFW_KEY_S))

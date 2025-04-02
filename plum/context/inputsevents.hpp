@@ -14,12 +14,12 @@ namespace Context {
     // Window inputs and events system.
     // Allows classes to actively observe inputs or passively listen for events, without having a direct reference to the main Window.
     // Adapted from https://stackoverflow.com/questions/55573238/how-do-i-do-a-proper-input-class-in-glfw-for-a-game-engine.
-    // Assumes only a single window is used in the program since WindowInputsAndEventsManager is a singleton.
+    // Assumes only a single window is used in the program since InputsAndEventsManager is a singleton.
 
-    class WindowInputObserver {
+    class InputObserver {
 
         public:
-            ~WindowInputObserver();
+            ~InputObserver();
 
             bool GetKeyDown(int key);
             
@@ -34,12 +34,12 @@ namespace Context {
             static int GetWindowHeight();
             
         private:
-            friend class WindowInputsAndEventsManager;
+            friend class InputsAndEventsManager;
 
-            WindowInputObserver() = default;
-            WindowInputObserver(std::vector<int> keysToMonitor);
+            InputObserver() = default;
+            InputObserver(std::vector<int> keysToMonitor);
             
-            static void perFrameRoutine();
+            static void prepareForFrameEvents();
 
             // For cursor
             static void setCursorPos(double xpos, double ypos);
@@ -57,9 +57,9 @@ namespace Context {
             inline static int windowWidth, windowHeight;
     };
 
-    class WindowEventListener {
+    class EventListener {
         public:
-            ~WindowEventListener();
+            ~EventListener();
             
             void SetCursorPosCallback(const std::function<void(double,double)>& callback);
             void SetKeyCallback(const std::function<void(int,int,int,int)>& callback);
@@ -67,9 +67,9 @@ namespace Context {
             void SetWindowSizeCallback(const std::function<void(int,int)>& callback);
         
         private:
-            friend class WindowInputsAndEventsManager;
+            friend class InputsAndEventsManager;
             
-            WindowEventListener() = default;
+            EventListener() = default;
 
             std::function<void(double,double)> cursorPosCallback;
             std::function<void(int,int,int,int)> keyCallback;
@@ -77,22 +77,22 @@ namespace Context {
             std::function<void(int,int)> windowSizeCallback;
     };
 
-    class WindowInputsAndEventsManager {
+    class InputsAndEventsManager {
         public:
             // WindowInputsAndEvents(Window& window);
             static void Setup(Window& window);
 
-            static std::shared_ptr<WindowInputObserver> CreateInputObserver(std::vector<int> keysToMonitor = {});
-            static std::shared_ptr<WindowEventListener> CreateEventListener();
+            static std::shared_ptr<InputObserver> CreateInputObserver(std::vector<int> keysToMonitor = {});
+            static std::shared_ptr<EventListener> CreateEventListener();
 
-            static void PerFrameRoutine();
+            static void PollEvents();
 
         private:
-            friend class WindowInputObserver;
-            friend class WindowEventListener;
+            friend class InputObserver;
+            friend class EventListener;
 
-            inline static std::vector<std::weak_ptr<WindowInputObserver>> observers;
-            inline static std::vector<std::weak_ptr<WindowEventListener>> listeners;
+            inline static std::vector<std::weak_ptr<InputObserver>> observers;
+            inline static std::vector<std::weak_ptr<EventListener>> listeners;
 
             static void cursor_pos_callback(GLFWwindow *window, double xpos, double ypos);
             static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);

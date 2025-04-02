@@ -40,8 +40,7 @@ namespace Material {
             float roughness = 0.5;
             
         private:
-            inline static bool programInitialized = false;
-            inline static const std::shared_ptr<Core::Program> program = std::make_shared<Core::Program>("shaders/shaderv_gen.vs", "shaders/shaderf_basichybrid.fs");
+            inline static std::shared_ptr<Core::Program> program;
     };
 
     // class PBRSpecularMaterial : public MaterialBase {

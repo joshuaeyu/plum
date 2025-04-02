@@ -19,6 +19,9 @@ namespace Renderer {
         depthMap(std::make_shared<Core::Tex3D>(GL_TEXTURE_2D_ARRAY, GL_DEPTH_COMPONENT24, map_width, map_height, num_layers, GL_DEPTH_COMPONENT, GL_FLOAT, GL_CLAMP_TO_EDGE, GL_LINEAR, true)),
         fbo(map_width, map_height)
     {
+        if (!program) {
+            program = std::make_shared<Core::Program>("shaders/shaderv_shadow2d.vs", "shaders/shaderf_shadow2d.fs");
+        }
         fbo.Bind();
         fbo.AttachDepthTex(depthMap);
         glDrawBuffer(GL_NONE);  // No colorbuffer
@@ -65,6 +68,9 @@ namespace Renderer {
         depthMap(std::make_shared<Core::Tex3D>(GL_TEXTURE_CUBE_MAP_ARRAY, GL_DEPTH_COMPONENT24, map_width, map_height, 6 * num_layers, GL_DEPTH_COMPONENT, GL_FLOAT, GL_CLAMP_TO_EDGE, GL_LINEAR, true)),
         fbo(map_width, map_height)
     {
+        if (!program) {
+            program = std::make_shared<Core::Program>("shaders/shaderv_shadowcube.vs", "shaders/shaderf_shadowcube.fs", "shaders/shaderg_shadowcube.gs");
+        }
         fbo.Bind();
         fbo.AttachDepthTex(depthMap);
         glDrawBuffer(GL_NONE);  // No colorbuffer
@@ -109,7 +115,11 @@ namespace Renderer {
         return program;
     }
 
-    SkyboxModule::SkyboxModule() {}
+    SkyboxModule::SkyboxModule() {
+        if (!program) {
+            program = std::make_shared<Core::Program>("shaders/shaderv_skybox.vs", "shaders/shaderf_skybox.fs");
+        }
+    }
     
     void SkyboxModule::Render(Core::Tex2D& skybox, Component::Camera& camera) {
         static Component::Cube cube(1,1);
@@ -139,6 +149,10 @@ namespace Renderer {
         noise(GL_TEXTURE_2D, GL_RGBA16F, 4, 4, GL_RGB, GL_FLOAT, GL_REPEAT, GL_NEAREST),
         fbo(2,2)
     {
+        if (!program) {
+            program = std::make_shared<Core::Program>("shaders/shaderv_2d.vs", "shaders/shaderf_2dssao.fs");
+            programBlur = std::make_shared<Core::Program>("shaders/shaderv_2d.vs", "shaders/shaderf_2dssaoblur.fs");
+        }
         fbo.Bind();
         fbo.AttachColorTex(ssao);
         fbo.AttachColorTex(ssaoBlurred);

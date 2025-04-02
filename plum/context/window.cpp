@@ -21,7 +21,12 @@ namespace Context {
         hints[GLFW_COCOA_RETINA_FRAMEBUFFER] = GLFW_FALSE;
     }
     
-    std::shared_ptr<Window> WindowCreator::Create() {
+    std::shared_ptr<Window> WindowCreator::Create() const {
+        if (!glfwInit()) {
+            std::cerr << "glfwInit failed" << std::endl;
+            exit(-1);
+        }
+
         for (const auto [hint, value] : hints) {
             glfwWindowHint(hint, value);
         }
@@ -41,10 +46,12 @@ namespace Context {
         width(width),
         height(height),
         title(title),
-        eventListener(WindowInputsAndEventsManager::CreateEventListener())
+        eventListener(InputsAndEventsManager::CreateEventListener())
     {
         std::function<void(int,int,int,int)> staticFunc = std::bind(&Window::keyCallback, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4);   
         eventListener->SetKeyCallback(staticFunc);
+
+        InputsAndEventsManager::Setup(*this);
     }
 
     Window::~Window() 

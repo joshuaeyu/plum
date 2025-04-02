@@ -27,13 +27,10 @@ namespace Scene {
             void cubemapToPrefilter(int width, int height, int envres);
             void generateBrdfLut(int width, int height);
 
-            inline static const std::shared_ptr<Core::Program> equirectProgram = std::make_shared<Core::Program>("shaders/shaderv_equirect.vs", "shaders/shaderf_equirect.fs");
-
-            inline static const std::shared_ptr<Core::Program> irradianceProgram = std::make_shared<Core::Program>("shaders/shaderv_equirect.vs", "shaders/shaderf_irradiance.fs");
-
-            inline static const std::shared_ptr<Core::Program> prefilterProgram = std::make_shared<Core::Program>("shaders/shaderv_equirect.vs", "shaders/shaderf_prefilter.fs");
-            
-            inline static const std::shared_ptr<Core::Program> brdfLutProgram = std::make_shared<Core::Program>("shaders/shaderv_2d.vs", "shaders/shaderf_2dbrdflut.fs");
+            inline static std::shared_ptr<Core::Program> equirectProgram;
+            inline static std::shared_ptr<Core::Program> irradianceProgram;
+            inline static std::shared_ptr<Core::Program> prefilterProgram;
+            inline static std::shared_ptr<Core::Program> brdfLutProgram;
     };
 
 }

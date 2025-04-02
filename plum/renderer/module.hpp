@@ -55,7 +55,7 @@ namespace Renderer {
 
             void setGlobalUniforms(Component::DirectionalLight& dl, GLuint depth_texture, int* shadow_idx);
             
-            inline static std::shared_ptr<Core::Program> program = std::make_shared<Core::Program>("shaders/shaderv_shadow2d.vs", "shaders/shaderf_shadow2d.fs");
+            inline static std::shared_ptr<Core::Program> program;
             
     };
         
@@ -75,7 +75,7 @@ namespace Renderer {
             
             void setGlobalUniforms(Component::PointLight& pl, const glm::vec3& position, int* shadow_idx);
 
-            inline static std::shared_ptr<Core::Program> program = std::make_shared<Core::Program>("shaders/shaderv_shadowcube.vs", "shaders/shaderf_shadowcube.fs", "shaders/shaderg_shadowcube.gs");
+            inline static std::shared_ptr<Core::Program> program;
         };
 
     class SkyboxModule : public Module {
@@ -88,7 +88,7 @@ namespace Renderer {
         private:
             void setGlobalUniforms(Component::Camera& camera, int tex_unit);
 
-            inline static const std::shared_ptr<Core::Program> program = std::make_shared<Core::Program>("shaders/shaderv_skybox.vs", "shaders/shaderf_skybox.fs");
+            inline static std::shared_ptr<Core::Program> program;
     };
 
     class SsaoModule : public Module {
@@ -106,8 +106,8 @@ namespace Renderer {
             Core::Tex2D noise;
             std::vector<glm::vec3> kernel;
 
-            inline static const std::shared_ptr<Core::Program> program = std::make_shared<Core::Program>("shaders/shaderv_2d.vs", "shaders/shaderf_2dssao.fs");
-            inline static const std::shared_ptr<Core::Program> programBlur = std::make_shared<Core::Program>("shaders/shaderv_2d.vs", "shaders/shaderf_2dssaoblur.fs");
+            inline static std::shared_ptr<Core::Program> program;
+            inline static std::shared_ptr<Core::Program> programBlur;
     };
 
 }

@@ -28,7 +28,7 @@ namespace Scene {
             virtual void Draw(Material::MaterialBase& m, const glm::mat4& parent_transform = glm::identity<glm::mat4>());
             virtual void Draw(Renderer::Module& m, const glm::mat4& parent_transform = glm::identity<glm::mat4>());
             
-            std::string name;
+            std::string name = "SceneNode";
 
             Transform transform;
             

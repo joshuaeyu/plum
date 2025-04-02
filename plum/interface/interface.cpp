@@ -1,19 +1,17 @@
 #include <plum/interface/interface.hpp>
 
-#include <plum/context/application.hpp>
+#include <plum/scene/scene.hpp>
 
-Interface::Interface() 
-{
+#include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
+void Interface::Initialize(Context::Window& window) {
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO();
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard; // Enable Keyboard Controls
-    ImGui_ImplGlfw_InitForOpenGL(Context::Application::Instance().activeWindow->Handle(), true); // Second param install_callback=true will install GLFW callbacks and chain to existing ones.
+    ImGui_ImplGlfw_InitForOpenGL(window.Handle(), true); // Second param install_callback=true will install GLFW callbacks and chain to existing ones.
     ImGui_ImplOpenGL3_Init();
-}
-
-Interface::~Interface() {
-
 }
 
 void Interface::Predisplay() {
@@ -22,8 +20,8 @@ void Interface::Predisplay() {
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
 }
+
 void Interface::Display() {
-    showInterface();
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
@@ -63,26 +61,4 @@ void Interface::setStyle(ImGuiStyle& style) {
     style.Colors[ImGuiCol_ScrollbarGrabHovered] = ImVec4(r,g,b,0.7);
     style.Colors[ImGuiCol_ScrollbarGrabActive]  = ImVec4(r,g,b,0.8);
     style.Colors[ImGuiCol_NavHighlight]         = ImVec4(r_hov*1.5, g_hov*1.5, b_hov*1.5, a);
-}
-
-void Interface::showInterface() {
-    ImGui::Begin("Plum Engine v2.00 Beta", NULL, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings);
-    ImGui::SetWindowPos(ImVec2(0,0));
-    ImGui::TextColored(ImVec4(0.3,1,1,1), "Press ` to capture/release mouse.");
-    ImGui::TextColored(ImVec4(0.3,1,1,1), "Use WASD, Shift, and Spacebar to move camera.");
-    ImGui::Spacing();
-    
-    if (ImGui::CollapsingHeader("Render Options", ImGuiTreeNodeFlags_DefaultOpen)) {
-        // ImGui::SliderFloat("IBL", &RenderOptions.ibl, 0.0f, 1.0f);
-        // ImGui::Checkbox("SSAO", &RenderOptions.ssao); 
-        // ImGui::SameLine();
-        ImGui::Checkbox("FXAA", &RenderOptions.fxaa);
-        ImGui::Checkbox("HDR", &RenderOptions.hdr); 
-        // ImGui::SameLine();
-        ImGui::Checkbox("Bloom", &RenderOptions.bloom);
-        // if (RenderOptions.hdr)
-        //     ImGui::SliderFloat("HDR Exposure", &HdrExposure, 0.0, 5.0);
-    }
-
-    ImGui::End();
 }
