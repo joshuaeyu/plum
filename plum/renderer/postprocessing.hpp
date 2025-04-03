@@ -48,6 +48,8 @@ namespace PostProcessing {
             using PostProcessor::Process;
             Core::Fbo* Process(Core::Tex& input, int width, int height) override;
 
+            float exposure = 1.0;
+
             inline static std::shared_ptr<Core::Program> program;
     };
 

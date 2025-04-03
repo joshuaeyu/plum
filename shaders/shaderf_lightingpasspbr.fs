@@ -49,10 +49,11 @@ uniform sampler2DArrayShadow shadowmap_2d_array_shadow;
 uniform samplerCubeArrayShadow shadowmap_cube_array_shadow;
 
 // SSAO
-uniform sampler2D ssao;
+uniform bool ssao = false;
+uniform sampler2D ssaoMap;
 
 // PBR
-uniform float ibl;
+uniform float ibl = 0.0;
 uniform samplerCube irradianceMap;
 uniform samplerCube prefilterMap;
 uniform sampler2D brdfLUT;
@@ -92,7 +93,7 @@ void main() {
     vec4 MetRouOcc = texture(gMetRouOcc, TexCoords);
     float Metallic = MetRouOcc.r;
     float Roughness = MetRouOcc.g;
-    float Occlusion = (MetRouOcc.b == 1) ? MetRouOcc.a : texture(ssao, TexCoords).r;
+    float Occlusion = (MetRouOcc.b == 1 || !ssao) ? MetRouOcc.a : texture(ssaoMap, TexCoords).r;
 
     // Process other inputs
     vec3 viewDir = vec3(normalize(-FragPos));

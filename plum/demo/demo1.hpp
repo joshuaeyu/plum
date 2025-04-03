@@ -17,10 +17,11 @@ class Demo1 : public Demo {
         void CleanUp() override;
 
         struct RenderOptions {
-            float ibl = 1.0f;
+            float iblIntensity = 1.0f;
             bool ssao = true;
             bool fxaa = true;
             bool hdr = true;
+            float hdrExposure = true;
             bool bloom = true;
         } renderOptions;
 

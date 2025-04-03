@@ -52,6 +52,7 @@ namespace Renderer {
             Core::Fbo* Render(Scene::Scene& scene, Component::Camera& camera) override;
             Core::Fbo* Render(Scene::Scene& scene, Component::Camera& camera, Scene::Environment& env);
 
+            bool ssao = true;
             // does scene need anything that the nodes can't support
             // should camera be "attached" to scene or passed in each render call
 

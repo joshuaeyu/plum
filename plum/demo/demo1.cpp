@@ -96,14 +96,21 @@ void Demo1::Display() {
     // backpackNode->transform.Rotate(glm::vec3(0,30,0) * app.DeltaTime());
     // cubeNode->transform.Rotate(glm::vec3(50,120,90) * app.DeltaTime());
 
-    Core::Fbo* fbo;
+    environment->iblIntensity = renderOptions.iblIntensity;
+    renderer->ssao = renderOptions.ssao;
+
+    static Core::Fbo* fbo;
     fbo = renderer->Render(*scene, *camera, *environment);
-    if (renderOptions.bloom)
+    if (renderOptions.bloom) {
         fbo = bloom->Process(*fbo);
-    if (renderOptions.hdr)
+    }
+    if (renderOptions.hdr) {
+        hdr->exposure = renderOptions.hdrExposure;
         fbo = hdr->Process(*fbo);
-    if (renderOptions.fxaa)
+    }
+    if (renderOptions.fxaa) {
         fbo = fxaa->Process(*fbo);
+    }
     fbo->BlitToDefault();
     while (GLenum error = glGetError()) { std::cerr << "Render error: " << error << std::endl; }
 
@@ -121,15 +128,12 @@ void Demo1::displayGui() {
     ImGui::Spacing();
     
     if (ImGui::CollapsingHeader("Render Options", ImGuiTreeNodeFlags_DefaultOpen)) {
-        // ImGui::SliderFloat("IBL", &RenderOptions.ibl, 0.0f, 1.0f);
-        // ImGui::Checkbox("SSAO", &RenderOptions.ssao); 
-        // ImGui::SameLine();
+        ImGui::SliderFloat("IBL Intensity", &renderOptions.iblIntensity, 0.0f, 1.0f);
+        ImGui::Checkbox("SSAO", &renderOptions.ssao); ImGui::SameLine();
         ImGui::Checkbox("FXAA", &renderOptions.fxaa);
-        ImGui::Checkbox("HDR", &renderOptions.hdr); 
-        // ImGui::SameLine();
-        ImGui::Checkbox("Bloom", &renderOptions.bloom);
-        // if (RenderOptions.hdr)
-        //     ImGui::SliderFloat("HDR Exposure", &HdrExposure, 0.0, 5.0);
+        ImGui::Checkbox("Bloom", &renderOptions.bloom); ImGui::SameLine();
+        if (ImGui::Checkbox("HDR", &renderOptions.hdr))
+            ImGui::SliderFloat("HDR Exposure", &renderOptions.hdrExposure, 0.0f, 10.0f);
     }
 
     int i = 0;

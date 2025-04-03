@@ -78,7 +78,8 @@ namespace Renderer {
     Core::Fbo* DeferredRenderer::Render(Scene::Scene& scene, Component::Camera& camera, Scene::Environment& env) {
         updateGlobalUniforms(scene, camera);
         geometryPass(scene);
-        ssaoPass(camera);
+        if (ssao)
+            ssaoPass(camera);
         shadowMapPass(scene);
         lightingPass(env);
         forwardPass(camera, env);
@@ -267,36 +268,39 @@ namespace Renderer {
         output.ClearColor();
         output.ClearDepth();
         
-        // ---- Bind textures ---- 
-        // G-buffer
-        for (int i = 0; i < gBuffer.colorAtts.size(); i++) {
-            gBuffer.colorAtts[i]->Bind(i);
-        }
-        // SSAO
-        ssaoModule.ssao->Bind(4);
-        // IBL
-        if (env.skybox) {
-            env.irradiance->Bind(5);
-            env.prefilter->Bind(6);
-            env.brdfLut->Bind(7);
-        }
-        // Shadow maps
-        dirShadowModule.depthMap->Bind(8);
-        pointShadowModule.depthMap->Bind(9);
-        
         // ---- Set uniforms ---- 
         lightingPassProgram->Use();
         lightingPassProgram->SetInt("gPosition", 0);
         lightingPassProgram->SetInt("gNormal", 1);
         lightingPassProgram->SetInt("gAlbedoSpec", 2);
         lightingPassProgram->SetInt("gMetRouOcc", 3);
-        lightingPassProgram->SetInt("ssao", 4);
+        lightingPassProgram->SetInt("ssao", ssao);
+        lightingPassProgram->SetInt("ssaoMap", 4);
         lightingPassProgram->SetInt("irradianceMap", 5);
         lightingPassProgram->SetInt("prefilterMap", 6);
         lightingPassProgram->SetInt("brdfLUT", 7);
         lightingPassProgram->SetInt("shadowmap_2d_array_shadow", 8);
         lightingPassProgram->SetInt("shadowmap_cube_array_shadow", 9);
-        lightingPassProgram->SetFloat("ibl", 1.0f);
+
+        // ---- Bind textures ---- 
+        // G-buffer
+        for (int i = 0; i < gBuffer.colorAtts.size(); i++) {
+            gBuffer.colorAtts[i]->Bind(i);
+        }
+        // SSAO
+        if (ssao) {
+            ssaoModule.ssao->Bind(4);
+        }
+        // IBL
+        if (env.skybox) {
+            env.irradiance->Bind(5);
+            env.prefilter->Bind(6);
+            env.brdfLut->Bind(7);
+            lightingPassProgram->SetFloat("ibl", env.iblIntensity);
+        }
+        // Shadow maps
+        dirShadowModule.depthMap->Bind(8);
+        pointShadowModule.depthMap->Bind(9);
         
         // ---- Draw ----
         Component::Primitive::DrawQuad();

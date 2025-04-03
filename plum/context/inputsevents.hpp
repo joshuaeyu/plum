@@ -23,6 +23,8 @@ namespace Context {
 
             bool GetKeyDown(int key);
             
+            static bool GetCursorEnabled();
+
             static float GetCursorX();
             static float GetCursorY();
             float GetCursorDeltaX();
@@ -41,18 +43,20 @@ namespace Context {
             
             static void prepareForFrameEvents();
 
-            // For cursor
+            // Cursor
+            static void setCursorEnabled(bool enabled);
             static void setCursorPos(double xpos, double ypos);
+            inline static bool cursorEnabled = false;
             inline static float lastCursorX, lastCursorY, currCursorX, currCursorY;
             inline static bool firstCursor = true;
             inline static bool cursorMoved = false;
-            // For key
+            // Key
             void setKeyDown(int key, bool isDown);
             std::map<int, bool> keys;
-            // For framebuffer size
+            // Framebuffer size
             static void setFramebufferSize(int width, int height);
             inline static int framebufferWidth, framebufferHeight;
-            // For window size
+            // Window size
             static void setWindowSize(int width, int height);
             inline static int windowWidth, windowHeight;
     };
@@ -80,7 +84,7 @@ namespace Context {
     class InputsAndEventsManager {
         public:
             // WindowInputsAndEvents(Window& window);
-            static void Setup(Window& window);
+            static void Setup(Window* window);
 
             static std::shared_ptr<InputObserver> CreateInputObserver(std::vector<int> keysToMonitor = {});
             static std::shared_ptr<EventListener> CreateEventListener();
@@ -91,6 +95,7 @@ namespace Context {
             friend class InputObserver;
             friend class EventListener;
 
+            inline static Window* window;
             inline static std::vector<std::weak_ptr<InputObserver>> observers;
             inline static std::vector<std::weak_ptr<EventListener>> listeners;
 

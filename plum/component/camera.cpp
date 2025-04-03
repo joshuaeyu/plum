@@ -25,6 +25,9 @@ namespace Component {
     }
 
     void Camera::ProcessInputs() {
+        if (!inputObserver->GetCursorEnabled())
+            return;
+        
         // Mouse: Rotation
         float deltaYaw = -inputObserver->GetCursorDeltaX() * sensitivity;
         float deltaPitch = -inputObserver->GetCursorDeltaY() * sensitivity;

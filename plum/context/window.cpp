@@ -51,7 +51,7 @@ namespace Context {
         std::function<void(int,int,int,int)> staticFunc = std::bind(&Window::keyCallback, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4);   
         eventListener->SetKeyCallback(staticFunc);
 
-        InputsAndEventsManager::Setup(*this);
+        InputsAndEventsManager::Setup(this);
     }
 
     Window::~Window() 

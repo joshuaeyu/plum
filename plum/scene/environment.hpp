@@ -14,6 +14,8 @@ namespace Scene {
 
             void DrawSkybox(Component::Camera& camera);
 
+            float iblIntensity = 1.0f;
+
             std::shared_ptr<Core::Tex2D> skybox;
             std::shared_ptr<Core::Tex2D> irradiance;
             std::shared_ptr<Core::Tex2D> prefilter;

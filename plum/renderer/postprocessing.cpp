@@ -145,7 +145,7 @@ namespace PostProcessing {
         output.ClearDepth();
         
         program->Use();
-        program->SetFloat("exposure", 1.0f);
+        program->SetFloat("exposure", exposure);
         program->SetInt("hdrBuffer", 0);
         input.Bind(0);
         Component::Primitive::DrawQuad();

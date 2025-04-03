@@ -7,11 +7,12 @@ namespace Context {
 
     // ========== InputsAndEventsManager ==========
 
-    void InputsAndEventsManager::Setup(Window& window) {
-        glfwSetCursorPosCallback(window.Handle(), cursor_pos_callback);
-        glfwSetKeyCallback(window.Handle(), key_callback);
-        glfwSetFramebufferSizeCallback(window.Handle(), framebuffer_size_callback);
-        glfwSetWindowSizeCallback(window.Handle(), window_size_callback);
+    void InputsAndEventsManager::Setup(Window* window) {
+        InputsAndEventsManager::window = window;
+        glfwSetCursorPosCallback(window->Handle(), cursor_pos_callback);
+        glfwSetKeyCallback(window->Handle(), key_callback);
+        glfwSetFramebufferSizeCallback(window->Handle(), framebuffer_size_callback);
+        glfwSetWindowSizeCallback(window->Handle(), window_size_callback);
     }
 
     std::shared_ptr<InputObserver> InputsAndEventsManager::CreateInputObserver(std::vector<int> keysToMonitor) {
@@ -32,6 +33,12 @@ namespace Context {
                 observer->prepareForFrameEvents();
         }
         glfwPollEvents();
+        // need safety check for window ptr
+        int cursorMode = glfwGetInputMode(window->Handle(), GLFW_CURSOR);
+        for (auto& weakObserver : observers) {
+            if (auto observer = weakObserver.lock())
+                observer->setCursorEnabled(cursorMode != GLFW_CURSOR_NORMAL);
+        }
     }
 
     void InputsAndEventsManager::cursor_pos_callback(GLFWwindow *window, double xpos, double ypos) {
@@ -93,6 +100,8 @@ namespace Context {
         }
         return result;
     }
+
+    bool InputObserver::GetCursorEnabled() { return cursorEnabled; }
     
     float InputObserver::GetCursorX() { return currCursorX; }
     float InputObserver::GetCursorY() { return currCursorY; }
@@ -120,6 +129,10 @@ namespace Context {
         }
     }
     
+    void InputObserver::setCursorEnabled(bool enabled) {
+        cursorEnabled = enabled;
+    }
+
     void InputObserver::setCursorPos(double xpos, double ypos) {
         if (firstCursor) {
             lastCursorX = xpos;
