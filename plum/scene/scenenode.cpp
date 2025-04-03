@@ -10,8 +10,12 @@ namespace Scene {
     
     SceneNode::SceneNode() {}
     SceneNode::SceneNode(std::shared_ptr<Component::ComponentBase> component) 
-        : component(std::move(component)) 
-    {}
+        : component(std::move(component))
+    {
+        if (!this->component->name.empty()) {
+            name = this->component->name;
+        }
+    }
     SceneNode::~SceneNode() {
         // std::cout << "destroying SceneNode" << std::endl;
     }

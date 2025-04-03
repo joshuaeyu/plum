@@ -15,7 +15,7 @@ class Transform {
         const glm::vec3& Front() const { return front; }
         const glm::vec3& Right() const { return right; }
         const glm::vec3& Up() const { return up; }
-        glm::vec3 EulerAngles() const;
+        glm::vec3 EulerAngles() const { return glm::degrees(rotationEuler); }
         
         void Translate(const glm::vec3& translation);
         void Translate(float dx, float dy, float dz);
@@ -29,6 +29,7 @@ class Transform {
         // Update matrix, front, up, and right based on position, rotationEuler (prioritized over rotationQuat), and scale
         void Update();  
         glm::vec3 position;      // If changing directly, must call Update() to update matrix
+        glm::vec3 rotationEuler;  // If changing directly, must call Update() to update matrix
         glm::quat rotationQuat;  // If changing directly, must call Update() to update matrix
         glm::vec3 scale;         // If changing directly, must call Update() to update matrix
         
@@ -41,6 +42,7 @@ class Transform {
         
         bool isUpdateRequired = false;
         glm::vec3 lastPosition = glm::vec3(0,0,0);
+        glm::vec3 lastRotationEuler = glm::vec3(0,0,0);
         glm::quat lastRotationQuat = glm::quat(0,0,0,1);
         glm::vec3 lastScale = glm::vec3(1,1,1);
 

@@ -29,6 +29,8 @@ namespace Component {
     }
 
     Cube::Cube(int nrows, int ncols) : nRows(nrows), nCols(ncols) {
+        name = "Cube";
+
         const std::vector<float> cubedata = {
             // Positions           // Normals           // UV                    // Tangents
             -0.5f, -0.5f, -0.5f,   0.0f,  0.0f, -1.0f,        0.0f,       0.0f,  1.0f, 0.0f, 0.0f,
@@ -81,6 +83,8 @@ namespace Component {
     }
     
     Sphere::Sphere(int nstacks, int nsectors) : nStacks(nstacks), nSectors(nsectors) {
+        name = "Sphere";
+
         using namespace Core;
         
         Vertex::VertexArray::UncollatedVertices verts;
@@ -175,6 +179,8 @@ namespace Component {
     }
     
     Plane::Plane(int nrows, int ncols) : nRows(nrows), nCols(ncols) {
+        name = "Plane";
+
         const std::vector<float> rectdata = {    // Remember CCW (x-z vs x-y)
             // Positions         // Normals         // UV                        // Tangents
             -1.0f, 0.0f, -1.0f,  0.0f, 1.0f, 0.0f,          0.0f,         0.0f,  1.0f, 0.0f, 0.0f,

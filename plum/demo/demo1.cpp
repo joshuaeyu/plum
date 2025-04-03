@@ -136,25 +136,58 @@ void Demo1::displayGui() {
             ImGui::SliderFloat("HDR Exposure", &renderOptions.hdrExposure, 0.0f, 10.0f);
     }
 
+    if (ImGui::CollapsingHeader("Assets", ImGuiTreeNodeFlags_DefaultOpen)) {
+        if (ImGui::TreeNode("Materials")) {
+            ImGui::TreePop();
+        }
+        if (ImGui::TreeNode("Textures")) {
+            ImGui::TreePop();
+        }
+        if (ImGui::TreeNode("Models")) {
+            ImGui::TreePop();
+        }
+    }
+    if (ImGui::CollapsingHeader("Environment", ImGuiTreeNodeFlags_DefaultOpen)) {
+        
+    }
     int i = 0;
     if (ImGui::CollapsingHeader("Scene", ImGuiTreeNodeFlags_DefaultOpen)) {
-        for (auto& node : scene->children) {
-            if (ImGui::TreeNode((node->name+"##"+std::to_string(i++)).c_str())) {
-                if (ImGui::TreeNode("Model Matrix")) {
-                    if (ImGui::DragFloat3("Position", glm::value_ptr(node->transform.position), 0.01f, 0.0f, 0.0f, "%.2f")
-                        || ImGui::DragFloat3("Scale", glm::value_ptr(node->transform.position), 0.01f, 0.0f, 100.0f, "%.3f"))
-                        // ImGui::DragFloat3("Rotation", glm::value_ptr(node->transform.rotationE), 0.01, -360.0f, 360.0f, "%.1f");
-                        node->transform.Update();
-                    ImGui::TreePop();
-                }
-                if (ImGui::Button("Delete")) {
-                    scene->RemoveChild(node);
-                    ImGui::TreePop();
-                    break;
-                }
-                ImGui::TreePop();
+        for (auto& child : scene->children) {
+            bool deleteRequested = !gui_DisplaySceneNode(*child, i);
+            if (deleteRequested) {
+                scene->RemoveChild(child);
+                break;  // Don't iterate further
             }
         }
     }
     ImGui::End();
+}
+
+bool Demo1::gui_DisplaySceneNode(Scene::SceneNode& node, int& i) {
+    bool expanded = ImGui::TreeNode((node.name+"##"+std::to_string(i++)).c_str());
+    if (ImGui::BeginPopupContextItem()) {
+        if (ImGui::Button("Delete")) {
+            ImGui::EndPopup();
+            if (expanded)
+                ImGui::TreePop();
+            return false;
+        }
+        ImGui::EndPopup();
+    }
+    if (expanded) {
+        if (ImGui::TreeNode("Transform")) {
+            bool pos = ImGui::DragFloat3("Position", glm::value_ptr(node.transform.position), 0.01f, 0.0f, 0.0f, "%.2f");
+            bool rot = ImGui::DragFloat3("Rotation", glm::value_ptr(node.transform.rotationEuler), 0.1f, 0.0f, 0.0f, "%.1f");
+            bool scale = ImGui::DragFloat3("Scale", glm::value_ptr(node.transform.scale), 0.001f, 0.001f, 1e6f, "%.3f");
+            if (pos || scale || rot)
+                node.transform.Update();
+            ImGui::TreePop();
+        }
+        for (auto& child : node.children) {
+            if (!gui_DisplaySceneNode(*child, i))
+                node.RemoveChild(child);
+        }
+        ImGui::TreePop();
+    }
+    return true;
 }

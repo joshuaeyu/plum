@@ -10,22 +10,30 @@ namespace Component {
 
     Mesh::Mesh()
         : ComponentBase(ComponentType::Mesh) 
-    {}
+    {
+        name = "Mesh";
+    }
 
     Mesh::Mesh(std::shared_ptr<Core::Vao> vao)
-        : ComponentBase(ComponentType::Mesh), 
+        : ComponentBase(ComponentType::Mesh),
         vao(std::move(vao)) 
-    {}
+    {
+        name = "Mesh";
+    }
     
     Mesh::Mesh(std::shared_ptr<Core::Vao> vao, std::shared_ptr<Material::MaterialBase> mat)
         : ComponentBase(ComponentType::Mesh), 
         vao(std::move(vao)),
         material(std::move(mat))
-    {}
+    {
+        name = "Mesh";
+    }
     
     Mesh::Mesh(ComponentType type) 
         : ComponentBase(type) 
-    {}
+    {
+        name = "Mesh";
+    }
     
     Mesh::~Mesh() {
         // std::cout << "destroying Mesh" << std::endl;

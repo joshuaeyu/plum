@@ -62,7 +62,6 @@ namespace Component {
             void Animate(float speed = 1.f, bool interpolate = true);
             
             // bones and animation
-            std::string name;
             std::string path;
             std::string directory;
             

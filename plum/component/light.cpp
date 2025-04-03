@@ -20,15 +20,17 @@ namespace Component {
         hasShadows = false;
     }
 
-    Light::Light(ComponentType type) 
-        : ComponentBase(type) 
+    Light::Light(ComponentType type)
+        : ComponentBase(type)
     {}
 
     // ======== DirectionalLight ========
 
     DirectionalLight::DirectionalLight() 
-        : Light(ComponentType::DirLight) 
-    {}
+        : Light(ComponentType::DirLight)
+    {
+        name = "DirectionalLight";
+    }
 
     void DirectionalLight::Draw(const glm::mat4& parent_transform) {
         glm::mat4 rotation = Transform::ExtractRotation(parent_transform);
@@ -67,7 +69,9 @@ namespace Component {
 
     PointLight::PointLight() 
         : Light(ComponentType::PointLight) 
-    {}
+    {
+        name = "PointLight";
+    }
 
     void PointLight::Draw(const glm::mat4& parent_transform) {
         updateLightspaceMatrices(parent_transform[3]);

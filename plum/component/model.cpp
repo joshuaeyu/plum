@@ -17,6 +17,7 @@
 #include <set>
 #include <memory>
 #include <string>
+#include <filesystem>
 
 namespace Component {
 
@@ -246,6 +247,8 @@ namespace Component {
         directory(path.substr(0, path.find_last_of('/'))),
         wrap(wrap)
     {
+        std::filesystem::path pathobj(path);
+        name = pathobj.filename();
         importFile(path, scale, flipUvs);
     }
     Model::~Model() {}
