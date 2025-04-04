@@ -8,9 +8,9 @@ INCL_GLAD := ./external/glad/include/
 INCL_GLFW := ./external/glfw/include/
 INCL_GLM := ./external/glm/include/
 # Directories
-OBJDIR := ./obj
 SRCDIR := ./plum
 EXTDIR := ./external
+OBJDIR := ./obj
 
 # Flags			
 CFLAGS := 	-fdiagnostics-color=always \
@@ -33,8 +33,10 @@ LDFLAGS := 	-L$(LIB_GLFW) -lglfw3	\
 
 # Source files
 sources := $(SRCDIR)/main.cpp $(wildcard $(SRCDIR)/*/*.c*) 
-externs := $(filter-out $(EXTDIR)/sdf%,$(wildcard $(EXTDIR)/*/*.c*) $(wildcard $(EXTDIR)/*/*/*.c*))
+externs := $(wildcard $(EXTDIR)/*/*.c*) $(wildcard $(EXTDIR)/*/*/*.c*)
 SOURCES := $(sources) $(externs)
+# Source header files
+HEADERS := $(wildcard $(SRCDIR)/*/*.h*)
 # Object files
 objects := $(SOURCES:.cpp=.o)
 objects := $(objects:.c=.o)
