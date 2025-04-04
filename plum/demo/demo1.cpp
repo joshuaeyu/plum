@@ -1,5 +1,7 @@
 #include "demo1.hpp"
 
+#include <plum/util/time.hpp>
+
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
@@ -64,7 +66,7 @@ void Demo1::Initialize() {
     cube->material = ruby;
 
     std::cout << "Loading models..." << std::endl;
-    auto backpack = std::make_shared<Component::Model>("assets/models/survival_guitar_backpack/scene.gltf", 0.005f);
+    // auto backpack = std::make_shared<Component::Model>("assets/models/survival_guitar_backpack/scene.gltf", 0.005f);
     auto sponza = std::make_shared<Component::Model>("assets/models/sponza/glTF/Sponza.gltf");
 
     std::cout << "Defining scene..." << std::endl;
@@ -80,8 +82,8 @@ void Demo1::Initialize() {
     cubeNode->transform.Translate(0,2,0);
     auto sphereNode = cubeNode->AddChild(sphere);
     sphereNode->transform.Translate(0,2,0);
-    auto backpackNode = scene->AddChild(backpack);
-    backpackNode->transform.Translate(5,4,0);
+    // auto backpackNode = scene->AddChild(backpack);
+    // backpackNode->transform.Translate(5,4,0);
     auto sponzaNode = scene->AddChild(sponza);
     
     std::cout << "Creating renderer..." << std::endl;
@@ -117,7 +119,13 @@ void Demo1::Display() {
     displayGui();
 }
 void Demo1::CleanUp() {
-
+    scene.reset();
+    environment.reset();
+    camera.reset();
+    renderer.reset();
+    fxaa.reset();
+    hdr.reset();
+    bloom.reset();
 }
 
 void Demo1::displayGui() {
@@ -127,13 +135,33 @@ void Demo1::displayGui() {
     ImGui::TextColored(ImVec4(0.3,1,1,1), "Use WASD, Shift, and Spacebar to move camera.");
     ImGui::Spacing();
     
+    constexpr float displayCooldown = 0.5f;    // points/sec
+    constexpr int numDisplayPoints = 20 / displayCooldown; // sec / points/sec
+    static std::vector<float> framerateData = {Time::FrameRate()};
+    static float displayTimer = 0;
+    if (ImGui::CollapsingHeader("Performance", ImGuiTreeNodeFlags_DefaultOpen)) {
+        ImGui::Text("%.2f ms/frame (%.1f fps)", 1000.f/framerateData.back(), framerateData.back());
+        int n = std::min(static_cast<int>(framerateData.size()), numDisplayPoints);
+        ImGui::PlotLines("ms/frame", framerateData.data(), n, framerateData.size() - n, NULL, FLT_MAX, FLT_MAX, ImVec2(250,50));
+    }
+    if ((displayTimer += Time::DeltaTime()) >= displayCooldown) {
+        framerateData.push_back(Time::FrameRate());
+        if (framerateData.size() >= 200) {
+            framerateData.erase(framerateData.begin(), framerateData.end() - 100);
+        }
+        displayTimer = 0;
+    }
+
     if (ImGui::CollapsingHeader("Render Options", ImGuiTreeNodeFlags_DefaultOpen)) {
         ImGui::SliderFloat("IBL Intensity", &renderOptions.iblIntensity, 0.0f, 1.0f);
         ImGui::Checkbox("SSAO", &renderOptions.ssao); ImGui::SameLine();
-        ImGui::Checkbox("FXAA", &renderOptions.fxaa);
-        ImGui::Checkbox("Bloom", &renderOptions.bloom); ImGui::SameLine();
-        if (ImGui::Checkbox("HDR", &renderOptions.hdr))
-            ImGui::SliderFloat("HDR Exposure", &renderOptions.hdrExposure, 0.0f, 10.0f);
+        ImGui::Checkbox("FXAA", &renderOptions.fxaa); ImGui::SameLine();
+        ImGui::Checkbox("Bloom", &renderOptions.bloom);
+        ImGui::Checkbox("HDR", &renderOptions.hdr);
+        if (renderOptions.hdr) {
+            ImGui::SameLine();
+            ImGui::SliderFloat("Exposure", &renderOptions.hdrExposure, 0.0f, 10.0f);
+        }
     }
 
     if (ImGui::CollapsingHeader("Assets", ImGuiTreeNodeFlags_DefaultOpen)) {
@@ -152,6 +180,8 @@ void Demo1::displayGui() {
     }
     int i = 0;
     if (ImGui::CollapsingHeader("Scene", ImGuiTreeNodeFlags_DefaultOpen)) {
+        if (ImGui::Button("New Node")) {
+        }
         for (auto& child : scene->children) {
             bool deleteRequested = !gui_DisplaySceneNode(*child, i);
             if (deleteRequested) {
@@ -164,8 +194,12 @@ void Demo1::displayGui() {
 }
 
 bool Demo1::gui_DisplaySceneNode(Scene::SceneNode& node, int& i) {
-    bool expanded = ImGui::TreeNode((node.name+"##"+std::to_string(i++)).c_str());
+    bool expanded = ImGui::TreeNodeEx((node.name+"##"+std::to_string(i++)).c_str());
+    // Right-click context menu
     if (ImGui::BeginPopupContextItem()) {
+        if (ImGui::Button("Duplicate")) {
+            // future
+        }
         if (ImGui::Button("Delete")) {
             ImGui::EndPopup();
             if (expanded)
@@ -174,8 +208,9 @@ bool Demo1::gui_DisplaySceneNode(Scene::SceneNode& node, int& i) {
         }
         ImGui::EndPopup();
     }
+    // Node Transform and children
     if (expanded) {
-        if (ImGui::TreeNode("Transform")) {
+        if (ImGui::TreeNodeEx("[Transform]")) {
             bool pos = ImGui::DragFloat3("Position", glm::value_ptr(node.transform.position), 0.01f, 0.0f, 0.0f, "%.2f");
             bool rot = ImGui::DragFloat3("Rotation", glm::value_ptr(node.transform.rotationEuler), 0.1f, 0.0f, 0.0f, "%.1f");
             bool scale = ImGui::DragFloat3("Scale", glm::value_ptr(node.transform.scale), 0.001f, 0.001f, 1e6f, "%.3f");
