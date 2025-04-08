@@ -1,11 +1,13 @@
 #pragma once
 
+#include <plum/context/asset.hpp>
+
 #include <glad/gl.h>
 #include <glm/glm.hpp>
 
 namespace Core {
 
-    class Program {
+    class Program : public Asset::Asset {
 
         public:
             // May implement non-default UBO schemes in the future
@@ -13,17 +15,10 @@ namespace Core {
                 Scheme1
             };
 
-            GLuint handle;
-
-            Program(const std::string& vertexShaderPath, const std::string& fragmentShaderPath, const std::string& geometryShaderPath = "");
+            Program(Path vertexShaderPath, Path fragmentShaderPath, Path geometryShaderPath = Path());
             // Program(const std::string& vertexShaderCode, const std::string& fragmentShaderCode, const std::string& geometryShaderCode = "");
-            
-            // Rule of five
-            ~Program();
-            Program(const Program& other) = delete;
-            Program(Program&& other) = delete;
-            Program& operator=(const Program& other) = delete;
-            Program& operator=(Program&& other) = delete;
+
+            GLuint Handle() const { return handle; }
 
             void SetUniformBlockBindingScheme(UboScheme scheme = UboScheme::Scheme1);
             void SetUniformBlockBinding(const std::string& name, GLuint index);
@@ -34,7 +29,22 @@ namespace Core {
             void SetMat4(const std::string& name, const glm::mat4& mat);
 
             void Use();
+            
+            // Asset::Asset
+            void SyncWithDevice() override;
+        
+        private:
+            GLuint handle;
 
+            void setup();
+
+        public:
+            // Rule of five
+            ~Program();
+            Program(const Program& other) = delete;
+            Program(Program&& other) = delete;
+            Program& operator=(const Program& other) = delete;
+            Program& operator=(Program&& other) = delete;
     };
 
     // class ProgramUser {

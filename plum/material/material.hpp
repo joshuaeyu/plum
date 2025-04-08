@@ -28,8 +28,9 @@ namespace Material {
     class PBRMetallicMaterial : public MaterialBase {
         public:
             PBRMetallicMaterial();
+            PBRMetallicMaterial(Component::MaterialInfo info);
 
-            void ProcessMaterialInfo(Component::MaterialInfo info);
+            void processMaterialInfo(Component::MaterialInfo info);
 
             std::shared_ptr<Core::Program> GetProgram() override;
             void SetUniforms(const glm::mat4& model_transform) override;

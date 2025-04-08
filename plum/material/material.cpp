@@ -10,7 +10,7 @@ namespace Material {
         // std::cout << "destroying MaterialBase" << std::endl;
     }
 
-    PBRMetallicMaterial::PBRMetallicMaterial() 
+    PBRMetallicMaterial::PBRMetallicMaterial()
     {
         // Set UBO scheme to default (may implement non-default schemes in the future)
         if (!program) {
@@ -19,24 +19,10 @@ namespace Material {
         }
     }
 
-    void PBRMetallicMaterial::ProcessMaterialInfo(Component::MaterialInfo info) {
-        albedo = info.diffuse;
-        metallic = info.metalness;
-        roughness = info.roughness;
-        for (auto& texture : info.textures) {
-            if (texture->type == Material::TextureType::Diffuse)
-                albedoMap = texture->tex;
-            else if (texture->type == Material::TextureType::Metalness)
-                metallicMap = texture->tex;
-            else if (texture->type == Material::TextureType::Roughness)
-                roughnessMap = texture->tex;
-            else if (texture->type == Material::TextureType::Normal)
-                normalMap = texture->tex;
-            else if (texture->type == Material::TextureType::Height)
-                displacementMap = texture->tex;
-            else if (texture->type == Material::TextureType::Occlusion)
-                occlusionMap = texture->tex;
-        }
+    PBRMetallicMaterial::PBRMetallicMaterial(Component::MaterialInfo info) 
+        : PBRMetallicMaterial()
+    {
+        processMaterialInfo(info);
     }
 
     std::shared_ptr<Core::Program> PBRMetallicMaterial::GetProgram() {
@@ -91,6 +77,26 @@ namespace Material {
 
     }
     
+    void PBRMetallicMaterial::processMaterialInfo(Component::MaterialInfo info) {
+        albedo = info.diffuse;
+        metallic = info.metalness;
+        roughness = info.roughness;
+        for (auto& texture : info.textures) {
+            if (texture->type == Material::TextureType::Diffuse)
+                albedoMap = texture->tex;
+            else if (texture->type == Material::TextureType::Metalness)
+                metallicMap = texture->tex;
+            else if (texture->type == Material::TextureType::Roughness)
+                roughnessMap = texture->tex;
+            else if (texture->type == Material::TextureType::Normal)
+                normalMap = texture->tex;
+            else if (texture->type == Material::TextureType::Height)
+                displacementMap = texture->tex;
+            else if (texture->type == Material::TextureType::Occlusion)
+                occlusionMap = texture->tex;
+        }
+    }
+
     // PBRSpecularMaterial::PBRSpecularMaterial() {}
     
     // PhongMaterial::PhongMaterial() {}

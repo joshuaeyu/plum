@@ -152,8 +152,7 @@ namespace Component {
         
         MaterialInfo materialInfo = processMaterial(scene->mMaterials[aimesh->mMaterialIndex]);
         // if (materialInfo.metalness != -1) {
-            auto metallicMat = std::make_shared<Material::PBRMetallicMaterial>();
-            metallicMat->ProcessMaterialInfo(materialInfo);
+        auto metallicMat = std::make_shared<Material::PBRMetallicMaterial>(materialInfo);
         // }
         mesh->material = metallicMat;
         
@@ -211,15 +210,15 @@ namespace Component {
         // this currently only supports separate texture files, need support for embedded texture files (see above brainstorming)
         for (int i = 0; i < aimaterial->GetTextureCount(aitextype); i++) {
             aiString str;
-            std::string filename;
+            fs::path texturePath;
             
             aimaterial->GetTexture(aitextype, i, &str);
-            filename = model.directory + "/" + std::string(str.C_Str());
+            texturePath = model.GetFile().Parent().RawPath() / str.C_Str();
 
             // If texture was already loaded from file, just push its existing representation
             bool skip = false;
             for (const auto& texture : model.textures) {
-                if (texture->paths[0] == filename) {
+                if (texture->GetFile().RawPath() == texturePath) {
                     if (texture->type == textype) {
                         textures.push_back(texture);
                     } else {
@@ -231,8 +230,8 @@ namespace Component {
             }
             // Load and push any new textures
             if (!skip) {
-                std::cout << "  Loading texture " << filename << " as " << aiTextureTypeToString(aitextype) << std::endl;
-                auto texture = std::make_shared<Material::Texture>(filename, textype, true, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR);
+                std::cout << "  Loading texture " << texturePath << " as " << aiTextureTypeToString(aitextype) << std::endl;
+                auto texture = std::make_shared<Material::Texture>(texturePath, textype, true, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR);
                 texture->tex->GenerateMipMap();
                 textures.push_back(texture);
                 model.textures.push_back(texture);
@@ -241,15 +240,15 @@ namespace Component {
         return textures;
     }
 
-    Model::Model(std::string path, float scale, bool flipUvs, GLuint wrap)
+    Model::Model(Path path, float scale, bool flipUvs, GLuint wrap)
         : ComponentBase(ComponentType::Model),
-        path(path),
-        directory(path.substr(0, path.find_last_of('/'))),
+        Asset::Asset(path),
+        scale(scale),
+        flipUvs(flipUvs),
         wrap(wrap)
     {
-        std::filesystem::path pathobj(path);
-        name = pathobj.filename();
-        importFile(path, scale, flipUvs);
+        name = files[0].Name();
+        importFile(files[0].RawPath(), scale, flipUvs);
     }
     Model::~Model() {}
     
@@ -263,14 +262,18 @@ namespace Component {
         root->Draw(module, model_matrix);
     }
 
-    void Model::importFile(const std::string& filename, float scale, bool flipUvs) {
+    void Model::SyncWithDevice() {
+        importFile(files[0].RawPath(), scale, flipUvs);
+    }
+
+    void Model::importFile(const fs::path& path, float scale, bool flipUvs) {
         Assimp::Importer importer;
         unsigned int importerFlags = aiProcessPreset_TargetRealtime_MaxQuality | aiProcess_GlobalScale;
         if (flipUvs)
             importerFlags |= aiProcess_FlipUVs;
         
         importer.SetPropertyFloat(AI_CONFIG_GLOBAL_SCALE_FACTOR_KEY, scale);
-        const aiScene *scene = importer.ReadFile(filename, importerFlags);
+        const aiScene *scene = importer.ReadFile(path, importerFlags);
         if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
             std::cout << "ERROR::ASSIMP::" << importer.GetErrorString() << std::endl;
             return;

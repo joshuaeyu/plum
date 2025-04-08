@@ -5,27 +5,33 @@
 
 namespace Material {
 
-    Texture::Texture(std::string filename, TextureType type, bool flip, GLenum wrap, GLenum minfilter)
-        : paths({filename}),
-        type(type)
+    Texture::Texture(Path path, TextureType type, bool flip, GLenum wrap, GLenum minfilter)
+        : Asset::Asset(path),
+        type(type),
+        flip(flip),
+        wrap(wrap),
+        minfilter(minfilter)
     {
-        loadFile(filename, flip, GL_TEXTURE_2D, wrap, minfilter);
+        loadFile(files[0].RawPath(), GL_TEXTURE_2D);
     }
     
-    Texture::Texture(std::vector<std::string> &cubemap_filenames, TextureType type, bool flip, GLenum wrap, GLenum minfilter)
-        : paths(cubemap_filenames),
-        type(type)
+    Texture::Texture(const std::vector<Path>& cubemap_paths, TextureType type, bool flip, GLenum wrap, GLenum minfilter)
+        : Asset::Asset(cubemap_paths),
+        type(type),
+        flip(flip),
+        wrap(wrap),
+        minfilter(minfilter)
     {
-        for (int i = 0; i < cubemap_filenames.size(); i++) {
-            loadFile(cubemap_filenames[i], flip, GL_TEXTURE_CUBE_MAP, wrap, minfilter, i);
+        for (int i = 0; i < files.size(); i++) {
+            loadFile(files[i].RawPath(), GL_TEXTURE_CUBE_MAP, i);
         }
     }
 
-    void Texture::loadFile(std::string filename, bool flip, GLenum target, GLenum wrap, GLenum minfilter, int face_idx) {
+    void Texture::loadFile(std::string path, GLenum target, int face_idx) {
         // Load texture using stbi
         stbi_set_flip_vertically_on_load(flip);
             
-        bool isHdr = stbi_is_hdr(filename.c_str());
+        bool isHdr = stbi_is_hdr(path.c_str());
 
         int width, height, num_channels;
         GLint internalformat;
@@ -34,16 +40,16 @@ namespace Material {
         unsigned char *tex_data = nullptr;
         float *tex_dataf = nullptr;
         if (isHdr) {
-            tex_dataf = stbi_loadf(filename.c_str(), &width, &height, &num_channels, 0);
+            tex_dataf = stbi_loadf(path.c_str(), &width, &height, &num_channels, 0);
             if (tex_dataf == nullptr) {
-                std::cerr << "stbi_load failed for " << filename << std::endl;
+                std::cerr << "stbi_load failed for " << path << std::endl;
                 stbi_image_free(tex_dataf);
                 return;
             }
         } else {
-            tex_data = stbi_load(filename.c_str(), &width, &height, &num_channels, 0);
+            tex_data = stbi_load(path.c_str(), &width, &height, &num_channels, 0);
             if (tex_data == nullptr) {
-                std::cerr << "stbi_load failed for " << filename << std::endl;
+                std::cerr << "stbi_load failed for " << path << std::endl;
                 stbi_image_free(tex_data);
                 return;
             }
@@ -86,6 +92,7 @@ namespace Material {
             } else {
                 tex->DefineImageCubeFace(face_idx, tex_dataf);
             }
+            stbi_image_free(tex_dataf);
         } else {
             if (!tex) {
                 tex = std::make_shared<Core::Tex2D>(target, internalformat, width, height, format, GL_UNSIGNED_BYTE, wrap, minfilter, false, isHdr);
@@ -95,10 +102,18 @@ namespace Material {
             } else {
                 tex->DefineImageCubeFace(face_idx, tex_data);
             }
+            stbi_image_free(tex_data);
         }
-        stbi_image_free(tex_dataf);
-        stbi_image_free(tex_data);
     }
 
+    void Texture::SyncWithDevice() {
+        if (files.size() == 1) {
+            loadFile(files[0].RawPath(), GL_TEXTURE_2D);
+        } else {
+            for (int i = 0; i < files.size(); i++) {
+                loadFile(files[i].RawPath(), GL_TEXTURE_CUBE_MAP, i);
+            }
+        }
+    }
 
 }
