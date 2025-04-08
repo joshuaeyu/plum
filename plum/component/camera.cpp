@@ -29,24 +29,24 @@ namespace Component {
             return;
         
         // Mouse: Rotation
-        float deltaYaw = -inputObserver->GetCursorDeltaX() * sensitivity;
         float deltaPitch = -inputObserver->GetCursorDeltaY() * sensitivity;
-        Rotate(deltaYaw, deltaPitch);
+        float deltaYaw = -inputObserver->GetCursorDeltaX() * sensitivity;
+        Rotate(deltaPitch, deltaYaw);
         
         // WASD/Space/Shift: Translation
         float distance = speed * Time::DeltaTime();
         if (inputObserver->GetKeyDown(GLFW_KEY_W))
-            Translate(Direction::Forward, distance);
+            Translate(distance * -transform.Front()); // camera faces -z
         if (inputObserver->GetKeyDown(GLFW_KEY_S))
-            Translate(Direction::Backward, distance);
+            Translate(distance * transform.Front()); // camera faces -z
         if (inputObserver->GetKeyDown(GLFW_KEY_A))
-            Translate(Direction::Left, distance);
+            Translate(distance * -transform.Right());
         if (inputObserver->GetKeyDown(GLFW_KEY_D))
-            Translate(Direction::Right, distance);
+            Translate(distance * transform.Right());
         if (inputObserver->GetKeyDown(GLFW_KEY_SPACE))
-            Translate(Direction::Up, distance);
+            Translate(distance * transform.Up());
         if (inputObserver->GetKeyDown(GLFW_KEY_LEFT_SHIFT))
-            Translate(Direction::Down, distance);
+            Translate(distance * -transform.Up());
     }
 
     const glm::mat4& Camera::View() {
@@ -54,39 +54,24 @@ namespace Component {
         return view;
     }
 
-    void Camera::SetRotation(float yaw, float pitch) {
-        this->yaw = yaw;
+    void Camera::SetRotation(float pitch, float yaw) {
         this->pitch = glm::clamp(pitch, -89.5f, 89.5f);
+        this->yaw = yaw;
         
-        transform.rotationQuat = glm::angleAxis(glm::radians(this->yaw), glm::vec3(0,1,0)) * glm::angleAxis(glm::radians(this->pitch), glm::vec3(1,0,0));
+        transform.rotationEuler = glm::vec3(this->pitch, this->yaw, 0);
         transform.Update();
     }
 
-    void Camera::Rotate(float delta_yaw, float delta_pitch) {
-        SetRotation(yaw + delta_yaw, pitch + delta_pitch);  
+    void Camera::Rotate(float delta_pitch, float delta_yaw) {
+        SetRotation(pitch + delta_pitch, yaw + delta_yaw);
     }
 
-    void Camera::Translate(Direction dir, float dist) {
-        switch (dir) {
-            case Direction::Forward:
-                transform.Translate(-transform.Front() * dist); // Camera faces in -z direction, but transform.Front() is +z
-                break;
-            case Direction::Backward:
-                transform.Translate(transform.Front() * dist);  // Camera faces in -z direction, but transform.Front() is +z
-                break;
-            case Direction::Left:
-                transform.Translate(-transform.Right() * dist);
-                break;
-            case Direction::Right:
-                transform.Translate(transform.Right() * dist);
-                break;
-            case Direction::Up:
-                transform.Translate(transform.Up() * dist);
-                break;
-            case Direction::Down:
-                transform.Translate(-transform.Up() * dist);
-                break;
-        }
+    void Camera::Translate(glm::vec3 displacement) {
+        transform.Translate(displacement);
+    }
+
+    void Camera::Translate(float dx, float dy, float dz) {
+        transform.Translate({dx,dy,dz});
     }
 
     void Camera::framebufferSizeCallback(int width, int height) {

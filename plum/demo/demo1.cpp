@@ -47,9 +47,8 @@ void Demo1::Initialize() {
 
     std::cout << "Creating components..." << std::endl;
     camera = std::make_unique<Component::Camera>();
-    camera->transform.Translate(-5,3,-0.25);
-    camera->Rotate(-90,0);
-    camera->transform.Update();
+    camera->Translate(-5,3,-0.25);
+    camera->Rotate(0,-90);
     auto dirlight = std::make_shared<Component::DirectionalLight>();
     dirlight->color = glm::vec3(0.5,0.5,1.0);
     dirlight->intensity = 10.f;
@@ -172,6 +171,9 @@ void Demo1::displayGui() {
             ImGui::TreePop();
         }
         if (ImGui::TreeNode("Models")) {
+            ImGui::TreePop();
+        }
+        if (ImGui::TreeNode("Shaders")) {
             ImGui::TreePop();
         }
     }

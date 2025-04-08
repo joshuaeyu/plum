@@ -10,10 +10,6 @@ namespace Component {
     // May want to move to Scene namespace
     class Camera {
         public:
-            enum class Direction {
-                Forward, Backward, Left, Right, Up, Down
-            };
-
             Camera();
             Camera(const Transform& transform, const glm::mat4& projection);
 
@@ -21,7 +17,8 @@ namespace Component {
 
             void SetRotation(float yaw, float pitch);
             void Rotate(float delta_yaw, float delta_pitch);
-            void Translate(Direction dir, float dist);
+            void Translate(glm::vec3 displacement);
+            void Translate(float dx, float dy, float dz);
             
             const glm::mat4& View();
             

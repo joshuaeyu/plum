@@ -101,8 +101,8 @@ void Transform::Update() {
             updateFrontRightUp();
             glm::mat3 rotationMatrix = glm::mat3(rotationQuat);
             for (int i = 0; i < 3; i++)
-            for (int j = 0; j < 3; j++)
-            matrix[i][j] = rotationMatrix[i][j];
+                for (int j = 0; j < 3; j++)
+                    matrix[i][j] = rotationMatrix[i][j];
             matrix = glm::scale(matrix, glm::vec3(scale));
             lastRotationQuat = rotationQuat;
             rotationEuler = glm::degrees(glm::eulerAngles(rotationQuat));
@@ -129,9 +129,9 @@ void Transform::Update() {
 }
 
 void Transform::updateFrontRightUp() {
-    front = rotationQuat * glm::vec3(0,0,1);
-    right = rotationQuat * glm::vec3(1,0,0);
-    up    = rotationQuat * glm::vec3(0,1,0);
+    front = rotationQuat * Direction::front;
+    right = rotationQuat * Direction::right;
+    up    = rotationQuat * Direction::up;
 }
 
 glm::vec3 Transform::ExtractScale(const glm::mat4& matrix) {

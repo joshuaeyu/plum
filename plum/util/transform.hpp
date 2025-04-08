@@ -1,5 +1,7 @@
 #pragma once
 
+#include <plum/util/direction.hpp>
+
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
 
@@ -43,13 +45,13 @@ class Transform {
         bool isUpdateRequired = false;
         glm::vec3 lastPosition = glm::vec3(0,0,0);
         glm::vec3 lastRotationEuler = glm::vec3(0,0,0);
-        glm::quat lastRotationQuat = glm::quat(0,0,0,1);
+        glm::quat lastRotationQuat = glm::identity<glm::quat>();
         glm::vec3 lastScale = glm::vec3(1,1,1);
 
         void updateFrontRightUp();
-        glm::vec3 front = glm::vec3(0,0,1);
-        glm::vec3 right = glm::vec3(1,0,0);
-        glm::vec3 up = glm::vec3(0,1,0);
+        glm::vec3 front = Direction::front;
+        glm::vec3 right = Direction::right;
+        glm::vec3 up = Direction::up;
         
 
 };
