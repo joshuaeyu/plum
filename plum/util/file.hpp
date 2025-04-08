@@ -17,16 +17,17 @@ class Path {
     public:
         Path() = default;
         Path(const char* path);
-        Path(fs::path path);
+        Path(fs::path raw_path);
         
         fs::path RawPath() const { return path; }
-        std::string Name() const  { return path.stem(); }
+        std::string Name() const { return path.stem(); }
         std::string Extension() const { return path.extension(); }
-        Path Parent() const  { return Path(path.parent_path()); }
-        bool IsDirectory() const  { return fs::is_directory(path); }
-        bool IsEmpty() const  { return path.empty(); }
-        
+        Path Parent() const { return Path(path.parent_path()); }
         fs::file_time_type LastModified() const { return time; }
+        
+        bool IsDirectory() const { return fs::is_directory(path); }
+        bool IsEmpty() const { return path.empty(); }
+        bool IsHidden() const;
         
         bool NeedsResync() const;
         virtual void SyncWithDevice();
@@ -43,11 +44,13 @@ class Path {
 class Directory : public Path {
     public:
         Directory(Path path);
-        explicit Directory(fs::path path);
+        explicit Directory(fs::path raw_path);
         // Directory(fs::path path, const std::set<std::string>& extensions);
 
-        std::vector<fs::path> List() const;
-        std::vector<fs::path> ListRecursive() const;
+        std::vector<Path> List() const;
+        std::vector<Path> ListRecursive() const;
+        std::vector<Path> ListAll() const;
+        std::vector<Path> ListAllRecursive() const;
         // std::vector<fs::path> ListFiltered() const;
 
     private:

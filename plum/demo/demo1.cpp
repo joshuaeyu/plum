@@ -1,5 +1,6 @@
 #include "demo1.hpp"
 
+#include <plum/context/asset.hpp>
 #include <plum/util/time.hpp>
 
 #include <glm/glm.hpp>
@@ -162,23 +163,41 @@ void Demo1::displayGui() {
             ImGui::SliderFloat("Exposure", &renderOptions.hdrExposure, 0.0f, 10.0f);
         }
     }
+    
+    if (ImGui::CollapsingHeader("File Explorer", ImGuiTreeNodeFlags_DefaultOpen)) {
+        gui_DisplayFilePath(Path("assets"));
+    }
 
     if (ImGui::CollapsingHeader("Assets", ImGuiTreeNodeFlags_DefaultOpen)) {
-        if (ImGui::TreeNode("Materials")) {
-            ImGui::TreePop();
-        }
         if (ImGui::TreeNode("Textures")) {
             ImGui::TreePop();
         }
         if (ImGui::TreeNode("Models")) {
             ImGui::TreePop();
         }
-        if (ImGui::TreeNode("Shaders")) {
+        if (ImGui::TreeNode("Materials")) {
             ImGui::TreePop();
         }
     }
     if (ImGui::CollapsingHeader("Environment", ImGuiTreeNodeFlags_DefaultOpen)) {
-        
+        if (ImGui::TreeNode("Skybox")) {
+            // std::string preview = environment->skybox->
+            // if (ImGui::BeginCombo("Diffuse Texture", preview.c_str())) {
+            //     for (auto it = resources->Textures.begin(); it != resources->Textures.end(); it++) {
+            //         if (it->second->Type != Tex::Tex_Type::TEX_DIFFUSE)
+            //             continue;
+            //         bool isSelected = (_skyboxSelectionStr == it->first); 
+            //         if (ImGui::Selectable(it->first.c_str(), isSelected)) {
+            //             _skyboxSelectionStr = it->first;
+            //             scene->EnvironmentMap = it->second;
+            //             engine->InitEnvironment(scene->EnvironmentMap);
+            //             ImGui::SetItemDefaultFocus();
+            //         }
+            //     }
+            //     ImGui::EndCombo();
+            // }
+            ImGui::TreePop();
+        }
     }
     int i = 0;
     if (ImGui::CollapsingHeader("Scene", ImGuiTreeNodeFlags_DefaultOpen)) {
@@ -193,6 +212,21 @@ void Demo1::displayGui() {
         }
     }
     ImGui::End();
+}
+
+void Demo1::gui_DisplayFilePath(Path path) {
+    const bool isDirectory = path.IsDirectory();
+    ImGuiTreeNodeFlags flags = isDirectory ? ImGuiTreeNodeFlags_None : ImGuiTreeNodeFlags_Leaf;
+    if (ImGui::TreeNodeEx(path.Name().c_str(), flags)) {
+        if (isDirectory) {
+            const Directory dir(path);
+            std::vector<Path> children = dir.List();
+            for (auto& child : children) {
+                gui_DisplayFilePath(child);
+            }
+        }
+        ImGui::TreePop();
+    }
 }
 
 bool Demo1::gui_DisplaySceneNode(Scene::SceneNode& node, int& i) {

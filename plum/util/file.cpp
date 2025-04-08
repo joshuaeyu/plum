@@ -6,14 +6,19 @@ Path::Path(const char* path)
     : Path(fs::path(path))
 {}
 
-Path::Path(fs::path path)
+Path::Path(fs::path raw_path)
 {
-    if (fs::path(path).is_absolute()) {
-        this->path = path;
+    if (fs::path(raw_path).is_absolute()) {
+        path = raw_path;
     } else {
-        this->path = fs::current_path() / path;
+        path = fs::current_path() / raw_path;
     }
     time = fs::last_write_time(path);
+}
+
+bool Path::IsHidden() const {
+    std::string name = path.filename();
+    return name == ".." || name == "." || name[0] == '.';
 }
 
 bool Path::NeedsResync() const {
@@ -30,9 +35,9 @@ void Path::Rename(fs::path name) {
     path = newPath;
 }
 
-void Path::RenameAbsolute(fs::path abspath) {
-    fs::rename(path, abspath);
-    path = abspath;
+void Path::RenameAbsolute(fs::path abs_path) {
+    fs::rename(path, abs_path);
+    path = abs_path;
 }
 
 Directory::Directory(Path path)
@@ -65,20 +70,39 @@ Directory::Directory(const Directory& d)
 //     return files;
 // }
 
-std::vector<fs::path> Directory::List() const {
-    std::vector<fs::path> files;
+std::vector<Path> Directory::List() const {
+    std::vector<Path> children;
     for (const auto& entry : fs::directory_iterator(path)) {
-        files.push_back(fs::relative(entry.path(), path));
+        if (!Path(entry.path()).IsHidden())
+            children.emplace_back(entry);
     }
-    return files;
+    return children;
 }
 
-std::vector<fs::path> Directory::ListRecursive() const {
-    std::vector<fs::path> files;
-    for (const auto& entry : fs::recursive_directory_iterator(path)) {
-        files.push_back(fs::relative(entry.path(), path));
+std::vector<Path> Directory::ListAll() const {
+    std::vector<Path> children;
+    for (const auto& entry : fs::directory_iterator(path)) {
+        children.emplace_back(entry);
     }
-    return files;
+    return children;
+}
+
+std::vector<Path> Directory::ListRecursive() const {
+    std::vector<Path> children;
+    for (const auto& entry : fs::recursive_directory_iterator(path)) {
+        if (!Path(entry.path()).IsHidden()) {
+            children.emplace_back(entry);
+        }
+    }
+    return children;
+}
+
+std::vector<Path> Directory::ListAllRecursive() const {
+    std::vector<Path> children;
+    for (const auto& entry : fs::recursive_directory_iterator(path)) {
+        children.emplace_back(entry);
+    }
+    return children;
 }
 
 File::File(Path path)
