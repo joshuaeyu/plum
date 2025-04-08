@@ -107,6 +107,7 @@ namespace Material {
     }
 
     void Texture::SyncWithDevice() {
+        syncFilesWithDevice();
         if (files.size() == 1) {
             loadFile(files[0].RawPath(), GL_TEXTURE_2D);
         } else {

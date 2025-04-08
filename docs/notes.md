@@ -22,6 +22,7 @@ To do:
 Remaining major:
 - GUI WIP
 - asset manager - textures, models
+- IBL specular map seams??
 
 Remaining minor:
 - window vs context (e.g., getTime) WIP

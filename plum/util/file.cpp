@@ -2,22 +2,30 @@
 
 namespace fs = std::filesystem;
 
-Path::Path(const char* path) 
+Path::Path(const char* path)
     : Path(fs::path(path))
 {}
 
 Path::Path(fs::path path)
-    : Path(path, fs::current_path())
-{}
+{
+    if (fs::path(path).is_absolute()) {
+        this->path = path;
+    } else {
+        this->path = fs::current_path() / path;
+    }
+    time = fs::last_write_time(path);
+}
 
-Path::Path(fs::path path, fs::path abs_dir)
-    : path(path),
-    base(abs_dir),
-    time(fs::last_write_time(path))
-{}
+bool Path::NeedsResync() const {
+    return fs::last_write_time(path) != time;
+}
+
+void Path::SyncWithDevice() {
+    time = fs::last_write_time(path);
+}
 
 void Path::Rename(fs::path name) {
-    fs::path newPath(path.parent_path() / name);
+    fs::path newPath = path.parent_path() / name;
     fs::rename(path, newPath);
     path = newPath;
 }
@@ -43,16 +51,8 @@ Directory::Directory(fs::path raw_path)
     }
 }
 
-Directory::Directory(fs::path raw_path, fs::path raw_abs_dir)
-    : Path(raw_path, raw_abs_dir)
-{
-    if (!IsDirectory() || IsEmpty()) {
-        throw std::runtime_error("Path must be a directory!");
-    }
-}
-
 Directory::Directory(const Directory& d)
-    : Path(d.path, d.base)
+    : Path(d.path)
 {}
 
 // std::vector<fs::path> Directory::ListFiltered() const {
@@ -100,19 +100,15 @@ File::File(fs::path raw_path)
     size = fs::file_size(path);
 }
 
-File::File(fs::path raw_path, fs::path raw_abs_dir)
-    : Path(raw_path, raw_abs_dir)
-{
-    if (IsDirectory() || IsEmpty()) {
-        throw std::runtime_error("Path cannot be a directory!");
-    }
-    size = fs::file_size(path);
-}
-
 File::File(const File& f)
-    : Path(f.path, f.base),
+    : Path(f.path),
     size(f.size)
 {}
+
+void File::SyncWithDevice() {
+    time = fs::last_write_time(path);
+    size = fs::file_size(path);
+}
 
 std::fstream& File::Open() {
     stream.open(path, std::fstream::in | std::fstream::out);

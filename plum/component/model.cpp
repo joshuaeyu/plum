@@ -263,6 +263,7 @@ namespace Component {
     }
 
     void Model::SyncWithDevice() {
+        syncFilesWithDevice();
         importFile(files[0].RawPath(), scale, flipUvs);
     }
 
@@ -280,7 +281,7 @@ namespace Component {
         }
 
         root = std::make_shared<ModelNode>(*this, scene->mRootNode, scene);
-        printSceneInfo(path, scene);
+        // printSceneInfo(path, scene);
     }
 
     void Model::printSceneInfo(const std::string& path, const aiScene *scene, const std::string& outpath) {            

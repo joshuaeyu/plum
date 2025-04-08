@@ -18,10 +18,10 @@ class Path {
         Path() = default;
         Path(const char* path);
         Path(fs::path path);
-        Path(fs::path path, fs::path base);
         
         fs::path RawPath() const { return path; }
         std::string Name() const  { return path.stem(); }
+        std::string Extension() const { return path.extension(); }
         Path Parent() const  { return Path(path.parent_path()); }
         bool IsDirectory() const  { return fs::is_directory(path); }
         bool IsEmpty() const  { return path.empty(); }
@@ -29,7 +29,7 @@ class Path {
         fs::file_time_type LastModified() const { return time; }
         
         bool NeedsResync() const;
-        void SyncWithDevice();
+        virtual void SyncWithDevice();
 
         void Rename(fs::path name);
         void RenameAbsolute(fs::path abspath);
@@ -37,7 +37,6 @@ class Path {
     protected:
         fs::path path;
         fs::path base;
-        
         fs::file_time_type time;
 };
 
@@ -45,7 +44,6 @@ class Directory : public Path {
     public:
         Directory(Path path);
         explicit Directory(fs::path path);
-        explicit Directory(fs::path path, fs::path base);
         // Directory(fs::path path, const std::set<std::string>& extensions);
 
         std::vector<fs::path> List() const;
@@ -64,10 +62,9 @@ class File : public Path {
         // File();
         File(Path path);
         explicit File(fs::path path);
-        explicit File(fs::path path, fs::path base);
 
-        std::string Extension() const { return path.extension(); }
         std::uintmax_t Size() const { return size; }
+        void SyncWithDevice() override;
 
         std::fstream& Open();
         void Close();

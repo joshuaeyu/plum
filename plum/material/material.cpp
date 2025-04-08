@@ -1,6 +1,7 @@
 #include <plum/material/material.hpp>
 
 #include <plum/component/model.hpp>
+#include <plum/context/asset.hpp>
 
 #include <iostream>
 
@@ -14,7 +15,12 @@ namespace Material {
     {
         // Set UBO scheme to default (may implement non-default schemes in the future)
         if (!program) {
-            program = std::make_shared<Core::Program>("shaders/shaderv_gen.vs", "shaders/shaderf_basichybrid.fs");
+            Asset::AssetManager& manager = Asset::AssetManager::Instance();
+            const std::vector<Path> shaderPaths = {
+                "shaders/shaderv_gen.vs", 
+                "shaders/shaderf_basichybrid.fs"
+            };
+            program = manager.ImportAsset<Core::Program>(shaderPaths, true, shaderPaths[0], shaderPaths[1]);
             program->SetUniformBlockBindingScheme(Core::Program::UboScheme::Scheme1);
         }
     }

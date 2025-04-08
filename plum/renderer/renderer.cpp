@@ -2,6 +2,7 @@
 
 #include <plum/component/primitive.hpp>
 #include <plum/context/application.hpp>
+#include <plum/context/asset.hpp>
 #include <plum/material/texture.hpp>
 
 #include <functional>
@@ -57,7 +58,12 @@ namespace Renderer {
         eventListener(Context::InputsAndEventsManager::CreateEventListener())
     {
         if (!lightingPassProgram) {
-            lightingPassProgram = std::make_shared<Core::Program>("shaders/shaderv_2d.vs", "shaders/shaderf_lightingpasspbr.fs");
+            Asset::AssetManager& manager = Asset::AssetManager::Instance();
+            const std::vector<Path> shaderPaths = {
+                "shaders/shaderv_2d.vs", 
+                "shaders/shaderf_lightingpasspbr.fs"
+            };
+            lightingPassProgram = manager.ImportAsset<Core::Program>(shaderPaths, true, shaderPaths[0], shaderPaths[1]);
         }
 
         initUniformBlocks();

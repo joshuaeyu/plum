@@ -1,20 +1,39 @@
 #include <plum/scene/environment.hpp>
 
-#include <plum/core/globject.hpp>
 #include <plum/component/primitive.hpp>
+#include <plum/context/asset.hpp>
+#include <plum/core/globject.hpp>
 
 #include <glm/glm.hpp>
 
 #include <iostream>
+#include <vector>
 
 namespace Scene {
 
     Environment::Environment() {
         if (!equirectProgram) {
-            equirectProgram = std::make_shared<Core::Program>("shaders/shaderv_equirect.vs", "shaders/shaderf_equirect.fs");
-            irradianceProgram = std::make_shared<Core::Program>("shaders/shaderv_equirect.vs", "shaders/shaderf_irradiance.fs");
-            prefilterProgram = std::make_shared<Core::Program>("shaders/shaderv_equirect.vs", "shaders/shaderf_prefilter.fs");
-            brdfLutProgram = std::make_shared<Core::Program>("shaders/shaderv_2d.vs", "shaders/shaderf_2dbrdflut.fs");
+            Asset::AssetManager& manager = Asset::AssetManager::Instance();
+            const std::vector<Path> equirectShaderPaths = {
+                "shaders/shaderv_equirect.vs", 
+                "shaders/shaderf_equirect.fs"
+            };
+            equirectProgram = manager.ImportAsset<Core::Program>(equirectShaderPaths, true, equirectShaderPaths[0], equirectShaderPaths[1]);
+            const std::vector<Path> irradianceShaderPaths = {
+                "shaders/shaderv_equirect.vs", 
+                "shaders/shaderf_irradiance.fs"
+            };
+            irradianceProgram = manager.ImportAsset<Core::Program>(irradianceShaderPaths, true, irradianceShaderPaths[0], irradianceShaderPaths[1]);
+            const std::vector<Path> prefilterShaderPaths = {
+                "shaders/shaderv_equirect.vs", 
+                "shaders/shaderf_prefilter.fs"
+            };
+            prefilterProgram = manager.ImportAsset<Core::Program>(prefilterShaderPaths, true, prefilterShaderPaths[0], prefilterShaderPaths[1]);
+            const std::vector<Path> brdfLutShaderPaths = {
+                "shaders/shaderv_2d.vs", 
+                "shaders/shaderf_2dbrdflut.fs"
+            };
+            brdfLutProgram = manager.ImportAsset<Core::Program>(brdfLutShaderPaths, true, brdfLutShaderPaths[0], brdfLutShaderPaths[1]);
         }
     }
 

@@ -35,9 +35,9 @@ namespace Core {
     void Program::SetUniformBlockBinding(const std::string& name, GLuint index) {
         GLuint ubo = glGetUniformBlockIndex(handle, name.c_str());
         glUniformBlockBinding(handle, ubo, index);
-        while (GLenum error = glGetError()) {
-            std::cerr << "Warning: Uniform block "<< name << " was not found in the program. Ubo binding error: " << error << std::endl;
-        }
+        // while (GLenum error = glGetError()) {
+        //     std::cerr << "Warning: Uniform block "<< name << " was not found in the program. Ubo binding error: " << error << std::endl;
+        // }
     }
 
     void Program::SetInt(const std::string& name, int val) {
@@ -65,6 +65,8 @@ namespace Core {
     }
 
     void Program::SyncWithDevice() {
+        syncFilesWithDevice();
+        glDeleteProgram(handle);
         setup();
     }
 

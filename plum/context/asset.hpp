@@ -1,11 +1,13 @@
 #pragma once
 
 #include <plum/util/file.hpp>
-#include <plum/util/registry.tpp>
+#include <plum/util/registry.hpp>
 
-#include <stdexcept>
 #include <filesystem>
 #include <map>
+#include <memory>
+#include <stdexcept>
+#include <vector>
 
 namespace fs = std::filesystem;
 
@@ -41,11 +43,13 @@ namespace Asset {
         public:
             virtual ~Asset() = default;
             virtual void SyncWithDevice() = 0;
-            // virtual Asset& CopyConfiguration(fs::path path) = 0;
+            // virtual Asset& CopyConfiguration(Path path) = 0;
             File GetFile() { return files[0]; }
             std::vector<File> GetFiles() { return files; }
+            bool NeedsResync() const;
         protected:
-            friend class AssetManager;
+            void syncFilesWithDevice();
+            // friend class AssetManager;
             // Make sure to ignore empty paths
             Asset(const Path& path);
             Asset(const std::vector<Path>& paths);
@@ -54,42 +58,90 @@ namespace Asset {
             std::vector<File> files;
     };
 
-    struct AssetMetadata {
-        RegistryHandle id;
-        std::string type;
-    };
-
     class AssetManager {
         public:
             static AssetManager& Instance();
 
-            static void Initialize();
+            // static void Initialize();
 
             template<class T, typename... Args>
-            T& ImportAsset(fs::path path, bool hot_reload, Args&& ...args);
+            std::shared_ptr<T> ImportAsset(Path path, bool hot_reload, Args&& ...args);
 
             template<class T, typename... Args>
-            T& ImportAsset(const std::set<fs::path>& paths, bool hot_reload, Args&& ...args);
+            std::shared_ptr<T> ImportAsset(const std::vector<Path>& paths, bool hot_reload, Args&& ...args);
             
             template<class T>
-            T& GetAsset(fs::path path);
+            std::shared_ptr<T> GetAsset(Path path);
             
-            void RemoveAsset(fs::path path);
-
-            AssetMetadata GetAssetMetadata(fs::path path);
+            void RemoveAsset(Path path);
 
             void ColdSyncWithDevice();
             void HotSyncWithDevice();
 
         private:
-            AssetManager();
+            struct AssetMetadata {
+                RegistryHandle id;
+                std::string type;
+            };
+
+            AssetManager() = default;
 
             void syncWithDevice(bool sync_cold = true);
 
             std::map<fs::path, AssetMetadata> coldAssets;
             std::map<fs::path, AssetMetadata> hotAssets;
-            Registry<Asset> assetRegistry;
+            Registry<std::shared_ptr<Asset>> assetRegistry;
     };
+
+    template<class T, typename... Args>
+    std::shared_ptr<T> AssetManager::ImportAsset(Path path, bool hot_reload, Args&& ...args) {
+        std::shared_ptr<T> object = std::make_shared<T>(args...);
+        RegistryHandle id = assetRegistry.Push(std::static_pointer_cast<Asset>(object));
+        AssetMetadata metadata;
+        metadata.id = id;
+        metadata.type = extensionTable.at(path.Extension());
+        if (hot_reload) {
+            hotAssets[path.RawPath()] = metadata;
+        } else {
+            coldAssets[path.RawPath()] = metadata;
+        }
+        return object;
+    }
+
+    template<class T, typename... Args>
+    std::shared_ptr<T> AssetManager::ImportAsset(const std::vector<Path>& paths, bool hot_reload, Args&& ...args) {
+        std::shared_ptr<T> object = std::make_shared<T>(args...);
+        RegistryHandle id = assetRegistry.Push(std::static_pointer_cast<Asset>(object));
+        AssetMetadata metadata;
+        metadata.id = id;
+        metadata.type = extensionTable.at(paths.begin()->Extension());
+        for (const auto& path : paths) {
+            if (hot_reload) {
+                hotAssets[path.RawPath()] = metadata;
+            } else {
+                coldAssets[path.RawPath()] = metadata;
+            }
+        }
+        return object;
+    }
+
+    template<class T>
+    std::shared_ptr<T> AssetManager::GetAsset(Path path) {
+        RegistryHandle id;
+        const auto it1 = coldAssets.find(path.RawPath());
+        if (it1 != coldAssets.end()) {
+            RegistryHandle id = it1->second.id;
+            return std::static_pointer_cast<T>(assetRegistry.Get(id));
+        } 
+        const auto it2 = hotAssets.find(path.RawPath());
+        if (it2 != hotAssets.end()) {
+            RegistryHandle id = it2->second.id;
+            return std::static_pointer_cast<T>(assetRegistry.Get(id));
+        } 
+        throw std::runtime_error("GetAsset: Asset not found!");
+    }
+
+
 
 // Features
 // - load all files in a directory
@@ -124,7 +176,7 @@ namespace Asset {
 // Shaders used when
 // - no direct interaction from GUI; should just cold/hot reload
 // - AssetManager handles these differently?
-// - Should AssetManager even handle these
+// - Should AssetManager even handle these or some FileDaemon?
 
 // AssetManager manages files. I.e., Models, Textures, Programs
 //  - allows GUI users to import and actually use external assets!
