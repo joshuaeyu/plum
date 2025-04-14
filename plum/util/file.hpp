@@ -20,6 +20,7 @@ class Path {
         Path(fs::path raw_path);
         
         fs::path RawPath() const { return path; }
+        std::string Filename() const { return path.filename(); }
         std::string Name() const { return path.stem(); }
         std::string Extension() const { return path.extension(); }
         Path Parent() const { return Path(path.parent_path()); }
@@ -31,13 +32,16 @@ class Path {
         
         bool NeedsResync() const;
         virtual void SyncWithDevice();
-
+        
+        static Path CurrentPath() { return fs::current_path(); }
+        fs::path RelativePath(Path base = CurrentPath()) { return fs::relative(path, base.path); }
+        
         void Rename(fs::path name);
         void RenameAbsolute(fs::path abspath);
+
     
     protected:
         fs::path path;
-        fs::path base;
         fs::file_time_type time;
 };
 

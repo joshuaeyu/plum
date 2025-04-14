@@ -5,7 +5,6 @@
 
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
-
 #include <imgui/imgui.h>
 
 #include <iostream>
@@ -165,10 +164,26 @@ void Demo1::displayGui() {
     }
     
     if (ImGui::CollapsingHeader("File Explorer", ImGuiTreeNodeFlags_DefaultOpen)) {
-        gui_DisplayFilePath(Path("assets"));
+        static Path displayPath = "assets";
+        if (ImGui::ArrowButton("##back", ImGuiDir_Left)) {
+            if (displayPath.RawPath() != fs::current_path() / "assets") {
+                displayPath = displayPath.Parent();
+            }
+        }
+        ImGui::SameLine();
+        ImGui::Text("Path: %s", displayPath.RelativePath().c_str());
+        displayPath = gui_DisplayFilePath(displayPath);
     }
 
     if (ImGui::CollapsingHeader("Assets", ImGuiTreeNodeFlags_DefaultOpen)) {
+        if (ImGui::Button("Import Texture")) {
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("Import Model")) {
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("New Material")) {
+        }
         if (ImGui::TreeNode("Textures")) {
             ImGui::TreePop();
         }
@@ -181,6 +196,15 @@ void Demo1::displayGui() {
     }
     if (ImGui::CollapsingHeader("Environment", ImGuiTreeNodeFlags_DefaultOpen)) {
         if (ImGui::TreeNode("Skybox")) {
+            static bool showChild = false;
+            if (ImGui::Button("Edit")) {
+                showChild = !showChild;
+            }
+            if (showChild) {
+                static int sel = 0;
+                ImGui::RadioButton("Equirectangular", &sel, 0);
+                ImGui::RadioButton("Six Faces", &sel, 1);
+            }
             // std::string preview = environment->skybox->
             // if (ImGui::BeginCombo("Diffuse Texture", preview.c_str())) {
             //     for (auto it = resources->Textures.begin(); it != resources->Textures.end(); it++) {
@@ -201,7 +225,10 @@ void Demo1::displayGui() {
     }
     int i = 0;
     if (ImGui::CollapsingHeader("Scene", ImGuiTreeNodeFlags_DefaultOpen)) {
-        if (ImGui::Button("New Node")) {
+        if (ImGui::Button("New Empty Node")) {
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("New Component Node")) {
         }
         for (auto& child : scene->children) {
             bool deleteRequested = !gui_DisplaySceneNode(*child, i);
@@ -214,19 +241,48 @@ void Demo1::displayGui() {
     ImGui::End();
 }
 
-void Demo1::gui_DisplayFilePath(Path path) {
-    const bool isDirectory = path.IsDirectory();
-    ImGuiTreeNodeFlags flags = isDirectory ? ImGuiTreeNodeFlags_None : ImGuiTreeNodeFlags_Leaf;
-    if (ImGui::TreeNodeEx(path.Name().c_str(), flags)) {
-        if (isDirectory) {
-            const Directory dir(path);
-            std::vector<Path> children = dir.List();
-            for (auto& child : children) {
-                gui_DisplayFilePath(child);
+Path Demo1::gui_DisplayFilePath(Path path) {
+    ImGui::BeginChild("fileexplorer", ImVec2(0,100), ImGuiChildFlags_ResizeY | ImGuiChildFlags_FrameStyle);
+    if (path.IsDirectory()) {
+        const Directory dir(path);
+        for (auto& child : dir.List()) {
+            ImGui::TreeNodeEx(child.Filename().c_str(), ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_NoTreePushOnOpen);
+            if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left) && ImGui::IsItemHovered()) {
+                if (child.IsDirectory()) {
+                    ImGui::EndChild();
+                    return child;
+                }
             }
         }
-        ImGui::TreePop();
     }
+    ImGui::EndChild();
+    return path;
+    
+    // const bool isDirectory = path.IsDirectory();
+    // ImGuiTreeNodeFlags flags = isDirectory ? ImGuiTreeNodeFlags_None : ImGuiTreeNodeFlags_Leaf;
+    // bool expanded = ImGui::TreeNodeEx(path.Filename().c_str(), flags);
+    // // Right-click context menu
+    // if (!isDirectory && ImGui::BeginPopupContextItem()) {
+    //     std::string assetType = Asset::extensionTable.at(path.Extension());
+    //     // if (ImGui::Button(("Import "+assetType).c_str())) {
+    //     //     if (assetType == "Texture") {
+    //     //         Asset::AssetManager::Instance().ImportAsset<Material::Texture>(path, false, )
+    //     //     } else if (assetType == "Model") {
+
+    //     //     }
+    //     // }
+    //     ImGui::EndPopup();
+    // }
+    // if (isDirectory && expanded) {
+    //     const Directory dir(path);
+    //     std::vector<Path> children = dir.List();
+    //     for (auto& child : children) {
+    //         gui_DisplayFilePath(child);
+    //     }
+    // }
+    // if (expanded) {
+    //     ImGui::TreePop();
+    // }
 }
 
 bool Demo1::gui_DisplaySceneNode(Scene::SceneNode& node, int& i) {

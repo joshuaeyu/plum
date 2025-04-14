@@ -27,7 +27,7 @@ class Demo1 : public Demo {
 
     private:
         void displayGui();
-        void gui_DisplayFilePath(Path path);
+        Path gui_DisplayFilePath(Path path);
         bool gui_DisplaySceneNode(Scene::SceneNode& node, int& i);
 
         std::unique_ptr<Scene::Scene> scene;
