@@ -19,7 +19,7 @@ void Demo1::Initialize() {
     std::cout << "Setting up environment..." << std::endl;
     // auto skybox = std::make_shared<Material::Texture>("assets/textures/black.png", Material::TextureType::Diffuse);
     // auto skybox = std::make_shared<Material::Texture>("assets/textures/dresden_station_4k.hdr", Material::TextureType::Diffuse);
-    auto skybox = std::make_shared<Material::Texture>("assets/textures/kloppenheim_4k.hdr", Material::TextureType::Diffuse);
+    auto skybox = std::make_shared<Material::Texture>("assets/skyboxes/kloppenheim_4k.hdr", Material::TextureType::Diffuse);
     // static std::vector<std::string> oceanSkyboxPaths = {
     //     "assets/textures/skybox/right.jpg",
     //     "assets/textures/skybox/left.jpg",
@@ -203,7 +203,20 @@ void Demo1::displayGui() {
             if (showChild) {
                 static int sel = 0;
                 ImGui::RadioButton("Equirectangular", &sel, 0);
-                ImGui::RadioButton("Six Faces", &sel, 1);
+                ImGui::RadioButton("Six Sided", &sel, 1);
+                constexpr const char* faces[] = {
+                    "+Z", "-Z", "+X", "-X", "+Y", "-Y"
+                };
+                switch (sel) {
+                    case 0:
+                        for (auto& face : faces) {
+                            ImGui::BeginCombo(face, "");
+                            ImGui::EndCombo();
+                        }
+                        break;
+                    case 1:
+                        break;
+                }
             }
             // std::string preview = environment->skybox->
             // if (ImGui::BeginCombo("Diffuse Texture", preview.c_str())) {
