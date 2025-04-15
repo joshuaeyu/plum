@@ -3,6 +3,7 @@
 #include <plum/util/transform.hpp>
 
 #include <glad/gl.h>
+#include <glm/gtc/type_ptr.hpp>
 
 #include <iostream>
 
@@ -23,6 +24,12 @@ namespace Component {
     Light::Light(ComponentType type)
         : ComponentBase(type)
     {}
+
+    void Light::DisplayWidget() {
+        ImGui::ColorEdit3("Color", glm::value_ptr(color), ImGuiColorEditFlags_Float);
+        ImGui::DragFloat("Intensity", &intensity, 0.01f, 0.0f, 0.0f, "%.3f");
+        ImGui::TreePop();
+    }
 
     // ======== DirectionalLight ========
 

@@ -124,7 +124,10 @@ void Demo1::CleanUp() {
 }
 
 void Demo1::displayGui() {
-    ImGui::Begin("Plum Engine v2.00 Beta", NULL, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings);
+    if (!ImGui::Begin("Plum Engine v2.00 Beta", NULL, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings)) {
+        ImGui::End();
+        return;
+    }
     ImGui::SetWindowPos(ImVec2(0,0));
     ImGui::TextColored(ImVec4(0.3,1,1,1), "Press ` to capture/release mouse.");
     ImGui::TextColored(ImVec4(0.3,1,1,1), "Use WASD, Shift, and Spacebar to move camera.");
@@ -429,6 +432,18 @@ bool Demo1::gui_DisplaySceneNode(Scene::SceneNode& node, int& i) {
             if (pos || rot || scale)
                 node.transform.Update();
             ImGui::TreePop();
+        }
+        if (node.component->IsLight()) {
+            static const char* lightTypes[] = {"[Directional Light]", "[Point Light]"};
+            static int lightTypeIdx = 0;
+            if (node.component->type == Component::ComponentType::DirLight) {
+                lightTypeIdx = 0;
+            } else if (node.component->type == Component::ComponentType::PointLight) {
+                lightTypeIdx = 1;
+            }
+            if (ImGui::TreeNodeEx(lightTypes[lightTypeIdx])) {
+                node.component->DisplayWidget();
+            }
         }
         for (auto& child : node.children) {
             if (!gui_DisplaySceneNode(*child, i))

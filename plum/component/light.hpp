@@ -23,6 +23,8 @@ namespace Component {
             // Modifiers
             void DisableShadows();
 
+            void DisplayWidget() override;
+
         protected:
             bool hasShadows = false;
             float nearPlane = 0.1;

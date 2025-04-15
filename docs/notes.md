@@ -21,7 +21,7 @@ To do:
 
 Remaining major:
 - GUI WIP
-- asset manager - textures, models
+- asset manager - textures, models WIP
 - IBL specular map seams??
 
 Remaining minor:
