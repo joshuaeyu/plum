@@ -1,6 +1,7 @@
 #include "demo1.hpp"
 
 #include <plum/context/asset.hpp>
+#include <plum/interface/widget.hpp>
 #include <plum/util/time.hpp>
 
 #include <glm/glm.hpp>
@@ -17,18 +18,7 @@ Demo1::Demo1()
 
 void Demo1::Initialize() {
     std::cout << "Setting up environment..." << std::endl;
-    // auto skybox = std::make_shared<Material::Texture>("assets/textures/black.png", Material::TextureType::Diffuse);
-    // auto skybox = std::make_shared<Material::Texture>("assets/textures/dresden_station_4k.hdr", Material::TextureType::Diffuse);
     auto skybox = std::make_shared<Material::Texture>("assets/skyboxes/kloppenheim_4k.hdr", Material::TextureType::Diffuse);
-    // static std::vector<std::string> oceanSkyboxPaths = {
-    //     "assets/textures/skybox/right.jpg",
-    //     "assets/textures/skybox/left.jpg",
-    //     "assets/textures/skybox/top.jpg",
-    //     "assets/textures/skybox/bottom.jpg",
-    //     "assets/textures/skybox/front.jpg",
-    //     "assets/textures/skybox/back.jpg"
-    // };
-    // static auto skybox = std::make_shared<Material::Texture>(oceanSkyboxPaths, Material::TextureType::Diffuse, false);
     environment = std::make_unique<Scene::Environment>(skybox->tex);
     
     std::cout << "Defining materials..." << std::endl;
@@ -36,14 +26,17 @@ void Demo1::Initialize() {
     copper->albedo = glm::pow(glm::vec3(0.72,0.45,0.22),glm::vec3(2.2));
     copper->metallic = 1.0;
     copper->roughness = 0.15;
+    materials["Copper"] = copper;
     auto ruby = std::make_shared<Material::PBRMetallicMaterial>();
     ruby->albedo = glm::pow(glm::vec3(0.6,0.1,0.1),glm::vec3(2.2));
     ruby->metallic = 0.0;
     ruby->roughness = 0.1;
+    materials["Ruby"] = ruby;
     auto sapphire = std::make_shared<Material::PBRMetallicMaterial>();
     sapphire->albedo = glm::pow(glm::vec3(0.1,0.2,0.7),glm::vec3(2.2));
     sapphire->metallic = 1.0;
     sapphire->roughness = 0.2;
+    materials["Sapphire"] = sapphire;
 
     std::cout << "Creating components..." << std::endl;
     camera = std::make_unique<Component::Camera>();
@@ -164,7 +157,7 @@ void Demo1::displayGui() {
     }
     
     if (ImGui::CollapsingHeader("File Explorer", ImGuiTreeNodeFlags_DefaultOpen)) {
-        static Path displayPath = "assets";
+        static Path displayPath("assets");
         if (ImGui::ArrowButton("##back", ImGuiDir_Left)) {
             if (displayPath.RawPath() != fs::current_path() / "assets") {
                 displayPath = displayPath.Parent();
@@ -187,10 +180,16 @@ void Demo1::displayGui() {
         if (ImGui::TreeNode("Textures")) {
             ImGui::TreePop();
         }
-        if (ImGui::TreeNode("Models")) {
+        if (ImGui::TreeNode("Materials")) {
+            for (auto& [name, material] : materials) {
+                if (ImGui::TreeNode(name.c_str())) {
+                    material->DisplayWidget();
+                    ImGui::TreePop();
+                }
+            }
             ImGui::TreePop();
         }
-        if (ImGui::TreeNode("Materials")) {
+        if (ImGui::TreeNode("Models")) {
             ImGui::TreePop();
         }
     }
@@ -202,46 +201,67 @@ void Demo1::displayGui() {
             }
             if (showChild) {
                 static int sel = 0;
-                ImGui::RadioButton("Equirectangular", &sel, 0);
+                ImGui::RadioButton("Equirectangular", &sel, 0); ImGui::SameLine();
                 ImGui::RadioButton("Six Sided", &sel, 1);
-                constexpr const char* faces[] = {
-                    "+Z", "-Z", "+X", "-X", "+Y", "-Y"
-                };
+                static const Directory skyboxesDir("assets/skyboxes");
+                static std::vector<Path> texturePaths = skyboxesDir.ListOnlyRecursive(Asset::textureExtensions);
+                std::vector<std::string> texturePathsStrings;
+                for (const auto& path : texturePaths) {
+                    texturePathsStrings.push_back(path.RelativePath(skyboxesDir.RawPath()));
+                }
                 switch (sel) {
                     case 0:
-                        for (auto& face : faces) {
-                            ImGui::BeginCombo(face, "");
-                            ImGui::EndCombo();
+                    {
+                        static int itemSelectedIdx = 0;
+                        Widget::Combo(texturePathsStrings, &itemSelectedIdx, texturePathsStrings[itemSelectedIdx]);
+                        static bool flip = true;
+                        ImGui::Checkbox("Flip", &flip);
+                        if (ImGui::Button("Save")) {
+                            auto texture = std::make_shared<Material::Texture>(texturePaths[itemSelectedIdx], Material::TextureType::Diffuse, flip, GL_CLAMP_TO_EDGE, GL_LINEAR);
+                            *environment = Scene::Environment(texture->tex);
+                            showChild = !showChild;
                         }
+                    }
                         break;
                     case 1:
+                    {
+                        constexpr const char* faces[] = {"+X", "-X", "+Y", "-Y", "+Z", "-Z"};
+                        static int itemSelectedIdx[] = {0, 0, 0, 0, 0, 0};
+                        for (int i = 0; i < 6; i++) {
+                            Widget::Combo(texturePathsStrings, &itemSelectedIdx[i], texturePathsStrings[itemSelectedIdx[i]]);
+                        }
+                        static bool flip = false;
+                        ImGui::Checkbox("Flip", &flip);
+                        if (ImGui::Button("Save")) {
+                            const std::vector<Path> paths = {
+                                texturePaths[itemSelectedIdx[0]],
+                                texturePaths[itemSelectedIdx[1]],
+                                texturePaths[itemSelectedIdx[2]],
+                                texturePaths[itemSelectedIdx[3]],
+                                texturePaths[itemSelectedIdx[4]],
+                                texturePaths[itemSelectedIdx[5]]
+                            };
+                            auto texture = std::make_shared<Material::Texture>(paths, Material::TextureType::Diffuse, flip, GL_CLAMP_TO_EDGE, GL_LINEAR);
+                            *environment = Scene::Environment(texture->tex);
+                            showChild = !showChild;
+                        }
+                    }
                         break;
                 }
             }
-            // std::string preview = environment->skybox->
-            // if (ImGui::BeginCombo("Diffuse Texture", preview.c_str())) {
-            //     for (auto it = resources->Textures.begin(); it != resources->Textures.end(); it++) {
-            //         if (it->second->Type != Tex::Tex_Type::TEX_DIFFUSE)
-            //             continue;
-            //         bool isSelected = (_skyboxSelectionStr == it->first); 
-            //         if (ImGui::Selectable(it->first.c_str(), isSelected)) {
-            //             _skyboxSelectionStr = it->first;
-            //             scene->EnvironmentMap = it->second;
-            //             engine->InitEnvironment(scene->EnvironmentMap);
-            //             ImGui::SetItemDefaultFocus();
-            //         }
-            //     }
-            //     ImGui::EndCombo();
-            // }
             ImGui::TreePop();
         }
     }
     int i = 0;
     if (ImGui::CollapsingHeader("Scene", ImGuiTreeNodeFlags_DefaultOpen)) {
+        static bool showEmptyNodeChild = false;
         if (ImGui::Button("New Empty Node")) {
+            showEmptyNodeChild = !showEmptyNodeChild;
         }
         ImGui::SameLine();
+        static bool showComponentNodeChild = false;
         if (ImGui::Button("New Component Node")) {
+            showComponentNodeChild = !showComponentNodeChild;
         }
         for (auto& child : scene->children) {
             bool deleteRequested = !gui_DisplaySceneNode(*child, i);
@@ -319,7 +339,7 @@ bool Demo1::gui_DisplaySceneNode(Scene::SceneNode& node, int& i) {
             bool pos = ImGui::DragFloat3("Position", glm::value_ptr(node.transform.position), 0.01f, 0.0f, 0.0f, "%.2f");
             bool rot = ImGui::DragFloat3("Rotation", glm::value_ptr(node.transform.rotationEuler), 0.1f, 0.0f, 0.0f, "%.1f");
             bool scale = ImGui::DragFloat3("Scale", glm::value_ptr(node.transform.scale), 0.001f, 0.001f, 1e6f, "%.3f");
-            if (pos || scale || rot)
+            if (pos || rot || scale)
                 node.transform.Update();
             ImGui::TreePop();
         }

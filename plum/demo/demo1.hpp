@@ -39,6 +39,8 @@ class Demo1 : public Demo {
         std::unique_ptr<PostProcessing::Hdr> hdr;
         std::unique_ptr<PostProcessing::Bloom> bloom;
 
+        std::map<std::string, std::shared_ptr<Material::MaterialBase>> materials;
+
     public:
         ~Demo1() = default;
 };

@@ -2,6 +2,7 @@
 
 #include <plum/core/program.hpp>
 #include <plum/core/tex.hpp>
+#include <plum/interface/widget.hpp>
 
 #include <glm/glm.hpp>
 
@@ -15,12 +16,12 @@ namespace Component {
 
 namespace Material {
     
-    class MaterialBase {
+    class MaterialBase : public Widget {
         public:
             virtual ~MaterialBase();
             virtual std::shared_ptr<Core::Program> GetProgram() { return nullptr; }
             virtual void SetUniforms(const glm::mat4& model_transform) {};
-        
+            virtual void DisplayWidget() override {};
         protected:
             MaterialBase() = default;
     };
@@ -34,6 +35,8 @@ namespace Material {
 
             std::shared_ptr<Core::Program> GetProgram() override;
             void SetUniforms(const glm::mat4& model_transform) override;
+
+            void DisplayWidget() override;
 
             std::shared_ptr<Core::Tex2D> albedoMap, metallicMap, roughnessMap, normalMap, displacementMap, occlusionMap;
             glm::vec3 albedo = glm::vec3(0.5);

@@ -3,6 +3,9 @@
 #include <plum/component/model.hpp>
 #include <plum/context/asset.hpp>
 
+#include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
 #include <iostream>
 
 namespace Material {
@@ -83,6 +86,12 @@ namespace Material {
 
     }
     
+    void PBRMetallicMaterial::DisplayWidget() {
+        ImGui::ColorEdit3("Albedo", glm::value_ptr(albedo), ImGuiColorEditFlags_Float | ImGuiColorEditFlags_HDR);
+        ImGui::SliderFloat("Metallic", &metallic, 0.0f, 1.0f, "%.3f");
+        ImGui::SliderFloat("Roughness", &roughness, 0.0f, 1.0f, "%.3f");
+    }
+
     void PBRMetallicMaterial::processMaterialInfo(Component::MaterialInfo info) {
         albedo = info.diffuse;
         metallic = info.metalness;

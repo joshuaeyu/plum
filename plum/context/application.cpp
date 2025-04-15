@@ -1,7 +1,7 @@
 #include <plum/context/application.hpp>
 
 #include <plum/demo/demo.hpp>
-#include <plum/context/interface.hpp>
+#include <plum/interface/interface.hpp>
 #include <plum/context/asset.hpp>
 #include <plum/util/time.hpp>
 

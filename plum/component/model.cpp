@@ -208,17 +208,15 @@ namespace Component {
         // scene.mTextures[atoi(texpath.C_Str()+1)];
     
         // this currently only supports separate texture files, need support for embedded texture files (see above brainstorming)
-        for (int i = 0; i < aimaterial->GetTextureCount(aitextype); i++) {
+        for (int i = 0; i < aimaterial->GetTextureCount(aitextype); i++) {            
             aiString str;
-            fs::path texturePath;
-            
             aimaterial->GetTexture(aitextype, i, &str);
-            texturePath = model.GetFile().Parent().RawPath() / str.C_Str();
+            Path texturePath(model.GetFile().Parent().RawPath() / str.C_Str());
 
             // If texture was already loaded from file, just push its existing representation
             bool skip = false;
             for (const auto& texture : model.textures) {
-                if (texture->GetFile().RawPath() == texturePath) {
+                if (texture->GetFile().RawPath() == texturePath.RawPath()) {
                     if (texture->type == textype) {
                         textures.push_back(texture);
                     } else {
@@ -230,7 +228,7 @@ namespace Component {
             }
             // Load and push any new textures
             if (!skip) {
-                std::cout << "  Loading texture " << texturePath << " as " << aiTextureTypeToString(aitextype) << std::endl;
+                std::cout << "  Loading texture " << texturePath.RawPath() << " as " << aiTextureTypeToString(aitextype) << std::endl;
                 auto texture = std::make_shared<Material::Texture>(texturePath, textype, true, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR);
                 texture->tex->GenerateMipMap();
                 textures.push_back(texture);

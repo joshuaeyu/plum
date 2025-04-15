@@ -15,8 +15,20 @@ namespace Material {
         loadFile(files[0].RawPath(), GL_TEXTURE_2D);
     }
     
-    Texture::Texture(const std::vector<Path>& cubemap_paths, TextureType type, bool flip, GLenum wrap, GLenum minfilter)
-        : Asset::Asset(cubemap_paths),
+    Texture::Texture(const std::vector<Path>& cubeface_paths, TextureType type, bool flip, GLenum wrap, GLenum minfilter)
+        : Asset::Asset(cubeface_paths),
+        type(type),
+        flip(flip),
+        wrap(wrap),
+        minfilter(minfilter)
+    {
+        for (int i = 0; i < files.size(); i++) {
+            loadFile(files[i].RawPath(), GL_TEXTURE_CUBE_MAP, i);
+        }
+    }
+
+    Texture::Texture(const std::vector<std::shared_ptr<Texture>>& cubefaces, TextureType type, bool flip, GLenum wrap, GLenum minfilter)
+        : Asset::Asset(texturesToFiles(cubefaces)),
         type(type),
         flip(flip),
         wrap(wrap),
@@ -115,6 +127,14 @@ namespace Material {
                 loadFile(files[i].RawPath(), GL_TEXTURE_CUBE_MAP, i);
             }
         }
+    }
+
+    std::vector<File> Texture::texturesToFiles(const std::vector<std::shared_ptr<Texture>> textures) {
+        std::vector<File> files;
+        for (const auto& texture : textures) {
+            files.push_back(texture->GetFile());
+        }
+        return files;
     }
 
 }

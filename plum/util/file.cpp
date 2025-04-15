@@ -48,14 +48,6 @@ Directory::Directory(Path path)
     }
 }
 
-Directory::Directory(fs::path raw_path)
-    : Path(raw_path)
-{
-    if (!IsDirectory() || IsEmpty()) {
-        throw std::runtime_error("Path must be a directory!");
-    }
-}
-
 Directory::Directory(const Directory& d)
     : Path(d.path)
 {}
@@ -74,6 +66,24 @@ std::vector<Path> Directory::List() const {
     std::vector<Path> children;
     for (const auto& entry : fs::directory_iterator(path)) {
         if (!Path(entry.path()).IsHidden())
+            children.emplace_back(entry);
+    }
+    return children;
+}
+
+std::vector<Path> Directory::ListOnly(std::set<std::string> extensions) const {
+    std::vector<Path> children;
+    for (const auto& entry : fs::directory_iterator(path)) {
+        if (extensions.find(Path(entry).Extension()) != extensions.end())
+            children.emplace_back(entry);
+    }
+    return children;
+}
+
+std::vector<Path> Directory::ListOnlyRecursive(std::set<std::string> extensions) const {
+    std::vector<Path> children;
+    for (const auto& entry : fs::recursive_directory_iterator(path)) {
+        if (extensions.find(Path(entry).Extension()) != extensions.end())
             children.emplace_back(entry);
     }
     return children;

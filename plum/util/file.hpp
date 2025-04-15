@@ -33,8 +33,8 @@ class Path {
         bool NeedsResync() const;
         virtual void SyncWithDevice();
         
-        static Path CurrentPath() { return fs::current_path(); }
-        fs::path RelativePath(Path base = CurrentPath()) { return fs::relative(path, base.path); }
+        static Path CurrentPath() { return Path(fs::current_path()); }
+        fs::path RelativePath(Path base = CurrentPath()) const { return fs::relative(path, base.path); }
         
         void Rename(fs::path name);
         void RenameAbsolute(fs::path abspath);
@@ -48,14 +48,14 @@ class Path {
 class Directory : public Path {
     public:
         Directory(Path path);
-        explicit Directory(fs::path raw_path);
         // Directory(fs::path path, const std::set<std::string>& extensions);
 
         std::vector<Path> List() const;
         std::vector<Path> ListRecursive() const;
         std::vector<Path> ListAll() const;
         std::vector<Path> ListAllRecursive() const;
-        // std::vector<fs::path> ListFiltered() const;
+        std::vector<Path> ListOnly(std::set<std::string> extensions) const;
+        std::vector<Path> ListOnlyRecursive(std::set<std::string> extensions) const;
 
     private:
         // std::set<std::string> extensions;

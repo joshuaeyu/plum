@@ -39,6 +39,23 @@ namespace Asset {
         {".frag",   "Program"}
     };
 
+    inline static const std::set<std::string> textureExtensions = {".png", ".jpg", ".jpeg", ".hdr"};
+    inline static const std::set<std::string> modelExtensions = {".obj", ".gltf", ".3mf"};
+    inline static const std::set<std::string> programExtensions = {".glsl", ".vs", ".fs", ".gs", ".vert", ".frag"};
+
+    inline static std::string ExtensionToTypeName(std::string extension) {
+        if (textureExtensions.find(extension) != textureExtensions.end()) {
+            return "Texture";
+        }
+        if (modelExtensions.find(extension) != modelExtensions.end()) {
+            return "Model";
+        }
+        if (programExtensions.find(extension) != programExtensions.end()) {
+            return "Program";
+        }
+        return "";
+    }
+
     class Asset {
         public:
             virtual ~Asset() = default;
@@ -99,7 +116,7 @@ namespace Asset {
         RegistryHandle id = assetRegistry.Push(std::static_pointer_cast<Asset>(object));
         AssetMetadata metadata;
         metadata.id = id;
-        metadata.type = extensionTable.at(path.Extension());
+        metadata.type = ExtensionToTypeName(path.Extension());
         if (hot_reload) {
             hotAssets[path.RawPath()] = metadata;
         } else {
@@ -114,7 +131,7 @@ namespace Asset {
         RegistryHandle id = assetRegistry.Push(std::static_pointer_cast<Asset>(object));
         AssetMetadata metadata;
         metadata.id = id;
-        metadata.type = extensionTable.at(paths.begin()->Extension());
+        metadata.type = ExtensionToTypeName(paths[0].Extension());
         for (const auto& path : paths) {
             if (hot_reload) {
                 hotAssets[path.RawPath()] = metadata;

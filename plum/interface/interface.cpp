@@ -1,4 +1,4 @@
-#include <plum/context/interface.hpp>
+#include <plum/interface/interface.hpp>
 
 #include <plum/scene/scene.hpp>
 
