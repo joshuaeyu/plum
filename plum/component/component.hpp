@@ -1,5 +1,6 @@
 #pragma once
 
+#include <plum/interface/widget.hpp>
 #include <plum/material/material.hpp>
 #include <plum/renderer/module.hpp>
 
@@ -26,7 +27,7 @@ namespace Component {
         PointLight
     };
 
-    class ComponentBase {
+    class ComponentBase : public Widget {
         public: 
             virtual ~ComponentBase();
             
@@ -36,6 +37,8 @@ namespace Component {
 
             const bool IsMesh() const;
             const bool IsLight() const;
+
+            void DisplayWidget() override {}
             
             const ComponentType type;
             std::string name = "";

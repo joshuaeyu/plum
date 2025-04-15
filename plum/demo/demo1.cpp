@@ -1,5 +1,6 @@
 #include "demo1.hpp"
 
+#include <plum/component/all.hpp>
 #include <plum/context/asset.hpp>
 #include <plum/interface/widget.hpp>
 #include <plum/util/time.hpp>
@@ -59,7 +60,9 @@ void Demo1::Initialize() {
 
     std::cout << "Loading models..." << std::endl;
     // auto backpack = std::make_shared<Component::Model>("assets/models/survival_guitar_backpack/scene.gltf", 0.005f);
+    // models["Backpack"] = backpack;
     auto sponza = std::make_shared<Component::Model>("assets/models/sponza/glTF/Sponza.gltf");
+    models["Sponza"] = sponza;
 
     std::cout << "Defining scene..." << std::endl;
     scene = std::make_unique<Scene::Scene>();
@@ -169,6 +172,8 @@ void Demo1::displayGui() {
     }
 
     if (ImGui::CollapsingHeader("Assets", ImGuiTreeNodeFlags_DefaultOpen)) {
+        // Engine object needs to mirror file itself
+        // list all files at component dialog, or just models that have already been imported?
         if (ImGui::Button("Import Texture")) {
         }
         ImGui::SameLine();
@@ -190,13 +195,19 @@ void Demo1::displayGui() {
             ImGui::TreePop();
         }
         if (ImGui::TreeNode("Models")) {
+            for (auto& [name, model] : models) {
+                if (ImGui::TreeNode(name.c_str())) {
+                    model->DisplayWidget();
+                    ImGui::TreePop();
+                }
+            }
             ImGui::TreePop();
         }
     }
     if (ImGui::CollapsingHeader("Environment", ImGuiTreeNodeFlags_DefaultOpen)) {
         if (ImGui::TreeNode("Skybox")) {
             static bool showChild = false;
-            if (ImGui::Button("Edit")) {
+            if (!showChild && ImGui::Button("Edit")) {
                 showChild = !showChild;
             }
             if (showChild) {
@@ -213,9 +224,13 @@ void Demo1::displayGui() {
                     case 0:
                     {
                         static int itemSelectedIdx = 0;
-                        Widget::Combo(texturePathsStrings, &itemSelectedIdx, texturePathsStrings[itemSelectedIdx]);
+                        Widget::Combo("Image", texturePathsStrings, &itemSelectedIdx, texturePathsStrings[itemSelectedIdx]);
                         static bool flip = true;
                         ImGui::Checkbox("Flip", &flip);
+                        if (ImGui::Button("Cancel")) {
+                            showChild = !showChild;
+                        }
+                        ImGui::SameLine();
                         if (ImGui::Button("Save")) {
                             auto texture = std::make_shared<Material::Texture>(texturePaths[itemSelectedIdx], Material::TextureType::Diffuse, flip, GL_CLAMP_TO_EDGE, GL_LINEAR);
                             *environment = Scene::Environment(texture->tex);
@@ -228,10 +243,14 @@ void Demo1::displayGui() {
                         constexpr const char* faces[] = {"+X", "-X", "+Y", "-Y", "+Z", "-Z"};
                         static int itemSelectedIdx[] = {0, 0, 0, 0, 0, 0};
                         for (int i = 0; i < 6; i++) {
-                            Widget::Combo(texturePathsStrings, &itemSelectedIdx[i], texturePathsStrings[itemSelectedIdx[i]]);
+                            Widget::Combo(faces[i], texturePathsStrings, &itemSelectedIdx[i], texturePathsStrings[itemSelectedIdx[i]]);
                         }
                         static bool flip = false;
                         ImGui::Checkbox("Flip", &flip);
+                        if (ImGui::Button("Cancel")) {
+                            showChild = !showChild;
+                        }
+                        ImGui::SameLine();
                         if (ImGui::Button("Save")) {
                             const std::vector<Path> paths = {
                                 texturePaths[itemSelectedIdx[0]],
@@ -252,16 +271,84 @@ void Demo1::displayGui() {
             ImGui::TreePop();
         }
     }
+
     int i = 0;
     if (ImGui::CollapsingHeader("Scene", ImGuiTreeNodeFlags_DefaultOpen)) {
         static bool showEmptyNodeChild = false;
         if (ImGui::Button("New Empty Node")) {
+            scene->AddChild(std::make_shared<Scene::SceneNode>());
             showEmptyNodeChild = !showEmptyNodeChild;
+        }
+        if (showEmptyNodeChild) {
         }
         ImGui::SameLine();
         static bool showComponentNodeChild = false;
         if (ImGui::Button("New Component Node")) {
             showComponentNodeChild = !showComponentNodeChild;
+        }
+        if (showComponentNodeChild) {
+            static const std::vector<std::string> componentTypes = {"Light", "Primitive", "Model"};
+            static int itemSelectedIdx = 0;
+            Widget::Combo("Component Type", componentTypes, &itemSelectedIdx, componentTypes[itemSelectedIdx]);
+            switch (itemSelectedIdx) {
+                case 0: // Light
+                {
+                    static const std::vector<std::string> lightTypes = {"Directional", "Point"};
+                    static int lightSelectedIdx = 0;
+                    Widget::Combo("Light Type", lightTypes, &lightSelectedIdx, lightTypes[lightSelectedIdx]);
+                    if (ImGui::Button("Create")) {
+                        switch (lightSelectedIdx) {
+                            case 0: // Directional
+                                scene->AddChild(std::make_shared<Component::DirectionalLight>());
+                                break;
+                            case 1: // Point
+                                scene->AddChild(std::make_shared<Component::PointLight>());
+                                break;
+                        }
+                        showComponentNodeChild = !showComponentNodeChild;
+                    }
+                }
+                    break;
+                case 1: // Primitive
+                {
+                    static const std::vector<std::string> primitiveTypes = {"Cube", "Sphere", "Plane"};
+                    static int primitiveSelectedIdx = 0;
+                    Widget::Combo("Primitive Type", primitiveTypes, &primitiveSelectedIdx, primitiveTypes[primitiveSelectedIdx]);
+                    static int uvDims[] = {1, 1};
+                    ImGui::InputInt2("UV Dimensions", uvDims);
+                    if (ImGui::Button("Create")) {
+                        switch (primitiveSelectedIdx) {
+                            case 0: // Cube
+                                scene->AddChild(std::make_shared<Component::Cube>(uvDims[0], uvDims[1]));
+                                break;
+                            case 1: // Sphere
+                                scene->AddChild(std::make_shared<Component::Sphere>(uvDims[0], uvDims[1]));
+                                break;
+                            case 2: // Plane
+                                scene->AddChild(std::make_shared<Component::Plane>(uvDims[0], uvDims[1]));
+                                break;
+                        }
+                        showComponentNodeChild = !showComponentNodeChild;
+                    }
+                }
+                    break;
+                case 2: // Model
+                {
+                    static const Directory modelsDir("assets/models");
+                    static int modelSelectedIdx = 0;
+                    static std::vector<Path> modelPaths = modelsDir.ListOnlyRecursive(Asset::modelExtensions);
+                    std::vector<std::string> modelPathsStrings;
+                    for (const auto& path : modelPaths) {
+                        modelPathsStrings.push_back(path.RelativePath(modelsDir.RawPath()));
+                    }
+                    Widget::Combo("Model Path", modelPathsStrings, &modelSelectedIdx, modelPathsStrings[modelSelectedIdx]);
+                    if (ImGui::Button("Create")) {
+                        scene->AddChild(std::make_shared<Component::Model>(modelPaths[modelSelectedIdx]));
+                        showComponentNodeChild = !showComponentNodeChild;
+                    }
+                }
+                    break;
+            }
         }
         for (auto& child : scene->children) {
             bool deleteRequested = !gui_DisplaySceneNode(*child, i);

@@ -40,6 +40,7 @@ class Demo1 : public Demo {
         std::unique_ptr<PostProcessing::Bloom> bloom;
 
         std::map<std::string, std::shared_ptr<Material::MaterialBase>> materials;
+        std::map<std::string, std::shared_ptr<Component::Model>> models;
 
     public:
         ~Demo1() = default;

@@ -3,6 +3,7 @@
 #include <plum/component/component.hpp>
 #include <plum/component/mesh.hpp>
 #include <plum/context/asset.hpp>
+#include <plum/interface/widget.hpp>
 #include <plum/material/material.hpp>
 #include <plum/material/texture.hpp>
 #include <plum/util/transform.hpp>
@@ -48,6 +49,9 @@ namespace Component {
 
             // Asset::Asset
             void SyncWithDevice() override;
+
+            // Widget
+            void DisplayWidget() override {};
     
         private:    
             float scale;
