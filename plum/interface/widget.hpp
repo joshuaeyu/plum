@@ -1,24 +1,21 @@
 #pragma once
 
+#include <plum/component/component.hpp>
+#include <plum/util/file.hpp>
+
 #include <imgui/imgui.h>
 
+#include <memory>
+#include <set>
 #include <string>
-#include <vector>
 
-class Widget {
-    public:
-        inline static void Combo(const char* label, const std::vector<std::string>& items, int* item_selected_idx, const std::string& preview) {
-            if (ImGui::BeginCombo(label, preview.c_str())) {
-                for (int i = 0; i < items.size(); i++) {
-                    const bool isSelected = (*item_selected_idx == i);
-                    if (ImGui::Selectable(items[i].c_str(), isSelected))
-                        *item_selected_idx = i;
-                    if (isSelected)
-                        ImGui::SetItemDefaultFocus();
-                }
-                ImGui::EndCombo();
-            }
-        }
-        
-        virtual void DisplayWidget() = 0;
+namespace Widget {
+    // Returns Path to be displayed.
+    Path FileExplorerWidget(Path display_path, Path highest_path);
+
+    // Returns Path selected.
+    Path PathComboWidget(int* id, Directory directory, const char* label, const std::set<std::string>& extensions);
+
+    // Returns Component created, or nullptr.
+    std::shared_ptr<Component::ComponentBase> ComponentCreationWidget(bool* show_widget);
 };

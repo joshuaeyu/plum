@@ -164,14 +164,8 @@ void Demo1::displayGui() {
     
     if (ImGui::CollapsingHeader("File Explorer", ImGuiTreeNodeFlags_DefaultOpen)) {
         static Path displayPath("assets");
-        if (ImGui::ArrowButton("##back", ImGuiDir_Left)) {
-            if (displayPath.RawPath() != fs::current_path() / "assets") {
-                displayPath = displayPath.Parent();
-            }
-        }
-        ImGui::SameLine();
-        ImGui::Text("Path: %s", displayPath.RelativePath().c_str());
-        displayPath = gui_DisplayFilePath(displayPath);
+        static Path highestPath("assets");
+        displayPath = Widget::FileExplorerWidget(displayPath, highestPath);
     }
 
     if (ImGui::CollapsingHeader("Assets", ImGuiTreeNodeFlags_DefaultOpen)) {
@@ -218,16 +212,11 @@ void Demo1::displayGui() {
                 ImGui::RadioButton("Equirectangular", &sel, 0); ImGui::SameLine();
                 ImGui::RadioButton("Six Sided", &sel, 1);
                 static const Directory skyboxesDir("assets/skyboxes");
-                static std::vector<Path> texturePaths = skyboxesDir.ListOnlyRecursive(Asset::textureExtensions);
-                std::vector<std::string> texturePathsStrings;
-                for (const auto& path : texturePaths) {
-                    texturePathsStrings.push_back(path.RelativePath(skyboxesDir.RawPath()));
-                }
                 switch (sel) {
                     case 0:
                     {
-                        static int itemSelectedIdx = 0;
-                        Widget::Combo("Image", texturePathsStrings, &itemSelectedIdx, texturePathsStrings[itemSelectedIdx]);
+                        static int widgetId;
+                        Path skyboxPath = Widget::PathComboWidget(&widgetId, skyboxesDir, "Image Path", Asset::textureExtensions);
                         static bool flip = true;
                         ImGui::Checkbox("Flip", &flip);
                         if (ImGui::Button("Cancel")) {
@@ -235,7 +224,7 @@ void Demo1::displayGui() {
                         }
                         ImGui::SameLine();
                         if (ImGui::Button("Save")) {
-                            auto texture = std::make_shared<Material::Texture>(texturePaths[itemSelectedIdx], Material::TextureType::Diffuse, flip, GL_CLAMP_TO_EDGE, GL_LINEAR);
+                            auto texture = std::make_shared<Material::Texture>(skyboxPath, Material::TextureType::Diffuse, flip, GL_CLAMP_TO_EDGE, GL_LINEAR);
                             *environment = Scene::Environment(texture->tex);
                             showChild = !showChild;
                         }
@@ -244,10 +233,17 @@ void Demo1::displayGui() {
                     case 1:
                     {
                         constexpr const char* faces[] = {"+X", "-X", "+Y", "-Y", "+Z", "-Z"};
-                        static int itemSelectedIdx[] = {0, 0, 0, 0, 0, 0};
-                        for (int i = 0; i < 6; i++) {
-                            Widget::Combo(faces[i], texturePathsStrings, &itemSelectedIdx[i], texturePathsStrings[itemSelectedIdx[i]]);
-                        }
+                        static int widgetIds[6];
+                        static std::vector<Path> skyboxPaths = {
+                            Widget::PathComboWidget(&widgetIds[0], skyboxesDir, "+X", Asset::textureExtensions),
+                            Widget::PathComboWidget(&widgetIds[1], skyboxesDir, "-X", Asset::textureExtensions),
+                            Widget::PathComboWidget(&widgetIds[2], skyboxesDir, "+Y", Asset::textureExtensions),
+                            Widget::PathComboWidget(&widgetIds[3], skyboxesDir, "-Y", Asset::textureExtensions),
+                            Widget::PathComboWidget(&widgetIds[4], skyboxesDir, "+Z", Asset::textureExtensions),
+                            Widget::PathComboWidget(&widgetIds[5], skyboxesDir, "-Z", Asset::textureExtensions)
+                        };
+                        // for (int i = 0; i < 6; i++) {
+                        // }
                         static bool flip = false;
                         ImGui::Checkbox("Flip", &flip);
                         if (ImGui::Button("Cancel")) {
@@ -255,15 +251,7 @@ void Demo1::displayGui() {
                         }
                         ImGui::SameLine();
                         if (ImGui::Button("Save")) {
-                            const std::vector<Path> paths = {
-                                texturePaths[itemSelectedIdx[0]],
-                                texturePaths[itemSelectedIdx[1]],
-                                texturePaths[itemSelectedIdx[2]],
-                                texturePaths[itemSelectedIdx[3]],
-                                texturePaths[itemSelectedIdx[4]],
-                                texturePaths[itemSelectedIdx[5]]
-                            };
-                            auto texture = std::make_shared<Material::Texture>(paths, Material::TextureType::Diffuse, flip, GL_CLAMP_TO_EDGE, GL_LINEAR);
+                            auto texture = std::make_shared<Material::Texture>(skyboxPaths, Material::TextureType::Diffuse, flip, GL_CLAMP_TO_EDGE, GL_LINEAR);
                             *environment = Scene::Environment(texture->tex);
                             showChild = !showChild;
                         }
@@ -290,67 +278,9 @@ void Demo1::displayGui() {
             showComponentNodeChild = !showComponentNodeChild;
         }
         if (showComponentNodeChild) {
-            static const std::vector<std::string> componentTypes = {"Light", "Primitive", "Model"};
-            static int itemSelectedIdx = 0;
-            Widget::Combo("Component Type", componentTypes, &itemSelectedIdx, componentTypes[itemSelectedIdx]);
-            switch (itemSelectedIdx) {
-                case 0: // Light
-                {
-                    static const std::vector<std::string> lightTypes = {"Directional", "Point"};
-                    static int lightSelectedIdx = 0;
-                    Widget::Combo("Light Type", lightTypes, &lightSelectedIdx, lightTypes[lightSelectedIdx]);
-                    if (ImGui::Button("Create")) {
-                        switch (lightSelectedIdx) {
-                            case 0: // Directional
-                                scene->EmplaceChild(std::make_shared<Component::DirectionalLight>());
-                                break;
-                            case 1: // Point
-                                scene->EmplaceChild(std::make_shared<Component::PointLight>());
-                                break;
-                        }
-                        showComponentNodeChild = !showComponentNodeChild;
-                    }
-                }
-                    break;
-                case 1: // Primitive
-                {
-                    static const std::vector<std::string> primitiveTypes = {"Cube", "Sphere", "Plane"};
-                    static int primitiveSelectedIdx = 0;
-                    Widget::Combo("Primitive Type", primitiveTypes, &primitiveSelectedIdx, primitiveTypes[primitiveSelectedIdx]);
-                    static int uvDims[] = {1, 1};
-                    ImGui::InputInt2("UV Dimensions", uvDims);
-                    if (ImGui::Button("Create")) {
-                        switch (primitiveSelectedIdx) {
-                            case 0: // Cube
-                                scene->EmplaceChild(std::make_shared<Component::Cube>(uvDims[0], uvDims[1]));
-                                break;
-                            case 1: // Sphere
-                                scene->EmplaceChild(std::make_shared<Component::Sphere>(uvDims[0], uvDims[1]));
-                                break;
-                            case 2: // Plane
-                                scene->EmplaceChild(std::make_shared<Component::Plane>(uvDims[0], uvDims[1]));
-                                break;
-                        }
-                        showComponentNodeChild = !showComponentNodeChild;
-                    }
-                }
-                    break;
-                case 2: // Model
-                {
-                    static const Directory modelsDir("assets/models");
-                    static int modelSelectedIdx = 0;
-                    static std::vector<Path> modelPaths = modelsDir.ListOnlyRecursive(Asset::modelExtensions);
-                    std::vector<std::string> modelPathsStrings;
-                    for (const auto& path : modelPaths) {
-                        modelPathsStrings.push_back(path.RelativePath(modelsDir.RawPath()));
-                    }
-                    Widget::Combo("Model Path", modelPathsStrings, &modelSelectedIdx, modelPathsStrings[modelSelectedIdx]);
-                    if (ImGui::Button("Create")) {
-                        scene->EmplaceChild(std::make_shared<Component::Model>(modelPaths[modelSelectedIdx]));
-                        showComponentNodeChild = !showComponentNodeChild;
-                    }
-                }
-                    break;
+            auto component = Widget::ComponentCreationWidget(&showComponentNodeChild);
+            if (component) {
+                scene->EmplaceChild(component);
             }
         }
         for (auto& child : scene->children) {
@@ -362,50 +292,6 @@ void Demo1::displayGui() {
         }
     }
     ImGui::End();
-}
-
-Path Demo1::gui_DisplayFilePath(Path path) {
-    ImGui::BeginChild("fileexplorer", ImVec2(0,100), ImGuiChildFlags_ResizeY | ImGuiChildFlags_FrameStyle);
-    if (path.IsDirectory()) {
-        const Directory dir(path);
-        for (auto& child : dir.List()) {
-            ImGui::TreeNodeEx(child.Filename().c_str(), ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_NoTreePushOnOpen);
-            if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left) && ImGui::IsItemHovered()) {
-                if (child.IsDirectory()) {
-                    ImGui::EndChild();
-                    return child;
-                }
-            }
-        }
-    }
-    ImGui::EndChild();
-    return path;
-    
-    // const bool isDirectory = path.IsDirectory();
-    // ImGuiTreeNodeFlags flags = isDirectory ? ImGuiTreeNodeFlags_None : ImGuiTreeNodeFlags_Leaf;
-    // bool expanded = ImGui::TreeNodeEx(path.Filename().c_str(), flags);
-    // // Right-click context menu
-    // if (!isDirectory && ImGui::BeginPopupContextItem()) {
-    //     std::string assetType = Asset::extensionTable.at(path.Extension());
-    //     // if (ImGui::Button(("Import "+assetType).c_str())) {
-    //     //     if (assetType == "Texture") {
-    //     //         Asset::AssetManager::Instance().ImportAsset<Material::Texture>(path, false, )
-    //     //     } else if (assetType == "Model") {
-
-    //     //     }
-    //     // }
-    //     ImGui::EndPopup();
-    // }
-    // if (isDirectory && expanded) {
-    //     const Directory dir(path);
-    //     std::vector<Path> children = dir.List();
-    //     for (auto& child : children) {
-    //         gui_DisplayFilePath(child);
-    //     }
-    // }
-    // if (expanded) {
-    //     ImGui::TreePop();
-    // }
 }
 
 bool Demo1::gui_DisplaySceneNode(Scene::SceneNode& node, int& i) {
@@ -425,6 +311,10 @@ bool Demo1::gui_DisplaySceneNode(Scene::SceneNode& node, int& i) {
     }
     // Node Transform and children
     if (expanded) {
+        if (ImGui::Button("Delete Node")) {
+            ImGui::TreePop();
+            return false;
+        }
         if (ImGui::TreeNodeEx("[Transform]")) {
             bool pos = ImGui::DragFloat3("Position", glm::value_ptr(node.transform.position), 0.01f, 0.0f, 0.0f, "%.2f");
             bool rot = ImGui::DragFloat3("Rotation", glm::value_ptr(node.transform.rotationEuler), 0.1f, 0.0f, 0.0f, "%.1f");
@@ -433,9 +323,18 @@ bool Demo1::gui_DisplaySceneNode(Scene::SceneNode& node, int& i) {
                 node.transform.Update();
             ImGui::TreePop();
         }
-        if (ImGui::TreeNodeEx(("[" + node.component->name + "]").c_str())) {
-            node.component->DisplayWidget();
-            ImGui::TreePop();
+        if (!node.component) {
+            if (ImGui::Button("Add Component")) {
+                
+            }
+        } else if (node.component) {
+            if (ImGui::TreeNodeEx(("[" + node.component->name + "]").c_str())) {
+                node.component->DisplayWidget();
+                if (ImGui::Button("Remove Component")) {
+                    node.component.reset();
+                }
+                ImGui::TreePop();
+            }
         }
         for (auto& child : node.children) {
             if (!gui_DisplaySceneNode(*child, i))

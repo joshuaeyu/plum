@@ -2,7 +2,6 @@
 
 #include <plum/core/program.hpp>
 #include <plum/core/tex.hpp>
-#include <plum/interface/widget.hpp>
 
 #include <glm/glm.hpp>
 
@@ -16,12 +15,12 @@ namespace Component {
 
 namespace Material {
     
-    class MaterialBase : public Widget {
+    class MaterialBase {
         public:
             virtual ~MaterialBase();
             virtual std::shared_ptr<Core::Program> GetProgram() { return nullptr; }
             virtual void SetUniforms(const glm::mat4& model_transform) {};
-            virtual void DisplayWidget() override {};
+            virtual void DisplayWidget() {};
         protected:
             MaterialBase() = default;
     };
