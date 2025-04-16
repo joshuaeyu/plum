@@ -41,7 +41,7 @@ namespace Component {
             void DisplayWidget() override {}
             
             const ComponentType type;
-            std::string name = "";
+            std::string name = "Component";
         
         protected:
             ComponentBase(const ComponentType type);

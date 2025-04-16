@@ -245,7 +245,8 @@ namespace Component {
         flipUvs(flipUvs),
         wrap(wrap)
     {
-        name = files[0].Name();
+        name = "Model";
+        // name = files[0].Name();
         importFile(files[0].RawPath(), scale, flipUvs);
     }
     Model::~Model() {}

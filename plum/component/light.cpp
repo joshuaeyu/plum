@@ -28,7 +28,6 @@ namespace Component {
     void Light::DisplayWidget() {
         ImGui::ColorEdit3("Color", glm::value_ptr(color), ImGuiColorEditFlags_Float);
         ImGui::DragFloat("Intensity", &intensity, 0.01f, 0.0f, 0.0f, "%.3f");
-        ImGui::TreePop();
     }
 
     // ======== DirectionalLight ========
@@ -36,7 +35,7 @@ namespace Component {
     DirectionalLight::DirectionalLight() 
         : Light(ComponentType::DirLight)
     {
-        name = "DirectionalLight";
+        name = "Directional Light";
     }
 
     void DirectionalLight::Draw(const glm::mat4& parent_transform) {
@@ -77,7 +76,7 @@ namespace Component {
     PointLight::PointLight() 
         : Light(ComponentType::PointLight) 
     {
-        name = "PointLight";
+        name = "Point Light";
     }
 
     void PointLight::Draw(const glm::mat4& parent_transform) {

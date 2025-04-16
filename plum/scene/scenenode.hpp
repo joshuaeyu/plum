@@ -14,14 +14,18 @@ namespace Scene {
     class SceneNode {
         public:
             SceneNode();
+            SceneNode(const std::string& name);
             SceneNode(std::shared_ptr<Component::ComponentBase> component);
+            SceneNode(std::shared_ptr<Component::ComponentBase> component, const std::string& name);
             ~SceneNode();
                
         public:
-            std::shared_ptr<SceneNode> CreateChild();
             std::shared_ptr<SceneNode> AddChild(std::shared_ptr<SceneNode> node);
-            std::shared_ptr<SceneNode> AddChild(std::shared_ptr<Component::ComponentBase> component);
-            // Future: Template using component type and its constructor
+            template<typename... Args>
+            std::shared_ptr<SceneNode> EmplaceChild(Args&& ...args) {
+                children.emplace_back(std::make_shared<SceneNode>(args...));
+                return children.back();
+            }
             void RemoveChild(std::shared_ptr<SceneNode> node);
             
             virtual void Draw(const glm::mat4& parent_transform = glm::identity<glm::mat4>());

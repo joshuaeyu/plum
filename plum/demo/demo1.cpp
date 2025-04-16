@@ -66,20 +66,20 @@ void Demo1::Initialize() {
 
     std::cout << "Defining scene..." << std::endl;
     scene = std::make_unique<Scene::Scene>();
-    auto dlNode = scene->AddChild(dirlight);
+    auto dlNode = scene->EmplaceChild(dirlight);
     dlNode->transform.Rotate(80,0,0);
-    auto plNode = scene->AddChild(pointlight);
+    auto plNode = scene->EmplaceChild(pointlight);
     plNode->transform.Translate(0,5,0);
-    auto planeNode = scene->AddChild(plane);
+    auto planeNode = scene->EmplaceChild(plane);
     planeNode->transform.Scale(25);
     planeNode->transform.Translate(0,-5,0);
-    auto cubeNode = scene->AddChild(cube);
+    auto cubeNode = scene->EmplaceChild(cube);
     cubeNode->transform.Translate(0,2,0);
-    auto sphereNode = cubeNode->AddChild(sphere);
+    auto sphereNode = cubeNode->EmplaceChild(sphere);
     sphereNode->transform.Translate(0,2,0);
-    // auto backpackNode = scene->AddChild(backpack);
+    // auto backpackNode = scene->EmplaceChild(backpack);
     // backpackNode->transform.Translate(5,4,0);
-    auto sponzaNode = scene->AddChild(sponza);
+    auto sponzaNode = scene->EmplaceChild(sponza);
     
     std::cout << "Creating renderer..." << std::endl;
     renderer = std::make_unique<Renderer::DeferredRenderer>();
@@ -279,7 +279,7 @@ void Demo1::displayGui() {
     if (ImGui::CollapsingHeader("Scene", ImGuiTreeNodeFlags_DefaultOpen)) {
         static bool showEmptyNodeChild = false;
         if (ImGui::Button("New Empty Node")) {
-            scene->AddChild(std::make_shared<Scene::SceneNode>());
+            scene->EmplaceChild();
             showEmptyNodeChild = !showEmptyNodeChild;
         }
         if (showEmptyNodeChild) {
@@ -302,10 +302,10 @@ void Demo1::displayGui() {
                     if (ImGui::Button("Create")) {
                         switch (lightSelectedIdx) {
                             case 0: // Directional
-                                scene->AddChild(std::make_shared<Component::DirectionalLight>());
+                                scene->EmplaceChild(std::make_shared<Component::DirectionalLight>());
                                 break;
                             case 1: // Point
-                                scene->AddChild(std::make_shared<Component::PointLight>());
+                                scene->EmplaceChild(std::make_shared<Component::PointLight>());
                                 break;
                         }
                         showComponentNodeChild = !showComponentNodeChild;
@@ -322,13 +322,13 @@ void Demo1::displayGui() {
                     if (ImGui::Button("Create")) {
                         switch (primitiveSelectedIdx) {
                             case 0: // Cube
-                                scene->AddChild(std::make_shared<Component::Cube>(uvDims[0], uvDims[1]));
+                                scene->EmplaceChild(std::make_shared<Component::Cube>(uvDims[0], uvDims[1]));
                                 break;
                             case 1: // Sphere
-                                scene->AddChild(std::make_shared<Component::Sphere>(uvDims[0], uvDims[1]));
+                                scene->EmplaceChild(std::make_shared<Component::Sphere>(uvDims[0], uvDims[1]));
                                 break;
                             case 2: // Plane
-                                scene->AddChild(std::make_shared<Component::Plane>(uvDims[0], uvDims[1]));
+                                scene->EmplaceChild(std::make_shared<Component::Plane>(uvDims[0], uvDims[1]));
                                 break;
                         }
                         showComponentNodeChild = !showComponentNodeChild;
@@ -346,7 +346,7 @@ void Demo1::displayGui() {
                     }
                     Widget::Combo("Model Path", modelPathsStrings, &modelSelectedIdx, modelPathsStrings[modelSelectedIdx]);
                     if (ImGui::Button("Create")) {
-                        scene->AddChild(std::make_shared<Component::Model>(modelPaths[modelSelectedIdx]));
+                        scene->EmplaceChild(std::make_shared<Component::Model>(modelPaths[modelSelectedIdx]));
                         showComponentNodeChild = !showComponentNodeChild;
                     }
                 }
@@ -433,17 +433,9 @@ bool Demo1::gui_DisplaySceneNode(Scene::SceneNode& node, int& i) {
                 node.transform.Update();
             ImGui::TreePop();
         }
-        if (node.component->IsLight()) {
-            static const char* lightTypes[] = {"[Directional Light]", "[Point Light]"};
-            static int lightTypeIdx = 0;
-            if (node.component->type == Component::ComponentType::DirLight) {
-                lightTypeIdx = 0;
-            } else if (node.component->type == Component::ComponentType::PointLight) {
-                lightTypeIdx = 1;
-            }
-            if (ImGui::TreeNodeEx(lightTypes[lightTypeIdx])) {
-                node.component->DisplayWidget();
-            }
+        if (ImGui::TreeNodeEx(("[" + node.component->name + "]").c_str())) {
+            node.component->DisplayWidget();
+            ImGui::TreePop();
         }
         for (auto& child : node.children) {
             if (!gui_DisplaySceneNode(*child, i))
