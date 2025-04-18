@@ -15,7 +15,7 @@ namespace fs = std::filesystem;
 
 class Path {
     public:
-        Path() = default;
+        Path() = default;   // empty path
         Path(const char* path);
         Path(fs::path raw_path);
         

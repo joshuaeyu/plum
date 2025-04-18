@@ -23,6 +23,8 @@ namespace Component {
             virtual void Draw(Material::MaterialBase& material, const glm::mat4& model_matrix = glm::identity<glm::mat4>()) override;
             virtual void Draw(Renderer::Module& module, const glm::mat4& model_matrix = glm::identity<glm::mat4>()) override;
             
+            virtual void DisplayWidget(std::map<std::string, std::shared_ptr<Material::MaterialBase>> materials);
+
             // Default material is PBRMetallicMaterial
             std::shared_ptr<Material::MaterialBase> material = std::make_shared<Material::PBRMetallicMaterial>();
             

@@ -33,6 +33,8 @@ Remaining minor:
 - Model
   - gltf - do a few more examples
   - obj
+- Texture
+  - decouple file, image, texture, tex, texture view...
 - Material
   - no gamma correction for user defined mats somehow
   - specular

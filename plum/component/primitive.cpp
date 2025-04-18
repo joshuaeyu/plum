@@ -29,7 +29,7 @@ namespace Component {
     }
 
     Cube::Cube(int nrows, int ncols) : nRows(nrows), nCols(ncols) {
-        name = "Cube";
+        name = "Mesh - Cube";
 
         const std::vector<float> cubedata = {
             // Positions           // Normals           // UV                    // Tangents
@@ -83,7 +83,7 @@ namespace Component {
     }
     
     Sphere::Sphere(int nstacks, int nsectors) : nStacks(nstacks), nSectors(nsectors) {
-        name = "Sphere";
+        name = "Mesh - Sphere";
 
         using namespace Core;
         
@@ -179,7 +179,7 @@ namespace Component {
     }
     
     Plane::Plane(int nrows, int ncols) : nRows(nrows), nCols(ncols) {
-        name = "Plane";
+        name = "Mesh - Plane";
 
         const std::vector<float> rectdata = {    // Remember CCW (x-z vs x-y)
             // Positions         // Normals         // UV                        // Tangents

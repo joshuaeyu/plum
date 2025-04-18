@@ -28,9 +28,9 @@ namespace Scene {
             }
             void RemoveChild(std::shared_ptr<SceneNode> node);
             
-            virtual void Draw(const glm::mat4& parent_transform = glm::identity<glm::mat4>());
-            virtual void Draw(Material::MaterialBase& m, const glm::mat4& parent_transform = glm::identity<glm::mat4>());
-            virtual void Draw(Renderer::Module& m, const glm::mat4& parent_transform = glm::identity<glm::mat4>());
+            void Draw(const glm::mat4& parent_transform = glm::identity<glm::mat4>());
+            void Draw(Material::MaterialBase& m, const glm::mat4& parent_transform = glm::identity<glm::mat4>());
+            void Draw(Renderer::Module& m, const glm::mat4& parent_transform = glm::identity<glm::mat4>());
             
             std::string name = "SceneNode";
 

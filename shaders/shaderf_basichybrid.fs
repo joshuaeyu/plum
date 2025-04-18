@@ -53,10 +53,9 @@ void main() {
         gNormal = normalize(fs_in.Normal);
     }
 
+    gAlbedoSpec.rgb = material.albedo;
     if (material.has_texture_albedo) {
-        gAlbedoSpec.rgb = texture(material.texture_albedo, fs_in.TexCoords).rgb;
-    } else {
-        gAlbedoSpec.rgb = material.albedo;
+        gAlbedoSpec.rgb += texture(material.texture_albedo, fs_in.TexCoords).rgb;
     }
 
     if (material.has_texture_metallic) {

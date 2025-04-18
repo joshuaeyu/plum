@@ -1,9 +1,31 @@
 #include <plum/interface/widget.hpp>
 
 #include <plum/component/all.hpp>
+#include <plum/util/time.hpp>
 
+#include <iostream>
 #include <string>
 #include <vector>
+
+void Widget::PerformanceWidget(float points_per_sec, float seconds_to_display) {
+    static std::vector<float> framerateData = {Time::FrameRate()};
+    static float displayTimer = 0;
+
+    const int numDisplayPoints = points_per_sec * seconds_to_display;
+    if (ImGui::CollapsingHeader("Performance", ImGuiTreeNodeFlags_DefaultOpen)) {
+        ImGui::Text("%.2f ms/frame (%.1f fps)", 1000.f/framerateData.back(), framerateData.back());
+        int n = std::min(static_cast<int>(framerateData.size()), numDisplayPoints);
+        ImGui::PlotLines("ms/frame", framerateData.data(), n, framerateData.size() - n, NULL, FLT_MAX, FLT_MAX, ImVec2(250,50));
+    }
+    if (displayTimer >= points_per_sec) {
+        framerateData.push_back(Time::FrameRate());
+        if (framerateData.size() >= 200) {
+            framerateData.erase(framerateData.begin(), framerateData.end() - 100);
+        }
+        displayTimer = 0;
+    }
+    displayTimer += Time::DeltaTime();
+}
 
 Path Widget::FileExplorerWidget(Path display_path, Path highest_path) {
     if (ImGui::ArrowButton("##fileexplorer_back", ImGuiDir_Left)) {
@@ -32,21 +54,24 @@ Path Widget::FileExplorerWidget(Path display_path, Path highest_path) {
     return display_path;
 }
 
-Path Widget::PathComboWidget(int* id, Directory directory, const char* label, const std::set<std::string>& extensions) {
+bool Widget::PathComboWidget(int* id, Directory directory, const char* label, const std::set<std::string>& extensions, Path* selected_path, Path default_path) {
     static int idCounter = 0;
     static std::vector<int> allPathSelectedIdx;
     static std::vector<std::vector<Path>> allPaths;
     static std::vector<std::vector<char*>> allRelativePathNames;
 
-    bool updateNeeded;
+    bool updateNeeded, newId;
     if (*id < 0 || *id >= idCounter) {
         *id = idCounter++;
+        std::cout << *id << " " << std::endl;
         allPathSelectedIdx.push_back(0);
         allPaths.emplace_back();
         allRelativePathNames.emplace_back();
         updateNeeded = true;
+        newId = true;
     } else {
         updateNeeded = directory.NeedsResync();
+        newId = false;
     }
 
     int& pathSelectedIdx = allPathSelectedIdx[*id];
@@ -54,33 +79,62 @@ Path Widget::PathComboWidget(int* id, Directory directory, const char* label, co
     std::vector<char*>& relativePathNames = allRelativePathNames[*id];
     
     if (updateNeeded) {
-        paths = directory.ListOnlyRecursive(extensions);
+        std::vector<Path> directoryPaths = directory.ListOnlyRecursive(extensions);
+        if (newId) {
+            paths.resize(1 + directoryPaths.size());
+            paths[0] = default_path;
+        }
+        for (int i = 0; i < directoryPaths.size(); i++) {
+            paths[i+1] = directoryPaths[i];
+            if (selected_path->RawPath() == paths[i+1].RawPath()) {
+                pathSelectedIdx = i+1;
+            }
+        }
         relativePathNames.resize(paths.size());
-        for (int i = 0; i < paths.size(); i++) {
+        relativePathNames[0] = new char[512];
+        if (default_path.IsEmpty()) {
+            strcpy(relativePathNames[0], "");
+        } else {
+            strcpy(relativePathNames[0], paths[0].RelativePath(directory.RawPath()).c_str());
+        }
+        for (int i = 1; i < paths.size(); i++) {
             delete relativePathNames[i];
-            relativePathNames[i] = new char[512];
+            relativePathNames[i] = new char[512];   // leaks
             strcpy(relativePathNames[i], paths[i].RelativePath(directory.RawPath()).c_str());
         }
     }
 
+    int idxBefore = pathSelectedIdx;
     if (!paths.empty()) {
         ImGui::Combo(label, &pathSelectedIdx, relativePathNames.data(), relativePathNames.size());
     }
 
-    return paths[pathSelectedIdx];
+    if (idxBefore != pathSelectedIdx) {
+        *selected_path = paths[pathSelectedIdx];
+        return true;
+    } else {
+        return false;
+    }
 }
 
 std::shared_ptr<Component::ComponentBase> Widget::ComponentCreationWidget(bool* show_widget) {
+    if (!ImGui::BeginChild("##componentcreation", ImVec2(0, 0), ImGuiChildFlags_Border | ImGuiChildFlags_AutoResizeX | ImGuiChildFlags_AutoResizeY)) {
+        ImGui::EndChild();
+        return nullptr;
+    }
+
     std::shared_ptr<Component::ComponentBase> result;
     static const std::vector<const char*> componentTypes = {"Light", "Primitive", "Model"};
     static int componentSelectedIdx = 0;
     ImGui::Combo("Component Type", &componentSelectedIdx, componentTypes.data(), componentTypes.size());
+    ImGui::Spacing();
     switch (componentSelectedIdx) {
         case 0: // Light
         {
             static const std::vector<const char*> lightTypes = {"Directional", "Point"};
             static int lightSelectedIdx = 0;
             ImGui::Combo("Light Type", &lightSelectedIdx, lightTypes.data(), lightTypes.size());
+            ImGui::Spacing();
             if (ImGui::Button("Create")) {
                 switch (lightSelectedIdx) {
                     case 0: // Directional
@@ -93,7 +147,7 @@ std::shared_ptr<Component::ComponentBase> Widget::ComponentCreationWidget(bool* 
                 *show_widget = !*show_widget;
             }
         }
-        break;
+            break;
         case 1: // Primitive
         {
             static const std::vector<const char*> primitiveTypes = {"Cube", "Sphere", "Plane"};
@@ -101,6 +155,7 @@ std::shared_ptr<Component::ComponentBase> Widget::ComponentCreationWidget(bool* 
             ImGui::Combo("Primitive Type", &primitiveSelectedIdx, primitiveTypes.data(), primitiveTypes.size());
             static int uvDims[] = {1, 1};
             ImGui::InputInt2("UV Dimensions", uvDims);
+            ImGui::Spacing();
             if (ImGui::Button("Create")) {
                 switch (primitiveSelectedIdx) {
                     case 0: // Cube
@@ -120,8 +175,10 @@ std::shared_ptr<Component::ComponentBase> Widget::ComponentCreationWidget(bool* 
         case 2: // Model
         {
             static const Directory modelsDir("assets/models");
-            int widgetId;
-            File modelPath = PathComboWidget(&widgetId, modelsDir, "Model Path", Asset::modelExtensions);
+            static Path modelPath = Path();
+            static int widgetId;
+            PathComboWidget(&widgetId, modelsDir, "Model Path", Asset::modelExtensions, &modelPath, Path());
+            ImGui::Spacing();
             if (ImGui::Button("Create")) {
                 result = std::make_shared<Component::Model>(modelPath);
                 *show_widget = !*show_widget;
@@ -129,5 +186,32 @@ std::shared_ptr<Component::ComponentBase> Widget::ComponentCreationWidget(bool* 
         }
             break;
     }
+    ImGui::EndChild();
+    return result;
+}
+
+std::shared_ptr<Material::MaterialBase> Widget::MaterialCreationWidget(bool* show_widget) {
+    if (!ImGui::BeginChild("##materialcreation", ImVec2(0, 0), ImGuiChildFlags_Border | ImGuiChildFlags_AutoResizeX | ImGuiChildFlags_AutoResizeY)) {
+        ImGui::EndChild();
+        return nullptr;
+    }
+
+    std::shared_ptr<Material::MaterialBase> result;
+    static const std::vector<const char*> materialTypes = {"PBR Metallic"};
+    static int materialSelectedIdx = 0;
+    ImGui::Combo("Component Type", &materialSelectedIdx, materialTypes.data(), materialTypes.size());
+    ImGui::Spacing();
+    switch (materialSelectedIdx) {
+        case 0: // PBR Metallic
+        {
+            ImGui::Spacing();
+            if (ImGui::Button("Create")) {
+                result = std::make_shared<Material::PBRMetallicMaterial>();
+                *show_widget = !*show_widget;
+            }
+        }
+            break;
+    }
+    ImGui::EndChild();
     return result;
 }

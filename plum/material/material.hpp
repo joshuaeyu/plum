@@ -5,9 +5,10 @@
 
 #include <glm/glm.hpp>
 
-#include <vector>
+#include <map>
 #include <memory>
 #include <string>
+#include <vector>
 
 namespace Component {
     struct MaterialInfo;
@@ -18,9 +19,9 @@ namespace Material {
     class MaterialBase {
         public:
             virtual ~MaterialBase();
-            virtual std::shared_ptr<Core::Program> GetProgram() { return nullptr; }
-            virtual void SetUniforms(const glm::mat4& model_transform) {};
-            virtual void DisplayWidget() {};
+            virtual std::shared_ptr<Core::Program> GetProgram() = 0;
+            virtual void SetUniforms(const glm::mat4& model_transform) = 0;
+            virtual void DisplayWidget() {}
         protected:
             MaterialBase() = default;
     };

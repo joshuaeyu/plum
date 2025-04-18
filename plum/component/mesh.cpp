@@ -1,6 +1,9 @@
 #include <plum/component/mesh.hpp>
 
 #include <plum/core/globject.hpp>
+#include <plum/interface/widget.hpp>
+
+#include <imgui/imgui.h>
 
 #include <vector>
 #include <memory>
@@ -51,6 +54,20 @@ namespace Component {
     void Mesh::Draw(Renderer::Module& module, const glm::mat4& model_matrix) {
         module.GetProgram()->SetMat4("model", model_matrix);
         vao->Draw();
+    }
+
+    void Mesh::DisplayWidget(std::map<std::string, std::shared_ptr<Material::MaterialBase>> materials) {
+        static int itemSelectedIdx = 0;
+        std::vector<char*> itemNames(materials.size());
+        for (int i = 0; i < materials.size(); i++) {
+            itemNames[i] = new char[256];
+            strcpy(itemNames[i], (std::next(materials.begin(), i)->first).c_str());
+        }
+        ImGui::Combo("Material", &itemSelectedIdx, itemNames.data(), itemNames.size());
+        for (int i = 0; i < materials.size(); i++) {
+            delete itemNames[i];
+        }
+        material = std::next(materials.begin(), itemSelectedIdx)->second;
     }
 
 }

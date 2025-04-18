@@ -133,22 +133,9 @@ void Demo1::displayGui() {
     ImGui::TextColored(ImVec4(0.3,1,1,1), "Use WASD, Shift, and Spacebar to move camera.");
     ImGui::Spacing();
     
-    constexpr float displayCooldown = 0.5f;    // points/sec
-    constexpr int numDisplayPoints = 20 / displayCooldown; // sec / points/sec
-    static std::vector<float> framerateData = {Time::FrameRate()};
-    static float displayTimer = 0;
-    if (ImGui::CollapsingHeader("Performance", ImGuiTreeNodeFlags_DefaultOpen)) {
-        ImGui::Text("%.2f ms/frame (%.1f fps)", 1000.f/framerateData.back(), framerateData.back());
-        int n = std::min(static_cast<int>(framerateData.size()), numDisplayPoints);
-        ImGui::PlotLines("ms/frame", framerateData.data(), n, framerateData.size() - n, NULL, FLT_MAX, FLT_MAX, ImVec2(250,50));
-    }
-    if ((displayTimer += Time::DeltaTime()) >= displayCooldown) {
-        framerateData.push_back(Time::FrameRate());
-        if (framerateData.size() >= 200) {
-            framerateData.erase(framerateData.begin(), framerateData.end() - 100);
-        }
-        displayTimer = 0;
-    }
+    constexpr float pointsPerSecond = 0.5f;    // points/sec
+    constexpr int secondsToDisplay = 20.f; // sec / points/sec
+    Widget::PerformanceWidget(pointsPerSecond, secondsToDisplay);
 
     if (ImGui::CollapsingHeader("Render Options", ImGuiTreeNodeFlags_DefaultOpen)) {
         ImGui::SliderFloat("IBL Intensity", &renderOptions.iblIntensity, 0.0f, 1.0f);
@@ -164,41 +151,29 @@ void Demo1::displayGui() {
     
     if (ImGui::CollapsingHeader("File Explorer", ImGuiTreeNodeFlags_DefaultOpen)) {
         static Path displayPath("assets");
-        static Path highestPath("assets");
+        static const Path highestPath("assets");
         displayPath = Widget::FileExplorerWidget(displayPath, highestPath);
     }
 
-    if (ImGui::CollapsingHeader("Assets", ImGuiTreeNodeFlags_DefaultOpen)) {
+    if (ImGui::CollapsingHeader("Materials", ImGuiTreeNodeFlags_DefaultOpen)) {
         // Engine object needs to mirror file itself
         // list all files at component dialog, or just models that have already been imported?
-        if (ImGui::Button("Import Texture")) {
-        }
-        ImGui::SameLine();
-        if (ImGui::Button("Import Model")) {
-        }
-        ImGui::SameLine();
+        static bool showMaterialCreationWidget = false;
         if (ImGui::Button("New Material")) {
+            showMaterialCreationWidget = !showMaterialCreationWidget;
         }
-        if (ImGui::TreeNode("Textures")) {
-            ImGui::TreePop();
-        }
-        if (ImGui::TreeNode("Materials")) {
-            for (auto& [name, material] : materials) {
-                if (ImGui::TreeNode(name.c_str())) {
-                    material->DisplayWidget();
-                    ImGui::TreePop();
-                }
+        if (showMaterialCreationWidget) {
+            auto material = Widget::MaterialCreationWidget(&showMaterialCreationWidget);
+            if (material) {
+                static int i = 0;
+                materials["Material" + std::to_string(i)] = material;
             }
-            ImGui::TreePop();
         }
-        if (ImGui::TreeNode("Models")) {
-            for (auto& [name, model] : models) {
-                if (ImGui::TreeNode(name.c_str())) {
-                    model->DisplayWidget();
-                    ImGui::TreePop();
-                }
+        for (auto& [name, material] : materials) {
+            if (ImGui::TreeNode(name.c_str())) {
+                material->DisplayWidget();
+                ImGui::TreePop();
             }
-            ImGui::TreePop();
         }
     }
     if (ImGui::CollapsingHeader("Environment", ImGuiTreeNodeFlags_DefaultOpen)) {
@@ -209,55 +184,69 @@ void Demo1::displayGui() {
             }
             if (showChild) {
                 static int sel = 0;
-                ImGui::RadioButton("Equirectangular", &sel, 0); ImGui::SameLine();
-                ImGui::RadioButton("Six Sided", &sel, 1);
+                ImGui::RadioButton("None", &sel, 0); ImGui::SameLine();
+                ImGui::RadioButton("Equirectangular", &sel, 1); ImGui::SameLine();
+                ImGui::RadioButton("Six Sided", &sel, 2);
                 static const Directory skyboxesDir("assets/skyboxes");
                 switch (sel) {
                     case 0:
-                    {
-                        static int widgetId;
-                        Path skyboxPath = Widget::PathComboWidget(&widgetId, skyboxesDir, "Image Path", Asset::textureExtensions);
-                        static bool flip = true;
-                        ImGui::Checkbox("Flip", &flip);
-                        if (ImGui::Button("Cancel")) {
-                            showChild = !showChild;
-                        }
-                        ImGui::SameLine();
                         if (ImGui::Button("Save")) {
-                            auto texture = std::make_shared<Material::Texture>(skyboxPath, Material::TextureType::Diffuse, flip, GL_CLAMP_TO_EDGE, GL_LINEAR);
-                            *environment = Scene::Environment(texture->tex);
+                            if (environment->skybox) {
+                                *environment = Scene::Environment();
+                            }
                             showChild = !showChild;
                         }
-                    }
                         break;
                     case 1:
                     {
-                        constexpr const char* faces[] = {"+X", "-X", "+Y", "-Y", "+Z", "-Z"};
-                        static int widgetIds[6];
-                        static std::vector<Path> skyboxPaths = {
-                            Widget::PathComboWidget(&widgetIds[0], skyboxesDir, "+X", Asset::textureExtensions),
-                            Widget::PathComboWidget(&widgetIds[1], skyboxesDir, "-X", Asset::textureExtensions),
-                            Widget::PathComboWidget(&widgetIds[2], skyboxesDir, "+Y", Asset::textureExtensions),
-                            Widget::PathComboWidget(&widgetIds[3], skyboxesDir, "-Y", Asset::textureExtensions),
-                            Widget::PathComboWidget(&widgetIds[4], skyboxesDir, "+Z", Asset::textureExtensions),
-                            Widget::PathComboWidget(&widgetIds[5], skyboxesDir, "-Z", Asset::textureExtensions)
-                        };
-                        // for (int i = 0; i < 6; i++) {
-                        // }
-                        static bool flip = false;
+                        static int widgetId = -1;
+                        static Path skyboxPath = Path();
+                        Widget::PathComboWidget(&widgetId, skyboxesDir, "Image Path", Asset::textureExtensions, &skyboxPath, Path());
+                        static bool flip = true;
                         ImGui::Checkbox("Flip", &flip);
-                        if (ImGui::Button("Cancel")) {
-                            showChild = !showChild;
-                        }
-                        ImGui::SameLine();
                         if (ImGui::Button("Save")) {
-                            auto texture = std::make_shared<Material::Texture>(skyboxPaths, Material::TextureType::Diffuse, flip, GL_CLAMP_TO_EDGE, GL_LINEAR);
-                            *environment = Scene::Environment(texture->tex);
-                            showChild = !showChild;
+                            if (!skyboxPath.IsEmpty()) {
+                                auto texture = std::make_shared<Material::Texture>(skyboxPath, Material::TextureType::Diffuse, flip, GL_CLAMP_TO_EDGE, GL_LINEAR);
+                                *environment = Scene::Environment(texture->tex);
+                                showChild = !showChild;
+                            }
+                        }
+                    }
+                        break;
+                    case 2:
+                    {
+                        constexpr const char* faces[] = {"+X", "-X", "+Y", "-Y", "+Z", "-Z"};
+                        static int widgetIds[6] = {-1, -1, -1, -1, -1, -1};
+                        static std::vector<Path> facePaths(6);
+                        Widget::PathComboWidget(&widgetIds[0], skyboxesDir, "+X", Asset::textureExtensions, &facePaths[0], Path());
+                        Widget::PathComboWidget(&widgetIds[1], skyboxesDir, "-X", Asset::textureExtensions, &facePaths[1], Path());
+                        Widget::PathComboWidget(&widgetIds[2], skyboxesDir, "+Y", Asset::textureExtensions, &facePaths[2], Path());
+                        Widget::PathComboWidget(&widgetIds[3], skyboxesDir, "-Y", Asset::textureExtensions, &facePaths[3], Path());
+                        Widget::PathComboWidget(&widgetIds[4], skyboxesDir, "+Z", Asset::textureExtensions, &facePaths[4], Path());
+                        Widget::PathComboWidget(&widgetIds[5], skyboxesDir, "-Z", Asset::textureExtensions, &facePaths[5], Path());
+                        static bool flip = true;
+                        ImGui::Checkbox("Flip", &flip);
+                        if (ImGui::Button("Save")) {
+                            bool pathsValid = true;
+                            for (const Path& path : facePaths) {
+                                if (path.IsEmpty()) {
+                                    pathsValid = false;
+                                    break;
+                                }
+                            }
+                            if (pathsValid) {
+                                auto texture = std::make_shared<Material::Texture>(facePaths, Material::TextureType::Diffuse, flip, GL_CLAMP_TO_EDGE, GL_LINEAR);
+                                *environment = Scene::Environment(texture->tex);
+                                showChild = !showChild;
+                            }
                         }
                     }
                         break;
                 }
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("Cancel")) {
+                showChild = !showChild;
             }
             ImGui::TreePop();
         }
@@ -265,20 +254,16 @@ void Demo1::displayGui() {
 
     int i = 0;
     if (ImGui::CollapsingHeader("Scene", ImGuiTreeNodeFlags_DefaultOpen)) {
-        static bool showEmptyNodeChild = false;
         if (ImGui::Button("New Empty Node")) {
             scene->EmplaceChild();
-            showEmptyNodeChild = !showEmptyNodeChild;
-        }
-        if (showEmptyNodeChild) {
         }
         ImGui::SameLine();
-        static bool showComponentNodeChild = false;
+        static bool showComponentCreationWidget = false;
         if (ImGui::Button("New Component Node")) {
-            showComponentNodeChild = !showComponentNodeChild;
+            showComponentCreationWidget = !showComponentCreationWidget;
         }
-        if (showComponentNodeChild) {
-            auto component = Widget::ComponentCreationWidget(&showComponentNodeChild);
+        if (showComponentCreationWidget) {
+            auto component = Widget::ComponentCreationWidget(&showComponentCreationWidget);
             if (component) {
                 scene->EmplaceChild(component);
             }
@@ -295,7 +280,8 @@ void Demo1::displayGui() {
 }
 
 bool Demo1::gui_DisplaySceneNode(Scene::SceneNode& node, int& i) {
-    bool expanded = ImGui::TreeNodeEx((node.name+"##"+std::to_string(i++)).c_str());
+    const std::string nodeName = node.name+"##"+std::to_string(i++);
+    bool expanded = ImGui::TreeNodeEx(nodeName.c_str());
     // Right-click context menu
     if (ImGui::BeginPopupContextItem()) {
         if (ImGui::Button("Duplicate")) {
@@ -324,12 +310,23 @@ bool Demo1::gui_DisplaySceneNode(Scene::SceneNode& node, int& i) {
             ImGui::TreePop();
         }
         if (!node.component) {
+            static bool showComponentCreationWidget = false;
             if (ImGui::Button("Add Component")) {
-                
+                showComponentCreationWidget = !showComponentCreationWidget;
             }
-        } else if (node.component) {
+            if (showComponentCreationWidget) {
+                auto component = Widget::ComponentCreationWidget(&showComponentCreationWidget);
+                if (component) {
+                    node.component = component;
+                }
+            }
+        } else {
             if (ImGui::TreeNodeEx(("[" + node.component->name + "]").c_str())) {
-                node.component->DisplayWidget();
+                if (node.component->IsMesh()) {
+                    std::static_pointer_cast<Component::Mesh>(node.component)->DisplayWidget(materials);
+                } else {
+                    node.component->DisplayWidget();
+                }
                 if (ImGui::Button("Remove Component")) {
                     node.component.reset();
                 }

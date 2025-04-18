@@ -8,6 +8,7 @@
 #include <imgui/imgui.h>
 
 #include <iostream>
+#include <memory>
 
 namespace Material {
     
@@ -88,6 +89,28 @@ namespace Material {
     }
     
     void PBRMetallicMaterial::DisplayWidget() {
+        static const Directory textureDirectory("assets/textures");
+        
+        static Path albedoPath = Path();
+        static int albedoWidgetId = -1;
+        if (Widget::PathComboWidget(&albedoWidgetId, textureDirectory, "Albedo Map", Asset::textureExtensions, &albedoPath, Path())) {
+            if (!albedoPath.IsEmpty()) {
+                albedoMap = std::make_shared<Texture>(albedoPath, Material::TextureType::Diffuse)->tex;
+            } else {
+                albedoMap.reset();
+            }
+        }
+        
+        static Path normalPath = Path();
+        static int normalWidgetId = -1;
+        if (Widget::PathComboWidget(&normalWidgetId, textureDirectory, "Normal Map", Asset::textureExtensions, &normalPath, Path())) {
+            if (!normalPath.IsEmpty()) {
+                normalMap = std::make_shared<Texture>(normalPath, Material::TextureType::Normal)->tex;
+            } else {
+                normalMap.reset();
+            }
+        }
+        
         ImGui::ColorEdit3("Albedo", glm::value_ptr(albedo), ImGuiColorEditFlags_Float | ImGuiColorEditFlags_HDR);
         ImGui::SliderFloat("Metallic", &metallic, 0.0f, 1.0f, "%.3f");
         ImGui::SliderFloat("Roughness", &roughness, 0.0f, 1.0f, "%.3f");
@@ -98,8 +121,10 @@ namespace Material {
         metallic = info.metalness;
         roughness = info.roughness;
         for (auto& texture : info.textures) {
-            if (texture->type == Material::TextureType::Diffuse)
+            if (texture->type == Material::TextureType::Diffuse) {
                 albedoMap = texture->tex;
+                albedo = glm::vec3(0);
+            }
             else if (texture->type == Material::TextureType::Metalness)
                 metallicMap = texture->tex;
             else if (texture->type == Material::TextureType::Roughness)

@@ -61,8 +61,8 @@ namespace Asset {
             virtual ~Asset() = default;
             virtual void SyncWithDevice() = 0;
             // virtual Asset& CopyConfiguration(Path path) = 0;
-            File GetFile() { return files[0]; }
-            std::vector<File> GetFiles() { return files; }
+            File GetFile() const { return files[0]; }
+            std::vector<File> GetFiles() const { return files; }
             bool NeedsResync() const;
         protected:
             void syncFilesWithDevice();
@@ -86,6 +86,9 @@ namespace Asset {
 
             template<class T, typename... Args>
             std::shared_ptr<T> ImportAsset(const std::vector<Path>& paths, bool hot_reload, Args&& ...args);
+            
+            // Register asset for hot or cold reloading
+            void RegisterAsset(std::shared_ptr<Asset> asset, bool hot_reload);
             
             template<class T>
             std::shared_ptr<T> GetAsset(Path path);
