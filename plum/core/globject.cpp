@@ -155,7 +155,6 @@ namespace Core {
         glClear(GL_DEPTH_BUFFER_BIT);
     }
     void Fbo::AttachColorTex(std::shared_ptr<Tex> tex, int index, int level) {
-        Bind();
         tex->Bind();
         
         if (index == -1) {
@@ -176,7 +175,6 @@ namespace Core {
         UpdateDrawBuffers();
     }
     void Fbo::AttachColorTexCubeFace(int att_index, int face_idx, int level) {
-        Bind();
         if (colorAtts[att_index]->target != GL_TEXTURE_CUBE_MAP) {
             std::cerr << "Fbo::AttachColorTexCubeFace error! Can only attach cubemap faces of GL_TEXTURE_CUBE_MAP textures!" << std::endl;
             exit(-1);
@@ -184,19 +182,18 @@ namespace Core {
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + att_index, GL_TEXTURE_CUBE_MAP_POSITIVE_X + face_idx, colorAtts[att_index]->Handle(), level);
     }
     void Fbo::AttachDepthRbo16() {
-        Bind();
         depthRboAtt = std::make_shared<Rbo>(width, height);
+        depthRboAtt->Bind();
         depthRboAtt->Setup16();
         glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthRboAtt->Handle());
     }
     void Fbo::AttachDepthRbo24() {
-        Bind();
         depthRboAtt = std::make_shared<Rbo>(width, height);
+        depthRboAtt->Bind();
         depthRboAtt->Setup24();
         glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthRboAtt->Handle());
     }
     void Fbo::AttachDepthTex(std::shared_ptr<Tex> tex, int level) {
-        Bind();
         depthAtt = std::move(tex);
         glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depthAtt->Handle(), level);
     }
@@ -224,6 +221,7 @@ namespace Core {
             depthAtt->Resize(width, height);
         }
         if (depthRboAtt) {
+            depthRboAtt->Bind();
             depthRboAtt->Resize(width, height);
         }
     }
@@ -272,12 +270,10 @@ namespace Core {
     }
     void Rbo::Setup16() {
         internalformat = GL_DEPTH_COMPONENT16;
-        Bind();
         glRenderbufferStorage(GL_RENDERBUFFER, internalformat, width, height);
     }
     void Rbo::Setup24() {
         internalformat = GL_DEPTH_COMPONENT24;
-        Bind();
         glRenderbufferStorage(GL_RENDERBUFFER, internalformat, width, height);
     }
     void Rbo::Resize(int width, int height) {

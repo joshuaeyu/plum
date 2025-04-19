@@ -22,7 +22,8 @@ To do:
 Remaining major:
 - GUI WIP
 - asset manager - textures, models WIP
-- IBL specular map seams??
+  - stronger statefulness - gui knows on startup what was initialized via code
+- IBL specular map seams?? X
 
 Remaining minor:
 - window vs context (e.g., getTime) WIP

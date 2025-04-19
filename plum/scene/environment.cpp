@@ -144,8 +144,8 @@ namespace Scene {
 
         Core::Fbo fbo(width, height);
         prefilter = std::make_shared<Core::Tex2D>(GL_TEXTURE_CUBE_MAP, GL_RGB32F, fbo.width, fbo.height, GL_RGB, GL_FLOAT, GL_CLAMP_TO_EDGE, GL_LINEAR_MIPMAP_LINEAR, false, true);
-        prefilter->Bind();
-        prefilter->GenerateMipMap();
+        prefilter->GenerateMipMap();    // Allocate memory for the upcoming mipmap levels to be rendered to
+        
         fbo.Bind();
         fbo.AttachColorTex(prefilter);
         fbo.AttachDepthRbo24();
@@ -173,18 +173,18 @@ namespace Scene {
         int maxMipLevels = 5;
         for (int mip = 0; mip < maxMipLevels; mip++) {
             
-            int mipWidth = fbo.width * std::pow(0.5, mip);
-            int mipHeight = fbo.height * std::pow(0.5, mip);
+            int mipWidth = static_cast<int>(fbo.width * std::pow(0.5, mip));
+            int mipHeight = static_cast<int>(fbo.height * std::pow(0.5, mip));
             
             fbo.depthRboAtt->Bind();
             glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, mipWidth, mipHeight);
             glViewport(0, 0, mipWidth, mipHeight);
-            float roughness = (float)mip / (float)(maxMipLevels - 1);
+            float roughness = static_cast<float>(mip) / static_cast<float>(maxMipLevels - 1);
             prefilterProgram->SetFloat("roughness", roughness);
             
             fbo.CheckStatus();
             for (int i = 0; i < 6; i++) {
-                fbo.AttachColorTexCubeFace(0, i, mip);
+                fbo.AttachColorTexCubeFace(0, i, mip);  // Can't call Bind() because it clears the depth rbo?
                 fbo.ClearColor();
                 fbo.ClearDepth();
                 prefilterProgram->SetMat4("view", views[i]);
@@ -193,6 +193,8 @@ namespace Scene {
                 glCullFace(GL_BACK);
             }
         }
+
+        // prefilter->GenerateMipMap();    // Actually generate mipmaps of the image
     }
 
     void Environment::generateBrdfLut(int width, int height) {

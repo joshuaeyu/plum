@@ -61,8 +61,8 @@ void Demo1::Initialize() {
     std::cout << "Loading models..." << std::endl;
     // auto backpack = std::make_shared<Component::Model>("assets/models/survival_guitar_backpack/scene.gltf", 0.005f);
     // models["Backpack"] = backpack;
-    auto sponza = std::make_shared<Component::Model>("assets/models/sponza/glTF/Sponza.gltf");
-    models["Sponza"] = sponza;
+    // auto sponza = std::make_shared<Component::Model>("assets/models/sponza/glTF/Sponza.gltf");
+    // models["Sponza"] = sponza;
 
     std::cout << "Defining scene..." << std::endl;
     scene = std::make_unique<Scene::Scene>();
@@ -79,7 +79,7 @@ void Demo1::Initialize() {
     sphereNode->transform.Translate(0,2,0);
     // auto backpackNode = scene->EmplaceChild(backpack);
     // backpackNode->transform.Translate(5,4,0);
-    auto sponzaNode = scene->EmplaceChild(sponza);
+    // auto sponzaNode = scene->EmplaceChild(sponza);
     
     std::cout << "Creating renderer..." << std::endl;
     renderer = std::make_unique<Renderer::DeferredRenderer>();

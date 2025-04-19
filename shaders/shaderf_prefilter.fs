@@ -39,7 +39,7 @@ void main() {
             float saSample = 1.0 / (float(SAMPLE_COUNT) * pdf + 0.0001);
             float mipLevel = (roughness == 0.0) ? 0.0 : 0.5 * log2(saSample/saTexel);
 
-            prefilteredColor += texture(envCubemap, L, mipLevel).rgb * NdotL;
+            prefilteredColor += textureLod(envCubemap, L, mipLevel).rgb * NdotL;
             totalWeight += NdotL;
         }
     }
