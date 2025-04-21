@@ -8,6 +8,7 @@ class ImageAsset : public Asset {
         ~ImageAsset();
         
         bool IsHdr() const { return hdr; }
+        bool Flip() const { return flip; }
         int Width() const { return width; }
         int Height() const { return height; }
         int NumChannels() const { return numChannels; }

@@ -213,12 +213,16 @@ namespace Component {
             aiString str;
             aimaterial->GetTexture(aitextype, i, &str);
 
-            Path texturePath(head.model->GetFile().Parent().RawPath() / str.C_Str());
+            Path imagePath(head.model->GetFile().Parent().RawPath() / str.C_Str());
             
             // If texture was already loaded from file, just push its existing representation
+            auto image = manager.Get<ImageAsset>(imagePath);
+            if (!image) {
+
+            }
             bool skip = false;
             for (const auto& texture : head.textures) {
-                if (texture->images[0]->GetFile().RawPath() == texturePath.RawPath()) {
+                if (texture->images[0]->GetFile().RawPath() == imagePath.RawPath()) {
                     if (texture->type == textype) {
                         textures.push_back(texture);
                         skip = true;
@@ -228,9 +232,9 @@ namespace Component {
             }
             // Load and push any new textures
             if (!skip) {
-                std::cout << "  Loading texture " << texturePath.RawPath() << " as " << aiTextureTypeToString(aitextype) << std::endl;
-                auto image = AssetManager::Instance().LoadHot<ImageAsset>(texturePath, false);
-                auto texture = std::make_shared<Material::Texture>(image, textype, true, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR);
+                std::cout << "  Loading texture " << imagePath.RawPath() << " as " << aiTextureTypeToString(aitextype) << std::endl;
+                auto image = AssetManager::Instance().LoadHot<ImageAsset>(imagePath, false);
+                auto texture = std::make_shared<Material::Texture>(image, textype, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR);
                 texture->tex->Bind();
                 texture->tex->GenerateMipMap();
                 textures.push_back(texture);

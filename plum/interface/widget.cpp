@@ -237,7 +237,7 @@ std::shared_ptr<Material::MaterialBase> Widget::MaterialCreationWidget(bool* sho
     std::shared_ptr<Material::MaterialBase> result;
     static const std::vector<const char*> materialTypes = {"PBR Metallic"};
     static int materialSelectedIdx = 0;
-    ImGui::Combo("Component Type", &materialSelectedIdx, materialTypes.data(), materialTypes.size());
+    ImGui::Combo("Material Type", &materialSelectedIdx, materialTypes.data(), materialTypes.size());
     ImGui::Spacing();
     switch (materialSelectedIdx) {
         case 0: // PBR Metallic

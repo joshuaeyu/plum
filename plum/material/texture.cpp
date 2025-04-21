@@ -5,7 +5,7 @@
 
 namespace Material {
 
-    Texture::Texture(std::shared_ptr<ImageAsset> image, TextureType type, bool flip, GLenum wrap, GLenum minfilter)
+    Texture::Texture(std::shared_ptr<ImageAsset> image, TextureType type, GLenum wrap, GLenum minfilter)
         : images({image}),
         type(type),
         wrap(wrap),

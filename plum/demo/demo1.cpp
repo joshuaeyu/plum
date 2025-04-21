@@ -19,10 +19,16 @@ Demo1::Demo1()
 {}
 
 void Demo1::Initialize() {
+    std::cout << "Creating renderer..." << std::endl;
+    renderer = std::make_unique<Renderer::DeferredRenderer>();
+    fxaa = std::make_unique<PostProcessing::Fxaa>();
+    hdr = std::make_unique<PostProcessing::Hdr>();
+    bloom = std::make_unique<PostProcessing::Bloom>();
+
     std::cout << "Setting up environment..." << std::endl;
     auto kloppenheim = AssetManager::Instance().LoadHot<ImageAsset>("assets/skyboxes/kloppenheim_4k.hdr");
     auto skybox = std::make_shared<Material::Texture>(kloppenheim, Material::TextureType::Diffuse);
-    environment = std::make_unique<Scene::Environment>(skybox->tex);
+    environment = std::make_unique<Scene::Environment>(skybox);
     
     std::cout << "Defining materials..." << std::endl;
     auto copper = std::make_shared<Material::PBRMetallicMaterial>();
@@ -66,8 +72,8 @@ void Demo1::Initialize() {
     std::cout << "Loading models..." << std::endl;
     // auto backpack = std::make_shared<Component::Model>("assets/models/survival_guitar_backpack/scene.gltf", 0.005f);
     // models["Backpack"] = backpack;
-    // auto sponza = std::make_shared<Component::Model>("assets/models/sponza/glTF/Sponza.gltf");
-    // models["Sponza"] = sponza;
+    auto sponzaAsset = AssetManager::Instance().LoadHot<ModelAsset>("assets/models/sponza/glTF/Sponza.gltf");
+    auto sponza = std::make_shared<Component::Model>(sponzaAsset);
 
     std::cout << "Defining scene..." << std::endl;
     scene = std::make_unique<Scene::Scene>();
@@ -84,13 +90,9 @@ void Demo1::Initialize() {
     sphereNode->transform.Translate(0,2,0);
     // auto backpackNode = scene->EmplaceChild(backpack);
     // backpackNode->transform.Translate(5,4,0);
-    // auto sponzaNode = scene->EmplaceChild(sponza);
-    
-    std::cout << "Creating renderer..." << std::endl;
-    renderer = std::make_unique<Renderer::DeferredRenderer>();
-    fxaa = std::make_unique<PostProcessing::Fxaa>();
-    hdr = std::make_unique<PostProcessing::Hdr>();
-    bloom = std::make_unique<PostProcessing::Bloom>();
+    auto sponzaNode = scene->EmplaceChild(sponza);
+    sponzaNode->name = "Sponza";
+
     while (GLenum error = glGetError()) { std::cerr << "Initialization error: " << error << std::endl; }
 }
 void Demo1::Display() {
@@ -117,6 +119,8 @@ void Demo1::Display() {
     fbo->BlitToDefault();
 
     displayGui();
+
+    while (GLenum error = glGetError()) { std::cerr << "Render error: " << error << std::endl; }
 }
 void Demo1::CleanUp() {
     scene.reset();
@@ -176,7 +180,7 @@ void Demo1::displayGui() {
                 while (nameExists) {
                     nameExists = false;
                     for (auto& material : materials) {
-                        if (mat->name == material->name) {
+                        if (newName == material->name) {
                             nameExists = true;
                             newName = mat->name + "-" + std::to_string(i++);
                             break;
@@ -197,11 +201,22 @@ void Demo1::displayGui() {
     if (ImGui::CollapsingHeader("Environment", ImGuiTreeNodeFlags_DefaultOpen)) {
         if (ImGui::TreeNode("Skybox")) {
             static bool showChild = false;
+            bool reinit = false;
             if (!showChild && ImGui::Button("Edit")) {
-                showChild = !showChild;
+                showChild = true;
+                reinit = true;
             }
             if (showChild) {
                 static int sel = 0;
+                if (reinit && environment->envmap) {
+                    if (environment->envmap->tex->target == GL_TEXTURE_2D) {
+                        sel = 1;
+                    } else if (environment->envmap->tex->target == GL_TEXTURE_CUBE_MAP) {
+                        sel = 2;
+                    } else {
+                        sel = 0;
+                    }
+                }
                 ImGui::RadioButton("None", &sel, 0); ImGui::SameLine();
                 ImGui::RadioButton("Equirectangular", &sel, 1); ImGui::SameLine();
                 ImGui::RadioButton("Six Sided", &sel, 2);
@@ -212,7 +227,7 @@ void Demo1::displayGui() {
                             if (environment->skybox) {
                                 *environment = Scene::Environment();
                             }
-                            showChild = !showChild;
+                            showChild = false;
                         }
                         break;
                     case 1:
@@ -220,24 +235,36 @@ void Demo1::displayGui() {
                         static int widgetId = -1;
                         static Path skyboxPath = Path();
                         static bool flip = true;
+                        if (reinit) {
+                            skyboxPath = environment->envmap->images[0]->GetFile();
+                            flip = environment->envmap->images[0]->Flip();
+                            reinit = false;
+                        }
                         Widget::PathComboWidget(&widgetId, skyboxesDir, "Path", AssetUtils::imageExtensions, &skyboxPath, Path());
                         ImGui::SameLine(); ImGui::Checkbox("Flip", &flip);
                         if (ImGui::Button("Save")) {
                             if (!skyboxPath.IsEmpty()) {
                                 auto image = AssetManager::Instance().LoadHot<ImageAsset>(skyboxPath, flip);
                                 auto texture = std::make_shared<Material::Texture>(image, Material::TextureType::Diffuse, GL_CLAMP_TO_EDGE, GL_LINEAR);
-                                *environment = Scene::Environment(texture->tex);
-                                showChild = !showChild;
+                                *environment = Scene::Environment(texture);
+                                showChild = false;
                             }
                         }
-                    }
                         break;
+                    }
                     case 2:
                     {
                         static int widgetIds[6] = {-1, -1, -1, -1, -1, -1};
                         constexpr const char* faces[] = {"+X", "-X", "+Y", "-Y", "+Z", "-Z"};
                         static std::vector<Path> facePaths(6);
                         static bool flips[6] = {true, true, true, true, true, true};
+                        if (reinit) {
+                            for (int i = 0; i < 6; i++) {
+                                facePaths[i] = environment->envmap->images[i]->GetFile();
+                                flips[i] = environment->envmap->images[i]->Flip();
+                            }
+                            reinit = false;
+                        }
                         Widget::PathComboWidget(&widgetIds[0], skyboxesDir, "+X", AssetUtils::imageExtensions, &facePaths[0], Path());
                         ImGui::SameLine(); ImGui::Checkbox("Flip##0", &flips[0]);
                         Widget::PathComboWidget(&widgetIds[1], skyboxesDir, "-X", AssetUtils::imageExtensions, &facePaths[1], Path());
@@ -264,17 +291,17 @@ void Demo1::displayGui() {
                                     images.emplace_back(AssetManager::Instance().LoadHot<ImageAsset>(facePaths[i], flips[i]));
                                 }
                                 auto texture = std::make_shared<Material::Texture>(images, Material::TextureType::Diffuse, GL_CLAMP_TO_EDGE, GL_LINEAR);
-                                *environment = Scene::Environment(texture->tex);
-                                showChild = !showChild;
+                                *environment = Scene::Environment(texture);
+                                showChild = false;
                             }
                         }
-                    }
                         break;
+                    }
                 }
             }
             ImGui::SameLine();
             if (ImGui::Button("Cancel")) {
-                showChild = !showChild;
+                showChild = false;
             }
             ImGui::TreePop();
         }

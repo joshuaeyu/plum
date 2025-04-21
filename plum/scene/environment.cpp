@@ -11,7 +11,13 @@
 
 namespace Scene {
 
-    Environment::Environment() {
+    Environment::Environment() 
+        : Environment(nullptr)
+    {}
+
+    Environment::Environment(std::shared_ptr<Material::Texture> envmap)
+        : envmap(envmap)
+    {
         if (!equirectProgram) {
             AssetManager& manager = AssetManager::Instance();
             
@@ -29,20 +35,17 @@ namespace Scene {
             
             brdfLutProgram = std::make_shared<Core::Program>(vs2d, fsBrdfLut);
         }
-    }
-
-    Environment::Environment(std::shared_ptr<Core::Tex2D> envmap)
-        : Environment()
-    {
-        if (envmap->target == GL_TEXTURE_CUBE_MAP) {
-            skybox = std::move(envmap);
-        } else if (envmap->target == GL_TEXTURE_2D) {
-            skybox = equirectToCubemap(envmap, 2048, 2048);
-        } else
-            exit(-1);
-        cubemapToIrradiance(64, 64);
-        cubemapToPrefilter(256, 256, skybox->width);
-        generateBrdfLut(512, 512);
+        if (envmap) {
+            if (envmap->tex->target == GL_TEXTURE_CUBE_MAP) {
+                skybox = envmap->tex;
+            } else if (envmap->tex->target == GL_TEXTURE_2D) {
+                skybox = equirectToCubemap(envmap->tex, 2048, 2048);
+            } else
+                exit(-1);
+            cubemapToIrradiance(64, 64);
+            cubemapToPrefilter(256, 256, skybox->width);
+            generateBrdfLut(512, 512);
+        }
     }
 
     void Environment::DrawSkybox(Component::Camera& camera) {

@@ -143,7 +143,7 @@ std::shared_ptr<T> AssetManager::load(bool hot_reload, const Path& path, Args&& 
     }
     std::shared_ptr<T> asset = Get<T>(path);
     if (asset) {
-        std::cout << "Warning - Attempting to emplace an existing asset!" << std::endl;
+        // std::cout << "Info - Loading an asset that was already loaded!" << std::endl;
     } else {
         asset = std::make_shared<T>(path, std::forward<Args>(args)...);
         

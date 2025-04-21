@@ -38,9 +38,9 @@ namespace Material {
             void SetUniforms(const glm::mat4& model_transform) override;
 
             std::shared_ptr<Core::Tex2D> albedoMap, metallicMap, roughnessMap, normalMap, displacementMap, occlusionMap;
-            glm::vec3 albedo = glm::vec3(0.5);
-            float metallic = 0.5;
-            float roughness = 0.5;
+            glm::vec3 albedo = glm::vec3(0.5f);
+            float metallic = 0.0f;
+            float roughness = 0.5f;
             
             void DisplayWidget() override;
 

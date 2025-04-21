@@ -42,7 +42,7 @@ class Demo1 : public Demo {
         std::unique_ptr<PostProcessing::Bloom> bloom;
 
         std::set<std::shared_ptr<Material::MaterialBase>> materials;
-        std::set<std::shared_ptr<Component::Model>> models;
+        // std::set<std::shared_ptr<Component::Model>> models;
 
     public:
         ~Demo1() = default;

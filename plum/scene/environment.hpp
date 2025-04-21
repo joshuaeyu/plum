@@ -3,6 +3,7 @@
 #include <plum/component/camera.hpp>
 #include <plum/core/program.hpp>
 #include <plum/core/tex.hpp>
+#include <plum/material/texture.hpp>
 #include <plum/renderer/module.hpp>
 
 namespace Scene {
@@ -10,11 +11,13 @@ namespace Scene {
     class Environment {
         public:
             Environment();
-            Environment(std::shared_ptr<Core::Tex2D> envmap);
+            Environment(std::shared_ptr<Material::Texture> envmap);
 
             void DrawSkybox(Component::Camera& camera);
 
             float iblIntensity = 1.0f;
+
+            std::shared_ptr<Material::Texture> envmap;
 
             std::shared_ptr<Core::Tex2D> skybox;
             std::shared_ptr<Core::Tex2D> irradiance;

@@ -40,7 +40,7 @@ namespace Material {
     // textures should be thought of as image views?
     class Texture : public AssetUser {
         public:            
-            Texture(std::shared_ptr<ImageAsset> image, TextureType type, bool flip = true, GLenum wrap = GL_REPEAT, GLenum minfilter = GL_NEAREST);
+            Texture(std::shared_ptr<ImageAsset> image, TextureType type, GLenum wrap = GL_REPEAT, GLenum minfilter = GL_NEAREST);
             Texture(const std::vector<std::shared_ptr<ImageAsset>>& cubefaces, TextureType type, GLenum wrap = GL_REPEAT, GLenum minfilter = GL_NEAREST);
             
             // Asset
