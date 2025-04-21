@@ -24,6 +24,8 @@ namespace Widget {
         // - either have a button to enable/disable the combo box
         // - or have an empty default option
 
+    bool TextEditWidget(int* id, std::string* text, const char* label = "Rename");
+
     // Returns Component created, or nullptr.
     std::shared_ptr<Component::ComponentBase> ComponentCreationWidget(bool* show_widget);
     

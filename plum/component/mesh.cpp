@@ -56,18 +56,18 @@ namespace Component {
         vao->Draw();
     }
 
-    void Mesh::DisplayWidget(std::map<std::string, std::shared_ptr<Material::MaterialBase>> materials) {
+    void Mesh::DisplayWidget(std::set<std::shared_ptr<Material::MaterialBase>> materials) {
         static int itemSelectedIdx = 0;
         std::vector<char*> itemNames(materials.size());
         for (int i = 0; i < materials.size(); i++) {
             itemNames[i] = new char[256];
-            strcpy(itemNames[i], (std::next(materials.begin(), i)->first).c_str());
+            strcpy(itemNames[i], (*std::next(materials.begin(), i))->name.c_str());
         }
         ImGui::Combo("Material", &itemSelectedIdx, itemNames.data(), itemNames.size());
         for (int i = 0; i < materials.size(); i++) {
             delete itemNames[i];
         }
-        material = std::next(materials.begin(), itemSelectedIdx)->second;
+        material = *std::next(materials.begin(), itemSelectedIdx);
     }
 
 }

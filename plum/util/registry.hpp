@@ -11,6 +11,8 @@ class Registry {
     public:
         Registry();
 
+        const std::vector<T>& Data() { return data; }
+
         T& Get(RegistryHandle id);
         
         template<typename... Args>

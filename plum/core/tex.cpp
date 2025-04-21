@@ -77,7 +77,6 @@ namespace Core {
     }
     
     void Tex::GenerateMipMap() {
-        Bind();
         glGenerateMipmap(target);
     }
 

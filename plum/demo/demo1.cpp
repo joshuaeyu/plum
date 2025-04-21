@@ -1,7 +1,8 @@
 #include "demo1.hpp"
 
 #include <plum/component/all.hpp>
-#include <plum/context/asset.hpp>
+#include <plum/asset/image.hpp>
+#include <plum/asset/manager.hpp>
 #include <plum/interface/widget.hpp>
 #include <plum/util/time.hpp>
 
@@ -19,25 +20,29 @@ Demo1::Demo1()
 
 void Demo1::Initialize() {
     std::cout << "Setting up environment..." << std::endl;
-    auto skybox = std::make_shared<Material::Texture>("assets/skyboxes/kloppenheim_4k.hdr", Material::TextureType::Diffuse);
+    auto kloppenheim = AssetManager::Instance().LoadHot<ImageAsset>("assets/skyboxes/kloppenheim_4k.hdr");
+    auto skybox = std::make_shared<Material::Texture>(kloppenheim, Material::TextureType::Diffuse);
     environment = std::make_unique<Scene::Environment>(skybox->tex);
     
     std::cout << "Defining materials..." << std::endl;
     auto copper = std::make_shared<Material::PBRMetallicMaterial>();
+    copper->name = "Copper";
     copper->albedo = glm::pow(glm::vec3(0.72,0.45,0.22),glm::vec3(2.2));
     copper->metallic = 1.0;
     copper->roughness = 0.15;
-    materials["Copper"] = copper;
+    materials.insert(copper);
     auto ruby = std::make_shared<Material::PBRMetallicMaterial>();
+    ruby->name = "Ruby";
     ruby->albedo = glm::pow(glm::vec3(0.6,0.1,0.1),glm::vec3(2.2));
     ruby->metallic = 0.0;
     ruby->roughness = 0.1;
-    materials["Ruby"] = ruby;
+    materials.insert(ruby);
     auto sapphire = std::make_shared<Material::PBRMetallicMaterial>();
+    sapphire->name = "Sapphire";
     sapphire->albedo = glm::pow(glm::vec3(0.1,0.2,0.7),glm::vec3(2.2));
     sapphire->metallic = 1.0;
     sapphire->roughness = 0.2;
-    materials["Sapphire"] = sapphire;
+    materials.insert(sapphire);
 
     std::cout << "Creating components..." << std::endl;
     camera = std::make_unique<Component::Camera>();
@@ -86,6 +91,7 @@ void Demo1::Initialize() {
     fxaa = std::make_unique<PostProcessing::Fxaa>();
     hdr = std::make_unique<PostProcessing::Hdr>();
     bloom = std::make_unique<PostProcessing::Bloom>();
+    while (GLenum error = glGetError()) { std::cerr << "Initialization error: " << error << std::endl; }
 }
 void Demo1::Display() {
     camera->ProcessInputs();
@@ -109,7 +115,6 @@ void Demo1::Display() {
         fbo = fxaa->Process(*fbo);
     }
     fbo->BlitToDefault();
-    while (GLenum error = glGetError()) { std::cerr << "Render error: " << error << std::endl; }
 
     displayGui();
 }
@@ -163,14 +168,27 @@ void Demo1::displayGui() {
             showMaterialCreationWidget = !showMaterialCreationWidget;
         }
         if (showMaterialCreationWidget) {
-            auto material = Widget::MaterialCreationWidget(&showMaterialCreationWidget);
-            if (material) {
-                static int i = 0;
-                materials["Material" + std::to_string(i)] = material;
+            auto mat = Widget::MaterialCreationWidget(&showMaterialCreationWidget);
+            if (mat) {
+                std::string newName = mat->name;
+                bool nameExists = true;
+                int i = 1;
+                while (nameExists) {
+                    nameExists = false;
+                    for (auto& material : materials) {
+                        if (mat->name == material->name) {
+                            nameExists = true;
+                            newName = mat->name + "-" + std::to_string(i++);
+                            break;
+                        }
+                    }
+                }
+                mat->name = newName;
+                materials.insert(mat);
             }
         }
-        for (auto& [name, material] : materials) {
-            if (ImGui::TreeNode(name.c_str())) {
+        for (auto& material : materials) {
+            if (ImGui::TreeNode(material->name.c_str())) {
                 material->DisplayWidget();
                 ImGui::TreePop();
             }
@@ -201,12 +219,13 @@ void Demo1::displayGui() {
                     {
                         static int widgetId = -1;
                         static Path skyboxPath = Path();
-                        Widget::PathComboWidget(&widgetId, skyboxesDir, "Image Path", Asset::textureExtensions, &skyboxPath, Path());
                         static bool flip = true;
-                        ImGui::Checkbox("Flip", &flip);
+                        Widget::PathComboWidget(&widgetId, skyboxesDir, "Path", AssetUtils::imageExtensions, &skyboxPath, Path());
+                        ImGui::SameLine(); ImGui::Checkbox("Flip", &flip);
                         if (ImGui::Button("Save")) {
                             if (!skyboxPath.IsEmpty()) {
-                                auto texture = std::make_shared<Material::Texture>(skyboxPath, Material::TextureType::Diffuse, flip, GL_CLAMP_TO_EDGE, GL_LINEAR);
+                                auto image = AssetManager::Instance().LoadHot<ImageAsset>(skyboxPath, flip);
+                                auto texture = std::make_shared<Material::Texture>(image, Material::TextureType::Diffuse, GL_CLAMP_TO_EDGE, GL_LINEAR);
                                 *environment = Scene::Environment(texture->tex);
                                 showChild = !showChild;
                             }
@@ -215,17 +234,22 @@ void Demo1::displayGui() {
                         break;
                     case 2:
                     {
-                        constexpr const char* faces[] = {"+X", "-X", "+Y", "-Y", "+Z", "-Z"};
                         static int widgetIds[6] = {-1, -1, -1, -1, -1, -1};
+                        constexpr const char* faces[] = {"+X", "-X", "+Y", "-Y", "+Z", "-Z"};
                         static std::vector<Path> facePaths(6);
-                        Widget::PathComboWidget(&widgetIds[0], skyboxesDir, "+X", Asset::textureExtensions, &facePaths[0], Path());
-                        Widget::PathComboWidget(&widgetIds[1], skyboxesDir, "-X", Asset::textureExtensions, &facePaths[1], Path());
-                        Widget::PathComboWidget(&widgetIds[2], skyboxesDir, "+Y", Asset::textureExtensions, &facePaths[2], Path());
-                        Widget::PathComboWidget(&widgetIds[3], skyboxesDir, "-Y", Asset::textureExtensions, &facePaths[3], Path());
-                        Widget::PathComboWidget(&widgetIds[4], skyboxesDir, "+Z", Asset::textureExtensions, &facePaths[4], Path());
-                        Widget::PathComboWidget(&widgetIds[5], skyboxesDir, "-Z", Asset::textureExtensions, &facePaths[5], Path());
-                        static bool flip = true;
-                        ImGui::Checkbox("Flip", &flip);
+                        static bool flips[6] = {true, true, true, true, true, true};
+                        Widget::PathComboWidget(&widgetIds[0], skyboxesDir, "+X", AssetUtils::imageExtensions, &facePaths[0], Path());
+                        ImGui::SameLine(); ImGui::Checkbox("Flip##0", &flips[0]);
+                        Widget::PathComboWidget(&widgetIds[1], skyboxesDir, "-X", AssetUtils::imageExtensions, &facePaths[1], Path());
+                        ImGui::SameLine(); ImGui::Checkbox("Flip##1", &flips[1]);
+                        Widget::PathComboWidget(&widgetIds[2], skyboxesDir, "+Y", AssetUtils::imageExtensions, &facePaths[2], Path());
+                        ImGui::SameLine(); ImGui::Checkbox("Flip##2", &flips[2]);
+                        Widget::PathComboWidget(&widgetIds[3], skyboxesDir, "-Y", AssetUtils::imageExtensions, &facePaths[3], Path());
+                        ImGui::SameLine(); ImGui::Checkbox("Flip##3", &flips[3]);
+                        Widget::PathComboWidget(&widgetIds[4], skyboxesDir, "+Z", AssetUtils::imageExtensions, &facePaths[4], Path());
+                        ImGui::SameLine(); ImGui::Checkbox("Flip##4", &flips[4]);
+                        Widget::PathComboWidget(&widgetIds[5], skyboxesDir, "-Z", AssetUtils::imageExtensions, &facePaths[5], Path());
+                        ImGui::SameLine(); ImGui::Checkbox("Flip##5", &flips[5]);
                         if (ImGui::Button("Save")) {
                             bool pathsValid = true;
                             for (const Path& path : facePaths) {
@@ -235,7 +259,11 @@ void Demo1::displayGui() {
                                 }
                             }
                             if (pathsValid) {
-                                auto texture = std::make_shared<Material::Texture>(facePaths, Material::TextureType::Diffuse, flip, GL_CLAMP_TO_EDGE, GL_LINEAR);
+                                std::vector<std::shared_ptr<ImageAsset>> images;
+                                for (int i = 0; i < facePaths.size(); i++) {
+                                    images.emplace_back(AssetManager::Instance().LoadHot<ImageAsset>(facePaths[i], flips[i]));
+                                }
+                                auto texture = std::make_shared<Material::Texture>(images, Material::TextureType::Diffuse, GL_CLAMP_TO_EDGE, GL_LINEAR);
                                 *environment = Scene::Environment(texture->tex);
                                 showChild = !showChild;
                             }

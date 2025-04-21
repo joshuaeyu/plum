@@ -21,6 +21,7 @@ To do:
 
 Remaining major:
 - GUI WIP
+  - renaming
 - asset manager - textures, models WIP
   - stronger statefulness - gui knows on startup what was initialized via code
 - IBL specular map seams?? X

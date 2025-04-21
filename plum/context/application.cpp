@@ -2,7 +2,7 @@
 
 #include <plum/demo/demo.hpp>
 #include <plum/interface/interface.hpp>
-#include <plum/context/asset.hpp>
+#include <plum/asset/manager.hpp>
 #include <plum/util/time.hpp>
 
 #include <iostream>
@@ -35,7 +35,7 @@ namespace Context {
         
         Time::Update();
         Interface::Initialize(*activeWindow);
-        // Asset::AssetManager::Initialize();  // needed by Program?
+        // AssetManager::Initialize();  // needed by Program?
         
         GLint n;
         glGetIntegerv(GL_MAX_ARRAY_TEXTURE_LAYERS, &n); // 2048
@@ -69,7 +69,7 @@ namespace Context {
         Time::Update();
         static float syncCooldown = 1.f;
         if ((syncCooldown -= Time::DeltaTime()) <= 0.f) {
-            Asset::AssetManager::Instance().HotSyncWithDevice();
+            AssetManager::Instance().HotSyncWithDevice();
             syncCooldown = 1.f;
         }
         Interface::Predisplay();

@@ -5,68 +5,31 @@
 
 namespace Material {
 
-    Texture::Texture(Path path, TextureType type, bool flip, GLenum wrap, GLenum minfilter)
-        : Asset::Asset(path),
+    Texture::Texture(std::shared_ptr<ImageAsset> image, TextureType type, bool flip, GLenum wrap, GLenum minfilter)
+        : images({image}),
         type(type),
-        flip(flip),
         wrap(wrap),
         minfilter(minfilter)
     {
-        loadFile(files[0].RawPath(), GL_TEXTURE_2D);
+        loadImage(images[0], GL_TEXTURE_2D);
     }
     
-    Texture::Texture(const std::vector<Path>& cubeface_paths, TextureType type, bool flip, GLenum wrap, GLenum minfilter)
-        : Asset::Asset(cubeface_paths),
+    Texture::Texture(const std::vector<std::shared_ptr<ImageAsset>>& cubefaces, TextureType type, GLenum wrap, GLenum minfilter)
+        : images(cubefaces),
         type(type),
-        flip(flip),
         wrap(wrap),
         minfilter(minfilter)
     {
-        for (int i = 0; i < files.size(); i++) {
-            loadFile(files[i].RawPath(), GL_TEXTURE_CUBE_MAP, i);
+        for (int i = 0; i < cubefaces.size(); i++) {
+            loadImage(images[i], GL_TEXTURE_CUBE_MAP, i);
         }
     }
 
-    Texture::Texture(const std::vector<std::shared_ptr<Texture>>& cubefaces, TextureType type, bool flip, GLenum wrap, GLenum minfilter)
-        : Asset::Asset(texturesToFiles(cubefaces)),
-        type(type),
-        flip(flip),
-        wrap(wrap),
-        minfilter(minfilter)
-    {
-        for (int i = 0; i < files.size(); i++) {
-            loadFile(files[i].RawPath(), GL_TEXTURE_CUBE_MAP, i);
-        }
-    }
-
-    void Texture::loadFile(std::string path, GLenum target, int face_idx) {
-        // Load texture using stbi
-        stbi_set_flip_vertically_on_load(flip);
-            
-        bool isHdr = stbi_is_hdr(path.c_str());
-
-        int width, height, num_channels;
+    void Texture::loadImage(std::shared_ptr<ImageAsset> image, GLenum target, int face_idx) {
         GLint internalformat;
         GLenum format;
 
-        unsigned char *tex_data = nullptr;
-        float *tex_dataf = nullptr;
-        if (isHdr) {
-            tex_dataf = stbi_loadf(path.c_str(), &width, &height, &num_channels, 0);
-            if (tex_dataf == nullptr) {
-                std::cerr << "stbi_load failed for " << path << std::endl;
-                stbi_image_free(tex_dataf);
-                return;
-            }
-        } else {
-            tex_data = stbi_load(path.c_str(), &width, &height, &num_channels, 0);
-            if (tex_data == nullptr) {
-                std::cerr << "stbi_load failed for " << path << std::endl;
-                stbi_image_free(tex_data);
-                return;
-            }
-        }
-        switch (num_channels) {
+        switch (image->NumChannels()) {
             case 1: 
                 format = GL_RED;
                 internalformat = GL_RED;
@@ -77,7 +40,7 @@ namespace Material {
                 break;
             case 3: 
                 format = GL_RGB;
-                if (isHdr)
+                if (image->IsHdr())
                     internalformat = GL_RGB32F;
                 else if (type == Diffuse || type == Emissive)
                     internalformat = GL_SRGB;   // correct any colors to linear space
@@ -86,7 +49,7 @@ namespace Material {
                 break;
             case 4: 
                 format = GL_RGBA;
-                if (isHdr)
+                if (image->IsHdr())
                     internalformat = GL_RGBA32F;
                 else if (type == Diffuse || type == Emissive)
                     internalformat = GL_SRGB_ALPHA;   // correct any colors to linear space
@@ -95,46 +58,36 @@ namespace Material {
                 break;
         }
         // Assign to target
-        if (isHdr) {
-            if (!tex) {
-                tex = std::make_shared<Core::Tex2D>(target, internalformat, width, height, format, GL_FLOAT, wrap, minfilter, false, isHdr);
-            }
-            if (face_idx <= -1) {
-                tex->DefineImage(tex_dataf);
+        if (!tex) {
+            if (image->IsHdr()) {
+                tex = std::make_shared<Core::Tex2D>(target, internalformat, image->Width(), image->Height(), format, GL_FLOAT, wrap, minfilter, false, image->IsHdr());
             } else {
-                tex->DefineImageCubeFace(face_idx, tex_dataf);
+                tex = std::make_shared<Core::Tex2D>(target, internalformat, image->Width(), image->Height(), format, GL_UNSIGNED_BYTE, wrap, minfilter, false, image->IsHdr());
             }
-            stbi_image_free(tex_dataf);
+        }
+        if (face_idx <= -1) {
+            tex->DefineImage(image->Data());
         } else {
-            if (!tex) {
-                tex = std::make_shared<Core::Tex2D>(target, internalformat, width, height, format, GL_UNSIGNED_BYTE, wrap, minfilter, false, isHdr);
-            }
-            if (face_idx <= -1) {
-                tex->DefineImage(tex_data);
-            } else {
-                tex->DefineImageCubeFace(face_idx, tex_data);
-            }
-            stbi_image_free(tex_data);
+            tex->DefineImageCubeFace(face_idx, image->Data());
         }
     }
 
-    void Texture::SyncWithDevice() {
-        syncFilesWithDevice();
-        if (files.size() == 1) {
-            loadFile(files[0].RawPath(), GL_TEXTURE_2D);
+    void Texture::AssetResyncCallback() {
+        if (images.size() == 1) {
+            loadImage(images[0], GL_TEXTURE_2D);
         } else {
-            for (int i = 0; i < files.size(); i++) {
-                loadFile(files[i].RawPath(), GL_TEXTURE_CUBE_MAP, i);
+            for (int i = 0; i < images.size(); i++) {
+                loadImage(images[i], GL_TEXTURE_CUBE_MAP, i);
             }
         }
     }
 
-    std::vector<File> Texture::texturesToFiles(const std::vector<std::shared_ptr<Texture>> textures) {
-        std::vector<File> files;
-        for (const auto& texture : textures) {
-            files.push_back(texture->GetFile());
-        }
-        return files;
-    }
+    // std::vector<File> Texture::texturesToFiles(const std::vector<std::shared_ptr<Texture>> textures) {
+    //     std::vector<File> files;
+    //     for (const auto& texture : textures) {
+    //         files.push_back(texture->GetFile());
+    //     }
+    //     return files;
+    // }
 
 }

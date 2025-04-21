@@ -3,6 +3,8 @@
 #include <plum/component/all.hpp>
 #include <plum/util/time.hpp>
 
+#include <imgui/imgui_stdlib.h>
+
 #include <iostream>
 #include <string>
 #include <vector>
@@ -117,6 +119,41 @@ bool Widget::PathComboWidget(int* id, Directory directory, const char* label, co
     }
 }
 
+bool Widget::TextEditWidget(int* id, std::string* text, const char* label) {
+    static int idCounter = 0;
+    static std::vector<std::string> allInput;
+    static std::vector<bool> allShowInput;
+    static bool showTextInput = false;
+    
+    bool newId = false;
+    if (*id < 0 || *id >= idCounter) {
+        *id = idCounter++;
+        std::cout << *id << " " << std::endl;
+        allInput.emplace_back(*text);
+        allShowInput.push_back(false);
+        newId = true;
+    }
+
+    std::string& input = allInput[*id];
+
+    if (!allShowInput[*id]) {
+        if (ImGui::Button(label)) {
+            input = *text;
+            allShowInput[*id] = true;
+        }
+    } else {
+        if (ImGui::Button("Cancel")) {
+            allShowInput[*id] = false;
+        }
+        ImGui::SameLine();
+        if (ImGui::InputText("Name", &input, ImGuiInputTextFlags_EnterReturnsTrue)) {
+            *text = input;
+            return true;
+        }
+    }
+    return false;
+}
+
 std::shared_ptr<Component::ComponentBase> Widget::ComponentCreationWidget(bool* show_widget) {
     if (!ImGui::BeginChild("##componentcreation", ImVec2(0, 0), ImGuiChildFlags_Border | ImGuiChildFlags_AutoResizeX | ImGuiChildFlags_AutoResizeY)) {
         ImGui::EndChild();
@@ -177,10 +214,11 @@ std::shared_ptr<Component::ComponentBase> Widget::ComponentCreationWidget(bool* 
             static const Directory modelsDir("assets/models");
             static Path modelPath = Path();
             static int widgetId;
-            PathComboWidget(&widgetId, modelsDir, "Model Path", Asset::modelExtensions, &modelPath, Path());
+            PathComboWidget(&widgetId, modelsDir, "Model Path", AssetUtils::modelExtensions, &modelPath, Path());
             ImGui::Spacing();
             if (ImGui::Button("Create")) {
-                result = std::make_shared<Component::Model>(modelPath);
+                auto model = AssetManager::Instance().LoadHot<ModelAsset>(modelPath);
+                result = std::make_shared<Component::Model>(model);
                 *show_widget = !*show_widget;
             }
         }

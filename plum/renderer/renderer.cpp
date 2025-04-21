@@ -2,7 +2,7 @@
 
 #include <plum/component/primitive.hpp>
 #include <plum/context/application.hpp>
-#include <plum/context/asset.hpp>
+#include <plum/asset/manager.hpp>
 #include <plum/material/texture.hpp>
 
 #include <functional>
@@ -58,12 +58,12 @@ namespace Renderer {
         eventListener(Context::InputsAndEventsManager::CreateEventListener())
     {
         if (!lightingPassProgram) {
-            Asset::AssetManager& manager = Asset::AssetManager::Instance();
-            const std::vector<Path> shaderPaths = {
-                "shaders/shaderv_2d.vs", 
-                "shaders/shaderf_lightingpasspbr.fs"
-            };
-            lightingPassProgram = manager.ImportAsset<Core::Program>(shaderPaths, true, shaderPaths[0], shaderPaths[1]);
+            AssetManager& manager = AssetManager::Instance();
+            auto vs = manager.LoadHot<ShaderAsset>("shaders/shaderv_2d.vs", GL_VERTEX_SHADER);
+            auto fs = manager.LoadHot<ShaderAsset>("shaders/shaderf_lightingpasspbr.fs", GL_FRAGMENT_SHADER);
+            
+            lightingPassProgram = std::make_shared<Core::Program>(vs, fs);
+            lightingPassProgram->SetUniformBlockBindingScheme(Core::Program::UboScheme::Scheme1);
         }
 
         initUniformBlocks();

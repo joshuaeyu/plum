@@ -1,13 +1,14 @@
 #pragma once
 
-#include <plum/context/asset.hpp>
+#include <plum/asset/manager.hpp>
+#include <plum/asset/shader.hpp>
 
 #include <glad/gl.h>
 #include <glm/glm.hpp>
 
 namespace Core {
 
-    class Program : public Asset::Asset {
+    class Program : public AssetUser {
 
         public:
             // May implement non-default UBO schemes in the future
@@ -15,7 +16,7 @@ namespace Core {
                 Scheme1
             };
 
-            Program(Path vertexShaderPath, Path fragmentShaderPath, Path geometryShaderPath = Path());
+            Program(std::shared_ptr<ShaderAsset> vert_shader, std::shared_ptr<ShaderAsset> frag_shader, std::shared_ptr<ShaderAsset> geom_shader = nullptr);
             // Program(const std::string& vertexShaderCode, const std::string& fragmentShaderCode, const std::string& geometryShaderCode = "");
 
             GLuint Handle() const { return handle; }
@@ -30,8 +31,12 @@ namespace Core {
 
             void Use();
             
-            // Asset::Asset
-            void SyncWithDevice() override;
+            // Asset
+            void AssetResyncCallback() override;
+
+            std::shared_ptr<ShaderAsset> vertexShader;
+            std::shared_ptr<ShaderAsset> fragmentShader;
+            std::shared_ptr<ShaderAsset> geometryShader;
         
         private:
             GLuint handle;

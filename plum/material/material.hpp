@@ -22,6 +22,7 @@ namespace Material {
             virtual std::shared_ptr<Core::Program> GetProgram() = 0;
             virtual void SetUniforms(const glm::mat4& model_transform) = 0;
             virtual void DisplayWidget() {}
+            std::string name;
         protected:
             MaterialBase() = default;
     };
@@ -36,13 +37,19 @@ namespace Material {
             std::shared_ptr<Core::Program> GetProgram() override;
             void SetUniforms(const glm::mat4& model_transform) override;
 
-            void DisplayWidget() override;
-
             std::shared_ptr<Core::Tex2D> albedoMap, metallicMap, roughnessMap, normalMap, displacementMap, occlusionMap;
             glm::vec3 albedo = glm::vec3(0.5);
             float metallic = 0.5;
             float roughness = 0.5;
             
+            void DisplayWidget() override;
+
+            // widget callback instead?
+
+            Path albedoPath, metallicPath, roughnessPath, normalPath, displacementPath, occlusionPath;
+            int albedoWidgetId = -1, metallicWidgetId = -1, roughnessWidgetId = -1, normalWidgetId = -1, displacementWidgetId = -1, occlusionWidgetId = -1;
+            int nameWidgetId = -1;
+
         private:
             inline static std::shared_ptr<Core::Program> program;
     };

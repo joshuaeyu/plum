@@ -1,7 +1,7 @@
 #include <plum/scene/environment.hpp>
 
 #include <plum/component/primitive.hpp>
-#include <plum/context/asset.hpp>
+#include <plum/asset/manager.hpp>
 #include <plum/core/globject.hpp>
 
 #include <glm/glm.hpp>
@@ -13,27 +13,21 @@ namespace Scene {
 
     Environment::Environment() {
         if (!equirectProgram) {
-            Asset::AssetManager& manager = Asset::AssetManager::Instance();
-            const std::vector<Path> equirectShaderPaths = {
-                "shaders/shaderv_equirect.vs", 
-                "shaders/shaderf_equirect.fs"
-            };
-            equirectProgram = manager.ImportAsset<Core::Program>(equirectShaderPaths, true, equirectShaderPaths[0], equirectShaderPaths[1]);
-            const std::vector<Path> irradianceShaderPaths = {
-                "shaders/shaderv_equirect.vs", 
-                "shaders/shaderf_irradiance.fs"
-            };
-            irradianceProgram = manager.ImportAsset<Core::Program>(irradianceShaderPaths, true, irradianceShaderPaths[0], irradianceShaderPaths[1]);
-            const std::vector<Path> prefilterShaderPaths = {
-                "shaders/shaderv_equirect.vs", 
-                "shaders/shaderf_prefilter.fs"
-            };
-            prefilterProgram = manager.ImportAsset<Core::Program>(prefilterShaderPaths, true, prefilterShaderPaths[0], prefilterShaderPaths[1]);
-            const std::vector<Path> brdfLutShaderPaths = {
-                "shaders/shaderv_2d.vs", 
-                "shaders/shaderf_2dbrdflut.fs"
-            };
-            brdfLutProgram = manager.ImportAsset<Core::Program>(brdfLutShaderPaths, true, brdfLutShaderPaths[0], brdfLutShaderPaths[1]);
+            AssetManager& manager = AssetManager::Instance();
+            
+            auto vsEquirect = manager.LoadHot<ShaderAsset>("shaders/shaderv_equirect.vs", GL_VERTEX_SHADER);
+            auto fsEquirect = manager.LoadHot<ShaderAsset>("shaders/shaderf_equirect.fs", GL_FRAGMENT_SHADER);
+            auto fsIrradiance = manager.LoadHot<ShaderAsset>("shaders/shaderf_irradiance.fs", GL_FRAGMENT_SHADER);
+            auto fsPrefilter = manager.LoadHot<ShaderAsset>("shaders/shaderf_prefilter.fs", GL_FRAGMENT_SHADER);
+            
+            equirectProgram = std::make_shared<Core::Program>(vsEquirect, fsEquirect);
+            irradianceProgram = std::make_shared<Core::Program>(vsEquirect, fsIrradiance);
+            prefilterProgram = std::make_shared<Core::Program>(vsEquirect, fsPrefilter);
+            
+            auto vs2d = manager.LoadHot<ShaderAsset>("shaders/shaderv_2d.vs", GL_VERTEX_SHADER);
+            auto fsBrdfLut = manager.LoadHot<ShaderAsset>("shaders/shaderf_2dbrdflut.fs", GL_FRAGMENT_SHADER);
+            
+            brdfLutProgram = std::make_shared<Core::Program>(vs2d, fsBrdfLut);
         }
     }
 
@@ -42,7 +36,6 @@ namespace Scene {
     {
         if (envmap->target == GL_TEXTURE_CUBE_MAP) {
             skybox = std::move(envmap);
-            skybox->GenerateMipMap();
         } else if (envmap->target == GL_TEXTURE_2D) {
             skybox = equirectToCubemap(envmap, 2048, 2048);
         } else
@@ -95,6 +88,7 @@ namespace Scene {
             glCullFace(GL_BACK);
         }
 
+        cubemap->Bind();
         cubemap->GenerateMipMap();
 
         return cubemap;
@@ -144,6 +138,7 @@ namespace Scene {
 
         Core::Fbo fbo(width, height);
         prefilter = std::make_shared<Core::Tex2D>(GL_TEXTURE_CUBE_MAP, GL_RGB32F, fbo.width, fbo.height, GL_RGB, GL_FLOAT, GL_CLAMP_TO_EDGE, GL_LINEAR_MIPMAP_LINEAR, false, true);
+        prefilter->Bind();
         prefilter->GenerateMipMap();    // Allocate memory for the upcoming mipmap levels to be rendered to
         
         fbo.Bind();

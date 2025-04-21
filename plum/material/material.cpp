@@ -1,7 +1,8 @@
 #include <plum/material/material.hpp>
 
 #include <plum/component/model.hpp>
-#include <plum/context/asset.hpp>
+#include <plum/asset/manager.hpp>
+#include <plum/asset/shader.hpp>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -18,14 +19,15 @@ namespace Material {
 
     PBRMetallicMaterial::PBRMetallicMaterial()
     {
+        name = "PBR Metallic";
         // Set UBO scheme to default (may implement non-default schemes in the future)
         if (!program) {
-            Asset::AssetManager& manager = Asset::AssetManager::Instance();
-            const std::vector<Path> shaderPaths = {
-                "shaders/shaderv_gen.vs", 
-                "shaders/shaderf_basichybrid.fs"
-            };
-            program = manager.ImportAsset<Core::Program>(shaderPaths, true, shaderPaths[0], shaderPaths[1]);
+            AssetManager& manager = AssetManager::Instance();
+
+            auto vs = manager.LoadHot<ShaderAsset>("shaders/shaderv_gen.vs", GL_VERTEX_SHADER);
+            auto fs = manager.LoadHot<ShaderAsset>("shaders/shaderf_basichybrid.fs", GL_FRAGMENT_SHADER);
+            
+            program = std::make_shared<Core::Program>(vs, fs);
             program->SetUniformBlockBindingScheme(Core::Program::UboScheme::Scheme1);
         }
     }
@@ -91,21 +93,21 @@ namespace Material {
     void PBRMetallicMaterial::DisplayWidget() {
         static const Directory textureDirectory("assets/textures");
         
-        static Path albedoPath = Path();
-        static int albedoWidgetId = -1;
-        if (Widget::PathComboWidget(&albedoWidgetId, textureDirectory, "Albedo Map", Asset::textureExtensions, &albedoPath, Path())) {
+        Widget::TextEditWidget(&nameWidgetId, &name);
+
+        if (Widget::PathComboWidget(&albedoWidgetId, textureDirectory, "Albedo Map", AssetUtils::imageExtensions, &albedoPath, Path())) {
             if (!albedoPath.IsEmpty()) {
-                albedoMap = std::make_shared<Texture>(albedoPath, Material::TextureType::Diffuse)->tex;
+                auto image = AssetManager::Instance().LoadHot<ImageAsset>(albedoPath);
+                albedoMap = std::make_shared<Texture>(image, Material::TextureType::Diffuse)->tex;
             } else {
                 albedoMap.reset();
             }
         }
         
-        static Path normalPath = Path();
-        static int normalWidgetId = -1;
-        if (Widget::PathComboWidget(&normalWidgetId, textureDirectory, "Normal Map", Asset::textureExtensions, &normalPath, Path())) {
+        if (Widget::PathComboWidget(&normalWidgetId, textureDirectory, "Normal Map", AssetUtils::imageExtensions, &normalPath, Path())) {
             if (!normalPath.IsEmpty()) {
-                normalMap = std::make_shared<Texture>(normalPath, Material::TextureType::Normal)->tex;
+                auto image = AssetManager::Instance().LoadHot<ImageAsset>(normalPath);
+                normalMap = std::make_shared<Texture>(image, Material::TextureType::Normal)->tex;
             } else {
                 normalMap.reset();
             }

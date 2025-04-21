@@ -8,6 +8,8 @@
 #include <plum/renderer/all.hpp>
 #include <plum/scene/all.hpp>
 
+#include <set>
+
 class Demo1 : public Demo {
     public:
         Demo1();
@@ -39,8 +41,8 @@ class Demo1 : public Demo {
         std::unique_ptr<PostProcessing::Hdr> hdr;
         std::unique_ptr<PostProcessing::Bloom> bloom;
 
-        std::map<std::string, std::shared_ptr<Material::MaterialBase>> materials;
-        std::map<std::string, std::shared_ptr<Component::Model>> models;
+        std::set<std::shared_ptr<Material::MaterialBase>> materials;
+        std::set<std::shared_ptr<Component::Model>> models;
 
     public:
         ~Demo1() = default;

@@ -2,7 +2,7 @@
 
 #include <plum/component/component.hpp>
 #include <plum/component/mesh.hpp>
-#include <plum/context/asset.hpp>
+#include <plum/asset/model.hpp>
 #include <plum/interface/widget.hpp>
 #include <plum/material/material.hpp>
 #include <plum/material/texture.hpp>
@@ -32,9 +32,9 @@ namespace Component {
 
     class ModelNode;
         
-    class Model : public ComponentBase, public Asset::Asset {
+    class Model : public ComponentBase, public AssetUser {
         public:
-            Model(Path path, float scale = 1.0f, bool flipUvs = false, GLuint wrap = GL_REPEAT);
+            Model(std::shared_ptr<ModelAsset> model);
             ~Model();
             
             void Draw(const glm::mat4& model_matrix) override;
@@ -47,19 +47,16 @@ namespace Component {
             std::vector<std::shared_ptr<Material::Texture>> textures;
             std::shared_ptr<ModelNode> root;
 
-            // Asset::Asset
-            void SyncWithDevice() override;
+            // Asset
+            void AssetResyncCallback() override;
 
             // Widget
             void DisplayWidget() override {};
     
-        private:    
-            float scale;
-            bool flipUvs;
-            GLuint wrap;
+            std::shared_ptr<ModelAsset> model;
+        
+        private:
             // std::map<std::string, bool> necessityMap;
-
-            void importFile(const fs::path& path, float scale, bool flipUvs);
             void printSceneInfo(const std::string& path, const aiScene *scene, const std::string& outpath = "");
     };
 
@@ -81,7 +78,7 @@ namespace Component {
             std::vector<std::shared_ptr<ModelNode>> children;
 
         private:
-            Model& model;
+            Model& head;
             std::vector<std::shared_ptr<Mesh>> meshes;
 
             std::shared_ptr<Mesh> processMesh(aiMesh* aimesh, const aiScene* scene);

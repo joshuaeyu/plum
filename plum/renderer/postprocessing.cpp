@@ -14,12 +14,12 @@ namespace PostProcessing {
     Fxaa::Fxaa()
     {
         if (!program) {
-            Asset::AssetManager& manager = Asset::AssetManager::Instance();
-            const std::vector<Path> shaderPaths = {
-                "shaders/shaderv_2d.vs", 
-                "shaders/shaderf_2dfxaa.fs"
-            };
-            program = manager.ImportAsset<Core::Program>(shaderPaths, true, shaderPaths[0], shaderPaths[1]);
+            AssetManager& manager = AssetManager::Instance();
+            auto vs = manager.LoadHot<ShaderAsset>("shaders/shaderv_2d.vs", GL_VERTEX_SHADER);
+            auto fs = manager.LoadHot<ShaderAsset>("shaders/shaderf_2dfxaa.fs", GL_FRAGMENT_SHADER);
+            
+            program = std::make_shared<Core::Program>(vs, fs);
+            program->SetUniformBlockBindingScheme(Core::Program::UboScheme::Scheme1);
         }
 
         auto color = std::make_shared<Core::Tex2D>(GL_TEXTURE_2D, GL_RGBA32F, output.width, output.height, GL_RGBA, GL_FLOAT, GL_CLAMP_TO_EDGE, GL_LINEAR, false, true);
@@ -52,22 +52,16 @@ namespace PostProcessing {
         bloom(2,2)
     {
         if (!programHighlights) {
-            Asset::AssetManager& manager = Asset::AssetManager::Instance();
-            const std::vector<Path> highlightsShaderPaths = {
-                "shaders/shaderv_2d.vs", 
-                "shaders/shaderf_2dhighlights.fs"
-            };
-            programHighlights = manager.ImportAsset<Core::Program>(highlightsShaderPaths, true, highlightsShaderPaths[0], highlightsShaderPaths[1]);
-            const std::vector<Path> blurShaderPaths = {
-                "shaders/shaderv_2d.vs", 
-                "shaders/shaderf_2dgaussian.fs"
-            };
-            programBlur = manager.ImportAsset<Core::Program>(blurShaderPaths, true, blurShaderPaths[0], blurShaderPaths[1]);
-            const std::vector<Path> displayShaderPaths = {
-                "shaders/shaderv_2d.vs", 
-                "shaders/shaderf_2dbloom.fs"
-            };
-            programDisplay = manager.ImportAsset<Core::Program>(displayShaderPaths, true, displayShaderPaths[0], displayShaderPaths[1]);
+            AssetManager& manager = AssetManager::Instance();
+
+            auto vs2d = manager.LoadHot<ShaderAsset>("shaders/shaderv_2d.vs", GL_VERTEX_SHADER);
+            auto fsHighlights = manager.LoadHot<ShaderAsset>("shaders/shaderf_2dhighlights.fs", GL_FRAGMENT_SHADER);
+            auto fsGaussian = manager.LoadHot<ShaderAsset>("shaders/shaderf_2dgaussian.fs", GL_FRAGMENT_SHADER);
+            auto fsBloom = manager.LoadHot<ShaderAsset>("shaders/shaderf_2dbloom.fs", GL_FRAGMENT_SHADER);
+            
+            programHighlights = std::make_shared<Core::Program>(vs2d, fsHighlights);
+            programBlur = std::make_shared<Core::Program>(vs2d, fsGaussian);
+            programDisplay = std::make_shared<Core::Program>(vs2d, fsBloom);
         }
 
         auto color = std::make_shared<Core::Tex2D>(GL_TEXTURE_2D, GL_RGBA32F, output.width, output.height, GL_RGBA, GL_FLOAT, GL_CLAMP_TO_EDGE, GL_LINEAR, false, true);
@@ -142,12 +136,12 @@ namespace PostProcessing {
     Hdr::Hdr() 
     {
         if (!program) {
-            Asset::AssetManager& manager = Asset::AssetManager::Instance();
-            const std::vector<Path> shaderPaths = {
-                "shaders/shaderv_2d.vs", 
-                "shaders/shaderf_2dhdr.fs"
-            };
-            program = manager.ImportAsset<Core::Program>(shaderPaths, true, shaderPaths[0], shaderPaths[1]);
+            AssetManager& manager = AssetManager::Instance();
+            auto vs = manager.LoadHot<ShaderAsset>("shaders/shaderv_2d.vs", GL_VERTEX_SHADER);
+            auto fs = manager.LoadHot<ShaderAsset>("shaders/shaderf_2dhdr.fs", GL_FRAGMENT_SHADER);
+            
+            program = std::make_shared<Core::Program>(vs, fs);
+            program->SetUniformBlockBindingScheme(Core::Program::UboScheme::Scheme1);
         }
         
         auto color = std::make_shared<Core::Tex2D>(GL_TEXTURE_2D, GL_RGBA32F, output.width, output.height, GL_RGBA, GL_FLOAT, GL_CLAMP_TO_EDGE, GL_LINEAR, false, true);

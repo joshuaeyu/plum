@@ -3,7 +3,7 @@
 #include <plum/component/camera.hpp>
 #include <plum/component/light.hpp>
 #include <plum/component/primitive.hpp>
-#include <plum/context/asset.hpp>
+#include <plum/asset/manager.hpp>
 #include <plum/scene/scene.hpp>
 #include <plum/scene/scenenode.hpp>
 
@@ -23,12 +23,13 @@ namespace Renderer {
         fbo(map_width, map_height)
     {
         if (!program) {
-            Asset::AssetManager& manager = Asset::AssetManager::Instance();
-            const std::vector<Path> shaderPaths = {
-                "shaders/shaderv_shadow2d.vs", 
-                "shaders/shaderf_shadow2d.fs"
-            };
-            program = manager.ImportAsset<Core::Program>(shaderPaths, true, shaderPaths[0], shaderPaths[1]);
+            AssetManager& manager = AssetManager::Instance();
+            
+            auto vs = manager.LoadHot<ShaderAsset>("shaders/shaderv_shadow2d.vs", GL_VERTEX_SHADER);
+            auto fs = manager.LoadHot<ShaderAsset>("shaders/shaderf_shadow2d.fs", GL_FRAGMENT_SHADER);
+            
+            program = std::make_shared<Core::Program>(vs, fs);
+            program->SetUniformBlockBindingScheme(Core::Program::UboScheme::Scheme1);
         }
         fbo.Bind();
         fbo.AttachDepthTex(depthMap);
@@ -77,13 +78,13 @@ namespace Renderer {
         fbo(map_width, map_height)
     {
         if (!program) {
-            Asset::AssetManager& manager = Asset::AssetManager::Instance();
-            const std::vector<Path> shaderPaths = {
-                "shaders/shaderv_shadowcube.vs", 
-                "shaders/shaderf_shadowcube.fs",
-                "shaders/shaderg_shadowcube.gs"
-            };
-            program = manager.ImportAsset<Core::Program>(shaderPaths, true, shaderPaths[0], shaderPaths[1], shaderPaths[2]);
+            AssetManager& manager = AssetManager::Instance();
+            auto vs = manager.LoadHot<ShaderAsset>("shaders/shaderv_shadowcube.vs", GL_VERTEX_SHADER);
+            auto fs = manager.LoadHot<ShaderAsset>("shaders/shaderf_shadowcube.fs", GL_FRAGMENT_SHADER);
+            auto gs = manager.LoadHot<ShaderAsset>("shaders/shaderg_shadowcube.gs", GL_GEOMETRY_SHADER);
+            
+            program = std::make_shared<Core::Program>(vs, fs, gs);
+            program->SetUniformBlockBindingScheme(Core::Program::UboScheme::Scheme1);
         }
         fbo.Bind();
         fbo.AttachDepthTex(depthMap);
@@ -131,12 +132,12 @@ namespace Renderer {
 
     SkyboxModule::SkyboxModule() {
         if (!program) {
-            Asset::AssetManager& manager = Asset::AssetManager::Instance();
-            const std::vector<Path> shaderPaths = {
-                "shaders/shaderv_skybox.vs", 
-                "shaders/shaderf_skybox.fs"
-            };
-            program = manager.ImportAsset<Core::Program>(shaderPaths, true, shaderPaths[0], shaderPaths[1]);
+            AssetManager& manager = AssetManager::Instance();
+            auto vs = manager.LoadHot<ShaderAsset>("shaders/shaderv_skybox.vs", GL_VERTEX_SHADER);
+            auto fs = manager.LoadHot<ShaderAsset>("shaders/shaderf_skybox.fs", GL_FRAGMENT_SHADER);
+            
+            program = std::make_shared<Core::Program>(vs, fs);
+            program->SetUniformBlockBindingScheme(Core::Program::UboScheme::Scheme1);
         }
     }
     
@@ -169,18 +170,17 @@ namespace Renderer {
         fbo(2,2)
     {
         if (!program) {
-            Asset::AssetManager& manager = Asset::AssetManager::Instance();
-            const std::vector<Path> shaderPaths = {
-                "shaders/shaderv_2d.vs", 
-                "shaders/shaderf_2dssao.fs"
-            };
-            program = manager.ImportAsset<Core::Program>(shaderPaths, true, shaderPaths[0], shaderPaths[1]);
+            AssetManager& manager = AssetManager::Instance();
 
-            const std::vector<Path> blurShaderPaths = {
-                "shaders/shaderv_2d.vs", 
-                "shaders/shaderf_2dssaoBlur.fs"
-            };
-            programBlur = manager.ImportAsset<Core::Program>(blurShaderPaths, true, blurShaderPaths[0], blurShaderPaths[1]);
+            auto vs2d = manager.LoadHot<ShaderAsset>("shaders/shaderv_2d.vs", GL_VERTEX_SHADER);
+            auto fsSsao = manager.LoadHot<ShaderAsset>("shaders/shaderf_2dssao.fs", GL_FRAGMENT_SHADER);
+            auto fsSsaoBlur = manager.LoadHot<ShaderAsset>("shaders/shaderf_2dssaoBlur.fs", GL_FRAGMENT_SHADER);
+            
+            program = std::make_shared<Core::Program>(vs2d, fsSsao);
+            program->SetUniformBlockBindingScheme(Core::Program::UboScheme::Scheme1);
+
+            programBlur = std::make_shared<Core::Program>(vs2d, fsSsaoBlur);
+            programBlur->SetUniformBlockBindingScheme(Core::Program::UboScheme::Scheme1);
         }
         fbo.Bind();
         fbo.AttachColorTex(ssao);

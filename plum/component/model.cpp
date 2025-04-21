@@ -1,15 +1,13 @@
 #include <plum/component/model.hpp>
 
-
+#include <plum/asset/manager.hpp>
 #include <plum/component/mesh.hpp>
 #include <plum/core/globject.hpp>
 #include <plum/material/material.hpp>
 #include <plum/material/texture.hpp>
 #include <plum/util/transform.hpp>
 
-#include <assimp/Importer.hpp>
 #include <assimp/scene.h>
-#include <assimp/postprocess.h>
 #include <assimp/DefaultLogger.hpp>
 
 #include <iostream>
@@ -44,9 +42,9 @@ namespace Component {
         {aiTextureType_UNKNOWN,             Material::TextureType::Unknown}
     };
 
-    ModelNode::ModelNode(Model& model, aiNode* ainode, const aiScene* aiscene) 
+    ModelNode::ModelNode(Model& head, aiNode* ainode, const aiScene* aiscene) 
         : ComponentBase(ComponentType::Model),
-        model(model)
+        head(head)
     {
         // Node model transform
         glm::mat4 matrix;
@@ -63,7 +61,7 @@ namespace Component {
         }
         // Children
         for (int i = 0; i < ainode->mNumChildren; i++) {
-            children.push_back(std::make_shared<ModelNode>(model, ainode->mChildren[i], aiscene));
+            children.push_back(std::make_shared<ModelNode>(head, ainode->mChildren[i], aiscene));
         }
 
     }
@@ -197,7 +195,10 @@ namespace Component {
     }
 
     std::vector<std::shared_ptr<Material::Texture>> ModelNode::loadMaterialTextures(aiMaterial* aimaterial, aiTextureType aitextype) {
+        std::vector<std::shared_ptr<ImageAsset>> images;
         std::vector<std::shared_ptr<Material::Texture>> textures;
+        AssetManager& manager = AssetManager::Instance();
+
         Material::TextureType textype = textureTypeMap.at(aitextype);
 
         // aiScene scene;
@@ -211,43 +212,41 @@ namespace Component {
         for (int i = 0; i < aimaterial->GetTextureCount(aitextype); i++) {            
             aiString str;
             aimaterial->GetTexture(aitextype, i, &str);
-            Path texturePath(model.GetFile().Parent().RawPath() / str.C_Str());
 
+            Path texturePath(head.model->GetFile().Parent().RawPath() / str.C_Str());
+            
             // If texture was already loaded from file, just push its existing representation
             bool skip = false;
-            for (const auto& texture : model.textures) {
-                if (texture->GetFile().RawPath() == texturePath.RawPath()) {
+            for (const auto& texture : head.textures) {
+                if (texture->images[0]->GetFile().RawPath() == texturePath.RawPath()) {
                     if (texture->type == textype) {
                         textures.push_back(texture);
-                    } else {
-                        // future: reuse same files
+                        skip = true;
+                        break;
                     }
-                    skip = true;
-                    break;
                 }
             }
             // Load and push any new textures
             if (!skip) {
                 std::cout << "  Loading texture " << texturePath.RawPath() << " as " << aiTextureTypeToString(aitextype) << std::endl;
-                auto texture = std::make_shared<Material::Texture>(texturePath, textype, true, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR);
+                auto image = AssetManager::Instance().LoadHot<ImageAsset>(texturePath, false);
+                auto texture = std::make_shared<Material::Texture>(image, textype, true, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR);
+                texture->tex->Bind();
                 texture->tex->GenerateMipMap();
                 textures.push_back(texture);
-                model.textures.push_back(texture);
+                head.textures.push_back(texture);
             }
         }
         return textures;
     }
 
-    Model::Model(Path path, float scale, bool flipUvs, GLuint wrap)
+    Model::Model(std::shared_ptr<ModelAsset> model)
         : ComponentBase(ComponentType::Model),
-        Asset::Asset(path),
-        scale(scale),
-        flipUvs(flipUvs),
-        wrap(wrap)
+        model(model)
     {
         name = "Model";
         // name = files[0].Name();
-        importFile(files[0].RawPath(), scale, flipUvs);
+        root = std::make_shared<ModelNode>(*this, model->Scene()->mRootNode, model->Scene());
     }
     Model::~Model() {}
     
@@ -261,26 +260,8 @@ namespace Component {
         root->Draw(module, model_matrix);
     }
 
-    void Model::SyncWithDevice() {
-        syncFilesWithDevice();
-        importFile(files[0].RawPath(), scale, flipUvs);
-    }
-
-    void Model::importFile(const fs::path& path, float scale, bool flipUvs) {
-        Assimp::Importer importer;
-        unsigned int importerFlags = aiProcessPreset_TargetRealtime_MaxQuality | aiProcess_GlobalScale;
-        if (flipUvs)
-            importerFlags |= aiProcess_FlipUVs;
-        
-        importer.SetPropertyFloat(AI_CONFIG_GLOBAL_SCALE_FACTOR_KEY, scale);
-        const aiScene *scene = importer.ReadFile(path, importerFlags);
-        if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
-            std::cout << "ERROR::ASSIMP::" << importer.GetErrorString() << std::endl;
-            return;
-        }
-
-        root = std::make_shared<ModelNode>(*this, scene->mRootNode, scene);
-        // printSceneInfo(path, scene);
+    void Model::AssetResyncCallback() {
+        root = std::make_shared<ModelNode>(*this, model->Scene()->mRootNode, model->Scene());
     }
 
     void Model::printSceneInfo(const std::string& path, const aiScene *scene, const std::string& outpath) {            

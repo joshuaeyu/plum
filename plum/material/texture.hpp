@@ -1,6 +1,6 @@
 #pragma once
 
-#include <plum/context/asset.hpp>
+#include <plum/asset/image.hpp>
 #include <plum/core/tex.hpp>
 
 #include <memory>
@@ -33,31 +33,31 @@ namespace Material {
         "unknown"
     };
 
-    class Texture : public Asset::Asset {
-        
+    inline std::string TexTypeToString(TextureType type) {
+        return texTypeStrings[type];
+    }
+
+    // textures should be thought of as image views?
+    class Texture : public AssetUser {
         public:            
-            static std::string TexTypeToString(TextureType type) {
-                return texTypeStrings[type];
-            }
+            Texture(std::shared_ptr<ImageAsset> image, TextureType type, bool flip = true, GLenum wrap = GL_REPEAT, GLenum minfilter = GL_NEAREST);
+            Texture(const std::vector<std::shared_ptr<ImageAsset>>& cubefaces, TextureType type, GLenum wrap = GL_REPEAT, GLenum minfilter = GL_NEAREST);
+            
+            // Asset
+            void AssetResyncCallback() override;
+            
             std::string name;
             TextureType type;
-            
             std::shared_ptr<Core::Tex2D> tex;
-
-            Texture(Path path, TextureType type, bool flip = true, GLenum wrap = GL_REPEAT, GLenum minfilter = GL_NEAREST);
-            Texture(const std::vector<Path>& cubeface_paths, TextureType type, bool flip = true, GLenum wrap = GL_REPEAT, GLenum minfilter = GL_NEAREST);
-            Texture(const std::vector<std::shared_ptr<Texture>>& cubefaces, TextureType type, bool flip = true, GLenum wrap = GL_REPEAT, GLenum minfilter = GL_NEAREST);
-
-            // Asset::Asset
-            void SyncWithDevice() override;
             
+            std::vector<std::shared_ptr<ImageAsset>> images;
+        
         private:
-            bool flip;
             GLenum wrap;
             GLenum minfilter;
 
-            void loadFile(std::string path, GLenum target, int face_idx = -1);
-            static std::vector<File> texturesToFiles(const std::vector<std::shared_ptr<Texture>> textures);
+            void loadImage(std::shared_ptr<ImageAsset> image, GLenum target, int face_idx = -1);
+            // static std::vector<File> texturesToFiles(const std::vector<std::shared_ptr<Texture>> textures);
     };
 
 };
