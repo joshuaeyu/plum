@@ -248,10 +248,10 @@ bool Demo1::gui_DisplaySceneNode(Scene::SceneNode& node, int& i) {
     }
     // Node Transform and children
     if (expanded) {
-        if (ImGui::Button("Delete Node")) {
-            ImGui::TreePop();
-            return false;
-        }
+        // if (ImGui::Button("Delete Node")) {
+        //     ImGui::TreePop();
+        //     return false;
+        // }
 
         if (ImGui::TreeNodeEx("[Transform]")) {
             bool pos = ImGui::DragFloat3("Position", glm::value_ptr(node.transform.position), 0.01f, 0.0f, 0.0f, "%.2f");
