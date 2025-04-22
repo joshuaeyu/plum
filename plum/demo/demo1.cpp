@@ -165,8 +165,6 @@ void Demo1::displayGui() {
     }
 
     if (ImGui::CollapsingHeader("Materials", ImGuiTreeNodeFlags_DefaultOpen)) {
-        // Engine object needs to mirror file itself
-        // list all files at component dialog, or just models that have already been imported?
         static bool showMaterialCreationWidget = false;
         if (ImGui::Button("New Material")) {
             showMaterialCreationWidget = !showMaterialCreationWidget;
@@ -200,109 +198,7 @@ void Demo1::displayGui() {
     }
     if (ImGui::CollapsingHeader("Environment", ImGuiTreeNodeFlags_DefaultOpen)) {
         if (ImGui::TreeNode("Skybox")) {
-            static bool showChild = false;
-            bool reinit = false;
-            if (!showChild && ImGui::Button("Edit")) {
-                showChild = true;
-                reinit = true;
-            }
-            if (showChild) {
-                static int sel = 0;
-                if (reinit && environment->envmap) {
-                    if (environment->envmap->tex->target == GL_TEXTURE_2D) {
-                        sel = 1;
-                    } else if (environment->envmap->tex->target == GL_TEXTURE_CUBE_MAP) {
-                        sel = 2;
-                    } else {
-                        sel = 0;
-                    }
-                }
-                ImGui::RadioButton("None", &sel, 0); ImGui::SameLine();
-                ImGui::RadioButton("Equirectangular", &sel, 1); ImGui::SameLine();
-                ImGui::RadioButton("Six Sided", &sel, 2);
-                static const Directory skyboxesDir("assets/skyboxes");
-                switch (sel) {
-                    case 0:
-                        if (ImGui::Button("Save")) {
-                            if (environment->skybox) {
-                                *environment = Scene::Environment();
-                            }
-                            showChild = false;
-                        }
-                        break;
-                    case 1:
-                    {
-                        static int widgetId = -1;
-                        static Path skyboxPath = Path();
-                        static bool flip = true;
-                        if (reinit) {
-                            skyboxPath = environment->envmap->images[0]->GetFile();
-                            flip = environment->envmap->images[0]->Flip();
-                            reinit = false;
-                        }
-                        Widget::PathComboWidget(&widgetId, skyboxesDir, "Path", AssetUtils::imageExtensions, &skyboxPath, Path());
-                        ImGui::SameLine(); ImGui::Checkbox("Flip", &flip);
-                        if (ImGui::Button("Save")) {
-                            if (!skyboxPath.IsEmpty()) {
-                                auto image = AssetManager::Instance().LoadHot<ImageAsset>(skyboxPath, flip);
-                                auto texture = std::make_shared<Material::Texture>(image, Material::TextureType::Diffuse, GL_CLAMP_TO_EDGE, GL_LINEAR);
-                                *environment = Scene::Environment(texture);
-                                showChild = false;
-                            }
-                        }
-                        break;
-                    }
-                    case 2:
-                    {
-                        static int widgetIds[6] = {-1, -1, -1, -1, -1, -1};
-                        constexpr const char* faces[] = {"+X", "-X", "+Y", "-Y", "+Z", "-Z"};
-                        static std::vector<Path> facePaths(6);
-                        static bool flips[6] = {true, true, true, true, true, true};
-                        if (reinit) {
-                            for (int i = 0; i < 6; i++) {
-                                facePaths[i] = environment->envmap->images[i]->GetFile();
-                                flips[i] = environment->envmap->images[i]->Flip();
-                            }
-                            reinit = false;
-                        }
-                        Widget::PathComboWidget(&widgetIds[0], skyboxesDir, "+X", AssetUtils::imageExtensions, &facePaths[0], Path());
-                        ImGui::SameLine(); ImGui::Checkbox("Flip##0", &flips[0]);
-                        Widget::PathComboWidget(&widgetIds[1], skyboxesDir, "-X", AssetUtils::imageExtensions, &facePaths[1], Path());
-                        ImGui::SameLine(); ImGui::Checkbox("Flip##1", &flips[1]);
-                        Widget::PathComboWidget(&widgetIds[2], skyboxesDir, "+Y", AssetUtils::imageExtensions, &facePaths[2], Path());
-                        ImGui::SameLine(); ImGui::Checkbox("Flip##2", &flips[2]);
-                        Widget::PathComboWidget(&widgetIds[3], skyboxesDir, "-Y", AssetUtils::imageExtensions, &facePaths[3], Path());
-                        ImGui::SameLine(); ImGui::Checkbox("Flip##3", &flips[3]);
-                        Widget::PathComboWidget(&widgetIds[4], skyboxesDir, "+Z", AssetUtils::imageExtensions, &facePaths[4], Path());
-                        ImGui::SameLine(); ImGui::Checkbox("Flip##4", &flips[4]);
-                        Widget::PathComboWidget(&widgetIds[5], skyboxesDir, "-Z", AssetUtils::imageExtensions, &facePaths[5], Path());
-                        ImGui::SameLine(); ImGui::Checkbox("Flip##5", &flips[5]);
-                        if (ImGui::Button("Save")) {
-                            bool pathsValid = true;
-                            for (const Path& path : facePaths) {
-                                if (path.IsEmpty()) {
-                                    pathsValid = false;
-                                    break;
-                                }
-                            }
-                            if (pathsValid) {
-                                std::vector<std::shared_ptr<ImageAsset>> images;
-                                for (int i = 0; i < facePaths.size(); i++) {
-                                    images.emplace_back(AssetManager::Instance().LoadHot<ImageAsset>(facePaths[i], flips[i]));
-                                }
-                                auto texture = std::make_shared<Material::Texture>(images, Material::TextureType::Diffuse, GL_CLAMP_TO_EDGE, GL_LINEAR);
-                                *environment = Scene::Environment(texture);
-                                showChild = false;
-                            }
-                        }
-                        break;
-                    }
-                }
-            }
-            ImGui::SameLine();
-            if (ImGui::Button("Cancel")) {
-                showChild = false;
-            }
+            environment->DisplayWidget();
             ImGui::TreePop();
         }
     }
@@ -356,6 +252,7 @@ bool Demo1::gui_DisplaySceneNode(Scene::SceneNode& node, int& i) {
             ImGui::TreePop();
             return false;
         }
+
         if (ImGui::TreeNodeEx("[Transform]")) {
             bool pos = ImGui::DragFloat3("Position", glm::value_ptr(node.transform.position), 0.01f, 0.0f, 0.0f, "%.2f");
             bool rot = ImGui::DragFloat3("Rotation", glm::value_ptr(node.transform.rotationEuler), 0.1f, 0.0f, 0.0f, "%.1f");

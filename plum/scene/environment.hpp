@@ -15,6 +15,8 @@ namespace Scene {
 
             void DrawSkybox(Component::Camera& camera);
 
+            void DisplayWidget();
+
             float iblIntensity = 1.0f;
 
             std::shared_ptr<Material::Texture> envmap;

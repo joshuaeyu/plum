@@ -57,7 +57,6 @@ namespace Material {
             GLenum minfilter;
 
             void loadImage(std::shared_ptr<ImageAsset> image, GLenum target, int face_idx = -1);
-            // static std::vector<File> texturesToFiles(const std::vector<std::shared_ptr<Texture>> textures);
     };
 
 };

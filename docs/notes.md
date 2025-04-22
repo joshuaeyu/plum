@@ -23,7 +23,7 @@ Remaining major:
 - GUI WIP
   - renaming
 - asset manager - textures, models WIP
-  - stronger statefulness - gui knows on startup what was initialized via code
+  - stronger statefulness - gui knows on startup what was initialized via code X
 - IBL specular map seams?? X
 
 Remaining minor:

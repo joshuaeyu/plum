@@ -216,18 +216,13 @@ namespace Component {
             Path imagePath(head.model->GetFile().Parent().RawPath() / str.C_Str());
             
             // If texture was already loaded from file, just push its existing representation
-            auto image = manager.Get<ImageAsset>(imagePath);
-            if (!image) {
-
-            }
             bool skip = false;
             for (const auto& texture : head.textures) {
-                if (texture->images[0]->GetFile().RawPath() == imagePath.RawPath()) {
-                    if (texture->type == textype) {
-                        textures.push_back(texture);
-                        skip = true;
-                        break;
-                    }
+                if (texture->images[0]->GetFile().RawPath() == imagePath.RawPath()
+                        && texture->type == textype) {
+                    textures.push_back(texture);
+                    skip = true;
+                    break;
                 }
             }
             // Load and push any new textures
