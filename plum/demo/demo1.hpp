@@ -29,8 +29,6 @@ class Demo1 : public Demo {
 
     private:
         void displayGui();
-        
-        bool gui_DisplaySceneNode(Scene::SceneNode& node, int& i);
 
         std::unique_ptr<Scene::Scene> scene;
         std::unique_ptr<Scene::Environment> environment;

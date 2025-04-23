@@ -18,6 +18,10 @@ namespace Scene {
             SceneNode(std::shared_ptr<Component::ComponentBase> component);
             SceneNode(std::shared_ptr<Component::ComponentBase> component, const std::string& name);
             ~SceneNode();
+
+            int widgetId = -1;
+            bool editingName = false;
+            bool DisplayWidget(std::set<std::shared_ptr<Material::MaterialBase>> materials);
                
         public:
             std::shared_ptr<SceneNode> AddChild(std::shared_ptr<SceneNode> node);

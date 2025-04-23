@@ -90,9 +90,9 @@ namespace Context {
             return;
 
         switch (key) {
-            case GLFW_KEY_ESCAPE:
-                glfwSetWindowShouldClose(handle, GLFW_TRUE);
-                break;
+            // case GLFW_KEY_ESCAPE:
+            //     glfwSetWindowShouldClose(handle, GLFW_TRUE);
+            //     break;
             case GLFW_KEY_GRAVE_ACCENT:
                 int inputmode = glfwGetInputMode(handle, GLFW_CURSOR);
                 if (inputmode == GLFW_CURSOR_NORMAL) {

@@ -9,6 +9,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <imgui/imgui.h>
+#include <imgui/imgui_stdlib.h>
 
 #include <iostream>
 #include <vector>
@@ -142,7 +143,7 @@ void Demo1::displayGui() {
     ImGui::TextColored(ImVec4(0.3,1,1,1), "Use WASD, Shift, and Spacebar to move camera.");
     ImGui::Spacing();
     
-    constexpr float pointsPerSecond = 0.5f;    // points/sec
+    constexpr float pointsPerSecond = 1.f;    // points/sec
     constexpr int secondsToDisplay = 20.f; // sec / points/sec
     Widget::PerformanceWidget(pointsPerSecond, secondsToDisplay);
 
@@ -219,77 +220,7 @@ void Demo1::displayGui() {
                 scene->EmplaceChild(component);
             }
         }
-        for (auto& child : scene->children) {
-            bool deleteRequested = !gui_DisplaySceneNode(*child, i);
-            if (deleteRequested) {
-                scene->RemoveChild(child);
-                break;  // Don't iterate further
-            }
-        }
+        scene->DisplayWidget(materials);
     }
     ImGui::End();
-}
-
-bool Demo1::gui_DisplaySceneNode(Scene::SceneNode& node, int& i) {
-    const std::string nodeName = node.name+"##"+std::to_string(i++);
-    bool expanded = ImGui::TreeNodeEx(nodeName.c_str());
-    // Right-click context menu
-    if (ImGui::BeginPopupContextItem()) {
-        if (ImGui::Button("Duplicate")) {
-            // future
-        }
-        if (ImGui::Button("Delete")) {
-            ImGui::EndPopup();
-            if (expanded)
-                ImGui::TreePop();
-            return false;
-        }
-        ImGui::EndPopup();
-    }
-    // Node Transform and children
-    if (expanded) {
-        // if (ImGui::Button("Delete Node")) {
-        //     ImGui::TreePop();
-        //     return false;
-        // }
-
-        if (ImGui::TreeNodeEx("[Transform]")) {
-            bool pos = ImGui::DragFloat3("Position", glm::value_ptr(node.transform.position), 0.01f, 0.0f, 0.0f, "%.2f");
-            bool rot = ImGui::DragFloat3("Rotation", glm::value_ptr(node.transform.rotationEuler), 0.1f, 0.0f, 0.0f, "%.1f");
-            bool scale = ImGui::DragFloat3("Scale", glm::value_ptr(node.transform.scale), 0.001f, 0.001f, 1e6f, "%.3f");
-            if (pos || rot || scale)
-                node.transform.Update();
-            ImGui::TreePop();
-        }
-        if (!node.component) {
-            static bool showComponentCreationWidget = false;
-            if (ImGui::Button("Add Component")) {
-                showComponentCreationWidget = !showComponentCreationWidget;
-            }
-            if (showComponentCreationWidget) {
-                auto component = Widget::ComponentCreationWidget(&showComponentCreationWidget);
-                if (component) {
-                    node.component = component;
-                }
-            }
-        } else {
-            if (ImGui::TreeNodeEx(("[" + node.component->name + "]").c_str())) {
-                if (node.component->IsMesh()) {
-                    std::static_pointer_cast<Component::Mesh>(node.component)->DisplayWidget(materials);
-                } else {
-                    node.component->DisplayWidget();
-                }
-                if (ImGui::Button("Remove Component")) {
-                    node.component.reset();
-                }
-                ImGui::TreePop();
-            }
-        }
-        for (auto& child : node.children) {
-            if (!gui_DisplaySceneNode(*child, i))
-                node.RemoveChild(child);
-        }
-        ImGui::TreePop();
-    }
-    return true;
 }

@@ -1,10 +1,14 @@
 #include <plum/scene/scenenode.hpp>
 
-#include <glad/gl.h>
-#include <glm/glm.hpp>
+#include <plum/component/all.hpp>
+#include <plum/interface/widget.hpp>
 
-#include <string>
+#include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
+#include <imgui/imgui_stdlib.h>
+
 #include <iostream>
+#include <string>
 
 namespace Scene {
     
@@ -22,12 +26,12 @@ namespace Scene {
         name(name)
     {}
     SceneNode::~SceneNode() {
-        // std::cout << "destroying SceneNode" << std::endl;
+        std::cout << "destroying SceneNode " << name << std::endl;
     }
 
     // Methods
     void SceneNode::Draw(const glm::mat4& parent_transform) {
-        glm::mat4 model_matrix = parent_transform * transform.Matrix();
+        const glm::mat4 model_matrix = parent_transform * transform.Matrix();
         if (component)
             component->Draw(model_matrix);
         for (auto& child : children) {
@@ -35,7 +39,7 @@ namespace Scene {
         }
     }
     void SceneNode::Draw(Material::MaterialBase& material, const glm::mat4& parent_transform) {
-        glm::mat4 model_matrix = parent_transform * transform.Matrix();
+        const glm::mat4 model_matrix = parent_transform * transform.Matrix();
         if (component)
             component->Draw(material, model_matrix);
         for (auto& child : children) {
@@ -43,7 +47,7 @@ namespace Scene {
         }
     }
     void SceneNode::Draw(Renderer::Module& module, const glm::mat4& parent_transform) {
-        glm::mat4 model_matrix = parent_transform * transform.Matrix();
+        const glm::mat4 model_matrix = parent_transform * transform.Matrix();
         if (component)
             component->Draw(module, model_matrix);
         for (auto& child : children) {
@@ -59,6 +63,101 @@ namespace Scene {
     void SceneNode::RemoveChild(std::shared_ptr<SceneNode> node) {
         auto it = std::find(children.begin(), children.end(), node);
         children.erase(it);
+    }
+
+    bool SceneNode::DisplayWidget(std::set<std::shared_ptr<Material::MaterialBase>> materials) {
+        static std::string newName;
+        static bool activatedThisFrame;
+        
+        std::string label;
+        bool expanded;
+        
+        if (editingName) {
+            label = "##treenode" + std::to_string(widgetId);
+            ImGui::SetNextItemAllowOverlap();
+        } else {
+            label = name + "##treenode" + std::to_string(widgetId);
+        }
+
+        expanded = ImGui::TreeNodeEx(label.c_str());
+        
+        if (editingName) {
+            ImGui::SameLine();
+            if (ImGui::InputText(("##inputtext" + std::to_string(widgetId)).c_str(), &newName, ImGuiInputTextFlags_EnterReturnsTrue)) {
+                name = newName;
+                editingName = false;
+            }
+            if (activatedThisFrame) {
+                ImGui::SetKeyboardFocusHere(-1);
+                activatedThisFrame = false;
+            } else if (!ImGui::IsItemActive()) {
+                editingName = false;
+            }
+        } else if (ImGui::BeginPopupContextItem()) {
+            if (ImGui::Button("Rename")) {
+                activatedThisFrame = true;
+                editingName = true;
+                newName = name;
+                ImGui::CloseCurrentPopup();
+            }
+            if (ImGui::Button("Add Empty Child")) {
+                EmplaceChild();
+                ImGui::CloseCurrentPopup();
+            }
+            if (ImGui::Button("Duplicate")) {
+                parent->EmplaceChild(component);
+                ImGui::CloseCurrentPopup();
+            }
+            if (ImGui::Button("Delete")) {
+                ImGui::CloseCurrentPopup();
+                ImGui::EndPopup();
+                if (expanded)
+                    ImGui::TreePop();
+                return false;
+            }
+            ImGui::EndPopup();
+        }
+        // Node Transform and children
+        if (expanded) {
+            if (ImGui::TreeNodeEx("[Transform]")) {
+                bool pos = ImGui::DragFloat3("Position", glm::value_ptr(transform.position), 0.01f, 0.0f, 0.0f, "%.2f");
+                bool rot = ImGui::DragFloat3("Rotation", glm::value_ptr(transform.rotationEuler), 0.1f, 0.0f, 0.0f, "%.1f");
+                bool scale = ImGui::DragFloat3("Scale", glm::value_ptr(transform.scale), 0.001f, 0.001f, 1e6f, "%.3f");
+                if (pos || rot || scale)
+                    transform.Update();
+                ImGui::TreePop();
+            }
+            if (!component) {
+                static bool showComponentCreationWidget = false;
+                if (ImGui::Button("Add Component")) {
+                    showComponentCreationWidget = !showComponentCreationWidget;
+                }
+                if (showComponentCreationWidget) {
+                    auto component = Widget::ComponentCreationWidget(&showComponentCreationWidget);
+                    if (component) {
+                        component = component;
+                    }
+                }
+            } else {
+                if (ImGui::TreeNodeEx(("[" + component->name + "]").c_str())) {
+                    if (component->IsMesh()) {
+                        std::static_pointer_cast<Component::Mesh>(component)->DisplayWidget(materials);
+                    } else {
+                        component->DisplayWidget();
+                    }
+                    if (ImGui::Button("Remove Component")) {
+                        component.reset();
+                    }
+                    ImGui::TreePop();
+                }
+            }
+            for (auto& child : children) {
+                if (!child->DisplayWidget(materials))
+                    RemoveChild(child);
+            }
+            ImGui::TreePop();
+        }
+        return true;
     }
 
 }
