@@ -20,18 +20,18 @@ Demo1::Demo1()
 {}
 
 void Demo1::Initialize() {
-    std::cout << "Creating renderer..." << std::endl;
+    std::clog << "Creating renderer..." << std::endl;
     renderer = std::make_unique<Renderer::DeferredRenderer>();
     fxaa = std::make_unique<PostProcessing::Fxaa>();
     hdr = std::make_unique<PostProcessing::Hdr>();
     bloom = std::make_unique<PostProcessing::Bloom>();
 
-    std::cout << "Setting up environment..." << std::endl;
+    std::clog << "Setting up environment..." << std::endl;
     auto kloppenheim = AssetManager::Instance().LoadHot<ImageAsset>("assets/skyboxes/kloppenheim_4k.hdr");
     auto skybox = std::make_shared<Material::Texture>(kloppenheim, Material::TextureType::Diffuse);
     environment = std::make_unique<Scene::Environment>(skybox);
     
-    std::cout << "Defining materials..." << std::endl;
+    std::clog << "Defining materials..." << std::endl;
     auto copper = std::make_shared<Material::PBRMetallicMaterial>();
     copper->name = "Copper";
     copper->albedo = glm::pow(glm::vec3(0.72,0.45,0.22),glm::vec3(2.2));
@@ -51,7 +51,7 @@ void Demo1::Initialize() {
     sapphire->roughness = 0.2;
     materials.insert(sapphire);
 
-    std::cout << "Creating components..." << std::endl;
+    std::clog << "Creating components..." << std::endl;
     camera = std::make_unique<Component::Camera>();
     camera->Translate(-5,3,-0.25);
     camera->Rotate(0,-90);
@@ -70,13 +70,13 @@ void Demo1::Initialize() {
     auto cube = std::make_shared<Component::Cube>();
     cube->material = ruby;
 
-    std::cout << "Loading models..." << std::endl;
+    std::clog << "Loading models..." << std::endl;
     // auto backpack = std::make_shared<Component::Model>("assets/models/survival_guitar_backpack/scene.gltf", 0.005f);
     // models["Backpack"] = backpack;
     auto sponzaAsset = AssetManager::Instance().LoadHot<ModelAsset>("assets/models/sponza/glTF/Sponza.gltf");
     auto sponza = std::make_shared<Component::Model>(sponzaAsset);
 
-    std::cout << "Defining scene..." << std::endl;
+    std::clog << "Defining scene..." << std::endl;
     scene = std::make_unique<Scene::Scene>();
     auto dlNode = scene->EmplaceChild(dirlight);
     dlNode->transform.Rotate(80,0,0);

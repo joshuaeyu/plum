@@ -112,7 +112,7 @@ std::shared_ptr<T> AssetManager::LoadCold(const Path& path, Args&& ...args) {
 template<class T>
 std::shared_ptr<T> AssetManager::Get(const Path& path) {
     if (!std::is_base_of<Asset, T>::value) {
-        throw std::invalid_argument("Object type must inherit from Asset!");
+        throw std::runtime_error("Object type must inherit from Asset!");
     }
     const auto it1 = assets.find(path.RawPath());
     if (it1 != assets.end()) {
@@ -125,7 +125,7 @@ template<class T>
 const std::vector<std::shared_ptr<T>>& AssetManager::GetAllOfType() {
     std::vector<std::shared_ptr<T>> result;
     if (!std::is_base_of<Asset, T>::value) {
-        throw std::invalid_argument("Object type must inherit from Asset!");
+        throw std::runtime_error("Object type must inherit from Asset!");
     }
     std::type_index type(std::type_index(typeid(T)));
     for (const auto& [_, info] : assets) {
@@ -139,11 +139,11 @@ const std::vector<std::shared_ptr<T>>& AssetManager::GetAllOfType() {
 template<class T, typename... Args> 
 std::shared_ptr<T> AssetManager::load(bool hot_reload, const Path& path, Args&& ...args) {
     if (!std::is_base_of<Asset, T>::value) {
-        throw std::invalid_argument("Object type must inherit from Asset!");
+        throw std::runtime_error("Object type must inherit from Asset!");
     }
     std::shared_ptr<T> asset = Get<T>(path);
     if (asset) {
-        // std::cout << "Info - Loading an asset that was already loaded!" << std::endl;
+        // std::clog << "Info - Loading an asset that was already loaded!" << std::endl;
     } else {
         asset = std::make_shared<T>(path, std::forward<Args>(args)...);
         

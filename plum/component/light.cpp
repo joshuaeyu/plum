@@ -53,8 +53,7 @@ namespace Component {
 
     const glm::mat4& DirectionalLight::LightspaceMatrix() const { 
         if (!hasShadows) {
-            std::cout << "Shadows are disabled for this light source!" << std::endl;
-            exit(-1);
+            throw std::runtime_error("Shadows are disabled for this light source!");
         }
         return lightspaceMatrix; 
     }
@@ -102,8 +101,7 @@ namespace Component {
 
     const std::vector<glm::mat4>& PointLight::LightspaceMatrices() const {
         if (!hasShadows) {
-            std::cout << "Shadows are disabled for this light source!" << std::endl;
-            exit(-1);
+            throw std::runtime_error("Shadows are disabled for this light source!");
         }
         return lightspaceMatrices; 
     }

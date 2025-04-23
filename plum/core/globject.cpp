@@ -26,7 +26,7 @@ namespace Core {
         Unbind();
     }
     Vbo::~Vbo() {
-        // std::cout << "destroying Vbo" << std::endl;
+        // std::clog << "destroying Vbo" << std::endl;
         glDeleteBuffers(1, &handle);
     }
     void Vbo::Bind() {
@@ -53,7 +53,7 @@ namespace Core {
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     }
     Ebo::~Ebo() {
-        // std::cout << "destroying Ebo" << std::endl;
+        // std::clog << "destroying Ebo" << std::endl;
         glDeleteBuffers(1, &handle);
     }
 
@@ -74,7 +74,7 @@ namespace Core {
         Unbind();
     }
     Vao::~Vao() {
-        // std::cout << "destroying Vao" << std::endl;
+        // std::clog << "destroying Vao" << std::endl;
         glDeleteVertexArrays(1, &handle);
     }
     void Vao::Bind() {
@@ -111,7 +111,7 @@ namespace Core {
         Unbind();
     }
     Ubo::~Ubo() {
-        // std::cout << "destroying Ubo" << std::endl;
+        // std::clog << "destroying Ubo" << std::endl;
         glDeleteBuffers(1, &handle);
     }
     void Ubo::Bind() {
@@ -134,7 +134,7 @@ namespace Core {
         glGenFramebuffers(1, &handle);
     }
     Fbo::~Fbo() {
-        // std::cout << "destroying Fbo" << std::endl;
+        // std::clog << "destroying Fbo" << std::endl;
         glDeleteFramebuffers(1, &handle);
     }
     void Fbo::Bind() {
@@ -178,8 +178,7 @@ namespace Core {
     }
     void Fbo::AttachColorTexCubeFace(int att_index, int face_idx, int level) {
         if (colorAtts[att_index]->target != GL_TEXTURE_CUBE_MAP) {
-            std::cerr << "Fbo::AttachColorTexCubeFace error! Can only attach cubemap faces of GL_TEXTURE_CUBE_MAP textures!" << std::endl;
-            exit(-1);
+            throw std::runtime_error("Can only attach cubemap faces of GL_TEXTURE_CUBE_MAP textures!");
         }
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + att_index, GL_TEXTURE_CUBE_MAP_POSITIVE_X + face_idx, colorAtts[att_index]->Handle(), level);
     }
@@ -260,7 +259,7 @@ namespace Core {
         glGenRenderbuffers(1, &handle);
     }
     Rbo::~Rbo() {
-        // std::cout << "destroying Rbo" << std::endl;
+        // std::clog << "destroying Rbo" << std::endl;
         glDeleteRenderbuffers(1, &handle);
     }
     void Rbo::Bind() {

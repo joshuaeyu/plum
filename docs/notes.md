@@ -21,10 +21,17 @@ To do:
 
 Remaining major:
 - GUI WIP
-  - renaming
+  - renaming X
+  - abstract right click context menu somehow?
+  - add context menu for materials
+  - support changing import settings for an already imported asset
+  - cleaner UI for children/components
+  - mesh cast shadow / receive shadow
+  - global shadow settings?
 - asset manager - textures, models WIP
   - stronger statefulness - gui knows on startup what was initialized via code X
 - IBL specular map seams?? X
+- move to cmake
 
 Remaining minor:
 - window vs context (e.g., getTime) WIP

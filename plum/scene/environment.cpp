@@ -42,8 +42,9 @@ namespace Scene {
                 skybox = envmap->tex;
             } else if (envmap->tex->target == GL_TEXTURE_2D) {
                 skybox = equirectToCubemap(envmap->tex, 2048, 2048);
-            } else
-                exit(-1);
+            } else {
+                throw std::runtime_error("Environment map texture must be of type GL_TEXTURE_CUBE_MAP or GL_TEXTURE_2D!");
+            }
             cubemapToIrradiance(64, 64);
             cubemapToPrefilter(256, 256, skybox->width);
             generateBrdfLut(512, 512);

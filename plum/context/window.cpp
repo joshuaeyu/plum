@@ -23,8 +23,7 @@ namespace Context {
     
     std::shared_ptr<Window> WindowCreator::Create() const {
         if (!glfwInit()) {
-            std::cerr << "glfwInit failed" << std::endl;
-            exit(-1);
+            throw std::runtime_error("glfwInit failed!");
         }
 
         for (const auto [hint, value] : hints) {
@@ -33,9 +32,8 @@ namespace Context {
         
         GLFWwindow *window = glfwCreateWindow(width, height, title.c_str(), NULL, NULL);
         if (window == nullptr) {
-            std::cerr << "glfwCreateWindow failed" << std::endl;
             glfwTerminate();
-            exit(-1);
+            throw std::runtime_error("glfwCreateWindow failed!");
         }
         
         return std::shared_ptr<Window>(new Window(window, width, height, title));

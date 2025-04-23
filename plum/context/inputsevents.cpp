@@ -89,7 +89,7 @@ namespace Context {
         }
     }
     InputObserver::~InputObserver() {
-        // std::cout << "Destroying InputObserver" << std::endl;
+        // std::clog << "Destroying InputObserver" << std::endl;
     }
 
     bool InputObserver::GetKeyDown(int key) {
@@ -160,7 +160,7 @@ namespace Context {
     // ========== EventListener ==========
 
     EventListener::~EventListener() {
-        // std::cout << "Destroying EventListener" << std::endl;
+        // std::clog << "Destroying EventListener" << std::endl;
     }
 
     void EventListener::SetCursorPosCallback(const std::function<void(double,double)>& callback) {

@@ -8,7 +8,7 @@ namespace Component {
         : type(type) 
     {}
     ComponentBase::~ComponentBase() {
-        // std::cout << "destroying ComponentBase" << std::endl;
+        // std::clog << "destroying ComponentBase" << std::endl;
     }
 
     const bool ComponentBase::IsMesh() const {

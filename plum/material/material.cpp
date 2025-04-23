@@ -14,7 +14,7 @@
 namespace Material {
     
     MaterialBase::~MaterialBase() {
-        // std::cout << "destroying MaterialBase" << std::endl;
+        // std::clog << "destroying MaterialBase" << std::endl;
     }
 
     PBRMetallicMaterial::PBRMetallicMaterial()

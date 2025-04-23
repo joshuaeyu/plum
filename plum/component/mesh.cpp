@@ -39,7 +39,7 @@ namespace Component {
     }
     
     Mesh::~Mesh() {
-        // std::cout << "destroying Mesh" << std::endl;
+        // std::clog << "destroying Mesh" << std::endl;
     }
 
     void Mesh::Draw(const glm::mat4& model_matrix) {

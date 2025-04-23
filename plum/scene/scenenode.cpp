@@ -26,7 +26,7 @@ namespace Scene {
         name(name)
     {}
     SceneNode::~SceneNode() {
-        std::cout << "destroying SceneNode " << name << std::endl;
+        // std::clog << "destroying SceneNode " << name << std::endl;
     }
 
     // Methods

@@ -12,7 +12,7 @@ ImageAsset::ImageAsset(const Path& path, bool flip)
 {
     hdr = stbi_is_hdr(path.RawPath().c_str());
     if (stbi_info(path.RawPath().c_str(), &width, &height, &numChannels) != 1) {
-        throw std::invalid_argument("Image type not supported!");
+        throw std::runtime_error("Image type not supported!");
     }
 }
 

@@ -15,7 +15,7 @@ namespace Context {
     }
     
     Application::~Application() {
-        // std::cout << "calling App destructor" << std::endl;
+        // std::clog << "destroying Application" << std::endl;
         glfwTerminate();
     }
 
@@ -28,9 +28,8 @@ namespace Context {
         activeWindow->SetWindowSize(1200, 800);
 
         if (!gladLoadGL(glfwGetProcAddress)) {
-            std::cerr << "gladLoadGLLoader failed" << std::endl;
             glfwTerminate();
-            exit(-1);
+            throw std::runtime_error("gladLoadGLLoader failed!");
         }
         
         Time::Update();
@@ -49,8 +48,7 @@ namespace Context {
     
     void Application::Run() {
         if (!activeDemo) {
-            std::cerr << "Demo not set!" << std::endl;
-            exit(-1);
+            throw std::runtime_error("No activeDemo is set!");
         }
 
         while (!activeWindow->ShouldClose()) {

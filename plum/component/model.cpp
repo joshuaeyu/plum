@@ -185,7 +185,7 @@ namespace Component {
         
         for (const auto& textype : textureTypeMap) {
             if (aimaterial->GetTextureCount(textype.first) > 0) {
-                // std::cout << aiTextureTypeToString(textype.first) << " count " << aimaterial->GetTextureCount(textype.first) << std::endl;
+                // std::clog << aiTextureTypeToString(textype.first) << " count " << aimaterial->GetTextureCount(textype.first) << std::endl;
                 auto texturesLoaded = loadMaterialTextures(aimaterial, textype.first);
                 result.textures.insert(result.textures.end(), texturesLoaded.begin(), texturesLoaded.end());
             }
@@ -227,7 +227,7 @@ namespace Component {
             }
             // Load and push any new textures
             if (!skip) {
-                std::cout << "  Loading texture " << imagePath.RawPath() << " as " << aiTextureTypeToString(aitextype) << std::endl;
+                std::clog << "  Loading texture " << imagePath.RawPath() << " as " << aiTextureTypeToString(aitextype) << std::endl;
                 auto image = AssetManager::Instance().LoadHot<ImageAsset>(imagePath, false);
                 auto texture = std::make_shared<Material::Texture>(image, textype, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR);
                 texture->tex->Bind();
@@ -271,7 +271,7 @@ namespace Component {
             while (getline(f, buffer)) {
                 if (buffer.find(path) != std::string::npos) {
                     f.close();
-                    std::cout << "    Scene info already logged in file " << outpath << std::endl;
+                    std::clog << "    Scene info already logged in file " << outpath << std::endl;
                     return;
                 }
             }
@@ -290,7 +290,7 @@ namespace Component {
         ss << "    mNumMaterials:   " << scene->mNumMaterials << std::endl;
         for (int i = 0; i < scene->mNumMaterials; i++) {
             aiMaterial *mat = scene->mMaterials[i];
-            std::cout << "      " << mat->GetName().C_Str() << std::endl;
+            std::clog << "      " << mat->GetName().C_Str() << std::endl;
         }
         ss << "    mNumMeshes:      " << scene->mNumMeshes << std::endl;
         ss << "    mNumSkeletons:   " << scene->mNumSkeletons << std::endl;
@@ -303,7 +303,7 @@ namespace Component {
             // aiMaterial *materiali = scene->mMaterials[i]; // first material is Gourad (2), rest are Phong (3)
             // float value;
             // materiali->Get(AI_MATKEY_OPACITY, value);
-            // std::cout << "material " << i << " opacity: " << value << std::endl;
+            // std::clog << "material " << i << " opacity: " << value << std::endl;
             for (int j = 0; j < scene->mMaterials[i]->mNumProperties; j++) {
                 materialProperties.insert(scene->mMaterials[i]->mProperties[j]->mKey.C_Str());
             }
@@ -313,17 +313,17 @@ namespace Component {
             ss << "    Material property " << i++ << ":\t" << *it << std::endl;
         }
     
-        // Write to file or std::cout
+        // Write to file or std::clog
         if (outpath != "") {
             std::ofstream f(outpath, std::ofstream::app);
             if (f.bad()) {
-                std::cout << "Error opening outfile " << outpath << std::endl;
+                std::cerr << "Error opening outfile " << outpath << std::endl;
             } else {
                 f << ss.rdbuf() << std::endl;
                 f.close();
             }
         } else {
-            std::cout << ss.rdbuf() << std::endl;
+            std::clog << ss.rdbuf() << std::endl;
         }
     }
 

@@ -30,7 +30,7 @@ void ShaderAsset::setup() {
     handle = glCreateShader(type);
     std::string pathString = file.RawPath();
 
-    std::cout << "Loading shader: " << file.Filename() << std::endl;
+    std::clog << "Loading shader: " << file.Filename() << std::endl;
 
     // ==== File to cstring ====
     std::ifstream       ifs;

@@ -88,7 +88,7 @@ namespace Core {
         }
 
         SetUniformBlockBindingScheme(UboScheme::Scheme1);
-        std::cout << "Successfully linked shaders: " << vertexShader->GetFile().Filename() << " " << fragmentShader->GetFile().Filename() << std::endl;
+        std::clog << "Successfully linked shaders: " << vertexShader->GetFile().Filename() << " " << fragmentShader->GetFile().Filename() << std::endl;
     }
 
 }

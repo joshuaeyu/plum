@@ -71,7 +71,7 @@ bool Widget::PathComboWidget(int* id, Directory directory, const char* label, co
     bool updateNeeded, newId;
     if (*id < 0 || *id >= idCounter) {
         *id = idCounter++;
-        std::cout << *id << " " << std::endl;
+        std::clog << *id << " " << std::endl;
         allPathSelectedIdx.push_back(0);
         allPaths.emplace_back();
         allRelativePathNames.emplace_back();
@@ -137,7 +137,7 @@ bool Widget::TextEditWidget(int* id, std::string* text, const char* label) {
     bool newId = false;
     if (*id < 0 || *id >= idCounter) {
         *id = idCounter++;
-        std::cout << *id << " " << std::endl;
+        std::clog << *id << " " << std::endl;
         allInput.emplace_back(*text);
         allShowInput.push_back(false);
     }
