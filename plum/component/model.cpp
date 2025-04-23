@@ -67,7 +67,7 @@ namespace Component {
     }
 
     void ModelNode::Draw(const glm::mat4& parent_transform) {
-        glm::mat4 model_matrix = parent_transform * transform.Matrix();
+        const glm::mat4 model_matrix = parent_transform * transform.Matrix();
         for (auto& mesh : meshes) {
             mesh->Draw(model_matrix);
         }
@@ -76,7 +76,7 @@ namespace Component {
         }
     }
     void ModelNode::Draw(Material::MaterialBase& material, const glm::mat4& parent_transform) {
-        glm::mat4 model_matrix = parent_transform * transform.Matrix();
+        const glm::mat4 model_matrix = parent_transform * transform.Matrix();
         for (auto& mesh : meshes) {
             mesh->Draw(material, model_matrix);
         }
@@ -85,7 +85,7 @@ namespace Component {
         }
     }
     void ModelNode::Draw(Renderer::Module& module, const glm::mat4& parent_transform) {
-        glm::mat4 model_matrix = parent_transform * transform.Matrix();
+        const glm::mat4 model_matrix = parent_transform * transform.Matrix();
         for (auto& mesh : meshes) {
             mesh->Draw(module, model_matrix);
         }
@@ -148,7 +148,7 @@ namespace Component {
         
         auto mesh = std::make_shared<Mesh>(vao);
         
-        MaterialInfo materialInfo = processMaterial(scene->mMaterials[aimesh->mMaterialIndex]);
+        const MaterialInfo materialInfo = processMaterial(scene->mMaterials[aimesh->mMaterialIndex]);
         // if (materialInfo.metalness != -1) {
         auto metallicMat = std::make_shared<Material::PBRMetallicMaterial>(materialInfo);
         // }
@@ -174,7 +174,7 @@ namespace Component {
         aimaterial->Get(AI_MATKEY_GLOSSINESS_FACTOR, result.glossiness);
 
         // Colors
-        aiColor3D aicolor(1.0f,1.0f,0.0f);  // Yellow
+        aiColor3D aicolor(1.0f, 1.0f, 0.0f);  // Yellow
         aimaterial->Get(AI_MATKEY_COLOR_DIFFUSE, aicolor);
         result.diffuse = glm::vec3(aicolor.r, aicolor.g, aicolor.b);
         aimaterial->Get(AI_MATKEY_COLOR_SPECULAR, aicolor);
@@ -213,7 +213,7 @@ namespace Component {
             aiString str;
             aimaterial->GetTexture(aitextype, i, &str);
 
-            Path imagePath(head.model->GetFile().Parent().RawPath() / str.C_Str());
+            const Path imagePath(head.model->GetFile().Parent().RawPath() / str.C_Str());
             
             // If texture was already loaded from file, just push its existing representation
             bool skip = false;

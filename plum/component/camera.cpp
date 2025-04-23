@@ -66,7 +66,7 @@ namespace Component {
         SetRotation(pitch + delta_pitch, yaw + delta_yaw);
     }
 
-    void Camera::Translate(glm::vec3 displacement) {
+    void Camera::Translate(const glm::vec3& displacement) {
         transform.Translate(displacement);
     }
 

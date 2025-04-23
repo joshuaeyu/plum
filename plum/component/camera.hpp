@@ -17,7 +17,7 @@ namespace Component {
 
             void SetRotation(float yaw, float pitch);
             void Rotate(float delta_yaw, float delta_pitch);
-            void Translate(glm::vec3 displacement);
+            void Translate(const glm::vec3& displacement);
             void Translate(float dx, float dy, float dz);
             
             const glm::mat4& View();
@@ -34,7 +34,7 @@ namespace Component {
         private:
             void framebufferSizeCallback(int width, int height);
 
-            float yaw, pitch;
+            float pitch, yaw;
             glm::mat4 view;
 
             std::shared_ptr<Context::InputObserver> inputObserver;

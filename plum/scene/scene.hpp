@@ -5,6 +5,9 @@
 namespace Scene {
 
     // placeholder for Scene class
-    typedef SceneNode Scene;
+    class Scene : public SceneNode {
+        public:
+            Scene() : SceneNode("Root") {}
+    };
 
 }

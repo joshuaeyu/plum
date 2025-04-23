@@ -108,8 +108,8 @@ namespace PostProcessing {
         programBlur->Use();
         programBlur->SetInt("image", 0);
         for (int i = 0; i < amount; i++) {
-            const int readIdx = horizontal ? 0 : 1;
-            const int drawIdx = horizontal ? 1 : 0;
+            const int readIdx = !horizontal;
+            const int drawIdx = horizontal;
             programBlur->SetInt("horizontal", horizontal);
             bloom.colorAtts[readIdx]->Bind(0); // Sample from color attachment at readIdx
             glDrawBuffer(GL_COLOR_ATTACHMENT0 + drawIdx); // Draw to color attachment at drawIdx

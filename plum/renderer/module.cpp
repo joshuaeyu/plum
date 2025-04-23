@@ -44,20 +44,20 @@ namespace Renderer {
         fbo.ClearDepth();
         program->Use();
         
-        for (int i = 0, shadow_count = 0; i < dirlight_nodes.size(); i++) {
+        for (int i = 0, shadow_count = 0; i < dirlight_nodes.size() && shadow_count < numLayers; i++) {
             Component::DirectionalLight& dirlight = dynamic_cast<Component::DirectionalLight&>(*dirlight_nodes[i]->component);
             
-            setGlobalUniforms(dirlight, fbo.depthAtt->Handle(), &shadow_count);
-            
-            glCullFace(GL_FRONT);
-            scene.Draw(*this);
-            glCullFace(GL_BACK);
+            if (dirlight.HasShadows()) {
+                setGlobalUniforms(dirlight, fbo.depthAtt->Handle(), &shadow_count);
+                
+                glCullFace(GL_FRONT);
+                scene.Draw(*this);
+                glCullFace(GL_BACK);
+            }
         }
     }
 
     void DirectionalShadowModule::setGlobalUniforms(Component::DirectionalLight& dl, GLuint depth_texture, int* shadow_idx) {
-        if (!dl.HasShadows())
-            return;
         program->SetMat4("lightSpaceMatrix", dl.LightspaceMatrix());
         glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depth_texture, 0, (*shadow_idx)++);
     }
@@ -100,20 +100,20 @@ namespace Renderer {
         fbo.ClearDepth();
         program->Use();
 
-        for (int i = 0, shadow_count = 0; i < pointlight_nodes.size(); i++) {
+        for (int i = 0, shadow_count = 0; i < pointlight_nodes.size() && shadow_count < numLayers; i++) {
             Component::PointLight& pointlight = dynamic_cast<Component::PointLight&>(*pointlight_nodes[i]->component);
 
-            setGlobalUniforms(pointlight, pointlight_nodes[i]->transform.position, &shadow_count);
-            
-            glCullFace(GL_FRONT);
-            scene.Draw(*this);
-            glCullFace(GL_BACK);
+            if (pointlight.HasShadows()) {
+                setGlobalUniforms(pointlight, pointlight_nodes[i]->transform.position, &shadow_count);
+                
+                glCullFace(GL_FRONT);
+                scene.Draw(*this);
+                glCullFace(GL_BACK);
+            }
         }
     }
 
     void PointShadowModule::setGlobalUniforms(Component::PointLight& pl, const glm::vec3& position, int* shadow_idx) {
-        if (!pl.HasShadows())
-            return;
         program->SetInt("layer", *(shadow_idx)++);
         for (int j = 0; j < 6; j++) {
             program->SetMat4("lightSpaceMatrices[" + std::to_string(j) + "]", pl.LightspaceMatrices()[j]);
@@ -188,7 +188,7 @@ namespace Renderer {
         fbo.CheckStatus();
 
         // Generate sampling kernel (random vectors in tangent space in the +normal hemisphere)
-        std::uniform_real_distribution<float> randomFloats(0.0, 1.0);
+        std::uniform_real_distribution<float> randomFloats(0.0f, 1.0f);
         std::default_random_engine generator;
         for (int i = 0; i < 64; i++) {
             glm::vec3 sample(
@@ -197,7 +197,7 @@ namespace Renderer {
                 randomFloats(generator)
             );
             sample = randomFloats(generator) * glm::normalize(sample);
-            float scale = (float)i / 64.0f;
+            float scale = static_cast<float>(i) / 64.0f;
             scale = 0.1f + scale*scale * (1.0f - 0.1f);    // lerp, places more samples closer to origin of hemisphere
             sample *= scale;
             kernel.push_back(sample);

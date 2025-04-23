@@ -159,7 +159,9 @@ namespace Core {
         
         if (index == -1) {
             index = colorAtts.size();
-            colorAtts.push_back(nullptr);
+            colorAtts.resize(index + 1);
+        } else if (index >= colorAtts.size()) {
+            colorAtts.resize(index + 1);
         }
         
         switch (tex->target) {

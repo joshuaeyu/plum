@@ -228,7 +228,7 @@ float CalcShadowCube(int lightIndex, vec4 fragPos) {
     float diskRadius = 0.01 + 0.05 * viewDistance/farPlane; // Sharper shadows when closer, softer shadows when farther
     int shadowIndex = int(pointlights[lightIndex].position_world.w);
     for (int i = 0; i < 20; i++) {
-        float result = texture(shadowmap_cube_array_shadow, vec4(fragToLight + sampleOffsetDirections[i] * diskRadius, shadowIndex), currentDepth/farPlane-bias);
+        float result = texture(shadowmap_cube_array_shadow, vec4(fragToLight + sampleOffsetDirections[i] * diskRadius, shadowIndex), currentDepth/farPlane - bias);
         shadow += 1.0 - result;
     }
 

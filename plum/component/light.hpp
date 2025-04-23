@@ -17,18 +17,17 @@ namespace Component {
             
             virtual void Draw(const glm::mat4& parent_transform) override = 0;
 
-            // Accessors
-            float FarPlane() const;
-            bool HasShadows() const;  
-            // Modifiers
+            float FarPlane() const { return farPlane; }
+            bool HasShadows() const { return hasShadows; }
+
             void DisableShadows();
 
             void DisplayWidget() override;
 
         protected:
             bool hasShadows = false;
-            float nearPlane = 0.1;
-            float farPlane = 50;
+            float nearPlane = 0.1f;
+            float farPlane = 50.0f;
 
             Light(ComponentType type);
             virtual ~Light() = default;
@@ -41,8 +40,7 @@ namespace Component {
             void Draw(const glm::mat4& parent_transform) override;
             
             void EnableShadows(float width = 50.0f, float height = 50.0f, float near = 0.1f, float far = 50.0f, float dist = 20.0f);
-
-            glm::mat4& LightspaceMatrix();
+            const glm::mat4& LightspaceMatrix() const;
 
         private:
             glm::mat4 lightspaceMatrix = glm::identity<glm::mat4>();
@@ -50,8 +48,8 @@ namespace Component {
             float projHeight = 50.0;
             float distance = 20.0;
 
-            void updateLightspaceMatrix(glm::vec3 direction);
-            
+            glm::vec3 lastDirection;
+            void updateLightspaceMatrix(const glm::vec3& direction);      
     };
 
     class PointLight : public Light {
@@ -60,25 +58,25 @@ namespace Component {
 
             void Draw(const glm::mat4& parent_transform) override;
 
-            void EnableShadows(float aspect = 1.0f, float near = 0.1f, float far = 75.0f);
-
             void SetAttenuation(float constant, float linear, float quadratic);
+            void EnableShadows(float aspect = 1.0f, float near = 0.1f, float far = 75.0f);
+            const std::vector<glm::mat4>& LightspaceMatrices() const;
 
-            std::vector<glm::mat4>& LightspaceMatrices();
-            float Radius() const;
-            float AttenuationConstant() const;
-            float AttenuationLinear() const;
-            float AttenuationQuadratic() const;
+            float Radius() const { return radius; }
+            float AttenuationConstant() const { return attenuationConstant; }
+            float AttenuationLinear() const { return attenuationLinear; }
+            float AttenuationQuadratic() const { return attenuationQuadratic; }
 
         private:
+            std::vector<glm::mat4> lightspaceMatrices;
+            float aspectRatio = 1.0;
             float radius = 5;
             float attenuationConstant = 1.0;       // Default range 50
             float attenuationLinear = 0.09;        // Default range 50
             float attenuationQuadratic = 0.032;    // Default range 50
-            std::vector<glm::mat4> lightspaceMatrices;
-            float aspectRatio = 1.0;
             
-            void updateLightspaceMatrices(glm::vec3 position);
+            glm::vec3 lastPosition;
+            void updateLightspaceMatrices(const glm::vec3& position);
 
             float updateRadius();
     };

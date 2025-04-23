@@ -52,7 +52,7 @@ namespace Component {
         vao->Draw();
     }
     void Mesh::Draw(Renderer::Module& module, const glm::mat4& model_matrix) {
-        module.GetProgram()->SetMat4("model", model_matrix);
+        module.SetObjectUniforms(model_matrix);
         vao->Draw();
     }
 

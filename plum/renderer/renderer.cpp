@@ -90,10 +90,6 @@ namespace Renderer {
         lightingPass(env);
         forwardPass(camera, env);
         return &output;
-        // some postprocessing like Bloom requires additional render info
-        // need to support intraprocessing rendering options
-            // - SSAO
-            // ....
     }
     
     void DeferredRenderer::initUniformBlocks() {
@@ -115,19 +111,15 @@ namespace Renderer {
     }
 
     void DeferredRenderer::initGbuffer() {
-        gBuffer.Bind();
-        gBuffer.colorAtts.resize(4);
-        
         auto position = std::make_shared<Core::Tex2D>(GL_TEXTURE_2D, GL_RGBA32F, gBuffer.width, gBuffer.height, GL_RGBA, GL_FLOAT, GL_CLAMP_TO_EDGE, GL_NEAREST);
-        gBuffer.AttachColorTex(position, 0);
-
         auto normal = std::make_shared<Core::Tex2D>(GL_TEXTURE_2D, GL_RGBA32F, gBuffer.width, gBuffer.height, GL_RGBA, GL_FLOAT, GL_CLAMP_TO_EDGE, GL_NEAREST);
-        gBuffer.AttachColorTex(normal, 1);
-        
         auto albedospec = std::make_shared<Core::Tex2D>(GL_TEXTURE_2D, GL_RGBA32F, gBuffer.width, gBuffer.height, GL_RGBA, GL_FLOAT, GL_CLAMP_TO_EDGE, GL_NEAREST);
-        gBuffer.AttachColorTex(albedospec, 2);
-        
         auto metrou = std::make_shared<Core::Tex2D>(GL_TEXTURE_2D, GL_RGBA, gBuffer.width, gBuffer.height, GL_RGBA, GL_UNSIGNED_BYTE, GL_CLAMP_TO_EDGE, GL_NEAREST);
+        
+        gBuffer.Bind();
+        gBuffer.AttachColorTex(position, 0);
+        gBuffer.AttachColorTex(normal, 1);
+        gBuffer.AttachColorTex(albedospec, 2);
         gBuffer.AttachColorTex(metrou, 3);
         
         gBuffer.AttachDepthRbo24();
@@ -135,7 +127,7 @@ namespace Renderer {
         gBuffer.CheckStatus();
     }
 
-    void DeferredRenderer::initOutput() {\
+    void DeferredRenderer::initOutput() {
         auto color = std::make_shared<Core::Tex2D>(GL_TEXTURE_2D, GL_RGBA32F, output.width, output.height, GL_RGBA, GL_FLOAT, GL_CLAMP_TO_EDGE, GL_LINEAR);
 
         output.Bind();
@@ -176,7 +168,7 @@ namespace Renderer {
         uboVsMatrices->UpdateData(0, sizeof(glm::mat4), &camera.View());
         uboVsMatrices->UpdateData(sizeof(glm::mat4), sizeof(glm::mat4), &camera.projection);
         // 1 - Inverse view transform
-        glm::mat4 inv_view = glm::inverse(camera.View());
+        const glm::mat4 inv_view = glm::inverse(camera.View());
         uboFsMatrices->UpdateData(0, sizeof(glm::mat4), &inv_view);
         // 2 - Camera position, front (viewspace)
         const glm::vec3 dummy_cam_pos = glm::vec3(0); // shaders work in view space
@@ -191,24 +183,24 @@ namespace Renderer {
     }
 
     void DeferredRenderer::setDirectionalLightUniforms(Component::Camera& camera) {
-        float total_count = directionalLightNodes.size();
+        const float total_count = directionalLightNodes.size();
         int shadow_count = 0;
         
         uboFsDirlight->UpdateData(0, sizeof(float), &total_count);
 
         for (int i = 0; i < total_count; i++) {
-            Component::DirectionalLight& dirlight = dynamic_cast<Component::DirectionalLight&>(*directionalLightNodes[i]->component);
+            const Component::DirectionalLight& dirlight = dynamic_cast<Component::DirectionalLight&>(*directionalLightNodes[i]->component);
 
             unsigned int offset = 16 + i*96;
             
             // Color
-            glm::vec4 color = glm::vec4(dirlight.color * dirlight.intensity, 0);
+            const glm::vec4 color = glm::vec4(dirlight.color * dirlight.intensity, 0);
             uboFsDirlight->UpdateData(offset, sizeof(glm::vec4), &color);
             
-            // Direction and shadow map index
+            // Direction and shadow map index as w component
             glm::vec4 direction = glm::vec4( glm::mat3(glm::transpose(glm::inverse(camera.View()))) * directionalLightNodes[i]->transform.Front(), -1 );
             if (dirlight.HasShadows()) {
-                direction = glm::vec4( glm::mat3(glm::transpose(glm::inverse(camera.View()))) * directionalLightNodes[i]->transform.Front(), shadow_count++ );
+                direction.w = shadow_count++;
                 uboFsDirlight->UpdateData(offset + 32, sizeof(glm::mat4), &dirlight.LightspaceMatrix());
             }
             uboFsDirlight->UpdateData(offset + 16, sizeof(glm::vec4), &direction);
@@ -216,32 +208,32 @@ namespace Renderer {
     }
 
     void DeferredRenderer::setPointLightUniforms(Component::Camera& camera) {
-        float total_count = pointLightNodes.size();
+        const float total_count = pointLightNodes.size();
         int shadow_count = 0;
 
         uboFsPointlight->UpdateData(0, sizeof(float), &total_count);
 
         for (int i = 0; i < total_count; i++) {
-            Component::PointLight& pointlight = dynamic_cast<Component::PointLight&>(*pointLightNodes[i]->component);
+            const Component::PointLight& pointlight = dynamic_cast<Component::PointLight&>(*pointLightNodes[i]->component);
 
             unsigned int offset = 16 + i*64;
             
             // Color
-            glm::vec4 color = glm::vec4(pointlight.color * pointlight.intensity, 0);
+            const glm::vec4 color = glm::vec4(pointlight.color * pointlight.intensity, 0);
             uboFsPointlight->UpdateData(offset, sizeof(glm::vec4), &color);
 
             // Attenuation
-            glm::vec4 attenuation = glm::vec4(pointlight.AttenuationConstant(), pointlight.AttenuationLinear(), pointlight.AttenuationQuadratic(), 0);
+            const glm::vec4 attenuation = glm::vec4(pointlight.AttenuationConstant(), pointlight.AttenuationLinear(), pointlight.AttenuationQuadratic(), 0);
             uboFsPointlight->UpdateData(offset + 16, sizeof(glm::vec4), &attenuation);
             
             // Position (viewspace)
             glm::vec4 position_view = camera.View() * glm::vec4(pointLightNodes[i]->transform.position, 1);
             position_view.w = pointlight.FarPlane();
             uboFsPointlight->UpdateData(offset + 32, sizeof(glm::vec4), &position_view);
-            // Position (worldspace) and shadow map index
+            // Position (worldspace) and shadow map index as w component
             glm::vec4 position_world = glm::vec4(pointLightNodes[i]->transform.position, -1);
             if (pointlight.HasShadows()) {
-                position_world = glm::vec4(pointLightNodes[i]->transform.position, shadow_count++);
+                position_world.w = shadow_count++;
             }
             uboFsPointlight->UpdateData(offset + 48, sizeof(glm::vec4), &position_world);
         }

@@ -7,13 +7,6 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 namespace Component {
-            
-    inline static const glm::vec3 UP = glm::vec3(0,1,0);
-    inline static const glm::vec3 DOWN = glm::vec3(0,-1,0);
-    inline static const glm::vec3 LEFT = glm::vec3(-1,0,0);
-    inline static const glm::vec3 RIGHT = glm::vec3(1,0,0);
-    inline static const glm::vec3 FRONT = glm::vec3(0,0,1);
-    inline static const glm::vec3 BACK = glm::vec3(0,0,-1);
 
     enum class ComponentType {
         // Meshes

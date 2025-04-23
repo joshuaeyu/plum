@@ -1,5 +1,6 @@
 #include <plum/component/light.hpp>
 
+#include <plum/util/direction.hpp>
 #include <plum/util/transform.hpp>
 
 #include <glad/gl.h>
@@ -8,27 +9,20 @@
 
 #include <iostream>
 
-namespace Component {
-
-    float Light::FarPlane() const { 
-        return farPlane; 
-    }
-
-    bool Light::HasShadows() const {
-        return hasShadows;
-    }       
+namespace Component {     
+    
+    Light::Light(ComponentType type)
+        : ComponentBase(type)
+    {}
 
     void Light::DisableShadows() {
         hasShadows = false;
     }
 
-    Light::Light(ComponentType type)
-        : ComponentBase(type)
-    {}
-
     void Light::DisplayWidget() {
         ImGui::ColorEdit3("Color", glm::value_ptr(color), ImGuiColorEditFlags_Float);
         ImGui::DragFloat("Intensity", &intensity, 0.01f, 0.0f, 0.0f, "%.3f");
+        ImGui::Checkbox("Cast Shadows", &hasShadows);
     }
 
     // ======== DirectionalLight ========
@@ -40,9 +34,12 @@ namespace Component {
     }
 
     void DirectionalLight::Draw(const glm::mat4& parent_transform) {
-        glm::mat4 rotation = Transform::ExtractRotation(parent_transform);
-        glm::vec3 direction = glm::vec3(rotation * glm::vec4(0,0,1,1));
-        updateLightspaceMatrix(direction);
+        const glm::mat4 rotation = Transform::ExtractRotation(parent_transform);
+        const glm::vec3 direction = glm::mat3(rotation) * glm::vec3(0,0,1);
+        if (direction != lastDirection) {
+            updateLightspaceMatrix(direction);
+            lastDirection = direction;
+        }
     }
 
     void DirectionalLight::EnableShadows(float width, float height, float near, float far, float dist) {
@@ -54,7 +51,7 @@ namespace Component {
         distance = dist;
     }
 
-    glm::mat4& DirectionalLight::LightspaceMatrix() { 
+    const glm::mat4& DirectionalLight::LightspaceMatrix() const { 
         if (!hasShadows) {
             std::cout << "Shadows are disabled for this light source!" << std::endl;
             exit(-1);
@@ -62,26 +59,31 @@ namespace Component {
         return lightspaceMatrix; 
     }
 
-    void DirectionalLight::updateLightspaceMatrix(glm::vec3 direction) { 
-        glm::mat4 projection = glm::ortho(-projWidth/2, projWidth/2, -projHeight/2, projHeight/2, nearPlane, farPlane);
+    void DirectionalLight::updateLightspaceMatrix(const glm::vec3& direction) { 
+        const glm::mat4 projection = glm::ortho(-projWidth/2, projWidth/2, -projHeight/2, projHeight/2, nearPlane, farPlane);
         glm::mat4 view; 
-        if (direction != DOWN && direction != UP) 
-            view = glm::lookAt(distance*-glm::normalize(direction), glm::vec3(0), UP);
+        if (direction != Direction::down && direction != Direction::up) 
+            view = glm::lookAt(-distance*direction, glm::vec3(0), Direction::up);
         else
-            view = glm::lookAt(distance*-glm::normalize(direction), glm::vec3(0), FRONT);
+            view = glm::lookAt(-distance*direction, glm::vec3(0), Direction::front);
         lightspaceMatrix = projection * view;
     }
 
     // ======== PointLight ========
 
     PointLight::PointLight() 
-        : Light(ComponentType::PointLight) 
+        : Light(ComponentType::PointLight),
+        lightspaceMatrices(6)
     {
         name = "Point Light";
     }
 
     void PointLight::Draw(const glm::mat4& parent_transform) {
-        updateLightspaceMatrices(parent_transform[3]);
+        const glm::vec3 position = parent_transform[3];
+        if (position != lastPosition) {
+            updateLightspaceMatrices(position);
+            lastPosition = position;
+        }
     }
 
     void PointLight::EnableShadows(float aspect, float near, float far) {
@@ -98,46 +100,23 @@ namespace Component {
         updateRadius();
     }
 
-    std::vector<glm::mat4>& PointLight::LightspaceMatrices() {
+    const std::vector<glm::mat4>& PointLight::LightspaceMatrices() const {
         if (!hasShadows) {
             std::cout << "Shadows are disabled for this light source!" << std::endl;
             exit(-1);
         }
         return lightspaceMatrices; 
     }
-    float PointLight::Radius() const { 
-        return radius; 
-    }
-    float PointLight::AttenuationConstant() const { 
-        return attenuationConstant; 
-    }
-    float PointLight::AttenuationLinear() const { 
-        return attenuationLinear; 
-    }
-    float PointLight::AttenuationQuadratic() const { 
-        return attenuationQuadratic; 
-    }
 
-    void PointLight::updateLightspaceMatrices(glm::vec3 position) { 
-        glm::mat4 projection = glm::perspective(glm::half_pi<float>(), aspectRatio, nearPlane, farPlane);
+    void PointLight::updateLightspaceMatrices(const glm::vec3& position) { 
+        const glm::mat4 projection = glm::perspective(glm::half_pi<float>(), aspectRatio, nearPlane, farPlane);
 
-        if (lightspaceMatrices.empty()) {
-            if (!lightspaceMatrices.empty()) {
-                lightspaceMatrices[0] = projection * glm::lookAt(position, position + RIGHT,  DOWN);
-                lightspaceMatrices[1] = projection * glm::lookAt(position, position + LEFT,   DOWN);
-                lightspaceMatrices[2] = projection * glm::lookAt(position, position + UP,    FRONT);
-                lightspaceMatrices[3] = projection * glm::lookAt(position, position + DOWN,   BACK);
-                lightspaceMatrices[4] = projection * glm::lookAt(position, position + FRONT,  DOWN);
-                lightspaceMatrices[5] = projection * glm::lookAt(position, position + BACK,   DOWN);
-            } else {
-                lightspaceMatrices.push_back( projection * glm::lookAt(position, position + RIGHT,  DOWN));
-                lightspaceMatrices.push_back( projection * glm::lookAt(position, position + LEFT,   DOWN));
-                lightspaceMatrices.push_back( projection * glm::lookAt(position, position + UP,    FRONT));
-                lightspaceMatrices.push_back( projection * glm::lookAt(position, position + DOWN,   BACK));
-                lightspaceMatrices.push_back( projection * glm::lookAt(position, position + FRONT,  DOWN));
-                lightspaceMatrices.push_back( projection * glm::lookAt(position, position + BACK,   DOWN));
-            }
-        }
+        lightspaceMatrices[0] = projection * glm::lookAt(position, position + Direction::right, Direction::down);
+        lightspaceMatrices[1] = projection * glm::lookAt(position, position + Direction::left,  Direction::down);
+        lightspaceMatrices[2] = projection * glm::lookAt(position, position + Direction::up,    Direction::front);
+        lightspaceMatrices[3] = projection * glm::lookAt(position, position + Direction::down,  Direction::back);
+        lightspaceMatrices[4] = projection * glm::lookAt(position, position + Direction::front, Direction::down);
+        lightspaceMatrices[5] = projection * glm::lookAt(position, position + Direction::back,  Direction::down);
     }
 
     float PointLight::updateRadius() {

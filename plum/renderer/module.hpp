@@ -15,8 +15,8 @@ namespace Component  {
 }
 
 namespace Scene {
+    class Scene;
     class SceneNode;
-    typedef SceneNode Scene;
 }
 
 namespace Renderer {
@@ -24,6 +24,7 @@ namespace Renderer {
     class Module {
         public:
             virtual std::shared_ptr<Core::Program> GetProgram() = 0;
+            virtual void SetObjectUniforms(const glm::mat4& model) {}
         protected:
             Module() = default;
             virtual ~Module() = default;
@@ -44,7 +45,7 @@ namespace Renderer {
             DirectionalShadowModule(int map_width = 512, int map_height = 512, int num_layers = 8);
 
             void Render(Scene::Scene& scene, const std::vector<Scene::SceneNode*>& dirlight_nodes);
-            void SetObjectUniforms(const glm::mat4& model);
+            void SetObjectUniforms(const glm::mat4& model) override;
             std::shared_ptr<Core::Program> GetProgram() override;
 
             const int mapWidth, mapHeight, numLayers;
@@ -64,7 +65,7 @@ namespace Renderer {
             PointShadowModule(int map_width = 512, int map_height = 512, int num_layers = 8);
 
             void Render(Scene::Scene& scene, const std::vector<Scene::SceneNode*>& pointlight_nodes);
-            void SetObjectUniforms(const glm::mat4& model);
+            void SetObjectUniforms(const glm::mat4& model) override;
             std::shared_ptr<Core::Program> GetProgram() override;
             
             const int mapWidth, mapHeight, numLayers;
