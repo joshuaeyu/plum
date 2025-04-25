@@ -23,17 +23,17 @@ namespace Component {
         public: 
             virtual ~ComponentBase();
             
+            const ComponentType type;
+            std::string name = "Component";
+            
+            const bool IsMesh() const;
+            const bool IsLight() const;
+
             virtual void Draw(const glm::mat4& model_matrix = glm::identity<glm::mat4>()) {}
             virtual void Draw(Material::MaterialBase& material, const glm::mat4& model_matrix = glm::identity<glm::mat4>()) {}
             virtual void Draw(Renderer::Module& module, const glm::mat4& model_matrix = glm::identity<glm::mat4>()) {}
 
-            const bool IsMesh() const;
-            const bool IsLight() const;
-
-            virtual void DisplayWidget() {}
-            
-            const ComponentType type;
-            std::string name = "Component";
+            virtual void DisplayWidget() {}            
         
         protected:
             ComponentBase(const ComponentType type);

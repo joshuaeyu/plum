@@ -48,8 +48,6 @@ namespace Context {
     {
         std::function<void(int,int,int,int)> staticFunc = std::bind(&Window::keyCallback, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4);   
         eventListener->SetKeyCallback(staticFunc);
-
-        InputsAndEventsManager::Setup(this);
     }
 
     Window::~Window() 
@@ -71,17 +69,14 @@ namespace Context {
         glfwSetInputMode(handle, mode, value);
     }
 
-    bool Window::ShouldClose() const {
-        return glfwWindowShouldClose(handle);
+    void Window::MakeCurrent()  {
+        glfwMakeContextCurrent(handle);
     }
-
+    
     void Window::SwapBuffers() {
         glfwSwapBuffers(handle);
     }
 
-    void Window::MakeCurrent()  {
-        glfwMakeContextCurrent(handle);
-    }
 
     void Window::keyCallback(int key, int scancode, int action, int mods) {
         if (action != GLFW_PRESS)
@@ -102,14 +97,5 @@ namespace Context {
                 break;
         }
     }
-
-    // Gui::Gui(GLFWwindow *window) {
-    //     IMGUI_CHECKVERSION();
-    //     ImGui::CreateContext();
-    //     ImGuiIO& io = ImGui::GetIO();
-    //     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
-    //     ImGui_ImplGlfw_InitForOpenGL(window, true);          // Second param install_callback=true will install GLFW callbacks and chain to existing ones.
-    //     ImGui_ImplOpenGL3_Init();
-    // }
 
 }

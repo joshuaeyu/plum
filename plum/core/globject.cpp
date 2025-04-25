@@ -68,7 +68,7 @@ namespace Core {
         glGenVertexArrays(1, &handle);
         Bind();
         vbo->Bind();
-        SetAttribPointerFormat();
+        setAttribPointerFormat();
         if (ebo)
             ebo->Bind();
         Unbind();
@@ -91,7 +91,7 @@ namespace Core {
             glDrawArrays(GL_TRIANGLES, 0, vbo->vertexArray.VertexCount());
         }
     }
-    void Vao::SetAttribPointerFormat() {
+    void Vao::setAttribPointerFormat() {
         // Specify vertex attribute pointer
         for (const auto& attr : Vertex::Attributes) {
             if (vbo->vertexArray.HasAttributes(attr.flag)) {
@@ -126,6 +126,42 @@ namespace Core {
         Unbind();
     }
 
+    // Renderbuffer
+    Rbo::Rbo(int width, int height) 
+        : width(width), 
+        height(height) 
+    {
+        glGenRenderbuffers(1, &handle);
+    }
+    Rbo::~Rbo() {
+        // std::clog << "destroying Rbo" << std::endl;
+        glDeleteRenderbuffers(1, &handle);
+    }
+    void Rbo::Bind() {
+        glViewport(0, 0, width, height);
+        glBindRenderbuffer(GL_RENDERBUFFER, handle);
+    }
+    void Rbo::Unbind() {
+        glBindRenderbuffer(GL_RENDERBUFFER, 0);
+    }
+    void Rbo::Setup16() {
+        internalformat = GL_DEPTH_COMPONENT16;
+        glRenderbufferStorage(GL_RENDERBUFFER, internalformat, width, height);
+    }
+    void Rbo::Setup24() {
+        internalformat = GL_DEPTH_COMPONENT24;
+        glRenderbufferStorage(GL_RENDERBUFFER, internalformat, width, height);
+    }
+    void Rbo::Resize(int width, int height) {
+        this->width = width;
+        this->height = height;
+        if (internalformat == GL_DEPTH_COMPONENT16) {
+            Setup16();
+        } else if (internalformat == GL_DEPTH_COMPONENT24) {
+            Setup24();
+        }
+    }
+
     // Framebuffer
     Fbo::Fbo(int width, int height) 
         : width(width), 
@@ -143,6 +179,9 @@ namespace Core {
     }
     void Fbo::Unbind() {
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    }
+    void Fbo::SetViewportDims() {
+        glViewport(0, 0, width, height);
     }
     void Fbo::ClearColor() {
         ClearColor(0.f,0.f,0.f,1.f);
@@ -204,9 +243,6 @@ namespace Core {
             buffers.push_back(GL_COLOR_ATTACHMENT0 + i);
         glDrawBuffers(buffers.size(), buffers.data());
     }
-    void Fbo::SetViewportDims() {
-        glViewport(0, 0, width, height);
-    }
     void Fbo::CheckStatus() {
         if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
             std::cerr << "Framebuffer error: " << glCheckFramebufferStatus(GL_FRAMEBUFFER) << std::endl;
@@ -249,42 +285,6 @@ namespace Core {
     }
     void Fbo::BlitFrom(Fbo& source, bool color, bool depth, int source_buffer_idx, int target_buffer_idx) {
         source.BlitTo(*this, color, depth, source_buffer_idx, target_buffer_idx);
-    }
-
-    // Renderbuffer
-    Rbo::Rbo(int width, int height) 
-        : width(width), 
-        height(height) 
-    {
-        glGenRenderbuffers(1, &handle);
-    }
-    Rbo::~Rbo() {
-        // std::clog << "destroying Rbo" << std::endl;
-        glDeleteRenderbuffers(1, &handle);
-    }
-    void Rbo::Bind() {
-        glViewport(0, 0, width, height);
-        glBindRenderbuffer(GL_RENDERBUFFER, handle);
-    }
-    void Rbo::Unbind() {
-        glBindRenderbuffer(GL_RENDERBUFFER, 0);
-    }
-    void Rbo::Setup16() {
-        internalformat = GL_DEPTH_COMPONENT16;
-        glRenderbufferStorage(GL_RENDERBUFFER, internalformat, width, height);
-    }
-    void Rbo::Setup24() {
-        internalformat = GL_DEPTH_COMPONENT24;
-        glRenderbufferStorage(GL_RENDERBUFFER, internalformat, width, height);
-    }
-    void Rbo::Resize(int width, int height) {
-        this->width = width;
-        this->height = height;
-        if (internalformat == GL_DEPTH_COMPONENT16) {
-            Setup16();
-        } else if (internalformat == GL_DEPTH_COMPONENT24) {
-            Setup24();
-        }
     }
 
 }

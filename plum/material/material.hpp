@@ -19,10 +19,13 @@ namespace Material {
     class MaterialBase {
         public:
             virtual ~MaterialBase();
+            
+            std::string name;
+            
             virtual std::shared_ptr<Core::Program> GetProgram() = 0;
             virtual void SetUniforms(const glm::mat4& model_transform) = 0;
             virtual void DisplayWidget() {}
-            std::string name;
+        
         protected:
             MaterialBase() = default;
     };
@@ -32,26 +35,23 @@ namespace Material {
             PBRMetallicMaterial();
             PBRMetallicMaterial(Component::MaterialInfo info);
 
-            void processMaterialInfo(Component::MaterialInfo info);
-
-            std::shared_ptr<Core::Program> GetProgram() override;
-            void SetUniforms(const glm::mat4& model_transform) override;
-
             std::shared_ptr<Core::Tex2D> albedoMap, metallicMap, roughnessMap, normalMap, displacementMap, occlusionMap;
             glm::vec3 albedo = glm::vec3(0.5f);
             float metallic = 0.0f;
             float roughness = 0.5f;
+
+            std::shared_ptr<Core::Program> GetProgram() override { return program; }
+            void SetUniforms(const glm::mat4& model_transform) override;
             
-            void DisplayWidget() override;
-
-            // widget callback instead?
-
             Path albedoPath, metallicPath, roughnessPath, normalPath, displacementPath, occlusionPath;
             int albedoWidgetId = -1, metallicWidgetId = -1, roughnessWidgetId = -1, normalWidgetId = -1, displacementWidgetId = -1, occlusionWidgetId = -1;
             int nameWidgetId = -1;
-
+            void DisplayWidget() override;
+            
         private:
             inline static std::shared_ptr<Core::Program> program;
+            
+            void processMaterialInfo(Component::MaterialInfo info);
     };
 
     // class PBRSpecularMaterial : public MaterialBase {

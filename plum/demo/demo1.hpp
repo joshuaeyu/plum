@@ -13,10 +13,7 @@
 class Demo1 : public Demo {
     public:
         Demo1();
-
-        void Initialize() override;
-        void Display() override;
-        void CleanUp() override;
+        ~Demo1() = default;
 
         struct RenderOptions {
             float iblIntensity = 1.0f;
@@ -26,6 +23,10 @@ class Demo1 : public Demo {
             float hdrExposure = true;
             bool bloom = true;
         } renderOptions;
+
+        void Initialize() override;
+        void Display() override;
+        void CleanUp() override;
 
     private:
         void displayGui();
@@ -40,8 +41,4 @@ class Demo1 : public Demo {
         std::unique_ptr<PostProcessing::Bloom> bloom;
 
         std::set<std::shared_ptr<Material::MaterialBase>> materials;
-        // std::set<std::shared_ptr<Component::Model>> models;
-
-    public:
-        ~Demo1() = default;
 };

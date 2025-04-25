@@ -6,7 +6,7 @@ namespace Component {
 
     class Primitive : public Mesh {
         public:
-            virtual ~Primitive() {}
+            virtual ~Primitive() = default;
             static void DrawQuad();
         protected:
             Primitive();

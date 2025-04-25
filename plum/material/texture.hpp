@@ -43,14 +43,12 @@ namespace Material {
             Texture(std::shared_ptr<ImageAsset> image, TextureType type, GLenum wrap = GL_REPEAT, GLenum minfilter = GL_NEAREST);
             Texture(const std::vector<std::shared_ptr<ImageAsset>>& cubefaces, TextureType type, GLenum wrap = GL_REPEAT, GLenum minfilter = GL_NEAREST);
             
-            // Asset
-            void AssetResyncCallback() override;
-            
             std::string name;
             TextureType type;
             std::shared_ptr<Core::Tex2D> tex;
-            
             std::vector<std::shared_ptr<ImageAsset>> images;
+
+            void AssetResyncCallback() override;
         
         private:
             GLenum wrap;

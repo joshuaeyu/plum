@@ -18,10 +18,6 @@ const aiScene* const ModelAsset::Scene() {
     return scene;
 }
 
-void ModelAsset::SyncWithFile() {
-    import();
-}
-
 void ModelAsset::import() {
     unsigned int importerFlags = aiProcessPreset_TargetRealtime_MaxQuality | aiProcess_GlobalScale;
     if (flip)
@@ -35,5 +31,9 @@ void ModelAsset::import() {
         std::string errorMsg = "Error importing model! ";
         errorMsg += importer.GetErrorString();
         throw std::runtime_error(errorMsg);
-    }
+    }    
+}
+
+void ModelAsset::syncWithFile() {
+    import();
 }

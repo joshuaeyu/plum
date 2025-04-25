@@ -37,10 +37,6 @@ namespace Material {
     {
         processMaterialInfo(info);
     }
-
-    std::shared_ptr<Core::Program> PBRMetallicMaterial::GetProgram() {
-        return program;
-    }
     
     void PBRMetallicMaterial::SetUniforms(const glm::mat4& model_matrix) {
         program->Use();
@@ -93,9 +89,9 @@ namespace Material {
     void PBRMetallicMaterial::DisplayWidget() {
         static const Directory textureDirectory("assets/textures");
         
-        Widget::TextEditWidget(&nameWidgetId, &name);
+        Interface::TextEditWidget(&nameWidgetId, &name);
 
-        if (Widget::PathComboWidget(&albedoWidgetId, textureDirectory, "Albedo Map", AssetUtils::imageExtensions, &albedoPath, Path())) {
+        if (Interface::PathComboWidget(&albedoWidgetId, textureDirectory, "Albedo Map", AssetUtils::imageExtensions, &albedoPath, Path())) {
             if (!albedoPath.IsEmpty()) {
                 auto image = AssetManager::Instance().LoadHot<ImageAsset>(albedoPath);
                 albedoMap = std::make_shared<Texture>(image, Material::TextureType::Diffuse)->tex;
@@ -104,7 +100,7 @@ namespace Material {
             }
         }
         
-        if (Widget::PathComboWidget(&normalWidgetId, textureDirectory, "Normal Map", AssetUtils::imageExtensions, &normalPath, Path())) {
+        if (Interface::PathComboWidget(&normalWidgetId, textureDirectory, "Normal Map", AssetUtils::imageExtensions, &normalPath, Path())) {
             if (!normalPath.IsEmpty()) {
                 auto image = AssetManager::Instance().LoadHot<ImageAsset>(normalPath);
                 normalMap = std::make_shared<Texture>(image, Material::TextureType::Normal)->tex;

@@ -14,41 +14,14 @@ namespace Renderer {
     RendererBase::RendererBase() 
         : window(Context::Application::Instance().activeWindow)
     {
-        EnableDepth();
-        EnableCull();
-        // EnableFramebufferSrgb();
-        EnableSeamlessCubeMap();
-    }
-    
-    void RendererBase::EnableDepth(GLenum func) {
-        // Default LEQUAL for skybox optimization, since depth buffer is cleared to 1.0 by default
         glEnable(GL_DEPTH_TEST);
-        glDepthFunc(func);
-    }
-    void RendererBase::EnableCull(GLenum mode) {
-        glEnable(GL_CULL_FACE);
-        glCullFace(mode);
-    }
-    void RendererBase::EnableFramebufferSrgb() {
-        glEnable(GL_FRAMEBUFFER_SRGB);
-    }
-    void RendererBase::EnableSeamlessCubeMap() {
-        glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS); // Doesn't change
-    }
+        glDepthFunc(GL_LEQUAL); // Default LEQUAL for skybox optimization, since depth buffer is cleared to 1.0 by default
 
-    // void RendererBase::DisableDepth() {
-    //     glDisable(GL_DEPTH_TEST);
-    // }
-    // void RendererBase::DisableCull() {
-    //     glDisable(GL_CULL_FACE);
-    // }
-    // void RendererBase::DisableFramebufferSrgb() {
-    //     glDisable(GL_FRAMEBUFFER_SRGB);
-    // }
-    
-    // void ClearColor() {}
-    // void ClearDepth() {}
-    // void ClearStencil() {}
+        glEnable(GL_CULL_FACE);
+        glCullFace(GL_BACK);
+
+        glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
+    }
 
     DeferredRenderer::DeferredRenderer() 
         : gBuffer(window->Width(), window->Height()), 

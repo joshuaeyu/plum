@@ -9,7 +9,7 @@
 #include <string>
 #include <vector>
 
-void Widget::PerformanceWidget(float points_per_sec, float seconds_to_display) {
+void Interface::PerformanceWidget(float points_per_sec, float seconds_to_display) {
     static std::vector<float> framerateData = {Time::FrameRate()};
     static float displayTimer = 0;
 
@@ -32,36 +32,39 @@ void Widget::PerformanceWidget(float points_per_sec, float seconds_to_display) {
     displayTimer += Time::DeltaTime();
 }
 
-Path Widget::FileExplorerWidget(Path display_path, Path highest_path) {
+bool Interface::FileExplorerWidget(Directory* display_dir, const Directory& highest_dir) {
+    bool result = false;
+
     // Back button and path text
     if (ImGui::ArrowButton("##fileexplorer_backbutton", ImGuiDir_Left)) {
-        if (display_path.RawPath() != highest_path.RawPath()) { // Don't go any higher than "assets/"
-            display_path = display_path.Parent();
+        if (display_dir->RawPath() != highest_dir.RawPath()) { // Don't go any higher than "assets/"
+            *display_dir = display_dir->Parent();
+            result = true;
         }
     }
     ImGui::SameLine();
-    ImGui::Text("Path: %s", display_path.RelativePath().c_str());
+    ImGui::Text("Path: %s", display_dir->RelativePath().c_str());
 
     // Files list
     ImGui::BeginChild("##fileexplorer_body", ImVec2(0,100), ImGuiChildFlags_ResizeY | ImGuiChildFlags_FrameStyle);
-    if (display_path.IsDirectory()) {
-        const Directory dir(display_path);
-        for (auto& child : dir.List()) {
+    if (display_dir->IsDirectory()) {
+        for (auto& child : display_dir->List()) {
             ImGui::TreeNodeEx(child.Filename().c_str(), ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_NoTreePushOnOpen);
             if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left) && ImGui::IsItemHovered()) {
                 if (child.IsDirectory()) {
-                    ImGui::EndChild();
-                    return child;
+                    result = true;
+                    *display_dir = child;
+                    break;
                 }
             }
         }
     }
     ImGui::EndChild();
 
-    return display_path;
+    return result;
 }
 
-bool Widget::PathComboWidget(int* id, Directory directory, const char* label, const std::set<std::string>& extensions, Path* selected_path, Path default_path) {
+bool Interface::PathComboWidget(int* id, const Directory& directory, const char* label, const std::set<std::string>& extensions, Path* selected_path, const Path& default_path) {
     static int idCounter = 0;
     static std::vector<int> allPathSelectedIdx;
     static std::vector<std::vector<Path>> allPaths;
@@ -127,7 +130,7 @@ bool Widget::PathComboWidget(int* id, Directory directory, const char* label, co
     }
 }
 
-bool Widget::TextEditWidget(int* id, std::string* text, const char* label) {
+bool Interface::TextEditWidget(int* id, std::string* text, const char* label) {
     static int idCounter = 0;
     static std::vector<std::string> allInput;
     static std::vector<bool> allShowInput;
@@ -164,7 +167,7 @@ bool Widget::TextEditWidget(int* id, std::string* text, const char* label) {
     return false;
 }
 
-std::shared_ptr<Component::ComponentBase> Widget::ComponentCreationWidget(bool* show_widget) {
+std::shared_ptr<Component::ComponentBase> Interface::ComponentCreationWidget(bool* show_widget) {
     if (!ImGui::BeginChild("##componentcreation", ImVec2(0, 0), ImGuiChildFlags_Border | ImGuiChildFlags_AutoResizeX | ImGuiChildFlags_AutoResizeY)) {
         ImGui::EndChild();
         return nullptr;
@@ -239,7 +242,7 @@ std::shared_ptr<Component::ComponentBase> Widget::ComponentCreationWidget(bool* 
     return result;
 }
 
-std::shared_ptr<Material::MaterialBase> Widget::MaterialCreationWidget(bool* show_widget) {
+std::shared_ptr<Material::MaterialBase> Interface::MaterialCreationWidget(bool* show_widget) {
     if (!ImGui::BeginChild("##materialcreation", ImVec2(0, 0), ImGuiChildFlags_Border | ImGuiChildFlags_AutoResizeX | ImGuiChildFlags_AutoResizeY)) {
         ImGui::EndChild();
         return nullptr;

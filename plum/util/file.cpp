@@ -1,12 +1,15 @@
 #include <plum/util/file.hpp>
 
-namespace fs = std::filesystem;
+Path::Path(const Path& path)
+    : path(path.path),
+    time(path.time)
+{}
 
 Path::Path(const char* path)
     : Path(fs::path(path))
 {}
 
-Path::Path(fs::path raw_path)
+Path::Path(const fs::path& raw_path)
 {
     if (fs::path(raw_path).is_absolute()) {
         path = raw_path;
@@ -29,18 +32,18 @@ void Path::SyncWithDevice() {
     time = fs::last_write_time(path);
 }
 
-void Path::Rename(fs::path name) {
+void Path::Rename(const fs::path& name) {
     fs::path newPath = path.parent_path() / name;
     fs::rename(path, newPath);
     path = newPath;
 }
 
-void Path::RenameAbsolute(fs::path abs_path) {
+void Path::RenameAbsolute(const fs::path& abs_path) {
     fs::rename(path, abs_path);
     path = abs_path;
 }
 
-Directory::Directory(Path path)
+Directory::Directory(const Path& path)
     : Path(path)
 {
     if (!IsDirectory() || IsEmpty()) {
@@ -52,16 +55,6 @@ Directory::Directory(const Directory& d)
     : Path(d.path)
 {}
 
-// std::vector<fs::path> Directory::ListFiltered() const {
-//     std::vector<fs::path> files;
-//     for (const auto& entry : fs::recursive_directory_iterator(path)) {
-//         if (extensions.find(entry.path().extension()) != extensions.end()) {
-//             files.push_back(fs::relative(entry.path(), path));
-//         }
-//     }
-//     return files;
-// }
-
 std::vector<Path> Directory::List() const {
     std::vector<Path> children;
     for (const auto& entry : fs::directory_iterator(path)) {
@@ -71,7 +64,7 @@ std::vector<Path> Directory::List() const {
     return children;
 }
 
-std::vector<Path> Directory::ListOnly(std::set<std::string> extensions) const {
+std::vector<Path> Directory::ListOnly(const std::set<std::string>& extensions) const {
     std::vector<Path> children;
     for (const auto& entry : fs::directory_iterator(path)) {
         if (extensions.find(Path(entry).Extension()) != extensions.end())
@@ -80,7 +73,7 @@ std::vector<Path> Directory::ListOnly(std::set<std::string> extensions) const {
     return children;
 }
 
-std::vector<Path> Directory::ListOnlyRecursive(std::set<std::string> extensions) const {
+std::vector<Path> Directory::ListOnlyRecursive(const std::set<std::string>& extensions) const {
     std::vector<Path> children;
     for (const auto& entry : fs::recursive_directory_iterator(path)) {
         if (extensions.find(Path(entry).Extension()) != extensions.end())
@@ -115,7 +108,7 @@ std::vector<Path> Directory::ListAllRecursive() const {
     return children;
 }
 
-File::File(Path path)
+File::File(const Path& path)
     : Path(path)
 {
     if (IsDirectory() || IsEmpty()) {
@@ -124,7 +117,7 @@ File::File(Path path)
     size = fs::file_size(this->path);
 }
 
-File::File(fs::path raw_path)
+File::File(const fs::path& raw_path)
     : Path(raw_path),
     size(fs::file_size(raw_path))
 {
@@ -152,8 +145,3 @@ std::fstream& File::Open() {
 void File::Close() {
     stream.close();
 }
-
-
-
-// texture, model, shader
-// construct from: path string, path object, File 

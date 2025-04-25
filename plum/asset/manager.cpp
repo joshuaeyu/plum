@@ -9,8 +9,6 @@ AssetManager& AssetManager::Instance() {
     return instance;
 }
 
-// void AssetManager::Initialize() {}
-
 void AssetManager::Remove(const Path& path) {
     const auto it = assets.find(path.RawPath());
     if (it == assets.end()) {
@@ -31,7 +29,7 @@ void AssetManager::syncWithDevice(bool sync_cold) {
     for (const auto& [_, info] : assets) {
         if (sync_cold || info.hotReload) {
             if (info.asset->NeedsResync()) {
-                info.asset->SyncWithFile();
+                info.asset->Resync();
             }
         }
     }

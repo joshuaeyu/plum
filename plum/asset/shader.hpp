@@ -10,11 +10,10 @@ class ShaderAsset : public Asset {
 
         GLuint Handle();
 
-        void SyncWithFile() override;
-
     private:
         GLuint handle = -1;
         GLenum type;
 
         void setup();
+        void syncWithFile() override;
 };

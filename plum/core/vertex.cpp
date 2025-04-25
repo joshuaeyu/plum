@@ -108,20 +108,6 @@ namespace Core {
             return offset;
         }
         
-        int VertexArray::VertexCount() const {
-            return vertexCount;
-        }
-
-        size_t VertexArray::Size() const {
-            return data.size() * sizeof(float);
-        }
-
-        size_t VertexArray::Stride() const {
-            return stride;
-        }
-        
-        const std::vector<float>& VertexArray::Data() const {
-            return data;
-        }
     }
+    
 }

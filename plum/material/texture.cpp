@@ -25,6 +25,16 @@ namespace Material {
         }
     }
 
+    void Texture::AssetResyncCallback() {
+        if (images.size() == 1) {
+            loadImage(images[0], GL_TEXTURE_2D);
+        } else {
+            for (int i = 0; i < images.size(); i++) {
+                loadImage(images[i], GL_TEXTURE_CUBE_MAP, i);
+            }
+        }
+    }
+
     void Texture::loadImage(std::shared_ptr<ImageAsset> image, GLenum target, int face_idx) {
         GLint internalformat;
         GLenum format;
@@ -71,23 +81,5 @@ namespace Material {
             tex->DefineImageCubeFace(face_idx, image->Data());
         }
     }
-
-    void Texture::AssetResyncCallback() {
-        if (images.size() == 1) {
-            loadImage(images[0], GL_TEXTURE_2D);
-        } else {
-            for (int i = 0; i < images.size(); i++) {
-                loadImage(images[i], GL_TEXTURE_CUBE_MAP, i);
-            }
-        }
-    }
-
-    // std::vector<File> Texture::texturesToFiles(const std::vector<std::shared_ptr<Texture>> textures) {
-    //     std::vector<File> files;
-    //     for (const auto& texture : textures) {
-    //         files.push_back(texture->GetFile());
-    //     }
-    //     return files;
-    // }
-
+    
 }

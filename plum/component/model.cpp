@@ -42,6 +42,94 @@ namespace Component {
         {aiTextureType_UNKNOWN,             Material::TextureType::Unknown}
     };
 
+    Model::Model(std::shared_ptr<ModelAsset> model)
+        : ComponentBase(ComponentType::Model),
+        model(model)
+    {
+        name = "Model";
+        // name = files[0].Name();
+        root = std::make_shared<ModelNode>(*this, model->Scene()->mRootNode, model->Scene());
+    }
+    Model::~Model() {}
+    
+    void Model::Draw(const glm::mat4& model_matrix) {
+        root->Draw(model_matrix);
+    }
+    void Model::Draw(Material::MaterialBase& material, const glm::mat4& model_matrix) {
+        root->Draw(material, model_matrix);
+    }
+    void Model::Draw(Renderer::Module& module, const glm::mat4& model_matrix) {
+        root->Draw(module, model_matrix);
+    }
+
+    void Model::AssetResyncCallback() {
+        root = std::make_shared<ModelNode>(*this, model->Scene()->mRootNode, model->Scene());
+    }
+
+    void Model::printSceneInfo(const std::string& path, const aiScene *scene, const std::string& outpath) {            
+        // Check if model's scene info was already logged
+        if (outpath != "") {
+            std::ifstream f(outpath);
+            std::string buffer;
+            while (getline(f, buffer)) {
+                if (buffer.find(path) != std::string::npos) {
+                    f.close();
+                    std::clog << "    Scene info already logged in file " << outpath << std::endl;
+                    return;
+                }
+            }
+            f.close();
+        }
+        
+        std::stringstream ss;
+        
+        // Print model path
+        ss << path << std::endl;
+    
+        // Print count of each scene component
+        ss << "    mNumAnimations:  " << scene->mNumAnimations << std::endl;
+        ss << "    mNumCameras:     " << scene->mNumCameras << std::endl;
+        ss << "    mNumLights:      " << scene->mNumLights << std::endl;
+        ss << "    mNumMaterials:   " << scene->mNumMaterials << std::endl;
+        for (int i = 0; i < scene->mNumMaterials; i++) {
+            aiMaterial *mat = scene->mMaterials[i];
+            std::clog << "      " << mat->GetName().C_Str() << std::endl;
+        }
+        ss << "    mNumMeshes:      " << scene->mNumMeshes << std::endl;
+        ss << "    mNumSkeletons:   " << scene->mNumSkeletons << std::endl;
+        ss << "    mNumTextures:    " << scene->mNumTextures << std::endl;
+    
+        // Print all material properties
+        std::set<std::string> materialProperties;
+    
+        for (int i = 0; i < scene->mNumMaterials; i++){
+            // aiMaterial *materiali = scene->mMaterials[i]; // first material is Gourad (2), rest are Phong (3)
+            // float value;
+            // materiali->Get(AI_MATKEY_OPACITY, value);
+            // std::clog << "material " << i << " opacity: " << value << std::endl;
+            for (int j = 0; j < scene->mMaterials[i]->mNumProperties; j++) {
+                materialProperties.insert(scene->mMaterials[i]->mProperties[j]->mKey.C_Str());
+            }
+        }
+        int i = 0;
+        for (auto it = materialProperties.begin(); it != materialProperties.end(); it++) {
+            ss << "    Material property " << i++ << ":\t" << *it << std::endl;
+        }
+    
+        // Write to file or std::clog
+        if (outpath != "") {
+            std::ofstream f(outpath, std::ofstream::app);
+            if (f.bad()) {
+                std::cerr << "Error opening outfile " << outpath << std::endl;
+            } else {
+                f << ss.rdbuf() << std::endl;
+                f.close();
+            }
+        } else {
+            std::clog << ss.rdbuf() << std::endl;
+        }
+    }
+    
     ModelNode::ModelNode(Model& head, aiNode* ainode, const aiScene* aiscene) 
         : ComponentBase(ComponentType::Model),
         head(head)
@@ -63,7 +151,6 @@ namespace Component {
         for (int i = 0; i < ainode->mNumChildren; i++) {
             children.push_back(std::make_shared<ModelNode>(head, ainode->mChildren[i], aiscene));
         }
-
     }
 
     void ModelNode::Draw(const glm::mat4& parent_transform) {
@@ -207,7 +294,7 @@ namespace Component {
         // // Defines the path of the n’th texture on the stack ‘t’, where ‘n’ is any value >= 0 and ‘t’ is one of the #aiTextureType enumerated values. A file path to an external file or an embedded texture. Use aiScene::GetEmbeddedTexture to test if it is embedded for FBX files, in other cases embedded textures start with ‘*’ followed by an index into aiScene::mTextures.
         // scene.GetEmbeddedTexture(texpath.C_Str());  // for FBX files only
         // scene.mTextures[atoi(texpath.C_Str()+1)];
-    
+
         // this currently only supports separate texture files, need support for embedded texture files (see above brainstorming)
         for (int i = 0; i < aimaterial->GetTextureCount(aitextype); i++) {            
             aiString str;
@@ -237,94 +324,6 @@ namespace Component {
             }
         }
         return textures;
-    }
-
-    Model::Model(std::shared_ptr<ModelAsset> model)
-        : ComponentBase(ComponentType::Model),
-        model(model)
-    {
-        name = "Model";
-        // name = files[0].Name();
-        root = std::make_shared<ModelNode>(*this, model->Scene()->mRootNode, model->Scene());
-    }
-    Model::~Model() {}
-    
-    void Model::Draw(const glm::mat4& model_matrix) {
-        root->Draw(model_matrix);
-    }
-    void Model::Draw(Material::MaterialBase& material, const glm::mat4& model_matrix) {
-        root->Draw(material, model_matrix);
-    }
-    void Model::Draw(Renderer::Module& module, const glm::mat4& model_matrix) {
-        root->Draw(module, model_matrix);
-    }
-
-    void Model::AssetResyncCallback() {
-        root = std::make_shared<ModelNode>(*this, model->Scene()->mRootNode, model->Scene());
-    }
-
-    void Model::printSceneInfo(const std::string& path, const aiScene *scene, const std::string& outpath) {            
-        // Check if model's scene info was already logged
-        if (outpath != "") {
-            std::ifstream f(outpath);
-            std::string buffer;
-            while (getline(f, buffer)) {
-                if (buffer.find(path) != std::string::npos) {
-                    f.close();
-                    std::clog << "    Scene info already logged in file " << outpath << std::endl;
-                    return;
-                }
-            }
-            f.close();
-        }
-        
-        std::stringstream ss;
-        
-        // Print model path
-        ss << path << std::endl;
-    
-        // Print count of each scene component
-        ss << "    mNumAnimations:  " << scene->mNumAnimations << std::endl;
-        ss << "    mNumCameras:     " << scene->mNumCameras << std::endl;
-        ss << "    mNumLights:      " << scene->mNumLights << std::endl;
-        ss << "    mNumMaterials:   " << scene->mNumMaterials << std::endl;
-        for (int i = 0; i < scene->mNumMaterials; i++) {
-            aiMaterial *mat = scene->mMaterials[i];
-            std::clog << "      " << mat->GetName().C_Str() << std::endl;
-        }
-        ss << "    mNumMeshes:      " << scene->mNumMeshes << std::endl;
-        ss << "    mNumSkeletons:   " << scene->mNumSkeletons << std::endl;
-        ss << "    mNumTextures:    " << scene->mNumTextures << std::endl;
-    
-        // Print all material properties
-        std::set<std::string> materialProperties;
-    
-        for (int i = 0; i < scene->mNumMaterials; i++){
-            // aiMaterial *materiali = scene->mMaterials[i]; // first material is Gourad (2), rest are Phong (3)
-            // float value;
-            // materiali->Get(AI_MATKEY_OPACITY, value);
-            // std::clog << "material " << i << " opacity: " << value << std::endl;
-            for (int j = 0; j < scene->mMaterials[i]->mNumProperties; j++) {
-                materialProperties.insert(scene->mMaterials[i]->mProperties[j]->mKey.C_Str());
-            }
-        }
-        int i = 0;
-        for (auto it = materialProperties.begin(); it != materialProperties.end(); it++) {
-            ss << "    Material property " << i++ << ":\t" << *it << std::endl;
-        }
-    
-        // Write to file or std::clog
-        if (outpath != "") {
-            std::ofstream f(outpath, std::ofstream::app);
-            if (f.bad()) {
-                std::cerr << "Error opening outfile " << outpath << std::endl;
-            } else {
-                f << ss.rdbuf() << std::endl;
-                f.close();
-            }
-        } else {
-            std::clog << ss.rdbuf() << std::endl;
-        }
     }
 
 }

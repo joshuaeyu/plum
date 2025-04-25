@@ -23,22 +23,20 @@ namespace Core {
                 /* Construct using an instance the UncollatedVertices struct. */
                 VertexArray(const UncollatedVertices& uncollated);
 
-            public:
+                int VertexCount() const { return vertexCount; }
+                size_t Size() const { return data.size() * sizeof(float); }
+                size_t Stride() const { return stride; }
+                const std::vector<float>& Data() const { return data; }
+                
                 std::vector<float> AttributeData(AttrFlags flag) const;
                 bool HasAttributes(AttrFlags flags) const;
                 size_t AttributeOffset(AttrFlags flag) const;
                 
-                int VertexCount() const;
-                size_t Size() const;
-                size_t Stride() const;
-                
-                const std::vector<float>& Data() const;
-                
             private:
-                std::vector<float> data;
                 AttrFlags attributes;
                 size_t stride;
                 int vertexCount;
+                std::vector<float> data;
         };
 
     }

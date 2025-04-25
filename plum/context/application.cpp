@@ -8,42 +8,15 @@
 #include <iostream>
 
 namespace Context {
-
-    Application& Application::Instance() {
-        static Application instance;
-        return instance;
-    }
     
     Application::~Application() {
         // std::clog << "destroying Application" << std::endl;
         glfwTerminate();
     }
 
-    Application::Application() 
-    {   
-        WindowCreator creator;
-        activeWindow = creator.Create();
-        activeWindow->MakeCurrent();
-        activeWindow->SetTitle("Plum Engine v2.0");
-        activeWindow->SetWindowSize(1200, 800);
-
-        if (!gladLoadGL(glfwGetProcAddress)) {
-            glfwTerminate();
-            throw std::runtime_error("gladLoadGLLoader failed!");
-        }
-        
-        Time::Update();
-        Interface::Initialize(*activeWindow);
-        // AssetManager::Initialize();  // needed by Program?
-        
-        GLint n;
-        glGetIntegerv(GL_MAX_ARRAY_TEXTURE_LAYERS, &n); // 2048
-        glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &n);  // 16
-        glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &n); // 80
-        glGetIntegerv(GL_MAX_UNIFORM_BLOCK_SIZE, &n); // 65536
-        glGetIntegerv(GL_MAX_CUBE_MAP_TEXTURE_SIZE, &n); // 16384
-        glGetIntegerv(GL_MAX_3D_TEXTURE_SIZE, &n); // 2048
-        glGetIntegerv(GL_MAX_TEXTURE_SIZE, &n); // 16384
+    Application& Application::Instance() {
+        static Application instance;
+        return instance;
     }
     
     void Application::Run() {
@@ -60,6 +33,33 @@ namespace Context {
             }
             activeDemo->CleanUp();
         }
+    }
+
+    Application::Application() 
+    {   
+        WindowCreator creator;
+        activeWindow = creator.Create();
+        activeWindow->MakeCurrent();
+        activeWindow->SetTitle("Plum Engine v2.0");
+        activeWindow->SetWindowSize(1200, 800);
+
+        if (!gladLoadGL(glfwGetProcAddress)) {
+            glfwTerminate();
+            throw std::runtime_error("gladLoadGLLoader failed!");
+        }
+        
+        InputsAndEventsManager::Setup(activeWindow.get());
+        Time::Update();
+        Interface::Initialize(*activeWindow);
+        
+        GLint n;
+        glGetIntegerv(GL_MAX_ARRAY_TEXTURE_LAYERS, &n); // 2048
+        glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &n);  // 16
+        glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &n); // 80
+        glGetIntegerv(GL_MAX_UNIFORM_BLOCK_SIZE, &n); // 65536
+        glGetIntegerv(GL_MAX_CUBE_MAP_TEXTURE_SIZE, &n); // 16384
+        glGetIntegerv(GL_MAX_3D_TEXTURE_SIZE, &n); // 2048
+        glGetIntegerv(GL_MAX_TEXTURE_SIZE, &n); // 16384
     }
 
     void Application::predisplay() {

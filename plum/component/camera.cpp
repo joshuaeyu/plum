@@ -24,31 +24,6 @@ namespace Component {
         eventListener->SetFramebufferSizeCallback(staticFunc);
     }
 
-    void Camera::ProcessInputs() {
-        if (!inputObserver->GetCursorEnabled())
-            return;
-        
-        // Mouse: Rotation
-        float deltaPitch = -inputObserver->GetCursorDeltaY() * sensitivity;
-        float deltaYaw = -inputObserver->GetCursorDeltaX() * sensitivity;
-        Rotate(deltaPitch, deltaYaw);
-        
-        // WASD/Space/Shift: Translation
-        float distance = speed * Time::DeltaTime();
-        if (inputObserver->GetKeyDown(GLFW_KEY_W))
-            Translate(distance * -transform.Front()); // camera faces -z
-        if (inputObserver->GetKeyDown(GLFW_KEY_S))
-            Translate(distance * transform.Front()); // camera faces -z
-        if (inputObserver->GetKeyDown(GLFW_KEY_A))
-            Translate(distance * -transform.Right());
-        if (inputObserver->GetKeyDown(GLFW_KEY_D))
-            Translate(distance * transform.Right());
-        if (inputObserver->GetKeyDown(GLFW_KEY_SPACE))
-            Translate(distance * transform.Up());
-        if (inputObserver->GetKeyDown(GLFW_KEY_LEFT_SHIFT))
-            Translate(distance * -transform.Up());
-    }
-
     const glm::mat4& Camera::View() {
         view = glm::lookAt(transform.position, transform.position - transform.Front(), transform.Up());
         return view;
@@ -72,6 +47,31 @@ namespace Component {
 
     void Camera::Translate(float dx, float dy, float dz) {
         transform.Translate({dx,dy,dz});
+    }
+
+    void Camera::ProcessInputs() {
+        if (!inputObserver->GetCursorEnabled())
+            return;
+        
+        // Mouse: Rotation
+        float deltaPitch = -inputObserver->GetCursorDeltaY() * sensitivity;
+        float deltaYaw = -inputObserver->GetCursorDeltaX() * sensitivity;
+        Rotate(deltaPitch, deltaYaw);
+        
+        // WASD/Space/Shift: Translation
+        float distance = speed * Time::DeltaTime();
+        if (inputObserver->GetKeyDown(GLFW_KEY_W))
+            Translate(distance * -transform.Front()); // camera faces -z
+        if (inputObserver->GetKeyDown(GLFW_KEY_S))
+            Translate(distance * transform.Front()); // camera faces -z
+        if (inputObserver->GetKeyDown(GLFW_KEY_A))
+            Translate(distance * -transform.Right());
+        if (inputObserver->GetKeyDown(GLFW_KEY_D))
+            Translate(distance * transform.Right());
+        if (inputObserver->GetKeyDown(GLFW_KEY_SPACE))
+            Translate(distance * transform.Up());
+        if (inputObserver->GetKeyDown(GLFW_KEY_LEFT_SHIFT))
+            Translate(distance * -transform.Up());
     }
 
     void Camera::framebufferSizeCallback(int width, int height) {

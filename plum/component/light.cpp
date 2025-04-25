@@ -33,13 +33,11 @@ namespace Component {
         name = "Directional Light";
     }
 
-    void DirectionalLight::Draw(const glm::mat4& parent_transform) {
-        const glm::mat4 rotation = Transform::ExtractRotation(parent_transform);
-        const glm::vec3 direction = glm::mat3(rotation) * glm::vec3(0,0,1);
-        if (direction != lastDirection) {
-            updateLightspaceMatrix(direction);
-            lastDirection = direction;
+    const glm::mat4& DirectionalLight::LightspaceMatrix() const { 
+        if (!hasShadows) {
+            throw std::runtime_error("Shadows are disabled for this light source!");
         }
+        return lightspaceMatrix; 
     }
 
     void DirectionalLight::EnableShadows(float width, float height, float near, float far, float dist) {
@@ -51,11 +49,13 @@ namespace Component {
         distance = dist;
     }
 
-    const glm::mat4& DirectionalLight::LightspaceMatrix() const { 
-        if (!hasShadows) {
-            throw std::runtime_error("Shadows are disabled for this light source!");
+    void DirectionalLight::Draw(const glm::mat4& parent_transform) {
+        const glm::mat4 rotation = Transform::ExtractRotation(parent_transform);
+        const glm::vec3 direction = glm::mat3(rotation) * glm::vec3(0,0,1);
+        if (direction != lastDirection) {
+            updateLightspaceMatrix(direction);
+            lastDirection = direction;
         }
-        return lightspaceMatrix; 
     }
 
     void DirectionalLight::updateLightspaceMatrix(const glm::vec3& direction) { 
@@ -77,19 +77,11 @@ namespace Component {
         name = "Point Light";
     }
 
-    void PointLight::Draw(const glm::mat4& parent_transform) {
-        const glm::vec3 position = parent_transform[3];
-        if (position != lastPosition) {
-            updateLightspaceMatrices(position);
-            lastPosition = position;
+    const std::vector<glm::mat4>& PointLight::LightspaceMatrices() const {
+        if (!hasShadows) {
+            throw std::runtime_error("Shadows are disabled for this light source!");
         }
-    }
-
-    void PointLight::EnableShadows(float aspect, float near, float far) {
-        hasShadows = true;
-        aspectRatio = aspect;
-        nearPlane = near;
-        farPlane = far;
+        return lightspaceMatrices; 
     }
 
     void PointLight::SetAttenuation(float constant, float linear, float quadratic) {
@@ -99,13 +91,21 @@ namespace Component {
         updateRadius();
     }
 
-    const std::vector<glm::mat4>& PointLight::LightspaceMatrices() const {
-        if (!hasShadows) {
-            throw std::runtime_error("Shadows are disabled for this light source!");
-        }
-        return lightspaceMatrices; 
+    void PointLight::EnableShadows(float aspect, float near, float far) {
+        hasShadows = true;
+        aspectRatio = aspect;
+        nearPlane = near;
+        farPlane = far;
     }
 
+    void PointLight::Draw(const glm::mat4& parent_transform) {
+        const glm::vec3 position = parent_transform[3];
+        if (position != lastPosition) {
+            updateLightspaceMatrices(position);
+            lastPosition = position;
+        }
+    }
+    
     void PointLight::updateLightspaceMatrices(const glm::vec3& position) { 
         const glm::mat4 projection = glm::perspective(glm::half_pi<float>(), aspectRatio, nearPlane, farPlane);
 

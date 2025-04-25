@@ -11,10 +11,10 @@ namespace Core {
 
     class GlObject {
         public:
-            virtual void Bind() = 0;
-            virtual void Unbind() = 0;
             GLuint Handle() const;
             GLenum Target() const;
+            virtual void Bind() = 0;
+            virtual void Unbind() = 0;
         protected:
             GlObject() = default;
             GLuint handle;
@@ -33,10 +33,10 @@ namespace Core {
             Vbo& operator=(const Vbo& other) = delete;
             Vbo& operator=(Vbo&& other) = delete;
 
+            Vertex::VertexArray vertexArray;
+            
             void Bind() override;
             void Unbind() override;
-
-            Vertex::VertexArray vertexArray;
     };
 
     class Ebo : public GlObject {
@@ -49,10 +49,10 @@ namespace Core {
             Ebo& operator=(const Ebo& other) = delete;
             Ebo& operator=(Ebo&& other) = delete;
 
+            std::vector<unsigned int> indices;
+            
             void Bind() override;
             void Unbind() override;
-
-            std::vector<unsigned int> indices;
     };
 
     class Vao : public GlObject {
@@ -72,10 +72,10 @@ namespace Core {
             void Draw();
 
         private:
-            void SetAttribPointerFormat();
-
             std::shared_ptr<Vbo> vbo;
             std::shared_ptr<Ebo> ebo;            
+            
+            void setAttribPointerFormat();
     };
 
     class Ubo : public GlObject {
@@ -104,6 +104,8 @@ namespace Core {
             Rbo& operator=(const Rbo& other) = delete;
             Rbo& operator=(Rbo&& other) = delete;
 
+            int width, height;
+            
             void Bind() override;
             void Unbind() override;
             
@@ -111,8 +113,6 @@ namespace Core {
             void Setup24();
             void Resize(int width, int height);
             
-            int width, height;
-        
         private:
             GLenum internalformat;
     };
@@ -127,10 +127,17 @@ namespace Core {
             Fbo& operator=(const Fbo& other) = delete;
             Fbo& operator=(Fbo&& other) = delete;
             
+            int width, height;
+            std::vector<std::shared_ptr<Tex>> colorAtts;
+            std::shared_ptr<Tex> depthAtt;
+            std::shared_ptr<Rbo> depthRboAtt;
+
             void Bind() override;
             void Unbind() override;
-            
             void SetViewportDims();
+            void ClearColor();
+            void ClearColor(float r, float g, float b, float a);
+            void ClearDepth();
             
             void AttachColorTex(std::shared_ptr<Tex> tex, int index = -1, int level = 0);
             void AttachColorTexCubeFace(int att_index, int face_idx, int level = 0);
@@ -139,22 +146,12 @@ namespace Core {
             void AttachDepthTex(std::shared_ptr<Tex> tex, int level = 0);
             void UpdateDrawBuffers();
             void CheckStatus();
-
-            void Resize(int width, int height);
             
-            void ClearColor();
-            void ClearColor(float r, float g, float b, float a);
-            void ClearDepth();
+            void Resize(int width, int height);
 
             void BlitTo(Fbo& fbo, bool color = true, bool depth = true, int source_buffer_idx = 0, int target_buffer_idx = 0);
             void BlitToDefault(bool color = true, bool depth = true, int source_buffer_idx = 0);
             void BlitFrom(Fbo& fbo, bool color = true, bool depth = true, int source_buffer_idx = 0, int target_buffer_idx = 0);
-
-            int width, height;
-            std::vector<std::shared_ptr<Tex>> colorAtts;
-            std::shared_ptr<Tex> depthAtt;
-            std::shared_ptr<Rbo> depthRboAtt;
     };
-
 
 }

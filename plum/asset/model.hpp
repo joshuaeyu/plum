@@ -12,13 +12,12 @@ class ModelAsset : public Asset {
 
         const aiScene* const Scene();
 
-        void SyncWithFile() override;
-
     private:
         Assimp::Importer importer;  // Need to hold on to this to prevent scene destruction
         const aiScene* scene;
         float scale;
         bool flip;
-
+        
         void import();
+        void syncWithFile() override;
 };

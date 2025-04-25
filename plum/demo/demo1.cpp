@@ -145,7 +145,7 @@ void Demo1::displayGui() {
     
     constexpr float pointsPerSecond = 1.f;    // points/sec
     constexpr int secondsToDisplay = 20.f; // sec / points/sec
-    Widget::PerformanceWidget(pointsPerSecond, secondsToDisplay);
+    Interface::PerformanceWidget(pointsPerSecond, secondsToDisplay);
 
     if (ImGui::CollapsingHeader("Render Options", ImGuiTreeNodeFlags_DefaultOpen)) {
         ImGui::SliderFloat("IBL Intensity", &renderOptions.iblIntensity, 0.0f, 1.0f);
@@ -160,9 +160,9 @@ void Demo1::displayGui() {
     }
     
     if (ImGui::CollapsingHeader("File Explorer", ImGuiTreeNodeFlags_DefaultOpen)) {
-        static Path displayPath("assets");
-        static const Path highestPath("assets");
-        displayPath = Widget::FileExplorerWidget(displayPath, highestPath);
+        static Directory displayDir("assets");
+        static const Directory highestDir("assets");
+        bool changed = Interface::FileExplorerWidget(&displayDir, highestDir);
     }
 
     if (ImGui::CollapsingHeader("Materials", ImGuiTreeNodeFlags_DefaultOpen)) {
@@ -171,7 +171,7 @@ void Demo1::displayGui() {
             showMaterialCreationWidget = !showMaterialCreationWidget;
         }
         if (showMaterialCreationWidget) {
-            auto mat = Widget::MaterialCreationWidget(&showMaterialCreationWidget);
+            auto mat = Interface::MaterialCreationWidget(&showMaterialCreationWidget);
             if (mat) {
                 std::string newName = mat->name;
                 bool nameExists = true;
@@ -215,7 +215,7 @@ void Demo1::displayGui() {
             showComponentCreationWidget = !showComponentCreationWidget;
         }
         if (showComponentCreationWidget) {
-            auto component = Widget::ComponentCreationWidget(&showComponentCreationWidget);
+            auto component = Interface::ComponentCreationWidget(&showComponentCreationWidget);
             if (component) {
                 scene->EmplaceChild(component);
             }

@@ -22,10 +22,6 @@ GLuint ShaderAsset::Handle() {
     return handle;
 }
 
-void ShaderAsset::SyncWithFile() {
-    setup();
-}
-
 void ShaderAsset::setup() {
     handle = glCreateShader(type);
     std::string pathString = file.RawPath();
@@ -62,4 +58,8 @@ void ShaderAsset::setup() {
         errorMsg += infoLog;
         throw std::runtime_error(errorMsg);
     }
+}
+
+void ShaderAsset::syncWithFile() {
+    setup();
 }

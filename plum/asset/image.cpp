@@ -31,7 +31,7 @@ const void* ImageAsset::Data() {
     return data;
 }
 
-void ImageAsset::SyncWithFile() {
+void ImageAsset::syncWithFile() {
     stbi_set_flip_vertically_on_load(flip);
     if (hdr)
         data = stbi_loadf(file.RawPath().c_str(), &width, &height, &numChannels, 0);

@@ -9,26 +9,24 @@
 #include <set>
 #include <string>
 
-namespace Widget {
+namespace Interface {
+
     // Displays frame time and frame rate.
     void PerformanceWidget(float points_per_sec = 0.5f, float seconds_to_display = 20.f);
 
-    // Returns Path to be displayed.
-    Path FileExplorerWidget(Path display_path, Path highest_path);
+    // Displays items within a directory. Returns true if display_dir has changed.
+    bool FileExplorerWidget(Directory* display_dir, const Directory& highest_dir);
 
-    // Returns Path selected.
-    bool PathComboWidget(int* id, Directory directory, const char* label, const std::set<std::string>& extensions, Path* selected_path, Path default_path = Path());
-    // need to 
-    // - detect whether there was a change
-    // - include support for an empty / default option
-        // - either have a button to enable/disable the combo box
-        // - or have an empty default option
+    // Displays a combo box containing specified file types within a directory(recursively). Returns true if selected_path has changed.
+    bool PathComboWidget(int* id, const Directory& directory, const char* label, const std::set<std::string>& extensions, Path* selected_path, const Path& default_path = Path());
 
+    // Displays a button and text input widget for editing a string. Returns true if text has changed.
     bool TextEditWidget(int* id, std::string* text, const char* label = "Rename");
 
-    // Returns Component created, or nullptr.
+    // Displays a component creation widget. Returns Component created, or nullptr.
     std::shared_ptr<Component::ComponentBase> ComponentCreationWidget(bool* show_widget);
     
-    // Returns Material created, or nullptr.
+    // Displays a material creation widget. Returns Material created, or nullptr.
     std::shared_ptr<Material::MaterialBase> MaterialCreationWidget(bool* show_widget);
+    
 };

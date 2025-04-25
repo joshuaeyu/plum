@@ -12,16 +12,17 @@ class Demo;
 namespace Context {
 
     class Application {
-        
         public:
+            Application(Application&) = delete;
+            Application operator=(Application&) = delete;
             ~Application();
 
+            std::shared_ptr<Window> activeWindow;
+            std::shared_ptr<Demo> activeDemo;
+            
             static Application& Instance();
 
             void Run();
-        
-            std::shared_ptr<Window> activeWindow;
-            std::shared_ptr<Demo> activeDemo;
 
         private:
             Application();
@@ -29,11 +30,6 @@ namespace Context {
             void predisplay();
             void display();
             void postdisplay();
-            
-        public:            
-            // Enforce singleton
-            Application(Application&) = delete;
-            Application operator=(Application&) = delete;
     };
 
 }

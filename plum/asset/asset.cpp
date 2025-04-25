@@ -14,7 +14,7 @@ bool Asset::NeedsResync() const {
 
 void Asset::Resync() {
     file.SyncWithDevice();
-    SyncWithFile();
+    syncWithFile();
     for (const auto& user : users) {
         user->AssetResyncCallback();
     }

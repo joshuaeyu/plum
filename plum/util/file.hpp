@@ -7,17 +7,12 @@
 
 namespace fs = std::filesystem;
 
-// https://www.reddit.com/r/gameenginedevs/comments/18ved2y/how_to_use_handles_for_asset_management/
-
-// https://www.reddit.com/r/gameenginedevs/comments/xwctxs/asset_manager_architecture_help/
-
-// https://github.com/skypjack/entt/blob/master/src/entt/entity/registry.hpp
-
 class Path {
     public:
         Path() = default;   // empty path
+        Path(const Path& path);
         Path(const char* path);
-        Path(fs::path raw_path);
+        Path(const fs::path& raw_path);
         
         fs::path RawPath() const { return path; }
         std::string Filename() const { return path.filename(); }
@@ -33,12 +28,11 @@ class Path {
         bool NeedsResync() const;
         virtual void SyncWithDevice();
         
-        static Path CurrentPath() { return Path(fs::current_path()); }
-        fs::path RelativePath(Path base = CurrentPath()) const { return fs::relative(path, base.path); }
+        static Path CurrentPath() { return fs::current_path(); }
+        fs::path RelativePath(const Path& base = CurrentPath()) const { return fs::relative(path, base.path); }
         
-        void Rename(fs::path name);
-        void RenameAbsolute(fs::path abspath);
-
+        void Rename(const fs::path& name);
+        void RenameAbsolute(const fs::path& abspath);
     
     protected:
         fs::path path;
@@ -47,28 +41,22 @@ class Path {
 
 class Directory : public Path {
     public:
-        Directory(Path path);
-        // Directory(fs::path path, const std::set<std::string>& extensions);
+        Directory(const Directory& d);        
+        Directory(const Path& path);
 
         std::vector<Path> List() const;
         std::vector<Path> ListRecursive() const;
         std::vector<Path> ListAll() const;
         std::vector<Path> ListAllRecursive() const;
-        std::vector<Path> ListOnly(std::set<std::string> extensions) const;
-        std::vector<Path> ListOnlyRecursive(std::set<std::string> extensions) const;
-
-    private:
-        // std::set<std::string> extensions;
-    
-    public:
-        Directory(const Directory& d);
+        std::vector<Path> ListOnly(const std::set<std::string>& extensions) const;
+        std::vector<Path> ListOnlyRecursive(const std::set<std::string>& extensions) const;
 };
 
 class File : public Path {
     public:
-        // File();
-        File(Path path);
-        explicit File(fs::path path);
+        File(const File& f);
+        File(const Path& path);
+        explicit File(const fs::path& path);
 
         std::uintmax_t Size() const { return size; }
         void SyncWithDevice() override;
@@ -79,13 +67,4 @@ class File : public Path {
     private:
         std::fstream stream;
         std::uintmax_t size;
-
-    public:
-        File(const File& f);
 };
-
-// class FileExplorer {
-// public:
-//     FileExplorer();
-// private:
-// };

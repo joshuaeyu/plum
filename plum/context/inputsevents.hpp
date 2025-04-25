@@ -17,23 +17,22 @@ namespace Context {
     // Assumes only a single window is used in the program since InputsAndEventsManager is a singleton.
 
     class InputObserver {
-
         public:
             ~InputObserver();
 
             bool GetKeyDown(int key);
             
-            static bool GetCursorEnabled();
+            static bool GetCursorEnabled() { return cursorEnabled; }
 
-            static float GetCursorX();
-            static float GetCursorY();
-            float GetCursorDeltaX();
-            float GetCursorDeltaY();
+            static float GetCursorX() { return currCursorX; }
+            static float GetCursorY() { return currCursorY; }
+            static float GetCursorDeltaX();
+            static float GetCursorDeltaY();
             
-            static int GetFramebufferWidth();
-            static int GetFramebufferHeight();
-            static int GetWindowWidth();
-            static int GetWindowHeight();
+            static int GetFramebufferWidth() { return framebufferWidth; }
+            static int GetFramebufferHeight() { return framebufferHeight; }
+            static int GetWindowWidth() { return windowWidth; }
+            static int GetWindowHeight() { return windowHeight; }
             
         private:
             friend class InputsAndEventsManager;
@@ -44,21 +43,21 @@ namespace Context {
             static void prepareForFrameEvents();
 
             // Cursor
-            static void setCursorEnabled(bool enabled);
-            static void setCursorPos(double xpos, double ypos);
             inline static bool cursorEnabled = false;
             inline static float lastCursorX, lastCursorY, currCursorX, currCursorY;
             inline static bool firstCursor = true;
             inline static bool cursorMoved = false;
+            static void setCursorEnabled(bool enabled);
+            static void setCursorPos(double xpos, double ypos);
             // Key
-            void setKeyDown(int key, bool isDown);
             std::map<int, bool> keys;
+            void setKeyDown(int key, bool isDown);
             // Framebuffer size
-            static void setFramebufferSize(int width, int height);
             inline static int framebufferWidth, framebufferHeight;
+            static void setFramebufferSize(int width, int height);
             // Window size
-            static void setWindowSize(int width, int height);
             inline static int windowWidth, windowHeight;
+            static void setWindowSize(int width, int height);
     };
 
     class EventListener {
@@ -83,7 +82,6 @@ namespace Context {
 
     class InputsAndEventsManager {
         public:
-            // WindowInputsAndEvents(Window& window);
             static void Setup(Window* window);
 
             static std::shared_ptr<InputObserver> CreateInputObserver(std::vector<int> keysToMonitor = {});

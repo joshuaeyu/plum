@@ -56,20 +56,16 @@ namespace Renderer {
             }
         }
     }
+    
+    void DirectionalShadowModule::SetObjectUniforms(const glm::mat4& model) {
+        program->SetMat4("model", model);
+    }
 
     void DirectionalShadowModule::setGlobalUniforms(Component::DirectionalLight& dl, GLuint depth_texture, int* shadow_idx) {
         program->SetMat4("lightSpaceMatrix", dl.LightspaceMatrix());
         glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depth_texture, 0, (*shadow_idx)++);
     }
-
-    void DirectionalShadowModule::SetObjectUniforms(const glm::mat4& model) {
-        program->SetMat4("model", model);
-    }
-
-    std::shared_ptr<Core::Program> DirectionalShadowModule::GetProgram() {
-        return program;
-    }
-
+    
     PointShadowModule::PointShadowModule(int map_width, int map_height, int num_layers)
         : mapWidth(map_width),
         mapHeight(map_height),
@@ -113,6 +109,10 @@ namespace Renderer {
         }
     }
 
+    void PointShadowModule::SetObjectUniforms(const glm::mat4& model) {
+        program->SetMat4("model", model);
+    }
+
     void PointShadowModule::setGlobalUniforms(Component::PointLight& pl, const glm::vec3& position, int* shadow_idx) {
         program->SetInt("layer", *(shadow_idx)++);
         for (int j = 0; j < 6; j++) {
@@ -120,14 +120,6 @@ namespace Renderer {
         }
         program->SetVec3("lightPos", position);
         program->SetFloat("far", pl.FarPlane());
-    }
-
-    void PointShadowModule::SetObjectUniforms(const glm::mat4& model) {
-        program->SetMat4("model", model);
-    }
-
-    std::shared_ptr<Core::Program> PointShadowModule::GetProgram() {
-        return program;
     }
 
     SkyboxModule::SkyboxModule() {
@@ -157,10 +149,6 @@ namespace Renderer {
         program->SetMat4("view", glm::mat4(glm::mat3(camera.View())));
         program->SetMat4("projection", camera.projection);
         program->SetInt("cubemap", tex_unit);
-    }
-
-    std::shared_ptr<Core::Program> SkyboxModule::GetProgram() {
-        return program;
     }
 
     SsaoModule::SsaoModule()
@@ -251,10 +239,6 @@ namespace Renderer {
         programBlur->SetInt("ssaoInput", 0);
         fbo.colorAtts[0]->Bind();
         Component::Primitive::DrawQuad();
-    }
-
-    std::shared_ptr<Core::Program> SsaoModule::GetProgram() {
-        return program;
     }
 
 }

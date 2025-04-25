@@ -29,7 +29,16 @@ namespace Scene {
         // std::clog << "destroying SceneNode " << name << std::endl;
     }
 
-    // Methods
+    std::shared_ptr<SceneNode> SceneNode::AddChild(std::shared_ptr<SceneNode> node) {
+        children.emplace_back(std::move(node));
+        return children.back();
+    }
+    
+    void SceneNode::RemoveChild(std::shared_ptr<SceneNode> node) {
+        auto it = std::find(children.begin(), children.end(), node);
+        children.erase(it);
+    }
+
     void SceneNode::Draw(const glm::mat4& parent_transform) {
         const glm::mat4 model_matrix = parent_transform * transform.Matrix();
         if (component)
@@ -53,16 +62,6 @@ namespace Scene {
         for (auto& child : children) {
             child->Draw(module, model_matrix);
         }
-    }
-
-    // Modifiers
-    std::shared_ptr<SceneNode> SceneNode::AddChild(std::shared_ptr<SceneNode> node) {
-        children.emplace_back(std::move(node));
-        return children.back();
-    }
-    void SceneNode::RemoveChild(std::shared_ptr<SceneNode> node) {
-        auto it = std::find(children.begin(), children.end(), node);
-        children.erase(it);
     }
 
     bool SceneNode::DisplayWidget(std::set<std::shared_ptr<Material::MaterialBase>> materials) {
@@ -133,7 +132,7 @@ namespace Scene {
                     showComponentCreationWidget = !showComponentCreationWidget;
                 }
                 if (showComponentCreationWidget) {
-                    auto component = Widget::ComponentCreationWidget(&showComponentCreationWidget);
+                    auto component = Interface::ComponentCreationWidget(&showComponentCreationWidget);
                     if (component) {
                         component = component;
                     }

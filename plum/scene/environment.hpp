@@ -13,31 +13,28 @@ namespace Scene {
             Environment();
             Environment(std::shared_ptr<Material::Texture> envmap);
 
-            void DrawSkybox(Component::Camera& camera);
-
-            void DisplayWidget();
-
             float iblIntensity = 1.0f;
-
             std::shared_ptr<Material::Texture> envmap;
-
             std::shared_ptr<Core::Tex2D> skybox;
             std::shared_ptr<Core::Tex2D> irradiance;
             std::shared_ptr<Core::Tex2D> prefilter;
             std::shared_ptr<Core::Tex2D> brdfLut;
 
+            void DrawSkybox(Component::Camera& camera);
+
+            void DisplayWidget();
+
         private:
             Renderer::SkyboxModule skyboxModule;
+            inline static std::shared_ptr<Core::Program> equirectProgram;
+            inline static std::shared_ptr<Core::Program> irradianceProgram;
+            inline static std::shared_ptr<Core::Program> prefilterProgram;
+            inline static std::shared_ptr<Core::Program> brdfLutProgram;
 
             std::shared_ptr<Core::Tex2D> equirectToCubemap(std::shared_ptr<Core::Tex2D> equirect, int width, int height);
             void cubemapToIrradiance(int width, int height);
             void cubemapToPrefilter(int width, int height, int envres);
             void generateBrdfLut(int width, int height);
-
-            inline static std::shared_ptr<Core::Program> equirectProgram;
-            inline static std::shared_ptr<Core::Program> irradianceProgram;
-            inline static std::shared_ptr<Core::Program> prefilterProgram;
-            inline static std::shared_ptr<Core::Program> brdfLutProgram;
     };
 
 }

@@ -9,10 +9,10 @@ namespace PostProcessing {
         public:
             virtual ~PostProcessor() = default;
             virtual Core::Fbo* Process(Core::Tex& input, int width, int height) = 0;
+            Core::Fbo* Process(Core::Fbo& input, int att_idx = 0);
         
         protected:
             Core::Fbo output;
-            Core::Fbo* Process(Core::Fbo& input, int att_idx = 0);
             PostProcessor();
     };
 
@@ -22,7 +22,8 @@ namespace PostProcessing {
 
             using PostProcessor::Process;
             Core::Fbo* Process(Core::Tex& input, int width, int height) override;
-            
+        
+        private:
             inline static std::shared_ptr<Core::Program> program;
     };
 
@@ -35,7 +36,8 @@ namespace PostProcessing {
             
             Core::Fbo highlights;
             Core::Fbo bloom;
-
+        
+        private:
             inline static std::shared_ptr<Core::Program> programHighlights;
             inline static std::shared_ptr<Core::Program> programBlur;
             inline static std::shared_ptr<Core::Program> programDisplay;
@@ -49,7 +51,8 @@ namespace PostProcessing {
             Core::Fbo* Process(Core::Tex& input, int width, int height) override;
 
             float exposure = 1.0;
-
+        
+        private:
             inline static std::shared_ptr<Core::Program> program;
     };
 

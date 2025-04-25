@@ -29,6 +29,23 @@ namespace Core {
         glDeleteTextures(1, &handle);
     }
 
+    void Tex::Bind() {
+        glBindTexture(target, handle);
+    }
+    void Tex::Bind(int texunit) {
+        textureUnit = texunit;
+        glActiveTexture(GL_TEXTURE0 + textureUnit);
+        glBindTexture(target, handle);
+    }
+    void Tex::Unbind() {
+        glActiveTexture(GL_TEXTURE0 + textureUnit);
+        glBindTexture(target, 0);
+    }
+    
+    void Tex::GenerateMipMap() {
+        glGenerateMipmap(target);
+    }
+
     void Tex::initialize() {
         glGenTextures(1, &handle);
         Bind();
@@ -74,26 +91,6 @@ namespace Core {
                 // throw error
                 break;
         }
-    }
-    
-    void Tex::GenerateMipMap() {
-        glGenerateMipmap(target);
-    }
-
-    GLuint Tex::Handle() const {
-        return handle;
-    }
-    void Tex::Bind() {
-        glBindTexture(target, handle);
-    }
-    void Tex::Bind(int texunit) {
-        textureUnit = texunit;
-        glActiveTexture(GL_TEXTURE0 + textureUnit);
-        glBindTexture(target, handle);
-    }
-    void Tex::Unbind() {
-        glActiveTexture(GL_TEXTURE0 + textureUnit);
-        glBindTexture(target, 0);
     }
 
     Tex2D::Tex2D(GLenum target, GLint internalformat, GLsizei width, GLsizei height, GLenum format, GLenum datatype, GLint wrap, GLint minfilter, bool is_shadowmap, bool is_hdr)

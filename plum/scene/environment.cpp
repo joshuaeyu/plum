@@ -92,7 +92,7 @@ namespace Scene {
                     flip = envmap->images[0]->Flip();
                     firstDisplay = false;
                 }
-                Widget::PathComboWidget(&widgetId, skyboxesDir, "Path", AssetUtils::imageExtensions, &skyboxPath, Path());
+                Interface::PathComboWidget(&widgetId, skyboxesDir, "Path", AssetUtils::imageExtensions, &skyboxPath, Path());
                 ImGui::SameLine(); ImGui::Checkbox("Flip", &flip);
                 if (ImGui::Button("Save")) {
                     if (!skyboxPath.IsEmpty()) {
@@ -117,17 +117,17 @@ namespace Scene {
                     }
                     firstDisplay = false;
                 }
-                Widget::PathComboWidget(&widgetIds[0], skyboxesDir, "+X", AssetUtils::imageExtensions, &facePaths[0], Path());
+                Interface::PathComboWidget(&widgetIds[0], skyboxesDir, "+X", AssetUtils::imageExtensions, &facePaths[0], Path());
                 ImGui::SameLine(); ImGui::Checkbox("Flip##0", &flips[0]);
-                Widget::PathComboWidget(&widgetIds[1], skyboxesDir, "-X", AssetUtils::imageExtensions, &facePaths[1], Path());
+                Interface::PathComboWidget(&widgetIds[1], skyboxesDir, "-X", AssetUtils::imageExtensions, &facePaths[1], Path());
                 ImGui::SameLine(); ImGui::Checkbox("Flip##1", &flips[1]);
-                Widget::PathComboWidget(&widgetIds[2], skyboxesDir, "+Y", AssetUtils::imageExtensions, &facePaths[2], Path());
+                Interface::PathComboWidget(&widgetIds[2], skyboxesDir, "+Y", AssetUtils::imageExtensions, &facePaths[2], Path());
                 ImGui::SameLine(); ImGui::Checkbox("Flip##2", &flips[2]);
-                Widget::PathComboWidget(&widgetIds[3], skyboxesDir, "-Y", AssetUtils::imageExtensions, &facePaths[3], Path());
+                Interface::PathComboWidget(&widgetIds[3], skyboxesDir, "-Y", AssetUtils::imageExtensions, &facePaths[3], Path());
                 ImGui::SameLine(); ImGui::Checkbox("Flip##3", &flips[3]);
-                Widget::PathComboWidget(&widgetIds[4], skyboxesDir, "+Z", AssetUtils::imageExtensions, &facePaths[4], Path());
+                Interface::PathComboWidget(&widgetIds[4], skyboxesDir, "+Z", AssetUtils::imageExtensions, &facePaths[4], Path());
                 ImGui::SameLine(); ImGui::Checkbox("Flip##4", &flips[4]);
-                Widget::PathComboWidget(&widgetIds[5], skyboxesDir, "-Z", AssetUtils::imageExtensions, &facePaths[5], Path());
+                Interface::PathComboWidget(&widgetIds[5], skyboxesDir, "-Z", AssetUtils::imageExtensions, &facePaths[5], Path());
                 ImGui::SameLine(); ImGui::Checkbox("Flip##5", &flips[5]);
                 if (ImGui::Button("Save")) {
                     bool pathsValid = true;

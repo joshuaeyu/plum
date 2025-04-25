@@ -13,19 +13,18 @@ namespace Context {
 
     class Window {
         public:
-            void MakeCurrent();
-            void SwapBuffers();
-            
-            void SetTitle(const char* title);
-            void SetWindowSize(int width, int height);
-            void SetInputMode(int mode, int value);
-            
+            GLFWwindow* Handle() const { return handle; }
+            bool ShouldClose() const { return glfwWindowShouldClose(handle); }
             std::string Title() const { return title; }          
             float Aspect() const { return static_cast<float>(width)/height; }
             int Width() const { return width; }
             int Height() const { return height; }
-            bool ShouldClose() const;
-            GLFWwindow* Handle() const { return handle; }
+            
+            void SetTitle(const char* title);
+            void SetWindowSize(int width, int height);
+            void SetInputMode(int mode, int value);
+            void MakeCurrent();
+            void SwapBuffers();
         
         private:
             friend class WindowCreator;
@@ -34,10 +33,9 @@ namespace Context {
             int width, height;
             std::string title;
             GLFWwindow* handle;
+            std::shared_ptr<EventListener> eventListener;
 
             void keyCallback(int key, int scancode, int action, int mods);
-        
-            std::shared_ptr<EventListener> eventListener;
         
         public:
             // Rule of five
@@ -52,11 +50,11 @@ namespace Context {
         public:
             WindowCreator();
 
-            std::shared_ptr<Window> Create() const;
-
             std::string title = "Plum Engine v2.0";
             int width = 1920;
             int height = 1080;
             std::map<int, int> hints;
+
+            std::shared_ptr<Window> Create() const;
     };
 }
