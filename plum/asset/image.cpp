@@ -17,24 +17,34 @@ ImageAsset::ImageAsset(const Path& path, bool flip)
 }
 
 ImageAsset::~ImageAsset() {
-    stbi_image_free(data);
+    stbi_image_free(data8);
+    stbi_image_free(data32);
 }
 
-const void* ImageAsset::Data() {
-    if (!data) {
+const void* ImageAsset::Data8() {
+    if (!data8) {
         stbi_set_flip_vertically_on_load(flip);
-        if (hdr)
-            data = stbi_loadf(file.RawPath().c_str(), &width, &height, &numChannels, 0);
-        else
-            data = stbi_load(file.RawPath().c_str(), &width, &height, &numChannels, 0);
+        data8 = stbi_load(file.RawPath().c_str(), &width, &height, &numChannels, 0);
     }
-    return data;
+    return data8;
+}
+
+const void* ImageAsset::Data32() {
+    if (!data32) {
+        stbi_set_flip_vertically_on_load(flip);
+        data32 = stbi_loadf(file.RawPath().c_str(), &width, &height, &numChannels, 0);
+    }
+    return data32;
 }
 
 void ImageAsset::syncWithFile() {
     stbi_set_flip_vertically_on_load(flip);
-    if (hdr)
-        data = stbi_loadf(file.RawPath().c_str(), &width, &height, &numChannels, 0);
-    else
-        data = stbi_load(file.RawPath().c_str(), &width, &height, &numChannels, 0);
+    if (data8) {
+        stbi_image_free(data8);
+        data8 = stbi_load(file.RawPath().c_str(), &width, &height, &numChannels, 0);
+    }
+    if (data32) {
+        stbi_image_free(data32);
+        data32 = stbi_loadf(file.RawPath().c_str(), &width, &height, &numChannels, 0);
+    }
 }

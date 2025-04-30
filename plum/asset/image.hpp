@@ -13,14 +13,16 @@ class ImageAsset : public Asset {
         int Height() const { return height; }
         int NumChannels() const { return numChannels; }
         
-        const void* Data();
+        const void* Data8();
+        const void* Data32();
 
     private:
         bool hdr;
         bool flip;
         int width, height;
         int numChannels;
-        void* data = nullptr;
+        void* data8 = nullptr;
+        void* data32 = nullptr;
 
         void syncWithFile() override;
 };

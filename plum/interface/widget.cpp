@@ -48,6 +48,7 @@ bool Interface::FileExplorerWidget(Directory* display_dir, const Directory& high
     // Files list
     ImGui::BeginChild("##fileexplorer_body", ImVec2(0,100), ImGuiChildFlags_ResizeY | ImGuiChildFlags_FrameStyle);
     if (display_dir->IsDirectory()) {
+        ImGui::Unindent(15);
         for (auto& child : display_dir->List()) {
             ImGui::TreeNodeEx(child.Filename().c_str(), ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_NoTreePushOnOpen);
             if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left) && ImGui::IsItemHovered()) {
@@ -58,6 +59,7 @@ bool Interface::FileExplorerWidget(Directory* display_dir, const Directory& high
                 }
             }
         }
+        ImGui::Indent(15);
     }
     ImGui::EndChild();
 

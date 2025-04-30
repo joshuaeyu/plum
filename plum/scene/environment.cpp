@@ -142,7 +142,7 @@ namespace Scene {
                         for (int i = 0; i < facePaths.size(); i++) {
                             images.emplace_back(AssetManager::Instance().LoadHot<ImageAsset>(facePaths[i], flips[i]));
                         }
-                        auto texture = std::make_shared<Material::Texture>(images, Material::TextureType::Diffuse, GL_CLAMP_TO_EDGE, GL_LINEAR);
+                        auto texture = std::make_shared<Material::Texture>(images, Material::TextureType::Diffuse, GL_CLAMP_TO_EDGE, GL_LINEAR_MIPMAP_LINEAR);
                         *this = Environment(texture);
                         showChild = false;
                     }

@@ -22,18 +22,20 @@ To do:
 Remaining major:
 - GUI WIP
   - renaming X
-  - abstract right click context menu somehow?
   - add context menu for materials
   - support changing import settings for an already imported asset
-  - cleaner UI for children/components
-  - mesh cast shadow / receive shadow
-  - global shadow settings?
+  - cleaner UI for children/components X
 - asset manager - textures, models WIP
   - stronger statefulness - gui knows on startup what was initialized via code X
 - IBL specular map seams?? X
 - move to cmake
+- hdr cube map
 
 Remaining minor:
+- GUI
+  - abstract right click context menu somehow?
+  - mesh cast shadow / receive shadow
+  - global shadow settings?
 - window vs context (e.g., getTime) WIP
   - context needs to encapsulate gl and glfw. a lot of quirks.
 - lights: reconcile lighting pass uniforms vs shadow pass uniforms WIP

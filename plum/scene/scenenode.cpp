@@ -78,7 +78,11 @@ namespace Scene {
             label = name + "##treenode" + std::to_string(widgetId);
         }
 
-        expanded = ImGui::TreeNodeEx(label.c_str());
+        ImVec4 headerColor = ImGui::GetStyleColorVec4(ImGuiCol_Header);
+        headerColor.w /= 1.75f; 
+        ImGui::PushStyleColor(ImGuiCol_Header, headerColor);
+        expanded = ImGui::TreeNodeEx(label.c_str(), ImGuiTreeNodeFlags_Selected);
+        ImGui::PopStyleColor();
         
         if (editingName) {
             ImGui::SameLine();
@@ -118,7 +122,8 @@ namespace Scene {
         }
         // Node Transform and children
         if (expanded) {
-            if (ImGui::TreeNodeEx("[Transform]")) {
+            ImGui::Unindent(5);
+            if (ImGui::TreeNodeEx("[Transform]", ImGuiTreeNodeFlags_Bullet)) {
                 bool pos = ImGui::DragFloat3("Position", glm::value_ptr(transform.position), 0.01f, 0.0f, 0.0f, "%.2f");
                 bool rot = ImGui::DragFloat3("Rotation", glm::value_ptr(transform.rotationEuler), 0.1f, 0.0f, 0.0f, "%.1f");
                 bool scale = ImGui::DragFloat3("Scale", glm::value_ptr(transform.scale), 0.001f, 0.001f, 1e6f, "%.3f");
@@ -138,7 +143,7 @@ namespace Scene {
                     }
                 }
             } else {
-                if (ImGui::TreeNodeEx(("[" + component->name + "]").c_str())) {
+                if (ImGui::TreeNodeEx(("[" + component->name + "]").c_str(), ImGuiTreeNodeFlags_Bullet)) {
                     if (component->IsMesh()) {
                         std::static_pointer_cast<Component::Mesh>(component)->DisplayWidget(materials);
                     } else {
@@ -151,9 +156,12 @@ namespace Scene {
                 }
             }
             for (auto& child : children) {
-                if (!child->DisplayWidget(materials))
+                if (!child->DisplayWidget(materials)) {
                     RemoveChild(child);
+                    break;
+                }
             }
+            ImGui::Indent(5);
             ImGui::TreePop();
         }
         return true;

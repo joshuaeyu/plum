@@ -53,6 +53,7 @@ namespace Material {
         private:
             GLenum wrap;
             GLenum minfilter;
+            bool hdr;
 
             void loadImage(std::shared_ptr<ImageAsset> image, GLenum target, int face_idx = -1);
     };
