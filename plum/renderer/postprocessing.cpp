@@ -1,6 +1,7 @@
 #include <plum/renderer/postprocessing.hpp>
 #include <plum/component/primitive.hpp>
 #include <iostream>
+
 namespace PostProcessing {
 
     PostProcessor::PostProcessor()

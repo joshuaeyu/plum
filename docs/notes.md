@@ -29,7 +29,7 @@ Remaining major:
   - stronger statefulness - gui knows on startup what was initialized via code X
 - IBL specular map seams?? X
 - move to cmake
-- hdr cube map
+- hdr cube map X
 
 Remaining minor:
 - GUI

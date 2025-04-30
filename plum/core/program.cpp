@@ -13,6 +13,11 @@ namespace Core {
         geometryShader(geom_shader)
     {
         setup();
+        vert_shader->AddUser(this);
+        fragmentShader->AddUser(this);
+        if (geom_shader) {
+            vert_shader->AddUser(this);
+        }
     }
 
     Program::~Program()
