@@ -3,7 +3,6 @@
 #include <plum/asset/asset.hpp>
 
 #include <plum/util/file.hpp>
-#include <plum/util/registry.hpp>
 
 #include <iostream>
 #include <filesystem>
