@@ -20,9 +20,9 @@ namespace Interface {
 
     class Widget {
         public:
-            Widget() : widgetId(idCounter++) {}
-        protected:
-            const int widgetId;
+            Widget() : id(idCounter++), idString(std::to_string(id)) {}
+            const int id;
+            const std::string idString;
         private:
             inline static int idCounter = 0;
     };

@@ -66,16 +66,15 @@ namespace Scene {
 
     bool SceneNode::DisplayWidget(std::set<std::shared_ptr<Material::MaterialBase>> materials) {
         static std::string newName;
-        static bool activatedThisFrame;
         
         std::string label;
         bool expanded;
         
         if (editingName) {
-            label = "##treenode";
+            label = std::string("##treenode") + dummyWidget.idString;
             ImGui::SetNextItemAllowOverlap();
         } else {
-            label = name + "##treenode";
+            label = name + "##treenode" + dummyWidget.idString;
         }
 
         ImVec4 headerColor = ImGui::GetStyleColorVec4(ImGuiCol_Header);
@@ -87,7 +86,7 @@ namespace Scene {
         if (editingName) {
             ImGui::SameLine();
             ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0,0));
-            if (ImGui::InputText("##inputtext", &newName, ImGuiInputTextFlags_EnterReturnsTrue)) {
+            if (ImGui::InputText(std::string("##inputtext" + dummyWidget.idString).c_str(), &newName, ImGuiInputTextFlags_EnterReturnsTrue)) {
                 name = newName;
                 editingName = false;
             }
@@ -98,7 +97,7 @@ namespace Scene {
             } else if (!ImGui::IsItemActive()) {
                 editingName = false;
             }
-        } else if (ImGui::BeginPopupContextItem()) {
+        } else if (ImGui::BeginPopupContextItem(std::string("##popup" + dummyWidget.idString).c_str())) {
             if (ImGui::Button("Rename")) {
                 activatedThisFrame = true;
                 editingName = true;
@@ -109,15 +108,11 @@ namespace Scene {
                 EmplaceChild();
                 ImGui::CloseCurrentPopup();
             }
-            if (ImGui::Button("Duplicate")) {
-                if (parent) {
-                    if (component)
-                        parent->EmplaceChild(component);
-                    else
-                        parent->EmplaceChild();
-                }
-                ImGui::CloseCurrentPopup();
-            }
+            // if (ImGui::Button("Duplicate")) {
+            //     if (parent) {
+            //     }
+            //     ImGui::CloseCurrentPopup();
+            // }
             if (ImGui::Button("Delete")) {
                 ImGui::CloseCurrentPopup();
                 ImGui::EndPopup();
@@ -133,7 +128,23 @@ namespace Scene {
             if (ImGui::TreeNodeEx("[Transform]", ImGuiTreeNodeFlags_Bullet)) {
                 bool pos = ImGui::DragFloat3("Position", glm::value_ptr(transform.position), 0.01f, 0.0f, 0.0f, "%.2f");
                 bool rot = ImGui::DragFloat3("Rotation", glm::value_ptr(transform.rotationEuler), 0.1f, 0.0f, 0.0f, "%.1f");
-                bool scale = ImGui::DragFloat3("Scale", glm::value_ptr(transform.scale), 0.001f, 0.001f, 1e6f, "%.3f");
+                glm::vec3 scaleVal = transform.scale;
+                bool scale = ImGui::DragFloat3("Scale", glm::value_ptr(scaleVal), 0.001f, 0.001f, 1e6f, "%.3f");
+                ImGui::SameLine();
+                ImGui::Checkbox("Link", &linkScale);
+                if (scale) {
+                    if (linkScale) {
+                        if (scaleVal.x != transform.scale.x) {
+                            transform.scale *= scaleVal.x / transform.scale.x;
+                        } else if (scaleVal.y != transform.scale.y) {
+                            transform.scale *= scaleVal.y / transform.scale.y;
+                        } else if (scaleVal.z != transform.scale.z) {
+                            transform.scale *= scaleVal.z / transform.scale.z;
+                        }
+                    } else {
+                        transform.scale = scaleVal;
+                    }
+                }
                 if (pos || rot || scale)
                     transform.Update();
                 ImGui::TreePop();

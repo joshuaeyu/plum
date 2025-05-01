@@ -38,9 +38,10 @@ namespace Scene {
             void Draw(Material::MaterialBase& m, const glm::mat4& parent_transform = glm::identity<glm::mat4>());
             void Draw(Renderer::Module& m, const glm::mat4& parent_transform = glm::identity<glm::mat4>());
             
+            Interface::Widget dummyWidget;
             Interface::TextEditWidget nameWidget;
             Interface::ComponentCreationWidget componentCreationWidget;
-            bool editingName = false, showComponentCreationWidget = false;
+            bool editingName = false, linkScale = false, showComponentCreationWidget = false, activatedThisFrame = false;
             bool DisplayWidget(std::set<std::shared_ptr<Material::MaterialBase>> materials);
     };
 

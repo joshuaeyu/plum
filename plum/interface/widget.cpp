@@ -135,7 +135,7 @@ bool TextEditWidget::Display(std::string* text, const char* label) {
 bool ComponentCreationWidget::Display(std::shared_ptr<Component::ComponentBase>* component) {
     static const std::vector<const char*> componentTypes = {"Light", "Primitive", "Model"};
 
-    const std::string strId = std::string("##componentcreation") + std::to_string(widgetId);
+    const std::string strId = std::string("##componentcreation") + idString;
     if (!ImGui::BeginChild(strId.c_str(), ImVec2(0,0), ImGuiChildFlags_Border | ImGuiChildFlags_AutoResizeX | ImGuiChildFlags_AutoResizeY)) {
         ImGui::EndChild();
         return false;
@@ -208,7 +208,7 @@ bool ComponentCreationWidget::Display(std::shared_ptr<Component::ComponentBase>*
 bool MaterialCreationWidget::Display(std::shared_ptr<Material::MaterialBase>* material) {
     static const std::vector<const char*> materialTypes = {"PBR Metallic"};
 
-    const std::string strId = std::string("##materialcreation") + std::to_string(widgetId);
+    const std::string strId = std::string("##materialcreation") + idString;
     if (!ImGui::BeginChild(strId.c_str(), ImVec2(0,0), ImGuiChildFlags_Border | ImGuiChildFlags_AutoResizeX | ImGuiChildFlags_AutoResizeY)) {
         ImGui::EndChild();
         return false;
