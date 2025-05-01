@@ -21,16 +21,16 @@ namespace Scene {
 
 namespace Renderer {
 
-    class Module {
+    class RenderModule {
         public:
             virtual std::shared_ptr<Core::Program> GetProgram() = 0;
             virtual void SetObjectUniforms(const glm::mat4& model) {}
         protected:
-            Module() = default;
-            virtual ~Module() = default;
+            RenderModule() = default;
+            virtual ~RenderModule() = default;
     };
 
-    class DirectionalShadowModule : public Module {
+    class DirectionalShadowModule : public RenderModule {
         public:
             DirectionalShadowModule(int map_width = 512, int map_height = 512, int num_layers = 8);
 
@@ -48,7 +48,7 @@ namespace Renderer {
             void setGlobalUniforms(Component::DirectionalLight& dl, GLuint depth_texture, int* shadow_idx);
     };
         
-    class PointShadowModule : public Module {
+    class PointShadowModule : public RenderModule {
         public:
             PointShadowModule(int map_width = 512, int map_height = 512, int num_layers = 8);
 
@@ -66,7 +66,7 @@ namespace Renderer {
             void setGlobalUniforms(Component::PointLight& pl, const glm::vec3& position, int* shadow_idx);
         };
 
-    class SkyboxModule : public Module {
+    class SkyboxModule : public RenderModule {
         public:
             SkyboxModule();
 
@@ -80,7 +80,7 @@ namespace Renderer {
 
     };
 
-    class SsaoModule : public Module {
+    class SsaoModule : public RenderModule {
         public:
             SsaoModule();
 

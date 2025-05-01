@@ -43,7 +43,7 @@ namespace Component {
             
             void Draw(const glm::mat4& model_matrix) override;
             void Draw(Material::MaterialBase& material, const glm::mat4& model_matrix) override;
-            void Draw(Renderer::Module& module, const glm::mat4& model_matrix) override;
+            void Draw(Renderer::RenderModule& module, const glm::mat4& model_matrix) override;
 
             void DisplayWidget() override {};    
             void AssetResyncCallback() override;
@@ -65,7 +65,7 @@ namespace Component {
 
             void Draw(const glm::mat4& model_matrix) override;
             void Draw(Material::MaterialBase& material, const glm::mat4& parent_transform) override;
-            void Draw(Renderer::Module& module, const glm::mat4& parent_transform) override;
+            void Draw(Renderer::RenderModule& module, const glm::mat4& parent_transform) override;
 
             std::shared_ptr<ComponentBase> Duplicate() override {return nullptr;}
         

@@ -51,7 +51,7 @@ namespace Component {
         mat.SetUniforms(model_matrix);
         vao->Draw();
     }
-    void Mesh::Draw(Renderer::Module& module, const glm::mat4& model_matrix) {
+    void Mesh::Draw(Renderer::RenderModule& module, const glm::mat4& model_matrix) {
         module.SetObjectUniforms(model_matrix);
         vao->Draw();
     }

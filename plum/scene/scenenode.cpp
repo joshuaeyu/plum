@@ -55,7 +55,7 @@ namespace Scene {
             child->Draw(material, model_matrix);
         }
     }
-    void SceneNode::Draw(Renderer::Module& module, const glm::mat4& parent_transform) {
+    void SceneNode::Draw(Renderer::RenderModule& module, const glm::mat4& parent_transform) {
         const glm::mat4 model_matrix = parent_transform * transform.Matrix();
         if (component)
             component->Draw(module, model_matrix);
