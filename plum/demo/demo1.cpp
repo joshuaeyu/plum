@@ -93,8 +93,6 @@ void Demo1::Initialize() {
     // backpackNode->transform.Translate(5,4,0);
     // auto sponzaNode = scene->EmplaceChild(sponza);
     // sponzaNode->name = "Sponza";
-
-    while (GLenum error = glGetError()) { std::cerr << "Initialization error: " << error << std::endl; }
 }
 void Demo1::Display() {
     camera->ProcessInputs();
@@ -120,8 +118,6 @@ void Demo1::Display() {
     fbo->BlitToDefault();
 
     displayGui();
-
-    while (GLenum error = glGetError()) { std::cerr << "Render error: " << error << std::endl; }
 }
 void Demo1::CleanUp() {
     scene.reset();

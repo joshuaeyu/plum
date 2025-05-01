@@ -314,7 +314,7 @@ namespace Component {
             }
             // Load and push any new textures
             if (!skip) {
-                std::clog << "  Loading texture " << imagePath.RawPath() << " as " << aiTextureTypeToString(aitextype) << std::endl;
+                std::clog << "Loading texture " << imagePath.RelativePath() << " as " << aiTextureTypeToString(aitextype) << std::endl;
                 auto image = AssetManager::Instance().LoadHot<ImageAsset>(imagePath, false);
                 auto texture = std::make_shared<Material::Texture>(image, textype, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR);
                 texture->tex->Bind();

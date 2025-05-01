@@ -20,8 +20,8 @@ class Demo1 : public Demo {
             bool ssao = true;
             bool fxaa = true;
             bool hdr = true;
-            float hdrExposure = true;
-            bool bloom = true;
+            float hdrExposure = 1.0f;
+            bool bloom = false;
         } renderOptions;
 
         void Initialize() override;
