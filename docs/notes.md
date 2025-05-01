@@ -22,27 +22,25 @@ To do:
 Remaining major:
 - GUI WIP
   - renaming X
-  - add context menu for materials
-  - support changing import settings for an already imported asset
   - cleaner UI for children/components X
 - asset manager - textures, models WIP
   - stronger statefulness - gui knows on startup what was initialized via code X
 - IBL specular map seams?? X
-- move to cmake
 - hdr cube map X
 - cooler starting scene
-- fix duplication
 
 Remaining minor:
+- move to cmake
 - GUI
+  - add context menu for materials
   - abstract right click context menu somehow?
   - mesh cast shadow / receive shadow
   - global shadow settings?
+- support changing import settings for an already imported asset
 - window vs context (e.g., getTime) WIP
   - context needs to encapsulate gl and glfw. a lot of quirks.
 - lights: reconcile lighting pass uniforms vs shadow pass uniforms WIP
 - UBO scheme initialization
-- some utility type for detecting changes?
 - Model
   - gltf - do a few more examples
   - obj
@@ -56,7 +54,7 @@ Remaining minor:
 - rules of 0/3/5 WIP
 - reorder class members
 - Error handling and logging
-- cloning
+- cloning/duplication
   - material
   - scenenode
   - component
