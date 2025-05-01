@@ -1,6 +1,13 @@
-obj/
-imgui.ini
-main
+# project
 .vscode/
-*.DS_Store
+.DS_Store
+
+# build
+log/
+obj/
+main
+imgui.ini
+
+# other
 external/cereal
+docs/notes.md
