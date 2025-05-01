@@ -73,8 +73,8 @@ void Demo1::Initialize() {
     std::clog << "Loading models..." << std::endl;
     // auto backpack = std::make_shared<Component::Model>("assets/models/survival_guitar_backpack/scene.gltf", 0.005f);
     // models["Backpack"] = backpack;
-    auto sponzaAsset = AssetManager::Instance().LoadHot<ModelAsset>("assets/models/sponza/glTF/Sponza.gltf");
-    auto sponza = std::make_shared<Component::Model>(sponzaAsset);
+    // auto sponzaAsset = AssetManager::Instance().LoadHot<ModelAsset>("assets/models/sponza/glTF/Sponza.gltf");
+    // auto sponza = std::make_shared<Component::Model>(sponzaAsset);
 
     std::clog << "Defining scene..." << std::endl;
     scene = std::make_unique<Scene::Scene>();
@@ -91,8 +91,8 @@ void Demo1::Initialize() {
     sphereNode->transform.Translate(0,2,0);
     // auto backpackNode = scene->EmplaceChild(backpack);
     // backpackNode->transform.Translate(5,4,0);
-    auto sponzaNode = scene->EmplaceChild(sponza);
-    sponzaNode->name = "Sponza";
+    // auto sponzaNode = scene->EmplaceChild(sponza);
+    // sponzaNode->name = "Sponza";
 
     while (GLenum error = glGetError()) { std::cerr << "Initialization error: " << error << std::endl; }
 }
@@ -145,7 +145,8 @@ void Demo1::displayGui() {
     
     constexpr float pointsPerSecond = 1.f;    // points/sec
     constexpr int secondsToDisplay = 20.f; // sec / points/sec
-    Interface::PerformanceWidget(pointsPerSecond, secondsToDisplay);
+    static Interface::PerformanceWidget performanceWidget;
+    performanceWidget.Display(pointsPerSecond, secondsToDisplay);
 
     if (ImGui::CollapsingHeader("Render Options", ImGuiTreeNodeFlags_DefaultOpen)) {
         ImGui::SliderFloat("IBL Intensity", &renderOptions.iblIntensity, 0.0f, 1.0f);
@@ -162,7 +163,8 @@ void Demo1::displayGui() {
     if (ImGui::CollapsingHeader("File Explorer", ImGuiTreeNodeFlags_DefaultOpen)) {
         static Directory displayDir("assets");
         static const Directory highestDir("assets");
-        bool changed = Interface::FileExplorerWidget(&displayDir, highestDir);
+        static Interface::FileExplorerWidget fileExplorerWidget;
+        bool changed = fileExplorerWidget.Display(&displayDir, highestDir);
     }
 
     if (ImGui::CollapsingHeader("Materials", ImGuiTreeNodeFlags_DefaultOpen)) {
@@ -171,8 +173,9 @@ void Demo1::displayGui() {
             showMaterialCreationWidget = !showMaterialCreationWidget;
         }
         if (showMaterialCreationWidget) {
-            auto mat = Interface::MaterialCreationWidget(&showMaterialCreationWidget);
-            if (mat) {
+            static Interface::MaterialCreationWidget materialCreationWidget;
+            std::shared_ptr<Material::MaterialBase> mat;
+            if (materialCreationWidget.Display(&mat)) {
                 std::string newName = mat->name;
                 bool nameExists = true;
                 int i = 1;
@@ -188,6 +191,7 @@ void Demo1::displayGui() {
                 }
                 mat->name = newName;
                 materials.insert(mat);
+                showMaterialCreationWidget = false;
             }
         }
         for (auto& material : materials) {
@@ -204,7 +208,6 @@ void Demo1::displayGui() {
         }
     }
 
-    int i = 0;
     if (ImGui::CollapsingHeader("Scene", ImGuiTreeNodeFlags_DefaultOpen)) {
         if (ImGui::Button("New Empty Node")) {
             scene->EmplaceChild();
@@ -215,9 +218,11 @@ void Demo1::displayGui() {
             showComponentCreationWidget = !showComponentCreationWidget;
         }
         if (showComponentCreationWidget) {
-            auto component = Interface::ComponentCreationWidget(&showComponentCreationWidget);
-            if (component) {
-                scene->EmplaceChild(component);
+            static Interface::ComponentCreationWidget componentCreationWidget;
+            std::shared_ptr<Component::ComponentBase> comp;
+            if (componentCreationWidget.Display(&comp)) {
+                scene->EmplaceChild(comp);
+                showComponentCreationWidget = false;
             }
         }
         scene->DisplayWidget(materials);

@@ -1,10 +1,15 @@
 #pragma once
 
-#include <plum/material/material.hpp>
-#include <plum/renderer/module.hpp>
-
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+
+namespace Material {
+    class MaterialBase;
+};
+
+namespace Renderer {
+    class Module;
+};
 
 namespace Component {
 
@@ -32,6 +37,7 @@ namespace Component {
             virtual void Draw(const glm::mat4& model_matrix = glm::identity<glm::mat4>()) {}
             virtual void Draw(Material::MaterialBase& material, const glm::mat4& model_matrix = glm::identity<glm::mat4>()) {}
             virtual void Draw(Renderer::Module& module, const glm::mat4& model_matrix = glm::identity<glm::mat4>()) {}
+            virtual std::shared_ptr<ComponentBase> Duplicate() = 0;
 
             virtual void DisplayWidget() {}            
         

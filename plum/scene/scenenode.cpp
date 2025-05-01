@@ -19,7 +19,6 @@ namespace Scene {
     SceneNode::SceneNode(std::shared_ptr<Component::ComponentBase> component) 
         : name(component->name),
         component(std::move(component))
-        
     {}
     SceneNode::SceneNode(std::shared_ptr<Component::ComponentBase> component, const std::string& name) 
         : component(std::move(component)),
@@ -30,8 +29,9 @@ namespace Scene {
     }
 
     std::shared_ptr<SceneNode> SceneNode::AddChild(std::shared_ptr<SceneNode> node) {
-        children.emplace_back(std::move(node));
-        return children.back();
+        auto child = children.emplace_back(std::move(node));
+        child->parent = this;
+        return child;
     }
     
     void SceneNode::RemoveChild(std::shared_ptr<SceneNode> node) {
@@ -72,10 +72,10 @@ namespace Scene {
         bool expanded;
         
         if (editingName) {
-            label = "##treenode" + std::to_string(widgetId);
+            label = "##treenode";
             ImGui::SetNextItemAllowOverlap();
         } else {
-            label = name + "##treenode" + std::to_string(widgetId);
+            label = name + "##treenode";
         }
 
         ImVec4 headerColor = ImGui::GetStyleColorVec4(ImGuiCol_Header);
@@ -86,10 +86,12 @@ namespace Scene {
         
         if (editingName) {
             ImGui::SameLine();
-            if (ImGui::InputText(("##inputtext" + std::to_string(widgetId)).c_str(), &newName, ImGuiInputTextFlags_EnterReturnsTrue)) {
+            ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0,0));
+            if (ImGui::InputText("##inputtext", &newName, ImGuiInputTextFlags_EnterReturnsTrue)) {
                 name = newName;
                 editingName = false;
             }
+            ImGui::PopStyleVar();
             if (activatedThisFrame) {
                 ImGui::SetKeyboardFocusHere(-1);
                 activatedThisFrame = false;
@@ -108,7 +110,12 @@ namespace Scene {
                 ImGui::CloseCurrentPopup();
             }
             if (ImGui::Button("Duplicate")) {
-                parent->EmplaceChild(component);
+                if (parent) {
+                    if (component)
+                        parent->EmplaceChild(component);
+                    else
+                        parent->EmplaceChild();
+                }
                 ImGui::CloseCurrentPopup();
             }
             if (ImGui::Button("Delete")) {
@@ -132,14 +139,14 @@ namespace Scene {
                 ImGui::TreePop();
             }
             if (!component) {
-                static bool showComponentCreationWidget = false;
                 if (ImGui::Button("Add Component")) {
                     showComponentCreationWidget = !showComponentCreationWidget;
                 }
                 if (showComponentCreationWidget) {
-                    auto component = Interface::ComponentCreationWidget(&showComponentCreationWidget);
-                    if (component) {
-                        component = component;
+                    std::shared_ptr<Component::ComponentBase> comp;
+                    if (componentCreationWidget.Display(&comp)) {
+                        component = comp;
+                        showComponentCreationWidget = false;
                     }
                 }
             } else {

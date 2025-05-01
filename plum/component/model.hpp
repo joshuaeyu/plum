@@ -47,6 +47,8 @@ namespace Component {
 
             void DisplayWidget() override {};    
             void AssetResyncCallback() override;
+
+            std::shared_ptr<ComponentBase> Duplicate() override {return nullptr;}
         
         private:
             void printSceneInfo(const std::string& path, const aiScene *scene, const std::string& outpath = "");
@@ -61,9 +63,11 @@ namespace Component {
             Transform transform;
             std::vector<std::shared_ptr<ModelNode>> children;
 
-            void Draw(const glm::mat4& model_matrix);
-            void Draw(Material::MaterialBase& material, const glm::mat4& parent_transform);
-            void Draw(Renderer::Module& module, const glm::mat4& parent_transform);
+            void Draw(const glm::mat4& model_matrix) override;
+            void Draw(Material::MaterialBase& material, const glm::mat4& parent_transform) override;
+            void Draw(Renderer::Module& module, const glm::mat4& parent_transform) override;
+
+            std::shared_ptr<ComponentBase> Duplicate() override {return nullptr;}
         
         private:
             static const std::map<aiTextureType, Material::TextureType> textureTypeMap;

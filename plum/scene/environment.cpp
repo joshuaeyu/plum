@@ -84,7 +84,7 @@ namespace Scene {
                 break;
             case 1:
             {
-                static int widgetId = -1;
+                static Interface::PathComboWidget pathComboWidget;
                 static Path skyboxPath = Path();
                 static bool flip = true;
                 if (firstDisplay) {
@@ -92,8 +92,9 @@ namespace Scene {
                     flip = envmap->images[0]->Flip();
                     firstDisplay = false;
                 }
-                Interface::PathComboWidget(&widgetId, skyboxesDir, "Path", AssetUtils::imageExtensions, &skyboxPath, Path());
-                ImGui::SameLine(); ImGui::Checkbox("Flip", &flip);
+                pathComboWidget.Display(skyboxesDir, "Path", AssetUtils::imageExtensions, &skyboxPath, Path());
+                ImGui::SameLine(); 
+                ImGui::Checkbox("Flip", &flip);
                 if (ImGui::Button("Save")) {
                     if (!skyboxPath.IsEmpty()) {
                         auto image = AssetManager::Instance().LoadHot<ImageAsset>(skyboxPath, flip);
@@ -106,7 +107,7 @@ namespace Scene {
             }
             case 2:
             {
-                static int widgetIds[6] = {-1, -1, -1, -1, -1, -1};
+                static Interface::PathComboWidget pathComboWidgets[6];
                 constexpr const char* faces[] = {"+X", "-X", "+Y", "-Y", "+Z", "-Z"};
                 static std::vector<Path> facePaths(6);
                 static bool flips[6] = {true, true, true, true, true, true};
@@ -117,18 +118,12 @@ namespace Scene {
                     }
                     firstDisplay = false;
                 }
-                Interface::PathComboWidget(&widgetIds[0], skyboxesDir, "+X", AssetUtils::imageExtensions, &facePaths[0], Path());
-                ImGui::SameLine(); ImGui::Checkbox("Flip##0", &flips[0]);
-                Interface::PathComboWidget(&widgetIds[1], skyboxesDir, "-X", AssetUtils::imageExtensions, &facePaths[1], Path());
-                ImGui::SameLine(); ImGui::Checkbox("Flip##1", &flips[1]);
-                Interface::PathComboWidget(&widgetIds[2], skyboxesDir, "+Y", AssetUtils::imageExtensions, &facePaths[2], Path());
-                ImGui::SameLine(); ImGui::Checkbox("Flip##2", &flips[2]);
-                Interface::PathComboWidget(&widgetIds[3], skyboxesDir, "-Y", AssetUtils::imageExtensions, &facePaths[3], Path());
-                ImGui::SameLine(); ImGui::Checkbox("Flip##3", &flips[3]);
-                Interface::PathComboWidget(&widgetIds[4], skyboxesDir, "+Z", AssetUtils::imageExtensions, &facePaths[4], Path());
-                ImGui::SameLine(); ImGui::Checkbox("Flip##4", &flips[4]);
-                Interface::PathComboWidget(&widgetIds[5], skyboxesDir, "-Z", AssetUtils::imageExtensions, &facePaths[5], Path());
-                ImGui::SameLine(); ImGui::Checkbox("Flip##5", &flips[5]);
+                for (int i = 0; i < 6; i++) {
+                    pathComboWidgets[0].Display(skyboxesDir, faces[i], AssetUtils::imageExtensions, &facePaths[i], Path());
+                    ImGui::SameLine();
+                    const std::string strId = std::string("Flip") + std::to_string(i);
+                    ImGui::Checkbox(strId.c_str(), &flips[i]);
+                }
                 if (ImGui::Button("Save")) {
                     bool pathsValid = true;
                     for (const Path& path : facePaths) {

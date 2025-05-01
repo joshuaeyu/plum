@@ -2,6 +2,7 @@
 
 #include <plum/core/program.hpp>
 #include <plum/core/tex.hpp>
+#include <plum/interface/widget.hpp>
 
 #include <glm/glm.hpp>
 
@@ -44,8 +45,8 @@ namespace Material {
             void SetUniforms(const glm::mat4& model_transform) override;
             
             Path albedoPath, metallicPath, roughnessPath, normalPath, displacementPath, occlusionPath;
-            int albedoWidgetId = -1, metallicWidgetId = -1, roughnessWidgetId = -1, normalWidgetId = -1, displacementWidgetId = -1, occlusionWidgetId = -1;
-            int nameWidgetId = -1;
+            Interface::PathComboWidget albedoWidget, metallicWidget, roughnessWidget, normalWidget, displacementWidget, occlusionWidget;
+            Interface::TextEditWidget nameWidget;
             void DisplayWidget() override;
             
         private:

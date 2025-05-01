@@ -21,6 +21,8 @@ namespace Component {
             void DisableShadows();
             virtual void Draw(const glm::mat4& parent_transform) override = 0;
 
+            virtual std::shared_ptr<ComponentBase> Duplicate() override {return nullptr;}
+
             void DisplayWidget() override;
 
         protected:
@@ -40,6 +42,8 @@ namespace Component {
             
             void EnableShadows(float width = 50.0f, float height = 50.0f, float near = 0.1f, float far = 50.0f, float dist = 20.0f);
             void Draw(const glm::mat4& parent_transform) override;
+            
+            std::shared_ptr<ComponentBase> Duplicate() override {return nullptr;}
 
         private:
             glm::mat4 lightspaceMatrix = glm::identity<glm::mat4>();
@@ -64,6 +68,8 @@ namespace Component {
             void SetAttenuation(float constant, float linear, float quadratic);
             void EnableShadows(float aspect = 1.0f, float near = 0.1f, float far = 75.0f);
             void Draw(const glm::mat4& parent_transform) override;
+            
+            std::shared_ptr<ComponentBase> Duplicate() override {return nullptr;}
 
         private:
             std::vector<glm::mat4> lightspaceMatrices;

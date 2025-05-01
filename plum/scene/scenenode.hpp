@@ -20,7 +20,7 @@ namespace Scene {
             std::string name = "SceneNode";
             Transform transform;
             std::shared_ptr<Component::ComponentBase> component;
-            std::shared_ptr<SceneNode> parent;
+            SceneNode* parent = nullptr;
             std::vector<std::shared_ptr<SceneNode>> children;
             bool bypassLighting = false;
             bool visible = true;
@@ -28,7 +28,8 @@ namespace Scene {
             std::shared_ptr<SceneNode> AddChild(std::shared_ptr<SceneNode> node);
             template<typename... Args>
             std::shared_ptr<SceneNode> EmplaceChild(Args&& ...args) {
-                children.emplace_back(std::make_shared<SceneNode>(args...));
+                auto child = children.emplace_back(std::make_shared<SceneNode>(args...));
+                child->parent = this;
                 return children.back();
             }
             void RemoveChild(std::shared_ptr<SceneNode> node);
@@ -37,8 +38,9 @@ namespace Scene {
             void Draw(Material::MaterialBase& m, const glm::mat4& parent_transform = glm::identity<glm::mat4>());
             void Draw(Renderer::Module& m, const glm::mat4& parent_transform = glm::identity<glm::mat4>());
             
-            int widgetId = -1;
-            bool editingName = false;
+            Interface::TextEditWidget nameWidget;
+            Interface::ComponentCreationWidget componentCreationWidget;
+            bool editingName = false, showComponentCreationWidget = false;
             bool DisplayWidget(std::set<std::shared_ptr<Material::MaterialBase>> materials);
     };
 

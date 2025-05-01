@@ -1,8 +1,8 @@
 #include <plum/material/material.hpp>
 
-#include <plum/component/model.hpp>
 #include <plum/asset/manager.hpp>
 #include <plum/asset/shader.hpp>
+#include <plum/component/model.hpp>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -89,9 +89,9 @@ namespace Material {
     void PBRMetallicMaterial::DisplayWidget() {
         static const Directory textureDirectory("assets/textures");
         
-        Interface::TextEditWidget(&nameWidgetId, &name);
+        nameWidget.Display(&name);
 
-        if (Interface::PathComboWidget(&albedoWidgetId, textureDirectory, "Albedo Map", AssetUtils::imageExtensions, &albedoPath, Path())) {
+        if (albedoWidget.Display(textureDirectory, "Albedo Map", AssetUtils::imageExtensions, &albedoPath, Path())) {
             if (!albedoPath.IsEmpty()) {
                 auto image = AssetManager::Instance().LoadHot<ImageAsset>(albedoPath);
                 albedoMap = std::make_shared<Texture>(image, Material::TextureType::Diffuse)->tex;
@@ -100,7 +100,7 @@ namespace Material {
             }
         }
         
-        if (Interface::PathComboWidget(&normalWidgetId, textureDirectory, "Normal Map", AssetUtils::imageExtensions, &normalPath, Path())) {
+        if (normalWidget.Display(textureDirectory, "Normal Map", AssetUtils::imageExtensions, &normalPath, Path())) {
             if (!normalPath.IsEmpty()) {
                 auto image = AssetManager::Instance().LoadHot<ImageAsset>(normalPath);
                 normalMap = std::make_shared<Texture>(image, Material::TextureType::Normal)->tex;

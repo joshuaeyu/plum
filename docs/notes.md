@@ -30,6 +30,8 @@ Remaining major:
 - IBL specular map seams?? X
 - move to cmake
 - hdr cube map X
+- cooler starting scene
+- fix duplication
 
 Remaining minor:
 - GUI

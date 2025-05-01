@@ -9,7 +9,9 @@
 #include <string>
 #include <vector>
 
-void Interface::PerformanceWidget(float points_per_sec, float seconds_to_display) {
+namespace Interface {
+
+bool PerformanceWidget::Display(float points_per_sec, float seconds_to_display) {
     static std::vector<float> framerateData = {Time::FrameRate()};
     static float displayTimer = 0;
 
@@ -30,9 +32,11 @@ void Interface::PerformanceWidget(float points_per_sec, float seconds_to_display
         displayTimer = 0;
     }
     displayTimer += Time::DeltaTime();
+
+    return true;
 }
 
-bool Interface::FileExplorerWidget(Directory* display_dir, const Directory& highest_dir) {
+bool FileExplorerWidget::Display(Directory* display_dir, const Directory& highest_dir) {
     bool result = false;
 
     // Back button and path text
@@ -66,38 +70,14 @@ bool Interface::FileExplorerWidget(Directory* display_dir, const Directory& high
     return result;
 }
 
-bool Interface::PathComboWidget(int* id, const Directory& directory, const char* label, const std::set<std::string>& extensions, Path* selected_path, const Path& default_path) {
-    static int idCounter = 0;
-    static std::vector<int> allPathSelectedIdx;
-    static std::vector<std::vector<Path>> allPaths;
-    static std::vector<std::vector<char*>> allRelativePathNames;
-
-    // Handle new ids and determine if paths list should be requeried
-    bool updateNeeded, newId;
-    if (*id < 0 || *id >= idCounter) {
-        *id = idCounter++;
-        std::clog << *id << " " << std::endl;
-        allPathSelectedIdx.push_back(0);
-        allPaths.emplace_back();
-        allRelativePathNames.emplace_back();
-        updateNeeded = true;
-        newId = true;
-    } else {
-        updateNeeded = directory.NeedsResync();
-        newId = false;
-    }
-
-    // Store references to data relevant to current id
-    int& pathSelectedIdx = allPathSelectedIdx[*id];
-    std::vector<Path>& paths = allPaths[*id];
-    std::vector<char*>& relativePathNames = allRelativePathNames[*id];
-    
+bool PathComboWidget::Display(const Directory& directory, const char* label, const std::set<std::string>& extensions, Path* selected_path, const Path& default_path) {
     // Update paths list and relative path names list if needed
-    if (updateNeeded) {
+    if (directory.NeedsResync() || firstDisplay) {
         std::vector<Path> directoryPaths = directory.ListOnlyRecursive(extensions);
-        if (newId) {
+        if (firstDisplay) {
             paths.resize(1 + directoryPaths.size());
             paths[0] = default_path;
+            firstDisplay = false;
         }
         for (int i = 0; i < directoryPaths.size(); i++) {
             paths[i+1] = directoryPaths[i];
@@ -114,7 +94,7 @@ bool Interface::PathComboWidget(int* id, const Directory& directory, const char*
         }
         for (int i = 1; i < paths.size(); i++) {
             delete relativePathNames[i];
-            relativePathNames[i] = new char[512];   // leaks
+            relativePathNames[i] = new char[512];
             strcpy(relativePathNames[i], paths[i].RelativePath(directory.RawPath()).c_str());
         }
     }
@@ -132,33 +112,16 @@ bool Interface::PathComboWidget(int* id, const Directory& directory, const char*
     }
 }
 
-bool Interface::TextEditWidget(int* id, std::string* text, const char* label) {
-    static int idCounter = 0;
-    static std::vector<std::string> allInput;
-    static std::vector<bool> allShowInput;
-    static bool showTextInput = false;
-    
-    // Handle new ids
-    bool newId = false;
-    if (*id < 0 || *id >= idCounter) {
-        *id = idCounter++;
-        std::clog << *id << " " << std::endl;
-        allInput.emplace_back(*text);
-        allShowInput.push_back(false);
-    }
-    
-    // Store reference to data relevant to current id
-    std::string& input = allInput[*id];
-
+bool TextEditWidget::Display(std::string* text, const char* label) {    
     // Render buttons and text input field
-    if (!allShowInput[*id]) {
+    if (!showInput) {
         if (ImGui::Button(label)) {
             input = *text;
-            allShowInput[*id] = true;
+            showInput = true;
         }
     } else {
         if (ImGui::Button("Cancel")) {
-            allShowInput[*id] = false;
+            showInput = false;
         }
         ImGui::SameLine();
         if (ImGui::InputText("Name", &input, ImGuiInputTextFlags_EnterReturnsTrue)) {
@@ -169,42 +132,41 @@ bool Interface::TextEditWidget(int* id, std::string* text, const char* label) {
     return false;
 }
 
-std::shared_ptr<Component::ComponentBase> Interface::ComponentCreationWidget(bool* show_widget) {
-    if (!ImGui::BeginChild("##componentcreation", ImVec2(0, 0), ImGuiChildFlags_Border | ImGuiChildFlags_AutoResizeX | ImGuiChildFlags_AutoResizeY)) {
+bool ComponentCreationWidget::Display(std::shared_ptr<Component::ComponentBase>* component) {
+    static const std::vector<const char*> componentTypes = {"Light", "Primitive", "Model"};
+
+    const std::string strId = std::string("##componentcreation") + std::to_string(widgetId);
+    if (!ImGui::BeginChild(strId.c_str(), ImVec2(0,0), ImGuiChildFlags_Border | ImGuiChildFlags_AutoResizeX | ImGuiChildFlags_AutoResizeY)) {
         ImGui::EndChild();
-        return nullptr;
+        return false;
     }
 
-    std::shared_ptr<Component::ComponentBase> result;
-    static const std::vector<const char*> componentTypes = {"Light", "Primitive", "Model"};
-    static int componentSelectedIdx = 0;
     ImGui::Combo("Component Type", &componentSelectedIdx, componentTypes.data(), componentTypes.size());
     ImGui::Spacing();
-
+    
+    bool result = false;
     switch (componentSelectedIdx) {
         case 0: // Light
         {
             static const std::vector<const char*> lightTypes = {"Directional", "Point"};
-            static int lightSelectedIdx = 0;
             ImGui::Combo("Light Type", &lightSelectedIdx, lightTypes.data(), lightTypes.size());
             ImGui::Spacing();
             if (ImGui::Button("Create")) {
                 switch (lightSelectedIdx) {
                     case 0: // Directional
-                        result = std::make_shared<Component::DirectionalLight>();
+                        *component = std::make_shared<Component::DirectionalLight>();
                         break;
                     case 1: // Point
-                        result = std::make_shared<Component::PointLight>();
+                        *component = std::make_shared<Component::PointLight>();
                         break;
                 }
-                *show_widget = !*show_widget;
+                result = true;
             }
             break;
         }
         case 1: // Primitive
         {
             static const std::vector<const char*> primitiveTypes = {"Cube", "Sphere", "Plane"};
-            static int primitiveSelectedIdx = 0;
             ImGui::Combo("Primitive Type", &primitiveSelectedIdx, primitiveTypes.data(), primitiveTypes.size());
             static int uvDims[] = {1, 1};
             ImGui::InputInt2("UV Dimensions", uvDims);
@@ -212,61 +174,64 @@ std::shared_ptr<Component::ComponentBase> Interface::ComponentCreationWidget(boo
             if (ImGui::Button("Create")) {
                 switch (primitiveSelectedIdx) {
                     case 0: // Cube
-                        result = std::make_shared<Component::Cube>(uvDims[0], uvDims[1]);
+                        *component = std::make_shared<Component::Cube>(uvDims[0], uvDims[1]);
                         break;
                     case 1: // Sphere
-                        result = std::make_shared<Component::Sphere>(uvDims[0], uvDims[1]);
+                        *component = std::make_shared<Component::Sphere>(uvDims[0], uvDims[1]);
                         break;
                     case 2: // Plane
-                        result = std::make_shared<Component::Plane>(uvDims[0], uvDims[1]);
+                        *component = std::make_shared<Component::Plane>(uvDims[0], uvDims[1]);
                         break;
                 }
-                *show_widget = !*show_widget;
+                result = true;
             }
         }
             break;
         case 2: // Model
         {
             static const Directory modelsDir("assets/models");
-            static Path modelPath = Path();
-            static int widgetId;
-            PathComboWidget(&widgetId, modelsDir, "Model Path", AssetUtils::modelExtensions, &modelPath, Path());
+            pathComboWidget.Display(modelsDir, "Model Path", AssetUtils::modelExtensions, &modelPathSelected, Path());
             ImGui::Spacing();
             if (ImGui::Button("Create")) {
-                auto model = AssetManager::Instance().LoadHot<ModelAsset>(modelPath);
-                result = std::make_shared<Component::Model>(model);
-                *show_widget = !*show_widget;
+                auto model = AssetManager::Instance().LoadHot<ModelAsset>(modelPathSelected);
+                *component = std::make_shared<Component::Model>(model);
+                result = true;
             }
             break;
         }
     }
+    
     ImGui::EndChild();
     return result;
 }
 
-std::shared_ptr<Material::MaterialBase> Interface::MaterialCreationWidget(bool* show_widget) {
-    if (!ImGui::BeginChild("##materialcreation", ImVec2(0, 0), ImGuiChildFlags_Border | ImGuiChildFlags_AutoResizeX | ImGuiChildFlags_AutoResizeY)) {
-        ImGui::EndChild();
-        return nullptr;
-    }
-
-    std::shared_ptr<Material::MaterialBase> result;
+bool MaterialCreationWidget::Display(std::shared_ptr<Material::MaterialBase>* material) {
     static const std::vector<const char*> materialTypes = {"PBR Metallic"};
-    static int materialSelectedIdx = 0;
+
+    const std::string strId = std::string("##materialcreation") + std::to_string(widgetId);
+    if (!ImGui::BeginChild(strId.c_str(), ImVec2(0,0), ImGuiChildFlags_Border | ImGuiChildFlags_AutoResizeX | ImGuiChildFlags_AutoResizeY)) {
+        ImGui::EndChild();
+        return false;
+    }
+    
     ImGui::Combo("Material Type", &materialSelectedIdx, materialTypes.data(), materialTypes.size());
     ImGui::Spacing();
     
+    bool result = false;
     switch (materialSelectedIdx) {
         case 0: // PBR Metallic
         {
             ImGui::Spacing();
             if (ImGui::Button("Create")) {
-                result = std::make_shared<Material::PBRMetallicMaterial>();
-                *show_widget = !*show_widget;
+                *material = std::static_pointer_cast<Material::MaterialBase>(std::make_shared<Material::PBRMetallicMaterial>());
+                result = true;
             }
             break;
         }
     }
+    
     ImGui::EndChild();
     return result;
+}
+
 }

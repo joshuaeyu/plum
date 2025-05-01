@@ -14,11 +14,11 @@ namespace Context {
     class Window {
         public:
             GLFWwindow* Handle() const { return handle; }
-            bool ShouldClose() const { return glfwWindowShouldClose(handle); }
             std::string Title() const { return title; }          
-            float Aspect() const { return static_cast<float>(width)/height; }
             int Width() const { return width; }
             int Height() const { return height; }
+            float Aspect() const { return static_cast<float>(width)/height; }
+            bool ShouldClose() const { return glfwWindowShouldClose(handle); }
             
             void SetTitle(const char* title);
             void SetWindowSize(int width, int height);

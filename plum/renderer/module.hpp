@@ -30,15 +30,6 @@ namespace Renderer {
             virtual ~Module() = default;
     };
 
-    // shadow module as its own thing, to support 3D texture
-    // shadowmodule.setparams()
-    // shadowmodule.render(scene, lights = {})
-
-    // shadow module per light like three.js, only supports 2D textures?
-    // light.shadow.setparams(...)
-    // light.shadow.render(scene)
-    // light.shadow.getmap()
-
     class DirectionalShadowModule : public Module {
         public:
             DirectionalShadowModule(int map_width = 512, int map_height = 512, int num_layers = 8);
