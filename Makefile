@@ -8,7 +8,7 @@ INCL_GLAD := ./external/glad/include/
 INCL_GLFW := ./external/glfw/include/
 INCL_GLM := ./external/glm/include/
 # Directories
-SRCDIR := ./plum
+SRCDIR := ./src
 EXTDIR := ./external
 OBJDIR := ./obj
 
@@ -17,7 +17,7 @@ CFLAGS := 	-fdiagnostics-color=always \
 			-g	\
 			-I$(INCL_GLAD)
 CXXFLAGS := 	$(CFLAGS)	\
-				-I./	\
+				-I$(SRCDIR)	\
 				-I$(EXTDIR)	\
 				-I$(INCL_GLFW)	\
 				-I$(INCL_GLM)	\
