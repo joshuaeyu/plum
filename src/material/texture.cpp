@@ -13,6 +13,7 @@ namespace Material {
         hdr(image->IsHdr())
     {
         loadImage(images[0], GL_TEXTURE_2D);
+        images[0]->AddUser(this);
         if (minfilter == GL_LINEAR_MIPMAP_NEAREST 
             || minfilter == GL_LINEAR_MIPMAP_LINEAR 
             || minfilter == GL_NEAREST_MIPMAP_NEAREST 
@@ -36,6 +37,7 @@ namespace Material {
         }
         for (int i = 0; i < cubefaces.size(); i++) {
             loadImage(images[i], GL_TEXTURE_CUBE_MAP, i);
+            images[i]->AddUser(this);
         }
         if (minfilter == GL_LINEAR_MIPMAP_NEAREST 
             || minfilter == GL_LINEAR_MIPMAP_LINEAR 

@@ -4,15 +4,17 @@
 
 class ImageAsset : public Asset {
     public:
-        ImageAsset(const Path& path, bool flip = true);
+        ImageAsset(const Path& path, bool flip_uv = true);
         ~ImageAsset();
         
-        bool IsHdr() const { return hdr; }
         bool Flip() const { return flip; }
+        bool IsHdr() const { return hdr; }
         int Width() const { return width; }
         int Height() const { return height; }
         int NumChannels() const { return numChannels; }
         
+        void SetFlip(bool flip_uv) { flip = flip_uv; }
+
         const void* Data8();
         const void* Data32();
 

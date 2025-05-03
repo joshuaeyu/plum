@@ -13,6 +13,7 @@ class Path {
         Path(const Path& path);
         Path(const char* path);
         Path(const fs::path& raw_path);
+        virtual ~Path() = default;
         
         fs::path RawPath() const { return path; }
         std::string Filename() const { return path.filename(); }

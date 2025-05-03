@@ -162,11 +162,7 @@ namespace Scene {
                 }
             } else {
                 if (ImGui::TreeNodeEx(("[" + component->name + "]").c_str(), ImGuiTreeNodeFlags_Bullet)) {
-                    if (component->IsMesh()) {
-                        std::static_pointer_cast<Component::Mesh>(component)->DisplayWidget(materials);
-                    } else {
-                        component->DisplayWidget();
-                    }
+                    component->DisplayWidget();
                     if (ImGui::Button("Remove Component")) {
                         component.reset();
                     }

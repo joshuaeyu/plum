@@ -156,11 +156,16 @@ void Demo1::displayGui() {
         }
     }
     
-    if (ImGui::CollapsingHeader("File Explorer", ImGuiTreeNodeFlags_DefaultOpen)) {
+    if (ImGui::CollapsingHeader("External Assets", ImGuiTreeNodeFlags_DefaultOpen)) {
         static Directory displayDir("assets");
         static const Directory highestDir("assets");
         static Interface::FileExplorerWidget fileExplorerWidget;
-        bool changed = fileExplorerWidget.Display(&displayDir, highestDir);
+        static Path selectedPath;
+        if (fileExplorerWidget.Display(&displayDir, highestDir, &selectedPath)) {
+            static Interface::AssetImportWidget assetImportWidget;
+            static std::shared_ptr<Asset> asset;
+            assetImportWidget.Display(selectedPath, &asset);
+        }
     }
 
     if (ImGui::CollapsingHeader("Materials", ImGuiTreeNodeFlags_DefaultOpen)) {

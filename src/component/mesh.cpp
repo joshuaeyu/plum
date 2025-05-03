@@ -56,14 +56,14 @@ namespace Component {
         vao->Draw();
     }
 
-    void Mesh::DisplayWidget(std::set<std::shared_ptr<Material::MaterialBase>> materials) {
+    void Mesh::DisplayWidget() {
         int itemSelectedIdx = 0;
-        std::vector<char*> itemNames(materials.size());
+        std::vector<char*> itemNames(Material::materials.size());
 
         // Determine index of current material
-        for (int i = 0; i < materials.size(); i++) {
+        for (int i = 0; i < Material::materials.size(); i++) {
             itemNames[i] = new char[256];
-            strcpy(itemNames[i], (*std::next(materials.begin(), i))->name.c_str());
+            strcpy(itemNames[i], (*std::next(Material::materials.begin(), i))->name.c_str());
             if (strcmp(material->name.c_str(), itemNames[i]) == 0) {
                 itemSelectedIdx = i;
             }
@@ -73,10 +73,10 @@ namespace Component {
         int idxBefore = itemSelectedIdx;
         ImGui::Combo("Material", &itemSelectedIdx, itemNames.data(), itemNames.size());
         if (idxBefore != itemSelectedIdx) {
-            material = *std::next(materials.begin(), itemSelectedIdx);
+            material = *std::next(Material::materials.begin(), itemSelectedIdx);
         }
 
-        for (int i = 0; i < materials.size(); i++) {
+        for (int i = 0; i < Material::materials.size(); i++) {
             delete itemNames[i];
         }
     }

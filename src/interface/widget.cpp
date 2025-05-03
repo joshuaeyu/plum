@@ -5,6 +5,8 @@
 
 #include <imgui/imgui_stdlib.h>
 
+#include <algorithm>
+#include <cctype>
 #include <iostream>
 #include <string>
 #include <vector>
@@ -26,8 +28,8 @@ bool PerformanceWidget::Display(float points_per_sec, float seconds_to_display) 
     // Update data vector at a rate of points_per_sec
     if (displayTimer >= points_per_sec) {
         framerateData.push_back(Time::FrameRate());
-        if (framerateData.size() >= 200) {
-            framerateData.erase(framerateData.begin(), framerateData.end() - 100);
+        if (framerateData.size() >= 2 * numDisplayPoints) {
+            framerateData.erase(framerateData.begin(), std::next(framerateData.begin(), numDisplayPoints));
         }
         displayTimer = 0;
     }
@@ -36,7 +38,7 @@ bool PerformanceWidget::Display(float points_per_sec, float seconds_to_display) 
     return true;
 }
 
-bool FileExplorerWidget::Display(Directory* display_dir, const Directory& highest_dir) {
+bool FileExplorerWidget::Display(Directory* display_dir, const Directory& highest_dir, Path* selected_path) {
     bool result = false;
 
     // Back button and path text
@@ -52,22 +54,124 @@ bool FileExplorerWidget::Display(Directory* display_dir, const Directory& highes
     // Files list
     ImGui::BeginChild("##fileexplorer_body", ImVec2(0,100), ImGuiChildFlags_ResizeY | ImGuiChildFlags_FrameStyle);
     if (display_dir->IsDirectory()) {
-        ImGui::Unindent(15);
-        for (auto& child : display_dir->List()) {
-            ImGui::TreeNodeEx(child.Filename().c_str(), ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_NoTreePushOnOpen);
-            if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left) && ImGui::IsItemHovered()) {
-                if (child.IsDirectory()) {
-                    result = true;
-                    *display_dir = child;
-                    break;
+        ImGui::Unindent(5);
+        
+        // Lazily update items and itemNames
+        if (lastDir.RawPath() != display_dir->RawPath() || display_dir->NeedsResync()) {
+            constexpr auto toLower = [](std::string s){
+                std::transform(s.begin(), s.end(), s.begin(), [](unsigned char c){ return std::tolower(c); });
+                return s;
+            };
+            const auto comparePath = [&toLower](const Path& a, const Path& b){
+                return toLower(a.RawPath()) < toLower(b.RawPath());
+            };
+            
+            display_dir->SyncWithDevice();
+
+            items = display_dir->List();
+            std::sort(items.begin(), items.end(), comparePath);
+
+            itemNames.resize(items.size());
+            for (int i = 0; i < items.size(); i++) {
+                itemNames[i] = items[i].Filename();
+                if (items[i].IsDirectory()) {
+                    itemNames[i] += '/';
+                }
+            }
+
+            lastDir = *display_dir;
+        }
+        
+        // Display items as tree leaf nodes
+        for (int i = 0; i < itemNames.size(); i++) {
+            ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
+            if (items[i].RawPath() == selected_path->RawPath()) {
+                result = true;
+                flags |= ImGuiTreeNodeFlags_Selected;
+            }
+            if (AssetManager::Instance().Get<Asset>(items[i])) {
+                flags |= ImGuiTreeNodeFlags_Bullet;
+            }
+            ImGui::TreeNodeEx(itemNames[i].c_str(), flags);
+            if (ImGui::IsItemHovered()) {
+                if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) {
+                    // Drill into directory
+                    if (items[i].IsDirectory()) {
+                        result = true;
+                        *display_dir = items[i];
+                    }
+                } else if (ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {
+                    // Toggle selection state
+                    if (flags & ImGuiTreeNodeFlags_Selected) {
+                        *selected_path = Path();
+                    } else {
+                        result = true;
+                        *selected_path = items[i];
+                    }
+                    
                 }
             }
         }
-        ImGui::Indent(15);
+
+        ImGui::Indent(5);
     }
     ImGui::EndChild();
 
     return result;
+}
+
+bool AssetImportWidget::Display(const Path& path, std::shared_ptr<Asset>* asset) {
+    AssetManager& manager = AssetManager::Instance();
+    std::string extension =  AssetUtils::ExtensionToTypeName(path.Extension());             
+    *asset = manager.Get<Asset>(path);
+    if (!*asset) {
+        if (extension == "Image") {
+            if (ImGui::Button("Import Image")) {
+                *asset = manager.LoadHot<ImageAsset>(path);
+                return true;
+            }
+        } else if (extension == "Model") {
+            if (ImGui::Button("Import Model")) {
+                *asset = manager.LoadHot<ModelAsset>(path);
+                return true;
+            }
+        } else if (extension == "Shader") {
+            // future
+        }
+    } else {
+        if (extension == "Image") {
+            ImGui::Text("Image Import Settings");
+            std::shared_ptr<ImageAsset> image = manager.Get<ImageAsset>(path);
+            if (lastPath.RawPath() != path.RawPath()) {
+                imageFlip = image->Flip();
+                lastPath = path;
+            }
+            ImGui::Checkbox("Flip UV", &imageFlip);
+            if (ImGui::Button("Apply")) {
+                image->SetFlip(imageFlip);
+                *asset = image;
+            }
+        } else if (extension == "Model") {
+            ImGui::Text("Model Import Settings");
+            std::shared_ptr<ModelAsset> model = manager.Get<ModelAsset>(path);
+            if (lastPath.RawPath() != path.RawPath()) {
+                modelScale = model->Scale();
+                modelFlip = model->Flip();
+                lastPath = path;
+            }
+            ImGui::DragFloat("Scale", &modelScale, 0.001f, 1e-6f, 1e6f);
+            ImGui::Checkbox("Flip UVs", &modelFlip);
+            if (ImGui::Button("Apply")) {
+                model->SetScale(modelScale);
+                model->SetFlip(modelFlip);
+                model->Resync();
+                *asset = model;
+            }
+        } else if (extension == "Shader") {
+            // future
+        }
+    }
+    return false;
 }
 
 bool PathComboWidget::Display(const Directory& directory, const char* label, const std::set<std::string>& extensions, Path* selected_path, const Path& default_path) {
@@ -193,9 +297,11 @@ bool ComponentCreationWidget::Display(std::shared_ptr<Component::ComponentBase>*
             pathComboWidget.Display(modelsDir, "Model Path", AssetUtils::modelExtensions, &modelPathSelected, Path());
             ImGui::Spacing();
             if (ImGui::Button("Create")) {
-                auto model = AssetManager::Instance().LoadHot<ModelAsset>(modelPathSelected);
-                *component = std::make_shared<Component::Model>(model);
-                result = true;
+                if (!modelPathSelected.IsEmpty()) {
+                    auto model = AssetManager::Instance().LoadHot<ModelAsset>(modelPathSelected);
+                    *component = std::make_shared<Component::Model>(model);
+                    result = true;
+                }
             }
             break;
         }

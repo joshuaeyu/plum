@@ -1,6 +1,7 @@
 #pragma once
 
 #include "util/file.hpp"
+#include "asset/asset.hpp"
 
 #include <imgui/imgui.h>
 
@@ -39,8 +40,24 @@ namespace Interface {
         public:
             FileExplorerWidget() = default;
             // Displays items within a directory. Returns true if display_dir has changed.
-            bool Display(Directory* display_dir, const Directory& highest_dir);
+            bool Display(Directory* display_dir, const Directory& highest_dir, Path* selected_path);
         private:
+            std::vector<Path> items;
+            std::vector<std::string> itemNames;
+            Directory lastDir = Directory("");
+        };
+        
+    class AssetImportWidget : public Widget {
+        public:
+            AssetImportWidget() = default;
+            // Displays items within a directory. Returns true if display_dir has changed.
+            bool Display(const Path& path, std::shared_ptr<Asset>* asset);
+        private:
+            bool imageFlip;
+            bool modelFlip;
+            float modelScale;
+            Path lastPath;
+
     };
 
     class PathComboWidget : public Widget {

@@ -8,6 +8,10 @@ class ShaderAsset : public Asset {
         ShaderAsset(const Path& path, GLenum shader_type);
         ~ShaderAsset();
 
+        GLenum Type() const { return type; }
+        
+        void SetType(GLenum shader_type) { type = shader_type; }
+        
         GLuint Handle();
 
     private:

@@ -28,7 +28,7 @@ namespace Component {
             std::shared_ptr<ComponentBase> Duplicate() override {return nullptr;}
             
             int widgetId = -1;
-            virtual void DisplayWidget(std::set<std::shared_ptr<Material::MaterialBase>> materials);
+            void DisplayWidget() override;
 
         protected:
             Mesh(ComponentType type);

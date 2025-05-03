@@ -47,7 +47,7 @@ namespace Component {
         model(model)
     {
         name = "Model";
-        // name = files[0].Name();
+        model->AddUser(this);
         root = std::make_shared<ModelNode>(*this, model->Scene()->mRootNode, model->Scene());
     }
     Model::~Model() {}
@@ -60,6 +60,10 @@ namespace Component {
     }
     void Model::Draw(Renderer::RenderModule& module, const glm::mat4& model_matrix) {
         root->Draw(module, model_matrix);
+    }
+    
+    void Model::DisplayWidget() {
+        ImGui::Text("%s", model->GetFile().Filename().c_str());
     }
 
     void Model::AssetResyncCallback() {

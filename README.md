@@ -22,8 +22,10 @@ My goal in creating this engine was to synthesize the concepts taught in [Learn 
 * [Dear ImGui](https://github.com/ocornut/imgui)
 
 ## Running the Engine
-From the root directory, run `make` then `./main`.
+Clone or download the repository. From the root directory, run `make` then `./main`.
 
+    git clone https://github.com/joshuaeyu/plum.git
+    cd plum
     make
     ./main
 
@@ -45,10 +47,14 @@ From the root directory, run `make` then `./main`.
     * FXAA (fast approximate antialiasing)
 * Scene graph
 * Material system (only PBR metallic-roughness support currently)
-* Backend asset management system
+* Asset management system
     * Hot reloading of shaders, images, models
 ### Interface
-* User-specifiable scene (nodes and components), materials, and skybox
+* User-specifiable...
+    * Scene (nodes and components)
+    * Materials
+    * Asset import settings (for textures and models)
+    * Skybox
 * First-person freefly camera
 * FPS counter
 ### Software design
@@ -71,10 +77,11 @@ From the root directory, run `make` then `./main`.
     * Inputs and events system
     * Support for isolated `Demo` scenes
 * Asset management
-    * Path-based intermediates for internal objects:
+    * Intermediate representations of external assets for use by internal objects:
         * `ImageAsset` - used by `Texture`
         * `ShaderAsset` - used by `Program`
         * `ModelAsset` - used by `Model`
+    * Prevents duplicate asset representation!
 * Utility classes
     * `Time`
     * `Transform` - leverages quaternions; interface is loosely based on [Unity's Transform class](https://docs.unity3d.com/6000.1/Documentation/ScriptReference/Transform.html)
