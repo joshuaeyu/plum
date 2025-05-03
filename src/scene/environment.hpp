@@ -11,7 +11,6 @@ namespace Scene {
     class Environment {
         public:
             Environment();
-            Environment(std::shared_ptr<Material::Texture> envmap);
 
             float iblIntensity = 1.0f;
             std::shared_ptr<Material::Texture> envmap;
@@ -21,6 +20,7 @@ namespace Scene {
             std::shared_ptr<Core::Tex2D> brdfLut;
 
             void DrawSkybox(Component::Camera& camera);
+            void Setup(std::shared_ptr<Material::Texture> env_map);
 
             void DisplayWidget();
 

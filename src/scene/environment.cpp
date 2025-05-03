@@ -13,12 +13,7 @@
 
 namespace Scene {
 
-    Environment::Environment() 
-        : Environment(nullptr)
-    {}
-
-    Environment::Environment(std::shared_ptr<Material::Texture> envmap)
-        : envmap(envmap)
+    Environment::Environment()
     {
         if (!equirectProgram) {
             AssetManager& manager = AssetManager::Instance();
@@ -37,7 +32,11 @@ namespace Scene {
             
             brdfLutProgram = std::make_shared<Core::Program>(vs2d, fsBrdfLut);
         }
-        if (envmap) {
+    }
+
+    void Environment::Setup(std::shared_ptr<Material::Texture> env_map) {
+        if (env_map) {
+            envmap = env_map;
             if (envmap->tex->target == GL_TEXTURE_CUBE_MAP) {
                 skybox = envmap->tex;
             } else if (envmap->tex->target == GL_TEXTURE_2D) {
@@ -99,7 +98,7 @@ namespace Scene {
                     if (!skyboxPath.IsEmpty()) {
                         auto image = AssetManager::Instance().LoadHot<ImageAsset>(skyboxPath, flip);
                         auto texture = std::make_shared<Material::Texture>(image, Material::TextureType::Diffuse, GL_CLAMP_TO_EDGE, GL_LINEAR);
-                        *this = Environment(texture);
+                        Setup(texture);
                         showChild = false;
                     }
                 }
@@ -119,9 +118,9 @@ namespace Scene {
                     firstDisplay = false;
                 }
                 for (int i = 0; i < 6; i++) {
-                    pathComboWidgets[0].Display(skyboxesDir, faces[i], AssetUtils::imageExtensions, &facePaths[i], Path());
+                    pathComboWidgets[i].Display(skyboxesDir, faces[i], AssetUtils::imageExtensions, &facePaths[i], Path());
                     ImGui::SameLine();
-                    const std::string strId = std::string("Flip") + std::to_string(i);
+                    const std::string strId = std::string("Flip##") + std::to_string(i);
                     ImGui::Checkbox(strId.c_str(), &flips[i]);
                 }
                 if (ImGui::Button("Save")) {
@@ -138,7 +137,7 @@ namespace Scene {
                             images.emplace_back(AssetManager::Instance().LoadHot<ImageAsset>(facePaths[i], flips[i]));
                         }
                         auto texture = std::make_shared<Material::Texture>(images, Material::TextureType::Diffuse, GL_CLAMP_TO_EDGE, GL_LINEAR_MIPMAP_LINEAR);
-                        *this = Environment(texture);
+                        Setup(texture);
                         showChild = false;
                     }
                 }

@@ -42,7 +42,7 @@ namespace Scene {
             Interface::TextEditWidget nameWidget;
             Interface::ComponentCreationWidget componentCreationWidget;
             bool editingName = false, linkScale = false, showComponentCreationWidget = false, activatedThisFrame = false;
-            bool DisplayWidget(std::set<std::shared_ptr<Material::MaterialBase>> materials);
+            bool DisplayWidget();
     };
 
 }

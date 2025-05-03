@@ -64,7 +64,7 @@ namespace Scene {
         }
     }
 
-    bool SceneNode::DisplayWidget(std::set<std::shared_ptr<Material::MaterialBase>> materials) {
+    bool SceneNode::DisplayWidget() {
         static std::string newName;
         
         std::string label;
@@ -170,7 +170,7 @@ namespace Scene {
                 }
             }
             for (auto& child : children) {
-                if (!child->DisplayWidget(materials)) {
+                if (!child->DisplayWidget()) {
                     RemoveChild(child);
                     break;
                 }

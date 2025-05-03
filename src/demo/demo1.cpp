@@ -3,13 +3,10 @@
 #include "component/all.hpp"
 #include "asset/image.hpp"
 #include "asset/manager.hpp"
-#include "interface/widget.hpp"
 #include "util/time.hpp"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
-#include <imgui/imgui.h>
-#include <imgui/imgui_stdlib.h>
 
 #include <iostream>
 #include <vector>
@@ -20,36 +17,30 @@ Demo1::Demo1()
 {}
 
 void Demo1::Initialize() {
-    std::clog << "Creating renderer..." << std::endl;
-    renderer = std::make_unique<Renderer::DeferredRenderer>();
-    fxaa = std::make_unique<PostProcessing::Fxaa>();
-    hdr = std::make_unique<PostProcessing::Hdr>();
-    bloom = std::make_unique<PostProcessing::Bloom>();
-
-    std::clog << "Setting up environment..." << std::endl;
-    auto kloppenheim = AssetManager::Instance().LoadHot<ImageAsset>("assets/skyboxes/kloppenheim_4k.hdr");
-    auto skybox = std::make_shared<Material::Texture>(kloppenheim, Material::TextureType::Diffuse);
-    environment = std::make_unique<Scene::Environment>(skybox);
-    
     std::clog << "Defining materials..." << std::endl;
     auto copper = std::make_shared<Material::PBRMetallicMaterial>();
     copper->name = "Copper";
     copper->albedo = glm::pow(glm::vec3(250, 208, 192)/255.f, glm::vec3(2.2));
     copper->metallic = 1.0;
     copper->roughness = 0.3;
-    materials.insert(copper);
+    Material::materials.insert(copper);
     auto iron = std::make_shared<Material::PBRMetallicMaterial>();
     iron->name = "Iron";
     iron->albedo = glm::pow(glm::vec3(198, 198, 200)/255.f, glm::vec3(2.2));
     iron->metallic = 1.0;
     iron->roughness = 0.3;
-    materials.insert(iron);
+    Material::materials.insert(iron);
     auto gold = std::make_shared<Material::PBRMetallicMaterial>();
     gold->name = "Gold";
     gold->albedo = glm::pow(glm::vec3(255, 226, 155)/255.f, glm::vec3(2.2));
     gold->metallic = 1.0;
     gold->roughness = 0.3;
-    materials.insert(gold);
+    Material::materials.insert(gold);
+    
+    std::clog << "Setting up skybox..." << std::endl;
+    auto kloppenheim = AssetManager::Instance().LoadHot<ImageAsset>("assets/skyboxes/kloppenheim_4k.hdr");
+    auto skybox = std::make_shared<Material::Texture>(kloppenheim, Material::TextureType::Diffuse);
+    environment->Setup(skybox);
 
     std::clog << "Creating components..." << std::endl;
     camera = std::make_unique<Component::Camera>();
@@ -69,13 +60,13 @@ void Demo1::Initialize() {
     sphere->material = gold;
     auto cube = std::make_shared<Component::Cube>();
     cube->material = iron;
-
+    
     std::clog << "Loading models..." << std::endl;
     // auto backpack = std::make_shared<Component::Model>("assets/models/survival_guitar_backpack/scene.gltf", 0.005f);
     // models["Backpack"] = backpack;
     // auto sponzaAsset = AssetManager::Instance().LoadHot<ModelAsset>("assets/models/sponza/glTF/Sponza.gltf");
     // auto sponza = std::make_shared<Component::Model>(sponzaAsset);
-
+    
     std::clog << "Defining scene..." << std::endl;
     scene = std::make_unique<Scene::Scene>();
     auto dlNode = scene->EmplaceChild(dirlight);
@@ -94,6 +85,7 @@ void Demo1::Initialize() {
     // auto sponzaNode = scene->EmplaceChild(sponza);
     // sponzaNode->name = "Sponza";
 }
+
 void Demo1::Display() {
     camera->ProcessInputs();
     
@@ -117,7 +109,7 @@ void Demo1::Display() {
     }
     fbo->BlitToDefault();
 
-    displayGui();
+    displayMainGui();
 }
 void Demo1::CleanUp() {
     scene.reset();
@@ -127,106 +119,4 @@ void Demo1::CleanUp() {
     fxaa.reset();
     hdr.reset();
     bloom.reset();
-}
-
-void Demo1::displayGui() {
-    if (!ImGui::Begin("Plum Engine v2.00 Beta", NULL, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings)) {
-        ImGui::End();
-        return;
-    }
-    ImGui::SetWindowPos(ImVec2(0,0));
-    ImGui::TextColored(ImVec4(0.3,1,1,1), "Press ` to capture/release mouse.");
-    ImGui::TextColored(ImVec4(0.3,1,1,1), "Use WASD, Shift, and Spacebar to move camera.");
-    ImGui::Spacing();
-    
-    constexpr float pointsPerSecond = 1.f;    // points/sec
-    constexpr int secondsToDisplay = 20.f; // sec / points/sec
-    static Interface::PerformanceWidget performanceWidget;
-    performanceWidget.Display(pointsPerSecond, secondsToDisplay);
-
-    if (ImGui::CollapsingHeader("Render Options", ImGuiTreeNodeFlags_DefaultOpen)) {
-        ImGui::SliderFloat("IBL Intensity", &renderOptions.iblIntensity, 0.0f, 1.0f);
-        ImGui::Checkbox("SSAO", &renderOptions.ssao); ImGui::SameLine();
-        ImGui::Checkbox("FXAA", &renderOptions.fxaa); ImGui::SameLine();
-        ImGui::Checkbox("Bloom", &renderOptions.bloom);
-        ImGui::Checkbox("HDR", &renderOptions.hdr);
-        if (renderOptions.hdr) {
-            ImGui::SameLine();
-            ImGui::SliderFloat("Exposure", &renderOptions.hdrExposure, 0.0f, 10.0f);
-        }
-    }
-    
-    if (ImGui::CollapsingHeader("External Assets", ImGuiTreeNodeFlags_DefaultOpen)) {
-        static Directory displayDir("assets");
-        static const Directory highestDir("assets");
-        static Interface::FileExplorerWidget fileExplorerWidget;
-        static Path selectedPath;
-        if (fileExplorerWidget.Display(&displayDir, highestDir, &selectedPath)) {
-            static Interface::AssetImportWidget assetImportWidget;
-            static std::shared_ptr<Asset> asset;
-            assetImportWidget.Display(selectedPath, &asset);
-        }
-    }
-
-    if (ImGui::CollapsingHeader("Materials", ImGuiTreeNodeFlags_DefaultOpen)) {
-        static bool showMaterialCreationWidget = false;
-        if (ImGui::Button("New Material")) {
-            showMaterialCreationWidget = !showMaterialCreationWidget;
-        }
-        if (showMaterialCreationWidget) {
-            static Interface::MaterialCreationWidget materialCreationWidget;
-            std::shared_ptr<Material::MaterialBase> mat;
-            if (materialCreationWidget.Display(&mat)) {
-                std::string newName = mat->name;
-                bool nameExists = true;
-                int i = 1;
-                while (nameExists) {
-                    nameExists = false;
-                    for (auto& material : materials) {
-                        if (newName == material->name) {
-                            nameExists = true;
-                            newName = mat->name + "-" + std::to_string(i++);
-                            break;
-                        }
-                    }
-                }
-                mat->name = newName;
-                materials.insert(mat);
-                showMaterialCreationWidget = false;
-            }
-        }
-        for (auto& material : materials) {
-            if (ImGui::TreeNode(material->name.c_str())) {
-                material->DisplayWidget();
-                ImGui::TreePop();
-            }
-        }
-    }
-    if (ImGui::CollapsingHeader("Environment", ImGuiTreeNodeFlags_DefaultOpen)) {
-        if (ImGui::TreeNode("Skybox")) {
-            environment->DisplayWidget();
-            ImGui::TreePop();
-        }
-    }
-
-    if (ImGui::CollapsingHeader("Scene", ImGuiTreeNodeFlags_DefaultOpen)) {
-        if (ImGui::Button("New Empty Node")) {
-            scene->EmplaceChild();
-        }
-        ImGui::SameLine();
-        static bool showComponentCreationWidget = false;
-        if (ImGui::Button("New Component Node")) {
-            showComponentCreationWidget = !showComponentCreationWidget;
-        }
-        if (showComponentCreationWidget) {
-            static Interface::ComponentCreationWidget componentCreationWidget;
-            std::shared_ptr<Component::ComponentBase> comp;
-            if (componentCreationWidget.Display(&comp)) {
-                scene->EmplaceChild(comp);
-                showComponentCreationWidget = false;
-            }
-        }
-        scene->DisplayWidget(materials);
-    }
-    ImGui::End();
 }
