@@ -17,7 +17,7 @@ namespace Component {
 
 namespace Material {
 
-    inline static std::set<std::shared_ptr<Material::MaterialBase>> materials;
+    inline std::set<std::shared_ptr<Material::MaterialBase>> materials;
     
     class MaterialBase {
         public:

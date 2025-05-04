@@ -16,7 +16,6 @@ class Demo {
         const std::string title;
 
         struct RenderOptions {
-            float iblIntensity = 1.0f;
             bool ssao = true;
             bool fxaa = true;
             bool hdr = true;

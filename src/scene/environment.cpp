@@ -56,97 +56,106 @@ namespace Scene {
     }
 
     void Environment::DisplayWidget() {
-        static bool showChild = false;
-        static bool firstDisplay = true;
-        static int sel = 0;
-        if (firstDisplay && envmap) {
-            if (envmap->tex->target == GL_TEXTURE_2D) {
-                sel = 1;
-            } else if (envmap->tex->target == GL_TEXTURE_CUBE_MAP) {
-                sel = 2;
-            } else {
-                sel = 0;
+        if (ImGui::TreeNode("Skybox")) {
+            static bool showChild = false;
+            static bool firstDisplay = true;
+            static int sel = 0;
+            if (firstDisplay && envmap) {
+                if (envmap->tex->target == GL_TEXTURE_2D) {
+                    sel = 1;
+                } else if (envmap->tex->target == GL_TEXTURE_CUBE_MAP) {
+                    sel = 2;
+                } else {
+                    sel = 0;
+                }
             }
-        }
-        ImGui::RadioButton("None", &sel, 0); ImGui::SameLine();
-        ImGui::RadioButton("Equirectangular", &sel, 1); ImGui::SameLine();
-        ImGui::RadioButton("Six Sided", &sel, 2);
-        static const Directory skyboxesDir("assets/skyboxes");
-        switch (sel) {
-            case 0:
-                if (ImGui::Button("Save")) {
-                    if (skybox) {
-                        *this = Environment();
-                    }
-                    showChild = false;
-                }
-                break;
-            case 1:
-            {
-                static Interface::PathComboWidget pathComboWidget;
-                static Path skyboxPath = Path();
-                static bool flip = true;
-                if (firstDisplay) {
-                    skyboxPath = envmap->images[0]->GetFile();
-                    flip = envmap->images[0]->Flip();
-                    firstDisplay = false;
-                }
-                pathComboWidget.Display(skyboxesDir, "Path", AssetUtils::imageExtensions, &skyboxPath, Path());
-                ImGui::SameLine(); 
-                ImGui::Checkbox("Flip", &flip);
-                if (ImGui::Button("Save")) {
-                    if (!skyboxPath.IsEmpty()) {
-                        auto image = AssetManager::Instance().LoadHot<ImageAsset>(skyboxPath, flip);
-                        auto texture = std::make_shared<Material::Texture>(image, Material::TextureType::Diffuse, GL_CLAMP_TO_EDGE, GL_LINEAR);
-                        Setup(texture);
+            ImGui::RadioButton("None", &sel, 0); ImGui::SameLine();
+            ImGui::RadioButton("Equirectangular", &sel, 1); ImGui::SameLine();
+            ImGui::RadioButton("Six Sided", &sel, 2);
+            static const Directory skyboxesDir("assets/skyboxes");
+            switch (sel) {
+                case 0:
+                    if (ImGui::Button("Save")) {
+                        if (skybox) {
+                            *this = Environment();
+                        }
                         showChild = false;
                     }
+                    break;
+                case 1:
+                {
+                    static Interface::PathComboWidget pathComboWidget;
+                    static Path skyboxPath = Path();
+                    static bool flip = true;
+                    if (firstDisplay) {
+                        skyboxPath = envmap->images[0]->GetFile();
+                        flip = envmap->images[0]->Flip();
+                        firstDisplay = false;
+                    }
+                    pathComboWidget.Display(skyboxesDir, "Path", AssetUtils::imageExtensions, &skyboxPath, Path());
+                    ImGui::SameLine(); 
+                    ImGui::Checkbox("Flip", &flip);
+                    if (ImGui::Button("Save")) {
+                        if (!skyboxPath.IsEmpty()) {
+                            auto image = AssetManager::Instance().LoadHot<ImageAsset>(skyboxPath, flip);
+                            auto texture = std::make_shared<Material::Texture>(image, Material::TextureType::Diffuse, GL_CLAMP_TO_EDGE, GL_LINEAR);
+                            Setup(texture);
+                            showChild = false;
+                        }
+                    }
+                    break;
                 }
-                break;
-            }
-            case 2:
-            {
-                static Interface::PathComboWidget pathComboWidgets[6];
-                constexpr const char* faces[] = {"+X", "-X", "+Y", "-Y", "+Z", "-Z"};
-                static std::vector<Path> facePaths(6);
-                static bool flips[6] = {true, true, true, true, true, true};
-                if (firstDisplay) {
+                case 2:
+                {
+                    static Interface::PathComboWidget pathComboWidgets[6];
+                    constexpr const char* faces[] = {"+X", "-X", "+Y", "-Y", "+Z", "-Z"};
+                    static std::vector<Path> facePaths(6);
+                    static bool flips[6] = {true, true, true, true, true, true};
+                    if (firstDisplay) {
+                        for (int i = 0; i < 6; i++) {
+                            facePaths[i] = envmap->images[i]->GetFile();
+                            flips[i] = envmap->images[i]->Flip();
+                        }
+                        firstDisplay = false;
+                    }
                     for (int i = 0; i < 6; i++) {
-                        facePaths[i] = envmap->images[i]->GetFile();
-                        flips[i] = envmap->images[i]->Flip();
+                        pathComboWidgets[i].Display(skyboxesDir, faces[i], AssetUtils::imageExtensions, &facePaths[i], Path());
+                        ImGui::SameLine();
+                        const std::string strId = std::string("Flip##") + std::to_string(i);
+                        ImGui::Checkbox(strId.c_str(), &flips[i]);
                     }
-                    firstDisplay = false;
-                }
-                for (int i = 0; i < 6; i++) {
-                    pathComboWidgets[i].Display(skyboxesDir, faces[i], AssetUtils::imageExtensions, &facePaths[i], Path());
-                    ImGui::SameLine();
-                    const std::string strId = std::string("Flip##") + std::to_string(i);
-                    ImGui::Checkbox(strId.c_str(), &flips[i]);
-                }
-                if (ImGui::Button("Save")) {
-                    bool pathsValid = true;
-                    for (const Path& path : facePaths) {
-                        if (path.IsEmpty()) {
-                            pathsValid = false;
-                            break;
+                    if (ImGui::Button("Save")) {
+                        bool pathsValid = true;
+                        for (const Path& path : facePaths) {
+                            if (path.IsEmpty()) {
+                                pathsValid = false;
+                                break;
+                            }
+                        }
+                        if (pathsValid) {
+                            std::vector<std::shared_ptr<ImageAsset>> images;
+                            for (int i = 0; i < facePaths.size(); i++) {
+                                images.emplace_back(AssetManager::Instance().LoadHot<ImageAsset>(facePaths[i], flips[i]));
+                            }
+                            auto texture = std::make_shared<Material::Texture>(images, Material::TextureType::Diffuse, GL_CLAMP_TO_EDGE, GL_LINEAR_MIPMAP_LINEAR);
+                            Setup(texture);
+                            showChild = false;
                         }
                     }
-                    if (pathsValid) {
-                        std::vector<std::shared_ptr<ImageAsset>> images;
-                        for (int i = 0; i < facePaths.size(); i++) {
-                            images.emplace_back(AssetManager::Instance().LoadHot<ImageAsset>(facePaths[i], flips[i]));
-                        }
-                        auto texture = std::make_shared<Material::Texture>(images, Material::TextureType::Diffuse, GL_CLAMP_TO_EDGE, GL_LINEAR_MIPMAP_LINEAR);
-                        Setup(texture);
-                        showChild = false;
-                    }
+                    break;
                 }
-                break;
             }
+            ImGui::SameLine();
+            if (ImGui::Button("Cancel")) {
+                showChild = false;
+            }
+            ImGui::TreePop();
         }
-        ImGui::SameLine();
-        if (ImGui::Button("Cancel")) {
-            showChild = false;
+        if (ImGui::TreeNode("IBL")) {
+            ImGui::PushItemWidth(100.f);
+            ImGui::DragFloat("IBL Intensity", &iblIntensity, 0.01f, 0.0f, 1000.0f);
+            ImGui::PopItemWidth();
+            ImGui::TreePop();
         }
     }
 

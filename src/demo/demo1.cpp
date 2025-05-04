@@ -1,4 +1,4 @@
-#include "demo1.hpp"
+#include "demo/demo1.hpp"
 
 #include "component/all.hpp"
 #include "asset/image.hpp"
@@ -17,6 +17,11 @@ Demo1::Demo1()
 {}
 
 void Demo1::Initialize() {
+    std::clog << "Setting up skybox..." << std::endl;
+    auto kloppenheim = AssetManager::Instance().LoadHot<ImageAsset>("assets/skyboxes/kloppenheim_4k.hdr");
+    auto skybox = std::make_shared<Material::Texture>(kloppenheim, Material::TextureType::Diffuse);
+    environment->Setup(skybox);
+
     std::clog << "Defining materials..." << std::endl;
     auto copper = std::make_shared<Material::PBRMetallicMaterial>();
     copper->name = "Copper";
@@ -36,11 +41,6 @@ void Demo1::Initialize() {
     gold->metallic = 1.0;
     gold->roughness = 0.3;
     Material::materials.insert(gold);
-    
-    std::clog << "Setting up skybox..." << std::endl;
-    auto kloppenheim = AssetManager::Instance().LoadHot<ImageAsset>("assets/skyboxes/kloppenheim_4k.hdr");
-    auto skybox = std::make_shared<Material::Texture>(kloppenheim, Material::TextureType::Diffuse);
-    environment->Setup(skybox);
 
     std::clog << "Creating components..." << std::endl;
     camera = std::make_unique<Component::Camera>();
@@ -63,7 +63,6 @@ void Demo1::Initialize() {
     
     std::clog << "Loading models..." << std::endl;
     // auto backpack = std::make_shared<Component::Model>("assets/models/survival_guitar_backpack/scene.gltf", 0.005f);
-    // models["Backpack"] = backpack;
     // auto sponzaAsset = AssetManager::Instance().LoadHot<ModelAsset>("assets/models/sponza/glTF/Sponza.gltf");
     // auto sponza = std::make_shared<Component::Model>(sponzaAsset);
     
@@ -92,7 +91,6 @@ void Demo1::Display() {
     // backpackNode->transform.Rotate(glm::vec3(0,30,0) * app.DeltaTime());
     // cubeNode->transform.Rotate(glm::vec3(50,120,90) * app.DeltaTime());
 
-    environment->iblIntensity = renderOptions.iblIntensity;
     renderer->ssao = renderOptions.ssao;
 
     static Core::Fbo* fbo;
@@ -112,11 +110,4 @@ void Demo1::Display() {
     displayMainGui();
 }
 void Demo1::CleanUp() {
-    scene.reset();
-    environment.reset();
-    camera.reset();
-    renderer.reset();
-    fxaa.reset();
-    hdr.reset();
-    bloom.reset();
 }

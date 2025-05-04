@@ -33,15 +33,16 @@ void Demo::displayMainGui() {
     performanceWidget.Display(pointsPerSecond, secondsToDisplay);
 
     if (ImGui::CollapsingHeader("Render Options", ImGuiTreeNodeFlags_DefaultOpen)) {
-        ImGui::SliderFloat("IBL Intensity", &renderOptions.iblIntensity, 0.0f, 1.0f);
-        ImGui::Checkbox("SSAO", &renderOptions.ssao); ImGui::SameLine();
-        ImGui::Checkbox("FXAA", &renderOptions.fxaa); ImGui::SameLine();
-        ImGui::Checkbox("Bloom", &renderOptions.bloom);
         ImGui::Checkbox("HDR", &renderOptions.hdr);
         if (renderOptions.hdr) {
             ImGui::SameLine();
-            ImGui::SliderFloat("Exposure", &renderOptions.hdrExposure, 0.0f, 10.0f);
+            ImGui::PushItemWidth(100.f);
+            ImGui::DragFloat("Exposure", &renderOptions.hdrExposure, 0.01f, 0.0f, 1000.0f);
+            ImGui::PopItemWidth();
         }
+        ImGui::Checkbox("SSAO", &renderOptions.ssao); ImGui::SameLine();
+        ImGui::Checkbox("FXAA", &renderOptions.fxaa); ImGui::SameLine();
+        ImGui::Checkbox("Bloom", &renderOptions.bloom);
     }
     
     if (ImGui::CollapsingHeader("External Assets", ImGuiTreeNodeFlags_DefaultOpen)) {
@@ -91,10 +92,7 @@ void Demo::displayMainGui() {
         }
     }
     if (ImGui::CollapsingHeader("Environment", ImGuiTreeNodeFlags_DefaultOpen)) {
-        if (ImGui::TreeNode("Skybox")) {
-            environment->DisplayWidget();
-            ImGui::TreePop();
-        }
+        environment->DisplayWidget();
     }
 
     if (ImGui::CollapsingHeader("Scene", ImGuiTreeNodeFlags_DefaultOpen)) {
