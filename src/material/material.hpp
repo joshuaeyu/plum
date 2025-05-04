@@ -27,6 +27,8 @@ namespace Material {
             
             virtual std::shared_ptr<Core::Program> GetProgram() = 0;
             virtual void SetUniforms(const glm::mat4& model_transform) = 0;
+
+            // GUI widget
             virtual void DisplayWidget() {}
         
         protected:
@@ -46,6 +48,7 @@ namespace Material {
             std::shared_ptr<Core::Program> GetProgram() override { return program; }
             void SetUniforms(const glm::mat4& model_transform) override;
             
+            // GUI widget
             Path albedoPath, metallicPath, roughnessPath, normalPath, displacementPath, occlusionPath;
             Interface::PathComboWidget albedoWidget, metallicWidget, roughnessWidget, normalWidget, displacementWidget, occlusionWidget;
             Interface::TextEditWidget nameWidget;

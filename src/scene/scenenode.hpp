@@ -37,7 +37,8 @@ namespace Scene {
             void Draw(const glm::mat4& parent_transform = glm::identity<glm::mat4>());
             void Draw(Material::MaterialBase& m, const glm::mat4& parent_transform = glm::identity<glm::mat4>());
             void Draw(Renderer::RenderModule& m, const glm::mat4& parent_transform = glm::identity<glm::mat4>());
-            
+        
+            // GUI widget
             Interface::Widget dummyWidget;
             Interface::TextEditWidget nameWidget;
             Interface::ComponentCreationWidget componentCreationWidget;

@@ -24,9 +24,9 @@ namespace Component {
         glm::vec3 diffuse = Color::yellow;
         glm::vec3 specular = Color::yellow;
         glm::vec3 ambient = Color::yellow;
-        float metalness = -1;
-        float roughness = -1;
-        float glossiness = -1;
+        float metalness = -1.f;
+        float roughness = -1.f;
+        float glossiness = -1.f;
         std::vector<std::shared_ptr<Material::Texture>> textures;
     };
 
@@ -45,11 +45,13 @@ namespace Component {
             void Draw(Material::MaterialBase& material, const glm::mat4& model_matrix) override;
             void Draw(Renderer::RenderModule& module, const glm::mat4& model_matrix) override;
 
-            void DisplayWidget() override;
             void AssetResyncCallback() override;
+            
+            virtual std::shared_ptr<ComponentBase> Duplicate() override { return nullptr; } // future
+            
+            // GUI widget
+            void DisplayWidget() override;
 
-            std::shared_ptr<ComponentBase> Duplicate() override {return nullptr;}
-        
         private:
             void printSceneInfo(const std::string& path, const aiScene *scene, const std::string& outpath = "");
     };

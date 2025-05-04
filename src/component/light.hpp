@@ -21,8 +21,9 @@ namespace Component {
             void DisableShadows();
             virtual void Draw(const glm::mat4& parent_transform) override = 0;
 
-            virtual std::shared_ptr<ComponentBase> Duplicate() override {return nullptr;}
-
+            virtual std::shared_ptr<ComponentBase> Duplicate() override { return nullptr; } // future
+            
+            // GUI widget
             void DisplayWidget() override;
 
         protected:

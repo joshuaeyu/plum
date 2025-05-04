@@ -76,7 +76,7 @@ namespace Component {
             material = *std::next(Material::materials.begin(), itemSelectedIdx);
         }
 
-        for (int i = 0; i < Material::materials.size(); i++) {
+        for (int i = 0; i < itemNames.size(); i++) {
             delete itemNames[i];
         }
     }

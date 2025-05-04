@@ -38,7 +38,8 @@ namespace Component {
             virtual void Draw(Material::MaterialBase& material, const glm::mat4& model_matrix = glm::identity<glm::mat4>()) {}
             virtual void Draw(Renderer::RenderModule& module, const glm::mat4& model_matrix = glm::identity<glm::mat4>()) {}
             virtual std::shared_ptr<ComponentBase> Duplicate() = 0;
-
+            
+            // GUI widget
             virtual void DisplayWidget() {}            
         
         protected:

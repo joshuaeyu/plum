@@ -25,8 +25,9 @@ namespace Component {
             virtual void Draw(Material::MaterialBase& material, const glm::mat4& model_matrix = glm::identity<glm::mat4>()) override;
             virtual void Draw(Renderer::RenderModule& module, const glm::mat4& model_matrix = glm::identity<glm::mat4>()) override;
 
-            std::shared_ptr<ComponentBase> Duplicate() override {return nullptr;}
+            std::shared_ptr<ComponentBase> Duplicate() override { return nullptr; } // future
             
+            // GUI widget
             int widgetId = -1;
             void DisplayWidget() override;
 

@@ -4,22 +4,15 @@
 
 Plum is a simple real-time graphics engine built using OpenGL 4.1 and C++17. It features a deferred rendering pipeline and physically based shading. Users can create materials and instantiate models, primitives, and lights into the scene from the engine's GUI.
 
-I am still actively developing this (see [To Do](#to-do)) and would like to implement more advanced graphics techniques either in this engine, in a separate ray tracing project, or using Vulkan. If you have any feedback please don't hesitate to let me know!
+I am still actively developing this (see [To-do](#to-do)) and would like to implement more advanced graphics techniques either in this engine, in a separate ray tracing project, or using Vulkan. If you have any feedback please don't hesitate to let me know!
 
 My goal in creating this engine was to synthesize the concepts taught in [Learn OpenGL](https://learnopengl.com) into a working, interactive software application, while also expanding upon these concepts.
 
 ## Requirements
+* macOS (for now...)
 * OpenGL 4.1+ support
 * C++17 compiler support
 * GNU Make
-
-## Dependencies
-* [GLAD](https://github.com/Dav1dde/glad)
-* [GLFW](https://www.glfw.org)
-* [GLM](https://glm.g-truc.net/)
-* [Assimp](https://assimp-docs.readthedocs.io/en/)
-* [stb](https://github.com/nothings/stb)
-* [Dear ImGui](https://github.com/ocornut/imgui)
 
 ## Running the Engine
 Clone or download the repository. From the root directory, run `make` then `./main`.
@@ -96,21 +89,31 @@ Clone or download the repository. From the root directory, run `make` then `./ma
 * Interface
     * Picking
     * Save/load scene state
-    * Asset import settings
 * Software
     * Move from GNU Make to CMake
     * Windows and Linux support
     * More robust use of UBO schemes
     * Cloning (duplication) of Material, SceneNode, Component
 
+## Third-party Libraries
+* [GLAD](https://github.com/Dav1dde/glad)
+* [GLFW](https://www.glfw.org)
+* [GLM](https://glm.g-truc.net/)
+* [Assimp](https://assimp-docs.readthedocs.io/en/)
+* [stb](https://github.com/nothings/stb)
+* [Dear ImGui](https://github.com/ocornut/imgui)
+
 ## References
 * [Learn OpenGL](https://learnopengl.com)
 * [docs.GL](https://docs.gl)
-* [songho.ca](https://www.songho.ca/opengl/gl_sphere.html)
+* [GLFW Documentation](https://www.glfw.org/docs/latest/)
+* [GLM API Reference](https://glm.g-truc.net/0.9.9/api/modules.html)
 * [The Asset-Importer-Lib Documentation](https://assimp-docs.readthedocs.io/en/v5.3.0/)
 * [glTF™ 2.0 Specification](https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html)
+* [songho.ca](https://www.songho.ca/opengl/gl_sphere.html)
 * [Implementing FXAA](https://blog.simonrodriguez.fr/articles/2016/07/implementing_fxaa.html)
 * [neo-mashiro/sketchpad](https://github.com/neo-mashiro/sketchpad) - inspiration for software architecture
+* *[Real-Time Rendering, Fourth Edition](https://www.realtimerendering.com)*
 
 ## Asset Sources
 * [Learn OpenGL](https://learnopengl.com)
