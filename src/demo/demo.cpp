@@ -25,6 +25,24 @@ void Demo::Initialize() {
 
 void Demo::DisplayScene() {
     displayScene();
+
+    camera->ProcessInputs();
+
+    renderer->ssao = renderOptions.ssao;
+
+    static Core::Fbo* fbo;
+    fbo = renderer->Render(*scene, *camera, *environment);
+    if (renderOptions.bloom) {
+        fbo = bloom->Process(*fbo);
+    }
+    if (renderOptions.hdr) {
+        hdr->exposure = renderOptions.hdrExposure;
+        fbo = hdr->Process(*fbo);
+    }
+    if (renderOptions.fxaa) {
+        fbo = fxaa->Process(*fbo);
+    }
+    fbo->BlitToDefault();
 }
 
 void Demo::DisplayGui() {
@@ -124,6 +142,8 @@ void Demo::DisplayGui() {
 }
 
 void Demo::CleanUp() {
+    cleanUp();
+
     renderer.reset();
     fxaa.reset();
     hdr.reset();
@@ -132,6 +152,4 @@ void Demo::CleanUp() {
     scene.reset();
     environment.reset();
     camera.reset();
-
-    cleanUp();
 }

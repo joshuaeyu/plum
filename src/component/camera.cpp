@@ -10,7 +10,7 @@
 namespace Component {
 
     Camera::Camera() 
-        : Camera(Transform(), glm::perspective(glm::radians(60.f), Context::Application::Instance().activeWindow->Aspect(), 0.1f, 100.f)) 
+        : Camera(Transform(), glm::perspective(glm::radians(70.f), Context::Application::Instance().activeWindow->Aspect(), 0.1f, 100.f)) 
     {}
 
     Camera::Camera(const Transform& transform, const glm::mat4& projection) 
