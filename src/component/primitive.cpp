@@ -183,12 +183,12 @@ namespace Component {
 
         const std::vector<float> rectdata = {    // Remember CCW (x-z vs x-y)
             // Positions         // Normals         // UV                        // Tangents
-            -1.0f, 0.0f, -1.0f,  0.0f, 1.0f, 0.0f,          0.0f,         0.0f,  1.0f, 0.0f, 0.0f,
-            -1.0f, 0.0f,  1.0f,  0.0f, 1.0f, 0.0f,          0.0f, 1.0f * nrows,  1.0f, 0.0f, 0.0f,
-             1.0f, 0.0f, -1.0f,  0.0f, 1.0f, 0.0f,  1.0f * ncols,         0.0f,  1.0f, 0.0f, 0.0f,
-             1.0f, 0.0f,  1.0f,  0.0f, 1.0f, 0.0f,  1.0f * ncols, 1.0f * nrows,  1.0f, 0.0f, 0.0f,
-             1.0f, 0.0f, -1.0f,  0.0f, 1.0f, 0.0f,  1.0f * ncols,         0.0f,  1.0f, 0.0f, 0.0f,
-            -1.0f, 0.0f,  1.0f,  0.0f, 1.0f, 0.0f,          0.0f, 1.0f * nrows,  1.0f, 0.0f, 0.0f
+            -0.5f, 0.0f, -0.5f,  0.0f, 1.0f, 0.0f,          0.0f,         0.0f,  1.0f, 0.0f, 0.0f,
+            -0.5f, 0.0f,  0.5f,  0.0f, 1.0f, 0.0f,          0.0f, 1.0f * nrows,  1.0f, 0.0f, 0.0f,
+             0.5f, 0.0f, -0.5f,  0.0f, 1.0f, 0.0f,  1.0f * ncols,         0.0f,  1.0f, 0.0f, 0.0f,
+             0.5f, 0.0f,  0.5f,  0.0f, 1.0f, 0.0f,  1.0f * ncols, 1.0f * nrows,  1.0f, 0.0f, 0.0f,
+             0.5f, 0.0f, -0.5f,  0.0f, 1.0f, 0.0f,  1.0f * ncols,         0.0f,  1.0f, 0.0f, 0.0f,
+            -0.5f, 0.0f,  0.5f,  0.0f, 1.0f, 0.0f,          0.0f, 1.0f * nrows,  1.0f, 0.0f, 0.0f
         };
 
         using namespace Core;
