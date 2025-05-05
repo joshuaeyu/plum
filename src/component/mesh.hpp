@@ -17,9 +17,9 @@ namespace Component {
             Mesh(std::shared_ptr<Core::Vao> vao);
             Mesh(std::shared_ptr<Core::Vao> vao, std::shared_ptr<Material::MaterialBase> material);
             virtual ~Mesh();
-            
+
             std::shared_ptr<Core::Vao> vao;
-            std::shared_ptr<Material::MaterialBase> material = std::make_shared<Material::PBRMetallicMaterial>();
+            std::shared_ptr<Material::MaterialBase> material = Material::defaultMaterial;
 
             virtual void Draw(const glm::mat4& model_matrix = glm::identity<glm::mat4>()) override;
             virtual void Draw(Material::MaterialBase& material, const glm::mat4& model_matrix = glm::identity<glm::mat4>()) override;

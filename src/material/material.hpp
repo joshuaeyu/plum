@@ -17,6 +17,10 @@ namespace Component {
 
 namespace Material {
 
+    class MaterialBase;
+    class PBRMetallicMaterial;
+
+    inline std::shared_ptr<Material::MaterialBase> defaultMaterial;
     inline std::set<std::shared_ptr<Material::MaterialBase>> materials;
     
     class MaterialBase {

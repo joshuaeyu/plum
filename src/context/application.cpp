@@ -54,6 +54,8 @@ namespace Context {
         InputsAndEventsManager::Setup(activeWindow.get());
         Time::Update();
         Interface::Initialize(*activeWindow);
+        Material::defaultMaterial = std::static_pointer_cast<Material::MaterialBase>(std::make_shared<Material::PBRMetallicMaterial>());
+        Material::materials.insert(Material::defaultMaterial);
         
         GLint n;
         glGetIntegerv(GL_MAX_ARRAY_TEXTURE_LAYERS, &n); // 2048
