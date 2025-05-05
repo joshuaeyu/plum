@@ -122,4 +122,4 @@ Clone or download the repository. From the root directory, run `make` then `./ma
 * [Free3D](https://free3d.com)
 * [HDRi Haven](https://hdri-haven.com)
 * [Texturelabs](https://texturelabs.org)
-
+* [Free PBR Materials](https://freepbr.com)
