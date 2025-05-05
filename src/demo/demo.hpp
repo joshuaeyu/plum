@@ -16,6 +16,12 @@ class Demo {
         const std::string title;
         bool shouldEnd = false;
 
+        void Initialize();
+        void DisplayScene();
+        void DisplayGui();
+        void CleanUp();
+    
+    protected:
         struct RenderOptions {
             bool hdr = true;
             float hdrExposure = 1.0f;
@@ -24,12 +30,8 @@ class Demo {
             bool bloom = false;
         } renderOptions;
         
-        void Initialize();
-        void DisplayScene();
-        void DisplayGui();
-        void CleanUp();
-    
-    protected:
+        Core::Fbo* fbo;
+
         std::unique_ptr<Scene::Scene> scene;
         std::unique_ptr<Scene::Environment> environment;
         std::unique_ptr<Component::Camera> camera;
@@ -39,8 +41,9 @@ class Demo {
         std::unique_ptr<PostProcessing::Hdr> hdr;
         std::unique_ptr<PostProcessing::Bloom> bloom;
 
-        virtual void initialize() = 0;
-        virtual void displayScene() = 0;
-        virtual void displayGui() = 0;
-        virtual void cleanUp() = 0;
+        virtual void initialize() {}
+        virtual void preDisplayScene() {}
+        virtual void postDisplayScene() {}
+        virtual void displayGui() {}
+        virtual void cleanUp() {}
 };

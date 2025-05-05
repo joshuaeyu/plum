@@ -30,9 +30,7 @@ namespace Context {
         while (!activeWindow->ShouldClose()) {
             activeDemo->Initialize();
             while (!activeWindow->ShouldClose() && !activeDemo->shouldEnd) {
-                predisplay();
                 display();
-                postdisplay();
             }
             activeDemo->CleanUp();
             activeDemo = requestedDemo;
@@ -55,6 +53,7 @@ namespace Context {
         Time::Update();
         Interface::Initialize(*activeWindow);
         Material::defaultMaterial = std::static_pointer_cast<Material::MaterialBase>(std::make_shared<Material::PBRMetallicMaterial>());
+        Material::defaultMaterial->name = "Default (PBR Metallic)";
         Material::materials.insert(Material::defaultMaterial);
         
         GLint n;
@@ -67,7 +66,7 @@ namespace Context {
         glGetIntegerv(GL_MAX_TEXTURE_SIZE, &n); // 16384
     }
 
-    void Application::predisplay() {
+    void Application::display() {
         InputsAndEventsManager::PollEvents();
         Time::Update();
         static float syncCooldown = 1.f;
@@ -76,24 +75,20 @@ namespace Context {
             syncCooldown = 1.f;
         }
         Interface::BeginFrame();
-    }
 
-    void Application::display() {
         activeDemo->DisplayScene();
         
         if (guiHeader()) {
             activeDemo->DisplayGui();
             guiFooter();
         }
+        
         Interface::RenderFrame();
-    }
-    
-    void Application::postdisplay() {
         activeWindow->SwapBuffers();
     }
 
     bool Application::guiHeader() {
-        if (!ImGui::Begin("Plum Engine v2.00 Beta", NULL, ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings)) {
+        if (!ImGui::Begin("Plum Engine v2.00", NULL, ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings)) {
             ImGui::End();
             return false;
         }

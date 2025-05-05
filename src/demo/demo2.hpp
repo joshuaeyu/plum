@@ -9,7 +9,8 @@ class Demo2 : public Demo {
 
     protected:
         void initialize() override;
-        void displayScene() override;
+        void preDisplayScene() override;
+        void postDisplayScene() override;
         void displayGui() override;
         void cleanUp() override;
 };

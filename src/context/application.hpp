@@ -29,9 +29,7 @@ namespace Context {
         private:
             Application();
             
-            void predisplay();
             void display();
-            void postdisplay();
 
             bool guiHeader();
             void guiFooter();

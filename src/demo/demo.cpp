@@ -24,13 +24,10 @@ void Demo::Initialize() {
 }
 
 void Demo::DisplayScene() {
-    displayScene();
+    preDisplayScene();
 
     camera->ProcessInputs();
-
     renderer->ssao = renderOptions.ssao;
-
-    static Core::Fbo* fbo;
     fbo = renderer->Render(*scene, *camera, *environment);
     if (renderOptions.bloom) {
         fbo = bloom->Process(*fbo);
@@ -42,6 +39,9 @@ void Demo::DisplayScene() {
     if (renderOptions.fxaa) {
         fbo = fxaa->Process(*fbo);
     }
+
+    postDisplayScene();
+
     fbo->BlitToDefault();
 }
 
