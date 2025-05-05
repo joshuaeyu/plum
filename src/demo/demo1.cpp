@@ -23,10 +23,10 @@ void Demo1::initialize() {
     camera = std::make_unique<Component::Camera>();
     camera->Translate(-5,3,-0.25);
     camera->Rotate(15,-90);
-    auto pointlight = std::make_shared<Component::PointLight>();
-    pointlight->color = Color::white;
-    pointlight->intensity = 10.f;
-    pointlight->EnableShadows();
+    auto dirlight = std::make_shared<Component::DirectionalLight>();
+    dirlight->color = Color::white;
+    dirlight->intensity = 10.f;
+    dirlight->EnableShadows();
     
     std::clog << "Loading models..." << std::endl;
     auto sponzaAsset = AssetManager::Instance().LoadHot<ModelAsset>("assets/models/sponza/glTF/Sponza.gltf");
@@ -34,8 +34,8 @@ void Demo1::initialize() {
     
     std::clog << "Defining scene..." << std::endl;
     scene = std::make_unique<Scene::Scene>();
-    auto plNode = scene->EmplaceChild(pointlight);
-    plNode->transform.Translate(0,3,0);
+    auto plNode = scene->EmplaceChild(dirlight);
+    plNode->transform.Rotate(82.f, 0, 30.f);
     auto sponzaNode = scene->EmplaceChild(sponza);
     sponzaNode->name = "Sponza";
 }

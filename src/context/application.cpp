@@ -41,7 +41,6 @@ namespace Context {
         WindowCreator creator;
         activeWindow = creator.Create();
         activeWindow->MakeCurrent();
-        activeWindow->SetTitle("Plum Engine v2.0");
         activeWindow->SetWindowSize(1200, 800);
 
         if (!gladLoadGL(glfwGetProcAddress)) {
@@ -88,7 +87,7 @@ namespace Context {
     }
 
     bool Application::guiHeader() {
-        if (!ImGui::Begin("Plum Engine v2.00", NULL, ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings)) {
+        if (!ImGui::Begin(activeWindow->Title().c_str(), NULL, ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings)) {
             ImGui::End();
             return false;
         }
