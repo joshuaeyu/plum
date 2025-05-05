@@ -1,77 +1,72 @@
 # RPATH
-LIB_ASSIMP = ./external/assimp/lib/
-LIB_GLFW = ./external/glfw/lib/
-LIB_GLM = ./external/glm/lib/
+LIB_ASSIMP := ./external/assimp/lib/
+LIB_GLFW := ./external/glfw/lib/
+LIB_GLM := ./external/glm/lib/
 # Includes
-INCL_ASSIMP = ./external/assimp/include/
-INCL_GLAD = ./external/glad/include/
-INCL_GLFW = ./external/glfw/include/
-INCL_GLM = ./external/glm/include/
+INCL_ASSIMP := ./external/assimp/include/
+INCL_GLAD := ./external/glad/include/
+INCL_GLFW := ./external/glfw/include/
+INCL_GLM := ./external/glm/include/
 # Directories
-OBJDIR = ./obj
-SRCDIR = ./plum
-EXTDIR = ./external
+SRCDIR := ./src
+EXTDIR := ./external
+OBJDIR := ./obj
 
 # Flags			
-CFLAGS = 	-fdiagnostics-color=always \
+CFLAGS := 	-fdiagnostics-color=always \
 			-g	\
 			-I$(INCL_GLAD)
-CXXFLAGS = 	$(CFLAGS)	\
-			-I./	\
-			-I$(EXTDIR)	\
-			-I$(INCL_ASSIMP)	\
-			-I$(INCL_GLFW)	\
-			-I$(INCL_GLM)	\
-			-std=c++17
+CXXFLAGS := 	$(CFLAGS)	\
+				-I$(SRCDIR)	\
+				-I$(EXTDIR)	\
+				-I$(INCL_GLFW)	\
+				-I$(INCL_GLM)	\
+				-I$(INCL_ASSIMP) \
+				-std=c++17
 # Linker-only flags
 # -L same as -Wl,-L,
-LFLAGS = 	-L$(LIB_GLFW)	\
-			-lglfw3	\
-			-L$(LIB_GLM)	\
-			-lglm	\
-			-L$(LIB_ASSIMP)	\
-			-Wl,-rpath,$(LIB_ASSIMP)	\
-			-lassimp	\
+LDFLAGS := 	-L$(LIB_GLFW) -lglfw3	\
+			-L$(LIB_GLM) -lglm	\
+			-L$(LIB_ASSIMP)	-Wl,-rpath,$(LIB_ASSIMP) -lassimp	\
 			-framework Cocoa 	\
-			-framework OpenGL	\
 			-framework IOKit
 
+# Source files
+sources := $(SRCDIR)/main.cpp $(wildcard $(SRCDIR)/*/*.c*) 
+externs := $(wildcard $(EXTDIR)/*/*.c*) $(wildcard $(EXTDIR)/*/*/*.c*)
+SOURCES := $(sources) $(externs)
+# Source header files
+HEADERS := $(wildcard $(SRCDIR)/*/*.h*)
 # Object files
-SRCOBJS = $(OBJDIR)/camera.o $(OBJDIR)/engine.o $(OBJDIR)/interface.o $(OBJDIR)/light.o $(OBJDIR)/scene.o $(OBJDIR)/mesh.o $(OBJDIR)/model.o $(OBJDIR)/resources.o $(OBJDIR)/scenenode.o $(OBJDIR)/shader.o $(OBJDIR)/shape.o $(OBJDIR)/texture.o
-
-# ImGui resources
-IMGUI_CORE_CPP = $(wildcard $(EXTDIR)/imgui/imgui*.cpp)
-IMGUI_CORE_O = $(patsubst $(EXTDIR)/imgui/imgui%.cpp, $(OBJDIR)/imgui%.o, $(IMGUI_CORE_CPP))
-IMGUI_MISC_O = $(OBJDIR)/imgui_stdlib.o
-IMGUI_BACKENDS_O = $(OBJDIR)/imgui_impl_glfw.o $(OBJDIR)/imgui_impl_opengl3.o
+objects := $(SOURCES:.cpp=.o)
+objects := $(objects:.c=.o)
+OBJECTS := $(addprefix $(OBJDIR)/,$(objects))
 
 # Targets
-all: obj main
-obj:
-	@mkdir -p $(OBJDIR)
-main: $(OBJDIR)/main.o $(SRCOBJS) $(OBJDIR)/gl.o $(OBJDIR)/stb_image.o $(IMGUI_CORE_O) $(IMGUI_MISC_O) $(IMGUI_BACKENDS_O)
-	@echo Linking $@
-	@$(CXX) $(CXXFLAGS) $(LFLAGS) $^ -o $@
+all: objdirs main
+objdirs:
+	@mkdir -p $(dir $(OBJECTS))
 
-# Source objects
-$(OBJDIR)/main.o: $(SRCDIR)/main.cpp
+# Link
+main: $(OBJECTS)
+	@echo Linking $@
+	@$(CXX) $(CXXFLAGS) $(LDFLAGS) $^ -o $@
+
+# Compile
+$(OBJDIR)/%.o: %.cpp %.hpp
 	@echo Compiling $@
 	@$(CXX) $(CXXFLAGS) $< -c -o $@
-$(OBJDIR)/%.o: $(SRCDIR)/%.cpp $(SRCDIR)/%.hpp
+$(OBJDIR)/%.o: %.cpp
 	@echo Compiling $@
 	@$(CXX) $(CXXFLAGS) $< -c -o $@
-	
-# External objects
-$(OBJDIR)/gl.o: $(EXTDIR)/glad/src/gl.c
+$(OBJDIR)/%.o: %.c %.h
 	@echo Compiling $@
 	@$(CC) $(CFLAGS) $< -c -o $@
-$(OBJDIR)/%.o: $(EXTDIR)/*/%.cpp
+$(OBJDIR)/%.o: %.c
 	@echo Compiling $@
-	@$(CXX) $(CXXFLAGS) $< -c -o $@
-$(OBJDIR)/%.o: $(EXTDIR)/*/%.c
-	@echo Compiling $@
-	@$(CC) $(CFLAGS) $^ -c -o $@
+	@$(CC) $(CFLAGS) $< -c -o $@
 
+# Clean
 .PHONY: clean
 clean:
 	@rm -fr $(OBJDIR)
