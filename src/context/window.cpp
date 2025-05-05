@@ -46,8 +46,11 @@ namespace Context {
         title(title),
         eventListener(InputsAndEventsManager::CreateEventListener())
     {
-        std::function<void(int,int,int,int)> staticFunc = std::bind(&Window::keyCallback, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4);   
-        eventListener->SetKeyCallback(staticFunc);
+        std::function<void(int,int,int,int)> staticFuncKey = std::bind(&Window::keyCallback, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4);   
+        std::function<void(int,int)> staticFuncFramebufferSize = std::bind(&Window::framebufferSizeCallback, this, std::placeholders::_1, std::placeholders::_2);   
+        
+        eventListener->SetKeyCallback(staticFuncKey);
+        eventListener->SetWindowSizeCallback(staticFuncFramebufferSize);
     }
 
     Window::~Window() 
@@ -81,6 +84,10 @@ namespace Context {
         glfwSwapBuffers(handle);
     }
 
+    void Window::framebufferSizeCallback(int width, int height) {
+        this->width = width;
+        this->height = height;
+    }
 
     void Window::keyCallback(int key, int scancode, int action, int mods) {
         if (action != GLFW_PRESS)

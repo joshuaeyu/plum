@@ -36,6 +36,7 @@ namespace Context {
             GLFWwindow* handle;
             std::shared_ptr<EventListener> eventListener;
 
+            void framebufferSizeCallback(int width, int height);
             void keyCallback(int key, int scancode, int action, int mods);
         
         public:
@@ -51,7 +52,7 @@ namespace Context {
         public:
             WindowCreator();
 
-            std::string title = "Plum Engine v2.0";
+            std::string title = "Plum Engine v2.00";
             int width = 1920;
             int height = 1080;
             std::map<int, int> hints;
