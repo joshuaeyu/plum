@@ -52,8 +52,10 @@ namespace Component {
         vao->Draw();
     }
     void Mesh::Draw(Renderer::RenderModule& module, const glm::mat4& model_matrix) {
-        module.SetObjectUniforms(model_matrix);
-        vao->Draw();
+        if (module.AllowDraw(*this)) {
+            module.SetObjectUniforms(model_matrix, *this);
+            vao->Draw();
+        }
     }
 
     void Mesh::DisplayWidget() {

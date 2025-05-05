@@ -9,9 +9,10 @@
 #include <vector>
 
 namespace Component  {
+    class ComponentBase;
+    class Camera;
     class DirectionalLight;
     class PointLight;
-    class Camera;
 }
 
 namespace Scene {
@@ -24,7 +25,8 @@ namespace Renderer {
     class RenderModule {
         public:
             virtual std::shared_ptr<Core::Program> GetProgram() = 0;
-            virtual void SetObjectUniforms(const glm::mat4& model) {}
+            virtual void SetObjectUniforms(const glm::mat4& model, const Component::ComponentBase& component) {}
+            virtual bool AllowDraw(const Component::ComponentBase& component) { return true; }
         protected:
             RenderModule() = default;
             virtual ~RenderModule() = default;
@@ -38,7 +40,8 @@ namespace Renderer {
             const std::shared_ptr<Core::Tex3D> depthMap;
             
             std::shared_ptr<Core::Program> GetProgram() override { return program; }
-            void SetObjectUniforms(const glm::mat4& model) override;
+            void SetObjectUniforms(const glm::mat4& model, const Component::ComponentBase& component) override;
+            bool AllowDraw(const Component::ComponentBase& component) override;
             void Render(Scene::Scene& scene, const std::vector<Scene::SceneNode*>& dirlight_nodes);
             
         private:
@@ -56,7 +59,8 @@ namespace Renderer {
             const std::shared_ptr<Core::Tex3D> depthMap;
             
             std::shared_ptr<Core::Program> GetProgram() override { return program; }
-            void SetObjectUniforms(const glm::mat4& model) override;
+            void SetObjectUniforms(const glm::mat4& model, const Component::ComponentBase& component) override;
+            bool AllowDraw(const Component::ComponentBase& component) override;
             void Render(Scene::Scene& scene, const std::vector<Scene::SceneNode*>& pointlight_nodes);
             
         private:

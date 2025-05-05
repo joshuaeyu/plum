@@ -57,8 +57,15 @@ namespace Renderer {
         }
     }
     
-    void DirectionalShadowModule::SetObjectUniforms(const glm::mat4& model) {
+    void DirectionalShadowModule::SetObjectUniforms(const glm::mat4& model, const Component::ComponentBase& component) {
         program->SetMat4("model", model);
+    }
+
+    bool DirectionalShadowModule::AllowDraw(const Component::ComponentBase& component) {
+        if (component.IsMesh()) {
+            return dynamic_cast<const Component::Mesh&>(component).castShadows;
+        }
+        return true;
     }
 
     void DirectionalShadowModule::setGlobalUniforms(Component::DirectionalLight& dl, GLuint depth_texture, int* shadow_idx) {
@@ -100,7 +107,13 @@ namespace Renderer {
             Component::PointLight& pointlight = dynamic_cast<Component::PointLight&>(*pointlight_nodes[i]->component);
 
             if (pointlight.HasShadows()) {
-                setGlobalUniforms(pointlight, pointlight_nodes[i]->transform.position, &shadow_count);
+                glm::mat4 worldTransform = glm::identity<glm::mat4>();
+                Scene::SceneNode* currNode = pointlight_nodes[i];
+                while (currNode) {
+                    worldTransform = currNode->transform.Matrix() * worldTransform;
+                    currNode = currNode->parent;
+                }
+                setGlobalUniforms(pointlight, worldTransform[3], &shadow_count);
                 
                 glCullFace(GL_FRONT);
                 scene.Draw(*this);
@@ -109,12 +122,19 @@ namespace Renderer {
         }
     }
 
-    void PointShadowModule::SetObjectUniforms(const glm::mat4& model) {
+    void PointShadowModule::SetObjectUniforms(const glm::mat4& model, const Component::ComponentBase& component) {
         program->SetMat4("model", model);
     }
 
+    bool PointShadowModule::AllowDraw(const Component::ComponentBase& component) {
+        if (component.IsMesh()) {
+            return static_cast<const Component::Mesh&>(component).castShadows;
+        }
+        return true;
+    }
+
     void PointShadowModule::setGlobalUniforms(Component::PointLight& pl, const glm::vec3& position, int* shadow_idx) {
-        program->SetInt("layer", *(shadow_idx)++);
+        program->SetInt("layer", (*shadow_idx)++);
         for (int j = 0; j < 6; j++) {
             program->SetMat4("lightSpaceMatrices[" + std::to_string(j) + "]", pl.LightspaceMatrices()[j]);
         }

@@ -5,6 +5,8 @@
 #include "asset/manager.hpp"
 #include "material/texture.hpp"
 
+#include <glm/gtc/type_ptr.hpp>
+
 #include <functional>
 #include <iostream>
 #include <queue>
@@ -138,15 +140,15 @@ namespace Renderer {
 
     void DeferredRenderer::updateGlobalUniforms(Scene::Scene& scene, Component::Camera& camera) {
         // 0 - View, projection transforms  
-        uboVsMatrices->UpdateData(0, sizeof(glm::mat4), &camera.View());
-        uboVsMatrices->UpdateData(sizeof(glm::mat4), sizeof(glm::mat4), &camera.projection);
+        uboVsMatrices->UpdateData(0, sizeof(glm::mat4), glm::value_ptr(camera.View()));
+        uboVsMatrices->UpdateData(sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(camera.projection));
         // 1 - Inverse view transform
         const glm::mat4 inv_view = glm::inverse(camera.View());
-        uboFsMatrices->UpdateData(0, sizeof(glm::mat4), &inv_view);
+        uboFsMatrices->UpdateData(0, sizeof(glm::mat4), glm::value_ptr(inv_view));
         // 2 - Camera position, front (viewspace)
         const glm::vec3 dummy_cam_pos = glm::vec3(0); // shaders work in view space
-        uboFsCamera->UpdateData(0, sizeof(glm::vec3), &dummy_cam_pos);
-        uboFsCamera->UpdateData(16, sizeof(glm::vec3), &camera.transform.Front());
+        uboFsCamera->UpdateData(0, sizeof(glm::vec3), glm::value_ptr(dummy_cam_pos));
+        uboFsCamera->UpdateData(16, sizeof(glm::vec3), glm::value_ptr(camera.transform.Front()));
 
         // 3 - Directional light colors, direction, lightspace transform
         // 4 - Point light count, colors, attenuations, positions, positions (worldspace)
@@ -168,15 +170,15 @@ namespace Renderer {
             
             // Color
             const glm::vec4 color = glm::vec4(dirlight.color * dirlight.intensity, 0);
-            uboFsDirlight->UpdateData(offset, sizeof(glm::vec4), &color);
+            uboFsDirlight->UpdateData(offset, sizeof(glm::vec4), glm::value_ptr(color));
             
             // Direction and shadow map index as w component
             glm::vec4 direction = glm::vec4( glm::mat3(glm::transpose(glm::inverse(camera.View()))) * directionalLightNodes[i]->transform.Front(), -1 );
             if (dirlight.HasShadows()) {
                 direction.w = shadow_count++;
-                uboFsDirlight->UpdateData(offset + 32, sizeof(glm::mat4), &dirlight.LightspaceMatrix());
+                uboFsDirlight->UpdateData(offset + 32, sizeof(glm::mat4), glm::value_ptr(dirlight.LightspaceMatrix()));
             }
-            uboFsDirlight->UpdateData(offset + 16, sizeof(glm::vec4), &direction);
+            uboFsDirlight->UpdateData(offset + 16, sizeof(glm::vec4), glm::value_ptr(direction));
         }
     }
 
@@ -193,22 +195,22 @@ namespace Renderer {
             
             // Color
             const glm::vec4 color = glm::vec4(pointlight.color * pointlight.intensity, 0);
-            uboFsPointlight->UpdateData(offset, sizeof(glm::vec4), &color);
+            uboFsPointlight->UpdateData(offset, sizeof(glm::vec4), glm::value_ptr(color));
 
             // Attenuation
             const glm::vec4 attenuation = glm::vec4(pointlight.AttenuationConstant(), pointlight.AttenuationLinear(), pointlight.AttenuationQuadratic(), 0);
-            uboFsPointlight->UpdateData(offset + 16, sizeof(glm::vec4), &attenuation);
+            uboFsPointlight->UpdateData(offset + 16, sizeof(glm::vec4), glm::value_ptr(attenuation));
             
             // Position (viewspace)
             glm::vec4 position_view = camera.View() * glm::vec4(pointLightNodes[i]->transform.position, 1);
             position_view.w = pointlight.FarPlane();
-            uboFsPointlight->UpdateData(offset + 32, sizeof(glm::vec4), &position_view);
+            uboFsPointlight->UpdateData(offset + 32, sizeof(glm::vec4), glm::value_ptr(position_view));
             // Position (worldspace) and shadow map index as w component
             glm::vec4 position_world = glm::vec4(pointLightNodes[i]->transform.position, -1);
             if (pointlight.HasShadows()) {
                 position_world.w = shadow_count++;
             }
-            uboFsPointlight->UpdateData(offset + 48, sizeof(glm::vec4), &position_world);
+            uboFsPointlight->UpdateData(offset + 48, sizeof(glm::vec4), glm::value_ptr(position_world));
         }
     }
 

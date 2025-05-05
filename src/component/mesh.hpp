@@ -18,6 +18,9 @@ namespace Component {
             Mesh(std::shared_ptr<Core::Vao> vao, std::shared_ptr<Material::MaterialBase> material);
             virtual ~Mesh();
 
+            bool castShadows = true;
+            bool receiveShadows = true;
+
             std::shared_ptr<Core::Vao> vao;
             std::shared_ptr<Material::MaterialBase> material = Material::defaultMaterial;
 
