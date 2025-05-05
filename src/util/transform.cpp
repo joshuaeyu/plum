@@ -103,7 +103,7 @@ void Transform::Update() {
             for (int i = 0; i < 3; i++)
                 for (int j = 0; j < 3; j++)
                     matrix[i][j] = rotationMatrix[i][j];
-            matrix = glm::scale(matrix, glm::vec3(scale));
+            matrix = glm::scale(matrix, glm::vec3(lastScale));
             lastRotationQuat = rotationQuat;
             rotationEuler = glm::degrees(glm::eulerAngles(rotationQuat));
             lastRotationEuler = rotationEuler;
@@ -115,7 +115,7 @@ void Transform::Update() {
             for (int i = 0; i < 3; i++)
                 for (int j = 0; j < 3; j++)
                     matrix[i][j] = rotationMatrix[i][j];
-            matrix = glm::scale(matrix, glm::vec3(scale));
+            matrix = glm::scale(matrix, glm::vec3(lastScale));
             lastRotationQuat = rotationQuat;
             lastRotationEuler = rotationEuler;
         }
