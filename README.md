@@ -1,12 +1,10 @@
 # Plum - A simple real-time graphics engine
 
-![screenshot0.png](docs/images/screenshot0.png)
-
 Plum is a simple real-time graphics engine built using OpenGL 4.1 and C++17. It features a deferred rendering pipeline and physically based shading. Users can create materials and instantiate models, primitives, and lights into the scene from the engine's GUI.
 
-I am still actively developing this (see [To-do](#to-do)) and would like to implement more advanced graphics techniques either in this engine, in a separate ray tracing project, or using Vulkan. If you have any feedback please don't hesitate to let me know!
+I am still actively developing this (see [To-do](#to-do)) and would like to implement more advanced graphics techniques either in this engine or in a new project using Vulkan. I also plan to explore (real-time) ray tracing in the future. If you have any feedback please don't hesitate to let me know! I am always looking to learn and improve.
 
-My goal in creating this engine was to synthesize the concepts taught in [Learn OpenGL](https://learnopengl.com) into a working, interactive software application, while also expanding upon these concepts.
+My original goal in creating this engine was to synthesize the concepts taught in [Learn OpenGL](https://learnopengl.com) into a working, interactive software application, while also expanding upon these concepts. All development has taken place on macOS, specifically on an M1 Macbook Pro. I have been using Visual Studio Code, its debugger, and LLDB.
 
 ## Requirements
 * macOS (for now...)
@@ -21,6 +19,14 @@ Clone or download the repository. From the root directory, run `make` then `./ma
     cd plum
     make
     ./main
+
+## Screenshots
+
+### Demo Scene 1: *Sponza*
+![screenshot_demo1.png](docs/images/screenshot_demo1.png)
+
+### Demo Scene 2: *Shapes, Lights, and Shadows*
+![screenshot_demo2.png](docs/images/screenshot_demo2.png)
 
 ## Features
 ### Renderer
@@ -68,7 +74,7 @@ Clone or download the repository. From the root directory, run `make` then `./ma
     * `PostProcessing`
 * Context management
     * Inputs and events system
-    * Support for isolated `Demo` scenes
+    * Hot switching between isolated `Demo` scenes
 * Asset management
     * Intermediate representations of external assets for use by internal objects:
         * `ImageAsset` - used by `Texture`
