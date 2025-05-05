@@ -125,7 +125,7 @@ namespace Scene {
         // Node Transform and children
         if (expanded) {
             ImGui::Unindent(5);
-            if (ImGui::TreeNodeEx("[Transform]", ImGuiTreeNodeFlags_Bullet)) {
+            if (ImGui::TreeNodeEx("[Transform]", ImGuiTreeNodeFlags_Bullet | ImGuiTreeNodeFlags_DefaultOpen)) {
                 bool pos = ImGui::DragFloat3("Position", glm::value_ptr(transform.position), 0.01f, 0.0f, 0.0f, "%.2f");
                 bool rot = ImGui::DragFloat3("Rotation", glm::value_ptr(transform.rotationEuler), 0.1f, 0.0f, 0.0f, "%.1f");
                 glm::vec3 scaleVal = transform.scale;
@@ -161,7 +161,7 @@ namespace Scene {
                     }
                 }
             } else {
-                if (ImGui::TreeNodeEx(("[" + component->name + "]").c_str(), ImGuiTreeNodeFlags_Bullet)) {
+                if (ImGui::TreeNodeEx(("[" + component->name + "]").c_str(), ImGuiTreeNodeFlags_Bullet | ImGuiTreeNodeFlags_DefaultOpen)) {
                     component->DisplayWidget();
                     if (ImGui::Button("Remove Component")) {
                         component.reset();

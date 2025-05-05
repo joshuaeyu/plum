@@ -81,6 +81,9 @@ namespace Component {
         for (int i = 0; i < itemNames.size(); i++) {
             delete itemNames[i];
         }
+
+        // Cast shadows option
+        ImGui::Checkbox("Cast Shadows", &castShadows);
     }
 
 }
