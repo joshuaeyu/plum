@@ -21,22 +21,25 @@ namespace Context {
     
     void Application::Run() {
         if (!activeDemo) {
-            throw std::runtime_error("No activeDemo is set!");
+            if (demos.empty()) {
+                throw std::runtime_error("No demos were provided to run!");
+            }
+            activeDemo = demos[0];
         }
 
         while (!activeWindow->ShouldClose()) {
             activeDemo->Initialize();
-            while (!activeWindow->ShouldClose() && !activeDemo->ShouldEnd()) {
+            while (!activeWindow->ShouldClose() && !activeDemo->shouldEnd) {
                 predisplay();
                 display();
                 postdisplay();
             }
             activeDemo->CleanUp();
+            activeDemo = requestedDemo;
         }
     }
 
-    Application::Application() 
-    {   
+    Application::Application() {   
         WindowCreator creator;
         activeWindow = creator.Create();
         activeWindow->MakeCurrent();
@@ -70,16 +73,56 @@ namespace Context {
             AssetManager::Instance().HotSyncWithDevice();
             syncCooldown = 1.f;
         }
-        Interface::Predisplay();
+        Interface::BeginFrame();
     }
 
     void Application::display() {
-        activeDemo->Display();
-        Interface::Display();
+        activeDemo->DisplayScene();
+        
+        if (guiHeader()) {
+            activeDemo->DisplayGui();
+            guiFooter();
+        }
+        Interface::RenderFrame();
     }
     
     void Application::postdisplay() {
         activeWindow->SwapBuffers();
     }
 
+    bool Application::guiHeader() {
+        if (!ImGui::Begin("Plum Engine v2.00 Beta", NULL, ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings)) {
+            ImGui::End();
+            return false;
+        }
+        ImGui::SetWindowPos(ImVec2(0,0));
+
+        if (ImGui::BeginMenuBar()) {
+
+            if (ImGui::BeginMenu("File")) {
+                if (ImGui::BeginMenu("Open Demo")) {
+                    for (const auto& demo : demos) {
+                        if (ImGui::MenuItem(demo->title.c_str()) && demo != activeDemo) {
+                            requestedDemo = demo;
+                            requestedDemo->shouldEnd = false;
+                            activeDemo->shouldEnd = true;
+                        }
+                    }
+                    ImGui::EndMenu();
+                }
+                if (ImGui::MenuItem("Quit")) {
+                    activeWindow->RequestClose();
+                }
+                ImGui::EndMenu();
+            }
+
+            ImGui::EndMenuBar();
+        }
+
+        return true;
+    }
+
+    void Application::guiFooter() {
+        ImGui::End();
+    }
 }

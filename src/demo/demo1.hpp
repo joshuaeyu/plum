@@ -15,9 +15,9 @@ class Demo1 : public Demo {
         Demo1();
         ~Demo1() = default;
 
-        void Initialize() override;
-        void Display() override;
-        void CleanUp() override;
-
-    private:
+    protected:
+        void initialize() override;
+        void displayScene() override;
+        void displayGui() override;
+        void cleanUp() override;
 };

@@ -55,6 +55,10 @@ namespace Context {
         glfwDestroyWindow(handle);
     }
 
+    void Window::RequestClose() { 
+        glfwSetWindowShouldClose(handle, GLFW_TRUE);
+    }
+
     void Window::SetTitle(const char* title) {
         glfwSetWindowTitle(handle, title);
         this->title = title;

@@ -1,22 +1,18 @@
 #include "demo/demo1.hpp"
 
-#include "component/all.hpp"
 #include "asset/image.hpp"
 #include "asset/manager.hpp"
-#include "util/time.hpp"
+#include "component/all.hpp"
 
 #include <glm/glm.hpp>
-#include <glm/gtc/type_ptr.hpp>
 
 #include <iostream>
-#include <vector>
-#include <string>
 
 Demo1::Demo1()
     : Demo("Demo1")
 {}
 
-void Demo1::Initialize() {
+void Demo1::initialize() {
     std::clog << "Setting up skybox..." << std::endl;
     auto kloppenheim = AssetManager::Instance().LoadHot<ImageAsset>("assets/skyboxes/kloppenheim_4k.hdr");
     auto skybox = std::make_shared<Material::Texture>(kloppenheim, Material::TextureType::Diffuse);
@@ -85,7 +81,7 @@ void Demo1::Initialize() {
     // sponzaNode->name = "Sponza";
 }
 
-void Demo1::Display() {
+void Demo1::displayScene() {
     camera->ProcessInputs();
     
     // backpackNode->transform.Rotate(glm::vec3(0,30,0) * app.DeltaTime());
@@ -106,8 +102,10 @@ void Demo1::Display() {
         fbo = fxaa->Process(*fbo);
     }
     fbo->BlitToDefault();
-
-    displayMainGui();
 }
-void Demo1::CleanUp() {
+
+void Demo1::displayGui() {
+}
+
+void Demo1::cleanUp() {
 }

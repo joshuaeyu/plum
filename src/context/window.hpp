@@ -20,6 +20,7 @@ namespace Context {
             float Aspect() const { return static_cast<float>(width)/height; }
             bool ShouldClose() const { return glfwWindowShouldClose(handle); }
             
+            void RequestClose();
             void SetTitle(const char* title);
             void SetWindowSize(int width, int height);
             void SetInputMode(int mode, int value);

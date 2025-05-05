@@ -6,7 +6,11 @@
 #include <imgui/imgui.h>
 #include <imgui/imgui_stdlib.h>
 
-void Demo::baseSetup() {
+Demo::Demo(const std::string& title) 
+    : title(title)
+{}
+
+void Demo::Initialize() {
     std::clog << "Creating renderer..." << std::endl;
     renderer = std::make_unique<Renderer::DeferredRenderer>();
     fxaa = std::make_unique<PostProcessing::Fxaa>();
@@ -15,14 +19,15 @@ void Demo::baseSetup() {
     
     std::clog << "Creating environment..." << std::endl;
     environment = std::make_unique<Scene::Environment>();
+
+    initialize();
 }
 
-void Demo::displayMainGui() {
-    if (!ImGui::Begin("Plum Engine v2.00 Beta", NULL, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings)) {
-        ImGui::End();
-        return;
-    }
-    ImGui::SetWindowPos(ImVec2(0,0));
+void Demo::DisplayScene() {
+    displayScene();
+}
+
+void Demo::DisplayGui() {
     ImGui::TextColored(ImVec4(0.3,1,1,1), "Press ` to capture/release mouse.");
     ImGui::TextColored(ImVec4(0.3,1,1,1), "Use WASD, Shift, and Spacebar to move camera.");
     ImGui::Spacing();
@@ -46,8 +51,8 @@ void Demo::displayMainGui() {
     }
     
     if (ImGui::CollapsingHeader("External Assets", ImGuiTreeNodeFlags_DefaultOpen)) {
-        static Directory displayDir("assets");
         static const Directory highestDir("assets");
+        static Directory displayDir("assets");
         static Interface::FileExplorerWidget fileExplorerWidget;
         static Path selectedPath;
         if (fileExplorerWidget.Display(&displayDir, highestDir, &selectedPath)) {
@@ -114,5 +119,19 @@ void Demo::displayMainGui() {
         }
         scene->DisplayWidget();
     }
-    ImGui::End();
+
+    displayGui();
+}
+
+void Demo::CleanUp() {
+    renderer.reset();
+    fxaa.reset();
+    hdr.reset();
+    bloom.reset();
+    
+    scene.reset();
+    environment.reset();
+    camera.reset();
+
+    cleanUp();
 }

@@ -10,28 +10,26 @@
 
 class Demo {
     public:
-        Demo(const std::string& title) : title(title) { baseSetup(); }
+        Demo(const std::string& title);
         virtual ~Demo() = default;
 
         const std::string title;
-
-        struct RenderOptions {
-            bool ssao = true;
-            bool fxaa = true;
-            bool hdr = true;
-            float hdrExposure = 1.0f;
-            bool bloom = false;
-        } renderOptions;
-
-        bool ShouldEnd() const { return shouldEnd; }
-        
-        virtual void Initialize() = 0;
-        virtual void Display() = 0;
-        virtual void CleanUp() = 0;
-    
-    protected:
         bool shouldEnd = false;
 
+        struct RenderOptions {
+            bool hdr = true;
+            float hdrExposure = 1.0f;
+            bool ssao = true;
+            bool fxaa = true;
+            bool bloom = false;
+        } renderOptions;
+        
+        void Initialize();
+        void DisplayScene();
+        void DisplayGui();
+        void CleanUp();
+    
+    protected:
         std::unique_ptr<Scene::Scene> scene;
         std::unique_ptr<Scene::Environment> environment;
         std::unique_ptr<Component::Camera> camera;
@@ -41,6 +39,8 @@ class Demo {
         std::unique_ptr<PostProcessing::Hdr> hdr;
         std::unique_ptr<PostProcessing::Bloom> bloom;
 
-        void baseSetup();
-        virtual void displayMainGui();
+        virtual void initialize() = 0;
+        virtual void displayScene() = 0;
+        virtual void displayGui() = 0;
+        virtual void cleanUp() = 0;
 };

@@ -17,19 +17,20 @@ void Interface::Initialize(Context::Window& window) {
     ImGui_ImplOpenGL3_Init();
 }
 
-void Interface::Predisplay() {
+void Interface::BeginFrame() {
     setStyle(ImGui::GetStyle());
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
 }
 
-void Interface::Display() {
+void Interface::RenderFrame() {
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
 void Interface::setStyle(ImGuiStyle& style) {
+    // Plum color
     float r = 103.f/255.f;
     float g = 49.f/255.f;
     float b = 71.f/255.f;
@@ -48,6 +49,7 @@ void Interface::setStyle(ImGuiStyle& style) {
     style.Colors[ImGuiCol_TitleBg]              = ImVec4(r,g,b,a);
     style.Colors[ImGuiCol_TitleBgActive]        = ImVec4(r,g,b,a+0.25);
     style.Colors[ImGuiCol_TitleBgCollapsed]     = ImVec4(0,0,0,0.5);
+    style.Colors[ImGuiCol_MenuBarBg]            = ImVec4(r,g,b, a/1.5f);
     style.Colors[ImGuiCol_Header]               = ImVec4(r*1.2,g*1.2,b*1.2,a+0.15);
     style.Colors[ImGuiCol_HeaderActive]         = ImVec4(r_hov, g_hov, b_hov, a+0.15);
     style.Colors[ImGuiCol_HeaderHovered]        = ImVec4(r_hov, g_hov, b_hov, a+0.15);

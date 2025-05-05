@@ -19,6 +19,8 @@ namespace Context {
 
             std::shared_ptr<Window> activeWindow;
             std::shared_ptr<Demo> activeDemo;
+            std::shared_ptr<Demo> requestedDemo;
+            std::vector<std::shared_ptr<Demo>> demos;
             
             static Application& Instance();
 
@@ -30,6 +32,9 @@ namespace Context {
             void predisplay();
             void display();
             void postdisplay();
+
+            bool guiHeader();
+            void guiFooter();
     };
 
 }

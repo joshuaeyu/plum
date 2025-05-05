@@ -7,8 +7,8 @@
 namespace Interface {
 
     void Initialize(Context::Window& window);
-    void Predisplay();
-    void Display();
+    void BeginFrame();
+    void RenderFrame();
 
     void setStyle(ImGuiStyle& style);
 
