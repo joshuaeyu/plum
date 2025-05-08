@@ -95,7 +95,9 @@ void Demo2::initialize() {
     std::uniform_int_distribution<> intdist_shapes(0, 1);  // sphere, cube
     std::uniform_int_distribution<> intdist_metalmats(0, metalmats.size() - 1);
     const float range = 20.f;
-    std::uniform_real_distribution<float> realdist(-range/2, range/2);
+    std::uniform_real_distribution<float> realtrans(-range/2, range/2);
+    std::uniform_real_distribution<float> realrot(-90.f, 90.f);
+    std::uniform_real_distribution<float> realscale(0.5f, 2.0f);
     
     auto metalParent = scene->EmplaceChild();
     metalParent->name = "Metallic Primitives";
@@ -104,7 +106,9 @@ void Demo2::initialize() {
         int k = intdist_metalmats(eng);
         
         auto metalNode = metalParent->EmplaceChild();
-        metalNode->transform.Translate(realdist(eng), realdist(eng), realdist(eng));
+        metalNode->transform.Translate(realtrans(eng), realtrans(eng), realtrans(eng));
+        metalNode->transform.Rotate(realrot(eng), realrot(eng), realrot(eng));
+        metalNode->transform.Scale(realscale(eng), realscale(eng), realscale(eng));
         metalNode->name = std::string("Primitive ") + std::to_string(i);
         
         std::shared_ptr<Component::Mesh> mesh;
@@ -124,7 +128,7 @@ void Demo2::initialize() {
         
         auto lightNode = lightParent->EmplaceChild();
         lightNode->name = std::string("Light ") + std::to_string(i);
-        lightNode->transform.Translate(realdist(eng), realdist(eng), realdist(eng));
+        lightNode->transform.Translate(realtrans(eng), realtrans(eng), realtrans(eng));
         auto light = std::make_shared<Component::PointLight>();
         light->color = lightmats[k]->albedo / neonIntensity;
         light->intensity = neonIntensity / 2.f;
