@@ -93,6 +93,7 @@ void Demo::DisplayGui() {
                 bool nameExists = true;
                 int i = 1;
                 while (nameExists) {
+                    // Use the earliest available numerical index as a suffix for the material's name
                     nameExists = false;
                     for (auto& material : Material::materials) {
                         if (newName == material->name) {

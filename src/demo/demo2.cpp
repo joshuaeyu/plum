@@ -33,6 +33,7 @@ void Demo2::initialize() {
     vinylplank->normalMap = vinylplank_normal->tex;
     vinylplank->metallicMap = vinylplank_metallic->tex;
     vinylplank->roughnessMap = vinylplank_roughness->tex;
+    Material::materials.insert(vinylplank);
     
     auto copper = std::make_shared<Material::PBRMetallicMaterial>();
     copper->name = "Copper";
@@ -157,7 +158,7 @@ void Demo2::initialize() {
     wallsParent->transform.Scale(range);
     auto wallMesh = std::make_shared<Component::Plane>();
     wallMesh->material = vinylplank;
-    auto wall_right = wallsParent->EmplaceChild(wallMesh);
+    auto wall_right = wallsParent->EmplaceChild(wallMesh); // Deep copy
     wall_right->name = "Right Wall";
     wall_right->transform.Translate(0.5f, 0, 0);
     wall_right->transform.Rotate(0, 0, 90);
@@ -193,4 +194,6 @@ void Demo2::displayGui() {
 }
 
 void Demo2::cleanUp() {
+    Material::materials.clear();
+    Material::materials.insert(Material::defaultMaterial);
 }

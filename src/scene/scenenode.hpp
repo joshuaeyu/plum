@@ -30,7 +30,7 @@ namespace Scene {
             std::shared_ptr<SceneNode> EmplaceChild(Args&& ...args) {
                 auto child = children.emplace_back(std::make_shared<SceneNode>(args...));
                 child->parent = this;
-                return children.back();
+                return child;
             }
             void RemoveChild(std::shared_ptr<SceneNode> node);
             

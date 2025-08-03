@@ -46,7 +46,8 @@ namespace Component {
         : ComponentBase(ComponentType::Model),
         model(model)
     {
-        name = "Model";
+        typeName = "Model";
+        instanceName = model->GetFile().Filename();
         model->AddUser(this);
         root = std::make_shared<ModelNode>(*this, model->Scene()->mRootNode, model->Scene());
     }
@@ -63,7 +64,8 @@ namespace Component {
     }
     
     void Model::DisplayWidget() {
-        ImGui::Text("%s", model->GetFile().Filename().c_str());
+        // Display model name
+        ImGui::Text("%s", instanceName.c_str());
     }
 
     void Model::AssetResyncCallback() {

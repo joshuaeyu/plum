@@ -14,14 +14,14 @@ namespace Component {
     Mesh::Mesh()
         : ComponentBase(ComponentType::Mesh) 
     {
-        name = "Mesh";
+        typeName = "Mesh";
     }
 
     Mesh::Mesh(std::shared_ptr<Core::Vao> vao)
         : ComponentBase(ComponentType::Mesh),
         vao(std::move(vao)) 
     {
-        name = "Mesh";
+        typeName = "Mesh";
     }
     
     Mesh::Mesh(std::shared_ptr<Core::Vao> vao, std::shared_ptr<Material::MaterialBase> mat)
@@ -29,13 +29,13 @@ namespace Component {
         vao(std::move(vao)),
         material(std::move(mat))
     {
-        name = "Mesh";
+        typeName = "Mesh";
     }
     
     Mesh::Mesh(ComponentType type) 
         : ComponentBase(type) 
     {
-        name = "Mesh";
+        typeName = "Mesh";
     }
     
     Mesh::~Mesh() {
@@ -59,6 +59,9 @@ namespace Component {
     }
 
     void Mesh::DisplayWidget() {
+        // Display mesh name
+        ImGui::Text("%s", instanceName.c_str());
+
         int itemSelectedIdx = 0;
         std::vector<char*> itemNames(Material::materials.size());
 

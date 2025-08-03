@@ -52,7 +52,7 @@ namespace Context {
         public:
             WindowCreator();
 
-            std::string title = "Plum Engine v2.00";
+            std::string title = "Plum Engine v2.01";
             int width = 1920;
             int height = 1080;
             std::map<int, int> hints;

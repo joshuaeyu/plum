@@ -50,4 +50,6 @@ void Demo1::displayGui() {
 }
 
 void Demo1::cleanUp() {
+    Material::materials.clear();
+    Material::materials.insert(Material::defaultMaterial);
 }

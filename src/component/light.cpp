@@ -30,7 +30,7 @@ namespace Component {
     DirectionalLight::DirectionalLight() 
         : Light(ComponentType::DirLight)
     {
-        name = "Directional Light";
+        typeName = "Directional Light";
     }
 
     const glm::mat4& DirectionalLight::LightspaceMatrix() const { 
@@ -74,7 +74,7 @@ namespace Component {
         : Light(ComponentType::PointLight),
         lightspaceMatrices(6)
     {
-        name = "Point Light";
+        typeName = "Point Light";
     }
 
     const std::vector<glm::mat4>& PointLight::LightspaceMatrices() const {

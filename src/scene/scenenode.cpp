@@ -17,7 +17,7 @@ namespace Scene {
         : name(name)
     {}
     SceneNode::SceneNode(std::shared_ptr<Component::ComponentBase> component) 
-        : name(component->name),
+        : name(component->typeName),
         component(std::move(component))
     {}
     SceneNode::SceneNode(std::shared_ptr<Component::ComponentBase> component, const std::string& name) 
@@ -161,7 +161,7 @@ namespace Scene {
                     }
                 }
             } else {
-                if (ImGui::TreeNodeEx(("[" + component->name + "]").c_str(), ImGuiTreeNodeFlags_Bullet | ImGuiTreeNodeFlags_DefaultOpen)) {
+                if (ImGui::TreeNodeEx(("[" + component->typeName + "]").c_str(), ImGuiTreeNodeFlags_Bullet | ImGuiTreeNodeFlags_DefaultOpen)) {
                     component->DisplayWidget();
                     if (ImGui::Button("Remove Component")) {
                         component.reset();

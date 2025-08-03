@@ -72,7 +72,7 @@ namespace Interface {
             bool Display(const Directory& directory, const char* label, const std::set<std::string>& extensions, Path* selected_path, const Path& default_path = Path());
         private:
             bool firstDisplay = true;
-            int pathSelectedIdx;
+            int pathSelectedIdx = 0;
             std::vector<Path> paths;
             std::vector<char*> relativePathNames;   
     };
@@ -84,7 +84,7 @@ namespace Interface {
             bool Display(std::string* text, const char* label = "Rename");
         private:
             std::string input;
-            bool showInput;
+            bool showInput = false;
     };
 
     class ComponentCreationWidget : public Widget {

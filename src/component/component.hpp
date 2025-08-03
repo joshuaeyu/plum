@@ -29,7 +29,8 @@ namespace Component {
             virtual ~ComponentBase();
             
             const ComponentType type;
-            std::string name = "Component";
+            std::string typeName = "Component";
+            std::string instanceName = "Component";
             
             const bool IsMesh() const;
             const bool IsLight() const;
